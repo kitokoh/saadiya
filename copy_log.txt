@@ -1,0 +1,226 @@
+[2024-10-14 04:02:25] Démarrage de la copie de fichiers...
+[2024-10-14 04:02:25] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:02:25] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:02:25] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:02:25] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:02:25] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:02:25] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:02:25] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] Démarrage de la copie de fichiers...
+[2024-10-14 04:10:16] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:10:16] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] Démarrage de la copie de fichiers...
+[2024-10-14 04:23:28] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:23:28] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] Démarrage de la copie de fichiers...
+[2024-10-14 04:33:47] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:33:47] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] Démarrage de la copie de fichiers...
+[2024-10-14 04:56:37] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 04:56:37] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] Démarrage de la copie de fichiers...
+[2024-10-14 05:03:38] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:03:38] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] Démarrage de la copie de fichiers...
+[2024-10-14 05:08:58] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:08:58] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] Démarrage de la copie de fichiers...
+[2024-10-14 05:14:10] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:14:10] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] Démarrage de la copie de fichiers...
+[2024-10-14 05:20:53] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:20:53] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] Démarrage de la copie de fichiers...
+[2024-10-14 05:40:52] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 05:40:52] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] Démarrage de la copie de fichiers...
+[2024-10-14 06:49:57] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 06:49:57] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] Démarrage de la copie de fichiers...
+[2024-10-14 07:40:12] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 07:40:12] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] Démarrage de la copie de fichiers...
+[2024-10-14 10:53:33] Création du dossier : C:\Users\ibrahim\Downloads\AI-FB-Robot\media\media1
+[2024-10-14 10:53:33] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:53:33] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] Démarrage de la copie de fichiers...
+[2024-10-14 10:55:43] Création du dossier : C:\Users\ibrahim\Downloads\AI-FB-Robot\media\media1
+[2024-10-14 10:55:43] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 10:55:43] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] Démarrage de la copie de fichiers...
+[2024-10-14 17:27:39] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:27:39] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] Démarrage de la copie de fichiers...
+[2024-10-14 17:28:49] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:28:49] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] Démarrage de la copie de fichiers...
+[2024-10-14 17:37:20] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:37:20] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] Démarrage de la copie de fichiers...
+[2024-10-14 17:53:40] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:53:40] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] Démarrage de la copie de fichiers...
+[2024-10-14 17:56:08] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 17:56:08] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] Démarrage de la copie de fichiers...
+[2024-10-14 18:22:59] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-14 18:22:59] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] Démarrage de la copie de fichiers...
+[2024-10-15 09:19:42] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:19:42] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] Démarrage de la copie de fichiers...
+[2024-10-15 09:30:07] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:30:07] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] Démarrage de la copie de fichiers...
+[2024-10-15 09:43:04] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 09:43:04] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] Démarrage de la copie de fichiers...
+[2024-10-15 10:46:28] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:46:28] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] Démarrage de la copie de fichiers...
+[2024-10-15 10:52:14] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 10:52:14] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] Démarrage de la copie de fichiers...
+[2024-10-15 11:05:34] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:05:34] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] Démarrage de la copie de fichiers...
+[2024-10-15 11:11:44] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:11:44] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] Démarrage de la copie de fichiers...
+[2024-10-15 11:19:15] 1.mp4 n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] 2.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] 3.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] 4.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] 5.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] 6.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData
+[2024-10-15 11:19:15] 7.png n'existe pas dans C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\../resources/demoData

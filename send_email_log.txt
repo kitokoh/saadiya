@@ -1,0 +1,61 @@
+2024-10-18 00:30:16,279 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 00:40:49,880 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 00:45:33,527 - ERROR - Erreur lors de la jointure du fichier C:/path/to/welcome_guide.pdf : [Errno 2] No such file or directory: 'C:/path/to/welcome_guide.pdf'
+2024-10-18 00:45:33,527 - ERROR - Erreur lors de la jointure du fichier C:/path/to/company_brochure.pdf : [Errno 2] No such file or directory: 'C:/path/to/company_brochure.pdf'
+2024-10-18 00:45:35,668 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 00:47:20,979 - ERROR - Erreur lors de la jointure du fichier C:/path/to/welcome_guide.pdf : [Errno 2] No such file or directory: 'C:/path/to/welcome_guide.pdf'
+2024-10-18 00:47:20,980 - ERROR - Erreur lors de la jointure du fichier C:/path/to/company_brochure.pdf : [Errno 2] No such file or directory: 'C:/path/to/company_brochure.pdf'
+2024-10-18 00:47:23,511 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 00:48:23,198 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 00:49:43,480 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 00:49:43,480 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 00:49:43,480 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 00:49:46,284 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 01:49:13,152 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 01:49:13,153 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 01:49:13,154 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 01:49:14,894 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 02:30:09,383 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 02:30:09,383 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 02:30:09,384 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 02:30:11,297 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 18:17:40,805 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 18:17:40,805 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 18:17:40,805 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 18:17:42,635 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 18:44:08,521 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 18:44:08,522 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 18:44:08,522 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 18:44:14,538 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 19:14:15,315 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 19:14:15,315 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 19:14:15,315 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 19:14:17,130 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 19:21:15,999 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 19:21:15,999 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 19:21:16,000 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 19:21:17,704 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 19:34:02,454 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 19:34:02,454 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 19:34:02,454 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 19:34:04,808 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 19:44:51,918 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 19:44:51,919 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 19:44:51,919 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 19:44:54,450 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 19:53:03,350 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 19:53:03,351 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 19:53:03,352 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 19:53:05,571 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 19:58:09,259 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 19:58:09,259 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 19:58:09,259 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 19:58:11,306 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 20:01:55,294 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 20:01:55,294 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 20:01:55,294 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 20:01:56,903 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
+2024-10-18 20:48:04,689 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
+2024-10-18 20:48:04,689 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+2024-10-18 20:48:04,689 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+2024-10-18 20:48:06,031 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.

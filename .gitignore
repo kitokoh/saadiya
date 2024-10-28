@@ -1,0 +1,44 @@
+# Ignorer les environnements de développement
+/env
+/apiGemini
+/mail
+/resources
+
+
+# Ignorer les répertoires de distribution et de construction
+/dist
+/build
+
+# Ignorer tous les fichiers exécutables
+*.exe
+
+# Ignorer les fichiers de logs
+*.log
+
+# Ignorer les fichiers de cache et de compilation
+*.pyc
+__pycache__/
+
+# Ignorer les fichiers de configuration temporaire
+*.tmp
+*.swp
+*.swo
+
+# Ignorer les fichiers de sauvegarde d'éditeurs courants
+*.bak
+*.old
+*.orig
+
+# Ignorer les environnements Node.js et Python
+node_modules/
+.vscode/
+.idea/
+
+# Ignorer les fichiers binaires et de librairies
+*.so
+*.dylib
+*.dll
+
+# Ignorer les fichiers temporaires de l'OS
+.DS_Store
+Thumbs.db

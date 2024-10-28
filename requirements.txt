@@ -1,0 +1,12 @@
+pyinstaller
+pyqt5
+pyqt5-sip
+PyQt5==5.15.4
+PyQt5-sip==12.9.0
+pillow==9.2.0  # Si tu utilises Pillow pour la gestion des images
+jsonschema==4.16.0  # Pour la gestion de fichiers JSON (si nécessaire)
+fastapi
+uvicorn
+sqlalchemy
+databases
+pydantic
