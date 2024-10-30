@@ -1,0 +1,2 @@
+('C:\\Users\\ibrahim\\Downloads\\Robot_Labo_Pro\\lang\\installFBrobotPy\\build\\start\\PYZ-00.pyz',
+ [])

@@ -1,109 +1,140 @@
+# import sys
+# import os
+# import shutil
+# from PyQt5.QtWidgets import QApplication, QMessageBox
+# from PyQt5.QtCore import QTimer
+
+# class FileCopyApp:
+#     def __init__(self):
+#         # Configuration des chemins
+#         self.source_folder = os.path.join(os.getcwd(), "resources", "demoData")  # Dossier source pour les fichiers media
+#         self.destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "media", "media1")
+        
+#         # Dossier source pour data.json
+#         self.data_json_source = os.path.join(self.source_folder, "data.json")
+#         # Dossier de destination pour data.json
+#         self.data_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "text")
+        
+#         # Vérifie si le dossier de destination existe, sinon le crée
+#         if not os.path.exists(self.destination_folder):
+#             os.makedirs(self.destination_folder)
+        
+#         # Vérifie si le dossier de destination 'text' existe pour data.json, sinon le crée
+#         if not os.path.exists(self.data_json_destination_folder):
+#             os.makedirs(self.data_json_destination_folder)
+
+#         # Liste des fichiers à copier
+#         self.files_to_copy = ["1.mp4", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png"]
+
+#         # Exécution de la tâche
+#         self.copy_files()
+#         self.copy_data_json()
+
+#         # Affiche une boîte de message pour informer que l'opération est terminée
+#         #self.show_message("Opération terminée.")
+
+#         # Démarre une minuterie pour fermer l'application après 1 seconde
+#         QTimer.singleShot(000, QApplication.instance().quit)  # Ferme l'application après 1 seconde
+
+#     def copy_files(self):
+#         """Copie les fichiers media spécifiés"""
+#         for file_name in self.files_to_copy:
+#             source_file = os.path.join(self.source_folder, file_name)
+#             if os.path.exists(source_file):
+#                 shutil.copy(source_file, self.destination_folder)
+#                 print(f"{file_name} copié vers {self.destination_folder}")
+#             else:
+#                 print(f"{file_name} n'existe pas dans {self.source_folder}")
+
+#     def copy_data_json(self):
+#         """Copie le fichier data.json vers le dossier text"""
+#         if os.path.exists(self.data_json_source):
+#             shutil.copy(self.data_json_source, self.data_json_destination_folder)
+#             print(f"data.json copié vers {self.data_json_destination_folder}")
+#         else:
+#             print(f"data.json n'existe pas dans {self.source_folder}")
+
+#     def show_message(self, message):
+#         msg = QMessageBox()
+#         msg.setWindowTitle("Info")
+#         msg.setText(message)
+#         msg.setStandardButtons(QMessageBox.Ok)
+#         msg.exec_()
+
+# def main():
+#     app = QApplication(sys.argv)
+#     FileCopyApp()
+#     sys.exit(app.exec_())
+        
+# if __name__ == "__main__":
+#     main()
 import os
 import shutil
-import sys
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QLabel, QMessageBox, QProgressBar
-)
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QIcon, QFont
-import datetime
+import time
 
-
-class FileCopyApp(QWidget):
+class FileCopyApp:
     def __init__(self):
-        super().__init__()
+        # Configuration des chemins
+        self.source_folder = os.path.join(os.getcwd(), "resources", "demoData")  # Dossier source pour les fichiers media
+        self.destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "media", "media1")
+        
+        # Dossier source pour data.json
+        self.data_json_source = os.path.join(self.source_folder, "data.json")
+        # Dossier de destination pour data.json
+        self.data_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "text",'text1' )
+        
 
-        # Configuration de la fenêtre principale
-        self.setWindowTitle("FB Robot - Copie de Fichiers Media")
-        self.setGeometry(700, 400, 600, 400)
-        self.setWindowIcon(QIcon("../resources/robot_icon.png"))  # Icône personnalisée
+                # Dossier source pour data.json
+        self.groups_json_source = os.path.join(self.source_folder, "groups.json")
+        # Dossier de destination pour data.json
+        self.groups_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "text",'text1' )
+        
+        # Vérifie si le dossier de destination existe, sinon le crée
+        if not os.path.exists(self.destination_folder):
+            os.makedirs(self.destination_folder)
+        
+        # Vérifie si le dossier de destination 'text' existe pour data.json, sinon le crée
+        if not os.path.exists(self.data_json_destination_folder):
+            os.makedirs(self.data_json_destination_folder)
 
-        # Mise en page principale
-        self.layout = QVBoxLayout()
+        # Liste des fichiers à copier
+        self.files_to_copy = ["1.mp4", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png"]
 
-        # Ajout d'un titre stylisé
-        title_label = QLabel("FB Robot - Copie de Fichiers Media", self)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setFont(QFont("Arial", 18, QFont.Bold))
-        self.layout.addWidget(title_label)
+        # Exécution de la tâche
+        self.copy_files()
+        self.copy_data_json()
 
-        # Texte d'information
-        self.info_label = QLabel("Les fichiers media sont en cours de copie...", self)
-        self.info_label.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.info_label)
-
-        # Barre de progression pour visualiser la copie
-        self.progress_bar = QProgressBar(self)
-        self.progress_bar.setValue(0)
-        self.layout.addWidget(self.progress_bar)
-
-        # Appliquer la mise en page
-        self.setLayout(self.layout)
-
-        # Exécution automatique de la copie
-        QTimer.singleShot(1000, self.copy_files)
+        # Affiche un message de confirmation
+        self.show_message("Opération terminée.")
 
     def copy_files(self):
-        """Copier les fichiers media spécifiés du répertoire source vers le dossier de destination"""
-        source_folder = os.path.join(os.getcwd(), "../resources/demoData")  # Répertoire resources/demoData
-        destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "media", "media1")
-        files_to_copy = ["1.mp4", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png"]
-
-        log_file = os.path.join(os.getcwd(), "copy_log.txt")
-        self.log_message(log_file, "Démarrage de la copie de fichiers...")
-
-        # Créer le dossier de destination s'il n'existe pas
-        if not os.path.exists(destination_folder):
-            os.makedirs(destination_folder)
-            self.log_message(log_file, f"Création du dossier : {destination_folder}")
-
-        # Démarrer la copie avec la barre de progression
-        progress_step = 100 // len(files_to_copy)
-        progress = 0
-
-        for file in files_to_copy:
-            source_file = os.path.join(source_folder, file)
-            dest_file = os.path.join(destination_folder, file)
-
+        """Copie les fichiers media spécifiés"""
+        for file_name in self.files_to_copy:
+            source_file = os.path.join(self.source_folder, file_name)
             if os.path.exists(source_file):
-                try:
-                    shutil.copy(source_file, dest_file)
-                    progress += progress_step
-                    self.progress_bar.setValue(progress)
-                    self.log_message(log_file, f"{file} copié vers {destination_folder}")
-                except Exception as e:
-                    self.log_message(log_file, f"Erreur lors de la copie de {file} : {str(e)}")
+                shutil.copy(source_file, self.destination_folder)
+                print(f"{file_name} copié vers {self.destination_folder}")
             else:
-                self.log_message(log_file, f"{file} n'existe pas dans {source_folder}")
+                print(f"{file_name} n'existe pas dans {self.source_folder}")
 
-        self.progress_bar.setValue(100)  # Complétion de la barre de progression
-       # self.show_message("Opération terminée", "Tous les fichiers media ont été traités.")
-        QTimer.singleShot(3000, self.close)  # Fermer la fenêtre après 3 secondes
+    def copy_data_json(self):
+        """Copie le fichier data.json vers le dossier text"""
+        if os.path.exists(self.data_json_source):
+            shutil.copy(self.data_json_source, self.data_json_destination_folder)
+            shutil.copy(self.groups_json_source, self.data_json_destination_folder)
 
-    def log_message(self, log_file, message):
-        """Enregistrer un message dans un fichier de journalisation"""
-        with open(log_file, 'a') as f:
-            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            f.write(f"[{timestamp}] {message}\n")
+            print(f"data.json copié vers {self.data_json_destination_folder}")
+        else:
+            print(f"data.json n'existe pas dans {self.source_folder}")
 
-    def show_message(self, title, message):
-        """Afficher un message d'information dans une boîte de dialogue"""
-        msg_box = QMessageBox(self)
-        msg_box.setWindowTitle(title)
-        msg_box.setText(message)
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.exec_()
+    def show_message(self, message):
+        """Affiche un message de confirmation dans la console"""
+        print(message)
 
-
+# Fonction principale
 def main():
-    app = QApplication(sys.argv)
-
-    # Créer et afficher la fenêtre principale
-    window = FileCopyApp()
-    window.show()
-
-    sys.exit(app.exec_())
-
+    FileCopyApp()
+    time.sleep(1)  # Attend 1 seconde avant de terminer le programme
 
 if __name__ == "__main__":
     main()

@@ -13,7 +13,9 @@ from ui.footer import FooterSection
 from ui.secondry_menu import SecondaryMenu  
 from update_media_dialog import UpdateMediaDialog
 from installFBrobotPy.sendatajson import FileTransferApp
-
+from installFBrobotPy.sendatajson2 import FileTransferApp2
+from installFBrobotPy.sendatajson3 import FileTransferApp3
+from installFBrobotPy import updatejson
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
 
@@ -56,13 +58,13 @@ class PreviewDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -116,26 +118,26 @@ class AddMedia(QWidget):
         self.translator = QTranslator()
         self.init_language()  # Initialisation de la langue après la création des actions
 
-        self.setWindowTitle(self.tr("Ajouter Média"))
-        self.setGeometry(100, 100, 400, 300)
+        #self.setWindowTitle(self.tr("Ajouter Média"))
+        #self.setGeometry(100, 100, 400, 300)
 
-        layout = QVBoxLayout()
-        add_button = QPushButton(self.tr("Ajouter Média"))
-        add_button.clicked.connect(self.add_media)
-        layout.addWidget(add_button)
+        #layout = QVBoxLayout()
+        #add_button = QPushButton(self.tr("Ajouter Média"))
+       # add_button.clicked.connect(self.add_media)
+        #layout.addWidget(add_button)
 
-        self.setLayout(layout)
+        #self.setLayout(layout)
 
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -178,8 +180,18 @@ class AddMedia(QWidget):
         self.switch_language(selected_language)
 
     def load_json(self):
+        # Définir le chemin du fichier JSON
         self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text', 'text1', 'data.json')
 
+        # Vérifier si le fichier et le dossier existent, sinon les créer
+        if not os.path.exists(self.json_file):
+            # Créer le dossier parent si nécessaire
+            os.makedirs(os.path.dirname(self.json_file), exist_ok=True)
+            # Créer un fichier JSON avec du contenu par défaut
+            with open(self.json_file, 'w') as f:
+                json.dump({"posts": []}, f)
+
+        # Charger et retourner le contenu JSON
         with open(self.json_file, 'r') as f:
             return json.load(f)
 
@@ -192,6 +204,7 @@ class AddMedia(QWidget):
     def add_media(self):
         options = QFileDialog.Options()
 
+        # Ouvrir une boîte de dialogue pour sélectionner les fichiers média
         files, _ = QFileDialog.getOpenFileNames(
             self, 
             self.tr("Sélectionnez des fichiers média"), 
@@ -201,29 +214,40 @@ class AddMedia(QWidget):
         )
 
         if files:
+            # Charger les données JSON actuelles
             media_data = self.load_json()
             max_key = 0
 
+            # Trouver le plus grand identifiant dans les noms de fichiers existants
             for media in media_data['posts']:
-                key = int(media['image'].split('\\')[-1].split('.')[0])
-                if key > max_key:
-                    max_key = key
+                try:
+                    key = int(media['image'].split('\\')[-1].split('.')[0])
+                    if key > max_key:
+                        max_key = key
+                except ValueError:
+                    continue  # Ignore les erreurs de conversion en nombre
 
+            # Préparer le dossier cible
+            self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
+            if not os.path.exists(self.media_folder):
+                os.makedirs(self.media_folder, exist_ok=True)
+
+            # Copier chaque fichier sélectionné avec un nouveau nom
             for file_path in files:
                 extension = os.path.splitext(file_path)[1]
                 max_key += 1
                 new_name = f"{max_key}{extension}"
-
-                self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
                 new_path = os.path.join(self.media_folder, new_name)
 
                 shutil.copy(file_path, new_path)
 
+                # Ajouter les informations du média dans le fichier JSON
                 media_data['posts'].append({
                     "text": self.tr("Description du média"),
                     "image": new_path
                 })
 
+            # Mettre à jour le fichier JSON
             self.update_json(media_data)
             QMessageBox.information(self, self.tr("Succès"), self.tr("Média ajouté avec succès !"))
 
@@ -237,7 +261,7 @@ class MediaTable(QWidget):
 
         super().__init__(parent)
         self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text','text1' , 'data.json')
+        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text', 'text1', 'data.json')
         self.media_manager = AddMedia(parent=self)
 
         self.media_list = self.load_media()
@@ -248,7 +272,7 @@ class MediaTable(QWidget):
         layout = QVBoxLayout(self)
 
         # Ajouter le header
-        header = HeaderSection(self, title=self.tr("AI Medias Mangements"), app_name=self.tr("Nova360 AI"), slogan=self.tr("AI Marketing & Management Auto"))
+        header = HeaderSection(self, title=self.tr("AI Medias Management"), app_name=self.tr("Nova360 AI"), slogan=self.tr("AI Marketing & Management Auto"))
         layout.addWidget(header)
 
         # Ajouter le menu secondaire
@@ -261,55 +285,66 @@ class MediaTable(QWidget):
 
         # Label "Liste des media"
         media_label = QLabel(self.tr("Liste des media:"), self)
-        media_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        media_label.setStyleSheet("font-size: 22px; font-weight: bold; color: #003366;")
         top_layout.addWidget(media_label)
 
         # Barre de recherche
         self.search_field = QLineEdit(self)
         self.search_field.setPlaceholderText(self.tr("Rechercher..."))
         self.search_field.textChanged.connect(self.filter_table)
-        self.search_field.setStyleSheet("padding: 5px; font-size: 14px;")
+        self.search_field.setStyleSheet("""
+            QLineEdit {
+                padding: 6px;
+                font-size: 14px;
+                border: 1px solid #007BFF;
+                border-radius: 5px;
+            }
+        """)
         top_layout.addWidget(self.search_field)
 
         # Dropdown pour les instances
         self.instance_combo = QComboBox(self)
         self.instance_combo.addItems(self.get_instance_list())
         self.instance_combo.currentIndexChanged.connect(self.refresh_table)
+        self.instance_combo.setStyleSheet("padding: 5px; font-size: 14px; border-radius: 5px;")
         top_layout.addWidget(self.instance_combo)
 
-        # Bouton Ajouter Media
+        # Fonction pour styliser les boutons avec des couleurs spécifiques
+        def style_button(button, color):
+            button.setFixedSize(120, 35)
+            button.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {color};
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px;
+                    font-weight: bold;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                }}
+                QPushButton:hover {{
+                    background-color: {self.darken_color(color)};
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+                }}
+            """)
+
+        # Boutons stylisés
+        self.add_gmini_button = QPushButton(self.tr('AI Description'), self)
+        style_button(self.add_gmini_button, "#007BFF")  # Bleu
+        self.add_gmini_button.clicked.connect(self.add_new_media)
+        top_layout.addWidget(self.add_gmini_button)
+
         self.add_media_button = QPushButton(self.tr('Ajouter Media'), self)
-        self.add_media_button.setFixedSize(120, 30)
-        self.add_media_button.setIcon(QIcon('resources/icons/robot-512.png'))
-        self.add_media_button.setStyleSheet("""
-            QPushButton {
-                background-color: #007BFF;
-                color: white;
-                border-radius: 5px;
-                padding: 5px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-        """)
+        style_button(self.add_media_button, "#007BFF")  # Bleu
         self.add_media_button.clicked.connect(self.add_new_media)
         top_layout.addWidget(self.add_media_button)
 
-        # Bouton Mettre à jour JSON
-        self.update_json_button = QPushButton(self.tr('Mettre à jour JSON'), self)
-        self.update_json_button.setFixedSize(120, 30)
-        self.update_json_button.setIcon(QIcon('resources/icons/robot-512.png'))
-        self.add_media_button.setStyleSheet("""
-            QPushButton {
-                background-color: #007BFF;
-                color: white;
-                border-radius: 5px;
-                padding: 5px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-        """)
+        self.add_text_button = QPushButton(self.tr('Ajouter Text'), self)
+        style_button(self.add_text_button, "#28A745")  # Vert
+        self.add_text_button.clicked.connect(self.add_json_text)
+        top_layout.addWidget(self.add_text_button)
+
+        self.update_json_button = QPushButton(self.tr('update robot'), self)
+        style_button(self.update_json_button, "#FD7E14")  # Orange
         self.update_json_button.clicked.connect(lambda: self.send_json1())
         top_layout.addWidget(self.update_json_button)
 
@@ -334,6 +369,8 @@ class MediaTable(QWidget):
                 background-color: #007BFF;
                 color: white;
                 padding: 10px;
+                font-size: 14px;
+                font-weight: bold;
             }
             QTableWidget::item {
                 padding: 10px;
@@ -344,12 +381,13 @@ class MediaTable(QWidget):
 
         # Pagination Buttons
         pagination_layout = QHBoxLayout()
-
         self.prev_button = QPushButton(self.tr('Précédent'), self)
+        style_button(self.prev_button, "#6c757d")  # Gris
         self.prev_button.clicked.connect(self.prev_page)
         pagination_layout.addWidget(self.prev_button)
 
         self.next_button = QPushButton(self.tr('Suivant'), self)
+        style_button(self.next_button, "#6c757d")  # Gris
         self.next_button.clicked.connect(self.next_page)
         pagination_layout.addWidget(self.next_button)
 
@@ -366,17 +404,23 @@ class MediaTable(QWidget):
         footer = FooterSection(self)
         layout.addWidget(footer)
 
+    # Méthode pour assombrir les couleurs lors du survol
+    def darken_color(self, color):
+        # Convertir la couleur hexadécimale en valeurs RGB, puis réduire légèrement chaque composant pour un effet "sombre".
+        hex_color = color.lstrip('#')
+        r, g, b = [int(hex_color[i:i+2], 16) for i in (0, 2, 4)]
+        return f'#{max(r - 20, 0):02X}{max(g - 20, 0):02X}{max(b - 20, 0):02X}'
 
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -427,25 +471,64 @@ class MediaTable(QWidget):
             selected_language = language_map.get(system_locale, 'en')
 
         self.switch_language(selected_language)
+    def add_json_text (self, *args):
+        transfer_app2 = FileTransferApp3()  # envoie le multi images Créer une instance de FileTransferApp
+        transfer_app2.start_process()  # Appeler la méthode qui lance le processus   
+        updatejson1 = updatejson
+        updatejson1.main()
 
     def send_json1(self, *args):
         transfer_app = FileTransferApp()  # Créer une instance de FileTransferApp
         transfer_app.start_process()  # Appeler la méthode qui lance le processus
+        transfer_app2 = FileTransferApp2()  # envoie le multi images Créer une instance de FileTransferApp
+        transfer_app2.start_process()  # Appeler la méthode qui lance le processus
+            
+       
         updatejson1 = updatejson
         updatejson1.main()
 # Lancer le transfert de fichiers
     def get_instance_list(self):
-        instance_folders = [d for d in os.listdir(os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media')) if d.startswith('media')]
-        return [self.tr(f'Instance {i+1}') for i in range(len(instance_folders))]
+        # Chemin du dossier des instances
+        media_folder_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media')
+
+        # Vérifier si le dossier existe
+        if not os.path.exists(media_folder_path):
+            print("Le dossier des médias est introuvable.")
+            return ["Dossier des médias introuvable"]
+
+        # Charger la liste des instances
+        instance_folders = [d for d in os.listdir(media_folder_path) if d.startswith('media')]
+        
+        # Vérifier si la liste est vide
+        if not instance_folders:
+            print("Liste d'instances vide.")
+            return ["Liste d'instances vide"]
+
+        return instance_folders
 
     def load_media(self):
+        self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
+
+        # Vérifier si le dossier existe
+        if not os.path.exists(self.media_folder):
+            print("Dossier de médias introuvable.")
+            return [{"nom": self.tr("Aucun média disponible"), "description": "", "preview_path": ""}]
+
         media_files = [f for f in os.listdir(self.media_folder) if f.endswith(('.png', '.jpg', '.jpeg', '.mp4'))]
+        
+        # Vérifier si la liste de fichiers média est vide
+        if not media_files:
+            print("Liste vide")
+            return [{"nom": "Aucun média disponible", "description": "", "preview_path": ""}]
+
+        # Charger le fichier JSON si disponible
         if os.path.exists(self.json_file):
             with open(self.json_file, 'r') as f:
                 json_data = json.load(f)
         else:
             json_data = {'posts': []}
 
+        # Créer la liste des médias
         media_list = []
         for media in media_files:
             media_info = {
@@ -453,6 +536,7 @@ class MediaTable(QWidget):
                 'description': '',
                 'preview_path': os.path.join(self.media_folder, media)
             }
+            # Associer une description si disponible dans le fichier JSON
             for post in json_data['posts']:
                 if post['image'] == media_info['preview_path']:
                     media_info['description'] = post['text']
@@ -475,6 +559,9 @@ class MediaTable(QWidget):
         self.table.setRowCount(len(self.media_list))
 
         for row, media in enumerate(self.media_list):
+            if not isinstance(media, dict):
+                print(self.tr("Erreur : L'élément de media_list n'est pas un dictionnaire."))
+                return
             nom_item = QTableWidgetItem(media['nom'])
             nom_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.table.setItem(row, 0, nom_item)
@@ -496,18 +583,62 @@ class MediaTable(QWidget):
                 preview_label.setAlignment(Qt.AlignCenter)
             self.table.setCellWidget(row, 2, preview_label)
 
+
+
             action_button = QPushButton(self.tr('Action'))
             action_button.setMenu(self.create_action_menu(media))
+            action_button.setStyleSheet("""
+                QPushButton {
+                    background-color: #2F4F9B;  /* Bleu foncé */
+                    color: white;
+                    border-radius: 8px;
+                    padding: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #1D2E5B;
+                }
+                QPushButton:pressed {
+                    background-color: #16224A;
+                }
+            """)
             self.table.setCellWidget(row, 3, action_button)
 
     def create_action_menu(self, media):
         menu = QMenu()
-        edit_action = menu.addAction(self.tr('Edit'))
+
+        # Action Edit
+        edit_action = menu.addAction(QIcon('resources/icons/edit.png'), self.tr('Edit'))
+        edit_action.setIconVisibleInMenu(True)
         edit_action.triggered.connect(lambda: self.update_media(media))
-        delete_action = menu.addAction(self.tr('Supprimer'))
+
+        # Action Supprimer
+        delete_action = menu.addAction(QIcon('resources/icons/delete.png'), self.tr('Supprimer'))
+        delete_action.setIconVisibleInMenu(True)
         delete_action.triggered.connect(lambda: self.delete_media(media))
-        preview_action = menu.addAction(self.tr('Aperçu'))
+
+        # Action Aperçu
+        preview_action = menu.addAction(QIcon('resources/icons/preview.png'), self.tr('Aperçu'))
+        preview_action.setIconVisibleInMenu(True)
         preview_action.triggered.connect(lambda: self.show_preview(media['preview_path']))
+
+        # Style du menu
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: white;
+                border: 1px solid #CCCCCC;
+                padding: 5px;
+                font-size: 14px;
+            }
+            QMenu::item {
+                padding: 8px 12px;
+            }
+            QMenu::item:selected {
+                background-color: #F2F2F2;
+            }
+        """)
+
         return menu
 
     def update_media(self, media):
@@ -668,13 +799,13 @@ class UpdateMediaDialog1(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/media_manager_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

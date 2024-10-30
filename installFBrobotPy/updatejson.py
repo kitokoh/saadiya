@@ -41,9 +41,9 @@ def update_image_paths(base_path):
 
                         # Vérifier et mettre à jour le contenu de chaque "image" dans les "posts"
                         for post in data.get("posts", []):
-                            if 'abdul' in post.get("image", ""):  # Vérifier si le chemin de l'image contient "abdul"
+                            if 'ibrahim' in post.get("image", ""):  # Vérifier si le chemin de l'image contient "abdul"
                                 print(f"Avant mise à jour : {post['image']}")  # Affichage avant la mise à jour
-                                post["image"] = post["image"].replace("abdul", current_user)  # Remplacer "abdul" par le nom d'utilisateur
+                                post["image"] = post["image"].replace("ibrahim", current_user)  # Remplacer "ibrahim" par le nom d'utilisateur
                                 print(f"Après mise à jour : {post['image']}")  # Affichage après la mise à jour
 
 

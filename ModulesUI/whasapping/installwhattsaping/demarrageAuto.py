@@ -2,40 +2,108 @@ import sys
 import os
 import subprocess
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QComboBox, 
-    QMessageBox, QProgressBar, QHBoxLayout, QFormLayout, QTimeEdit
+    QApplication, QWidget, QLabel, QVBoxLayout, QComboBox,
+    QMessageBox, QProgressBar, QHBoxLayout, QFormLayout, QPushButton, QTimeEdit, QCheckBox
 )
-from PyQt5.QtCore import Qt, QTime, QPushButton
-from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
+from ui.header import HeaderSection
+from ui.footer import FooterSection
+from imports import * 
+
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class InstallerApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("AI FB ROBOT PRO - Setup Assistant")
-        self.setGeometry(600, 300, 600, 400)  # Taille ajustée
+        self.setGeometry(600, 300, 800, 500)  # Ajustement de la taille pour le nouvel élément
         self.current_language = "en"
         self.translations = self.load_translations()
-
-        # Initialiser l'interface utilisateur
         self.initUI()
 
     def initUI(self):
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
+        header = HeaderSection(self, title="AI FBK Marketing Instances", app_name="Nova360 AI", slogan="AI Marketing & Management Auto")
+        main_layout.addWidget(header)
 
-        # Style général
+        content_layout = QHBoxLayout()
+        form_layout = QFormLayout()
+
+        header_label = QLabel(self.trans("title"))
+        header_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #0078D7;")
+        form_layout.addRow(header_label)
+
+        subheader_label = QLabel("Follow the steps to set up your AI FB Robot.")
+        subheader_label.setStyleSheet("font-size: 18px; color: #555;")
+        form_layout.addRow(subheader_label)
+
+        self.auto_start_label = QLabel(self.trans("auto_start_prompt"))
+        self.auto_start_combo = QComboBox(self)
+        self.auto_start_combo.addItems([self.trans("yes"), self.trans("no")])
+        form_layout.addRow(self.auto_start_label, self.auto_start_combo)
+
+        self.start_type_label = QLabel(self.trans("start_type_prompt"))
+        self.start_type_combo = QComboBox(self)
+        self.start_type_combo.addItems([self.trans("startup"), self.trans("specific_time")])
+        self.start_type_combo.currentIndexChanged.connect(self.toggle_time_input)
+        form_layout.addRow(self.start_type_label, self.start_type_combo)
+
+        self.schedule_label = QLabel(self.trans("schedule_prompt"))
+        self.schedule_input = QTimeEdit(self)
+        self.schedule_input.setDisplayFormat("HH:mm")
+        self.schedule_input.setEnabled(False)
+        form_layout.addRow(self.schedule_label, self.schedule_input)
+
+        # Ajout des cases à cocher pour les jours de la semaine
+        self.days_checkboxes = {}
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        for day in days:
+            checkbox = QCheckBox(day)
+            self.days_checkboxes[day] = checkbox
+            form_layout.addRow(checkbox)
+
+        button_layout = QHBoxLayout()
+        install_button = QPushButton(self.trans("install_button"))
+        install_button.clicked.connect(self.run_installation)
+        button_layout.addWidget(install_button)
+
+        form_layout.addRow(button_layout)
+        self.progress_bar = QProgressBar(self)
+        form_layout.addRow(self.progress_bar)
+
+        content_layout.addLayout(form_layout)
+        promo_image_label = QLabel()
+        pixmap = QPixmap("resources/images/5.jpg")
+        promo_image_label.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        promo_image_label.setAlignment(Qt.AlignCenter)
+        content_layout.addWidget(promo_image_label)
+
+        main_layout.addLayout(content_layout)
+        nav_layout = QHBoxLayout()
+        home_button = QPushButton("Home")
+        about_button = QPushButton("About")
+        nav_layout.addWidget(home_button)
+        nav_layout.addWidget(about_button)
+        main_layout.addLayout(nav_layout)
+
+        footer = FooterSection(self)
+        main_layout.addWidget(footer)
+
+        self.setLayout(main_layout)
         self.setStyleSheet("""
             QWidget {
                 font-family: 'Arial';
                 font-size: 14px;
-            }
-            QLineEdit, QComboBox, QPushButton, QTimeEdit {
-                border-radius: 8px;
-                padding: 8px;
+                background-color: #f0f0f0;
             }
             QPushButton {
                 background-color: #0078D7;
                 color: white;
                 font-weight: bold;
+                border-radius: 8px;
+                padding: 10px;
+                transition: background-color 0.3s;
             }
             QPushButton:hover {
                 background-color: #005a9e;
@@ -43,75 +111,61 @@ class InstallerApp(QWidget):
             QLabel {
                 font-size: 16px;
                 font-weight: bold;
-                margin-bottom: 10px;
+                color: #333;
             }
-            .header {
-                font-size: 24px;
-                font-weight: bold;
-                color: #0078D7;
-                margin-bottom: 5px;
+            QProgressBar {
+                background-color: #e0e0e0;
+                border-radius: 8px;
             }
-            .subheader {
-                font-size: 18px;
-                font-weight: normal;
-                color: #555;
-                margin-bottom: 20px;
+            QProgressBar::chunk {
+                background-color: #0078D7;
+                border-radius: 8px;
             }
         """)
 
-        # En-tête
-        header_label = QLabel(self.trans("title"))
-        header_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #0078D7;")
-        layout.addWidget(header_label)
+    def switch_language(self, language):
+        """Permet de changer la langue."""
+        if language == "en":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatsapping','installwhatssaping','fb_robot_install_translated.qm'))
+        elif language == "fr":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatsapping','installwhatssaping','fb_robot_install_translated.qm'))
+        elif language == "tr":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatsapping','installwhatssaping','fb_robot_install_translated.qm'))
+        elif language == "ar":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatsapping','installwhatssaping','fb_robot_install_translated.qm'))
+        QApplication.instance().installTranslator(self.translator)
+        self.save_language_choice(language)
+        self.retranslateUi()
 
-        subheader_label = QLabel("Follow the steps to set up your AI FB Robot.")
-        subheader_label.setStyleSheet("font-size: 18px; color: #555;")
-        layout.addWidget(subheader_label)
+    def save_language_choice(self, language):
+        preferences = {'language': language}
+        with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'w') as f:
+            json.dump(preferences, f)
 
-        # Formulaire principal
-        form_layout = QFormLayout()
+    def retranslateUi(self):
+        self.setWindowTitle(self.tr('AI WA ROBOT Pro'))
+        self.instance_action.setText(self.tr('Instance'))
+        self.media_action.setText(self.tr('Médias'))
+        self.group_action.setText(self.tr('Groupes'))
+        self.about_action.setText(self.tr('About'))
+        self.certificate_action.setText(self.tr('Certif'))
+        self.language_menu.setTitle(self.tr('Langue'))
 
-        # Auto démarrage
-        self.auto_start_label = QLabel(self.trans("auto_start_prompt"))
-        self.auto_start_combo = QComboBox(self)
-        self.auto_start_combo.addItems([self.trans("yes"), self.trans("no")])
-        form_layout.addRow(self.auto_start_label, self.auto_start_combo)
-
-        # Type de démarrage
-        self.start_type_label = QLabel(self.trans("start_type_prompt"))
-        self.start_type_combo = QComboBox(self)
-        self.start_type_combo.addItems([self.trans("startup"), self.trans("specific_time")])
-        self.start_type_combo.currentIndexChanged.connect(self.toggle_time_input)
-        form_layout.addRow(self.start_type_label, self.start_type_combo)
-
-        # Sélecteur d'heure pour planifier l'exécution
-        self.schedule_label = QLabel(self.trans("schedule_prompt"))
-        self.schedule_input = QTimeEdit(self)
-        self.schedule_input.setDisplayFormat("HH:mm")
-        self.schedule_input.setEnabled(False)
-        form_layout.addRow(self.schedule_label, self.schedule_input)
-
-        layout.addLayout(form_layout)
-
-        # Boutons et barre de progression
-        button_layout = QHBoxLayout()
-
-        install_button = QPushButton(self.trans("install_button"))
-        install_button.clicked.connect(self.run_installation)
-        button_layout.addWidget(install_button)
-
-        layout.addLayout(button_layout)
-
-        self.progress_bar = QProgressBar(self)
-        layout.addWidget(self.progress_bar)
-
-        # Pied de page
-        footer_label = QLabel("AI FB Robot Pro © 2024 - All Rights Reserved")
-        footer_label.setStyleSheet("font-size: 12px; color: grey;")
-        footer_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(footer_label)
-
-        self.setLayout(layout)
+    def init_language(self):
+        if os.path.exists(os.path.join(user_data_dir, 'resources', 'settings.json')):
+            with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'r') as f:
+                preferences = json.load(f)
+                selected_language = preferences.get('language', 'en')
+        else:
+            system_locale = QLocale.system().name()[:2]
+            language_map = {
+                'en': 'en',
+                'fr': 'fr',
+                'tr': 'tr',
+                'ar': 'ar',
+            }
+            selected_language = language_map.get(system_locale, 'en')
+        self.switch_language(selected_language)
 
     def toggle_time_input(self):
         """Activer/désactiver l'entrée de temps selon le type de démarrage"""
@@ -127,35 +181,38 @@ class InstallerApp(QWidget):
         schedule_time = self.schedule_input.time().toString("HH:mm")
 
         if auto_start == self.trans("yes") and start_type == self.trans("specific_time"):
-            # Planifier l'exécution de FB-Robot.exe à l'heure choisie
             desktop_path = os.path.join(os.path.expanduser("~"), "Desktop", "FB-Robot.exe")
-            self.schedule_task(desktop_path, schedule_time)
+            days_selected = [day for day, checkbox in self.days_checkboxes.items() if checkbox.isChecked()]
+
+            if not days_selected:
+                self.show_message("Error", "Please select at least one day.")
+                return
+            
+            self.schedule_task(desktop_path, schedule_time, days_selected)
 
         self.progress_bar.setValue(100)
         self.show_message(self.trans("installation_complete"), self.trans("installation_complete_message"))
 
-    def schedule_task(self, program_path, time):
-        """Créer une tâche planifiée pour exécuter le programme à une heure spécifique chaque jour"""
-        command = f'schtasks /create /tn "FB-Robot" /tr "{program_path}" /sc daily /st {time} /f'
+    def schedule_task(self, program_path, time, days):
+        days_string = ','.join(days).lower()
+        command = f'schtasks /create /tn "FB-Robot" /tr "{program_path}" /sc weekly /d {days_string} /st {time} /f'
         try:
             subprocess.run(command, check=True, shell=True)
-            print(f"Tâche planifiée créée pour {time}")
+            print(f"Tâche planifiée créée pour {days_string} à {time}")
         except subprocess.CalledProcessError as e:
             print(f"Erreur lors de la création de la tâche planifiée: {e}")
 
     def trans(self, key):
-        """Récupère la traduction en fonction de la langue"""
         return self.translations[self.current_language].get(key, key)
 
     def load_translations(self):
-        """Charge les traductions disponibles"""
         return {
             "en": {
                 "title": "AI FB ROBOT PRO - Setup Assistant",
                 "auto_start_prompt": "Do you want Facebook Robot to start automatically?",
                 "start_type_prompt": "When should it start?",
                 "schedule_prompt": "Select the time to start (e.g. 15:00):",
-                "install_button": "Install",
+                "install_button": "Programmer demarrage automatique ",
                 "yes": "Yes",
                 "no": "No",
                 "startup": "Startup",
@@ -179,11 +236,13 @@ class InstallerApp(QWidget):
         }
 
     def show_message(self, title, message):
-        """Affiche une boîte de dialogue"""
         QMessageBox.information(self, title, message)
 
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     installer = InstallerApp()
     installer.show()
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()  # Appelle la fonction main si le script est exécuté directement

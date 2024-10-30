@@ -78,6 +78,7 @@ class FaceMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        
         self.setGeometry(100, 210, 900, 600)
         self.setWindowIcon(QIcon('resources/icons/facebook-icon-png-770.png'))  # Icône de la fenêtre
 
@@ -198,13 +199,13 @@ class FaceMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -296,7 +297,7 @@ class FaceMainWindow(QMainWindow):
         # Afficher un message de confirmation avant la désinstallation
         reply = QMessageBox.question(
             self, 
-            self.tr("Confirmation de désinstallation"), 
+            self.tr("confirmez la désinstallation"), 
             self.tr("Êtes-vous sûr de vouloir désinstaller toutes les instances de Facebook Robot ? Cela retirera toutes vos instances."),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
@@ -348,7 +349,6 @@ class FaceMainWindow(QMainWindow):
         QMessageBox.information(self, self.tr("Update Instance"), self.tr("Instance mise à jour avec succès."))
         self.setCentralWidget(UpdateInstance())
 
-# Lancer l'application
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)

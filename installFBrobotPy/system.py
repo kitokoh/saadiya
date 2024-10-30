@@ -413,7 +413,8 @@ def install_instance(instance_number):
     log(f"Création du dossier pour l'instance {instance_number}...")
 
     log(f"Clonage du dépôt GitHub pour l'instance {instance_number}...")
-    run_command(f'git clone https://github.com/kitokoh/bondist1.git {folder_path}')
+    #run_command(f'git clone https://github.com/kitokoh/bondist1.git {folder_path}')
+    run_command(f'git clone https://github.com/kitokoh/bon.git {folder_path}')
 
     log(f"Création de l'environnement virtuel pour robot{instance_number}...")
     run_command(f"python -m venv {folder_path}\\env{instance_number}")

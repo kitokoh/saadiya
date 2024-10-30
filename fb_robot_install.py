@@ -32,16 +32,21 @@ from installFBrobotPy import affiheMessage, mailSucces, secureChrome
 from installFBrobotPy.demarrageAuto import InstallerApp
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
+from media_manager import MediaTable
+
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+# _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
 
+# # Définir le chemin du dossier userdata
+# user_data_dir = os.path.join(_curentfolder)
 def load_encrypted_data(file_path):
         """Charge et déchiffre les données à partir d'un fichier."""
         with open(file_path, 'rb') as file:
             encrypted_data = file.read()
         
         # Charger la clé de chiffrement
-        with open(user_data_dir ,'resources/data/key.key', 'rb') as key_file:
+        with open(os.path.join(user_data_dir, 'resources', 'data','key.key'), 'rb') as key_file:
             key = key_file.read()
         
         # Déchiffrer les données
@@ -79,13 +84,13 @@ class ScriptWorker(QThread):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -204,13 +209,13 @@ class LicenseDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -302,7 +307,7 @@ class LicenseDialog(QDialog):
                 encrypted_data = file.read()
             
             # Charger la clé de chiffrement
-            with open(user_data_dir ,'resources/data/key.key', 'rb') as key_file:
+            with open(os.path.join(user_data_dir, 'resources', 'data','key.key'), 'rb') as key_file:
                 key = key_file.read()
             
             # Déchiffrer les données
@@ -316,9 +321,9 @@ class LicenseDialog(QDialog):
         """Envoie l'email de licence à l'utilisateur."""
         try:
             # Charger les informations d'envoi
-            server = load_encrypted_data(user_data_dir ,'resources/data/server.txt')
-            sender_email = load_encrypted_data(user_data_dir ,'resources/data/adress.txt')
-            password = load_encrypted_data(user_data_dir ,'resources/data/tes.txt')
+            server = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','server.txt'))
+            sender_email = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','adress.txt'))
+            password = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','tes.txt'))
             
             receiver_email = "turk.novatech@gmail.com"  # Destinataire fixe
             serial_number = get_serial_number()  # Récupérer le numéro de série de l'ordinateur
@@ -390,13 +395,13 @@ class UpdateLicenseDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -534,13 +539,13 @@ class HelpDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -615,7 +620,8 @@ class FbRobot(QtWidgets.QWidget):
         self.init_language()  # Initialisation de la langue après la création des actions
 
         self.setWindowTitle(self.tr('Yönetim Uygulaması Pro'))
-        self.setGeometry(100, 100, 1000, 700)
+        self.showFullScreen()
+        #self.setGeometry(100, 100, 1000, 700)
         self.setWindowIcon(QIcon('resources/icons/robot-512.png'))  # Icône de la fenêtre
         
         #mes variables 
@@ -624,20 +630,20 @@ class FbRobot(QtWidgets.QWidget):
         self.facebook_user_name = None
         self.licence_request_date = None
         # Layout principal
-        main_layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout()
         # Ajouter le header
         header = HeaderSection(self, title="FBK Robot Install Instances", app_name="FB ROBOT AI", slogan="AI Marketing & Management Auto")
-        main_layout.addWidget(header)
+        self.main_layout.addWidget(header)
         # Titre et sous-titre
         title_label = QLabel(self.tr("Système de Gestion Automatisée"))
         subtitle_label = QLabel(self.tr("Optimisez, installez et gérez vos environnements avec facilité."))
         title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
         subtitle_label.setStyleSheet("font-size: 16px; color: #34495e;")
-        main_layout.addWidget(title_label, alignment=Qt.AlignCenter)
-        main_layout.addWidget(subtitle_label, alignment=Qt.AlignCenter)
+        self.main_layout.addWidget(title_label, alignment=Qt.AlignCenter)
+        self.main_layout.addWidget(subtitle_label, alignment=Qt.AlignCenter)
 
         # Layout horizontal pour les boutons en haut
-        btn_layout = QHBoxLayout()
+        self.btn_layout = QHBoxLayout()
 # Ajouter les boutons conditionnels
         self.install_button = QPushButton(self)
         self.update_conditional_buttons()  # Mettez à jour les boutons en fonction des conditions
@@ -657,7 +663,7 @@ class FbRobot(QtWidgets.QWidget):
         self.add_new_instance_to_db("demo","user 1",datetime.now().strftime("%Y-%m-%d"))
   # Utilisation de self.tr()
         self.install_button.clicked.connect(self.run_conditional_script)
-        btn_layout.addWidget(self.install_button)  # Ajoutez le bouton au layout
+        self.btn_layout.addWidget(self.install_button)  # Ajoutez le bouton au layout
 
         # Ajouter les boutons conditionnels supplémentaires
         self.conditional_btn_premium = QPushButton(self)
@@ -678,7 +684,7 @@ class FbRobot(QtWidgets.QWidget):
         self.conditional_btn_premium.setText(self.tr("Demande Licence"))  # Utilisation de self.tr()
         self.conditional_btn_premium.clicked.connect(self.request_license)
 
-        btn_layout.addWidget(self.conditional_btn_premium)
+        self.btn_layout.addWidget(self.conditional_btn_premium)
 
         # Créer les boutons avec icônes et les ajouter au layout
         buttons = [
@@ -702,7 +708,7 @@ class FbRobot(QtWidgets.QWidget):
                 }
             """)
             btn.clicked.connect(function)
-            btn_layout.addWidget(btn)
+            self.btn_layout.addWidget(btn)
 
        # Ajouter un bouton d'aide
         help_btn = QPushButton(self.tr('Valider licence'), self)  # Utilisation de self.tr()
@@ -720,11 +726,11 @@ class FbRobot(QtWidgets.QWidget):
             }
         """)
         help_btn.clicked.connect(self.show_help)
-        btn_layout.addWidget(help_btn)
+        self.btn_layout.addWidget(help_btn)
 
         #Ajouter un bouton de changement de thème
 
-        main_layout.addLayout(btn_layout)
+        self.main_layout.addLayout(self.btn_layout)
 
         # Barre de progression
         self.progress_bar = QProgressBar(self)
@@ -741,10 +747,10 @@ class FbRobot(QtWidgets.QWidget):
                 width: 20px;
             }
         """)
-        main_layout.addWidget(self.progress_bar)
+        self.main_layout.addWidget(self.progress_bar)
 
         # Layout horizontal pour la console et l'image
-        console_image_layout = QHBoxLayout()
+        self.console_image_layout = QHBoxLayout()
 
         # Console de logs en bas (design amélioré)
         self.log_console = QTextEdit(self)
@@ -757,14 +763,14 @@ class FbRobot(QtWidgets.QWidget):
             border: 1px solid #34495e;
             border-radius: 5px;
         """)
-        console_image_layout.addWidget(self.log_console)
+        self.console_image_layout.addWidget(self.log_console)
 
         # Image à droite de la console
         self.right_image_label = QLabel(self)
         self.right_image_label.setPixmap(QPixmap('resources/images/7.jpg').scaled(400, 700, Qt.KeepAspectRatio))
-        console_image_layout.addWidget(self.right_image_label)
+        self.console_image_layout.addWidget(self.right_image_label)
 
-        main_layout.addLayout(console_image_layout)
+        self.main_layout.addLayout(self.console_image_layout)
 
         # Initialisation du système de notifications
         self.init_tray()
@@ -793,22 +799,23 @@ class FbRobot(QtWidgets.QWidget):
         self.add_new_instance_to_db("demo","user 1",datetime.now().strftime("%Y-%m-%d"))
         # Ajouter le footer
         footer = FooterSection(self)
-        main_layout.addWidget(footer)
+        self.main_layout.addWidget(footer)
 
+        #self.media_table = QLabel(MediaTable(self))  # Remplacez par votre widget MediaTable réel
 
         # Définir la mise en page principale
-        self.setLayout(main_layout)
+        self.setLayout(self.main_layout)
 
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/fb_robot_install_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -819,7 +826,21 @@ class FbRobot(QtWidgets.QWidget):
 
         # Réappliquer la traduction sur tous les éléments visibles de l'interface
         self.retranslateUi()
+    def clear_main_layout(self):
+        # Supprimer tous les widgets de main_layout
+        for i in reversed(range(self.main_layout.count())):
+            widget = self.main_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.setParent(None)
 
+        
+
+    def show_media_table1(self):
+        # Supprimer tous les widgets dans main_layout
+        self.clear_main_layout()
+
+        # Ajouter media_table dans main_layout
+        self.main_layout.addWidget(self.media_table)
     def save_language_choice(self, language):
         """Sauvegarde le choix de langue de l'utilisateur dans un fichier JSON."""
         preferences = {'language': language}
@@ -1016,7 +1037,7 @@ class FbRobot(QtWidgets.QWidget):
 
     def run_system(self):
         self.log(self.tr('Démarrage du système en cours...'), "info")
-        if os.path.exists(user_data_dir,'/installFBrobotPy/start.py'):
+        if os.path.exists(os.path.join(user_data_dir, 'installFBrobotPy', 'start.py')):
             try:
                 #subprocess.run(['python', 'installFBrobotPy/start.py'], check=True)
                 start_script_path = os.path.join(user_data_dir, 'installFBrobotPy', 'start.py')
@@ -1129,6 +1150,12 @@ class FbRobot(QtWidgets.QWidget):
         if value >= 100:
             self.log(self.tr("Installation terminée avec succès."), "success")
             self.show_notification(self.tr("Installation terminée avec succès !"), "success")
+               # Optionnel : Rediriger vers une autre vue, si nécessaire
+            #self.setCentralWidget(FbRobot())
+            #self.timer.start(3000)  # Mettre à jour toutes les 5 secondes
+
+            #self.show_media_table()
+
 
     
     def add_new_instance_to_db(instance_name, instance_type, facebook_user_name, licence_request_date):

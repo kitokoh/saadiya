@@ -1,6 +1,7 @@
 import os
 import sys
 from PyQt5 import QtWidgets, QtCore
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class App(QtWidgets.QWidget):
     def __init__(self):
@@ -39,7 +40,7 @@ class App(QtWidgets.QWidget):
     def updateJsonFiles(self):
         robot_dir = self.robotDirEdit.text()
         text_dir = self.textDirEdit.text()
-        log_file_path = os.path.join(os.path.expanduser("~"), "Desktop", "journalinstallation.txt")
+        log_file_path = os.path.join(user_data_dir, "resources", "journalInstallation.txt")
 
         # Initialiser le fichier log
         with open(log_file_path, 'a') as log_file:

@@ -4,6 +4,7 @@ import subprocess
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QTranslator, QLocale
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class UpdateApp(QtWidgets.QWidget):
     def __init__(self):
@@ -26,7 +27,7 @@ class UpdateApp(QtWidgets.QWidget):
         self.setLayout(layout)
 
         # Fichier de log
-        self.logfile = os.path.join(os.path.expanduser("~"), "Desktop", "journalInstallation.txt")
+        self.logfile = os.path.join(user_data_dir, "resources", "journalInstallation.txt")
 
         # Vérification des droits d'administrateur
         if not self.check_admin_rights():
@@ -87,7 +88,7 @@ class UpdateApp(QtWidgets.QWidget):
     def log_all_updated(self, instance_index):
         log_message = "Toutes les instances ont été mises à jour avec succès.\n"
         self.log_to_file(log_message)
-        QMessageBox.information(self, "Succès", "Mise à jour terminée.")
+       # QMessageBox.information(self, "Succès", "Mise à jour terminée.")
 
     def log_to_file(self, message):
         with open(self.logfile, "a") as log:

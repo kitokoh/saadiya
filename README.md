@@ -4,6 +4,66 @@ git commit -m "Nettoyage du cache"
 
 
 
+dans data.json nous avons 
+
+{
+    "posts": [
+        {
+            "text": "DSS oodoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+            "image": "C:\\Users\\ibrahim\\Downloads\\AI-FB-Robot\\media\\media1\\2.png"
+        },
+        {
+            "text": "tom a hock",
+            "image": "C:\\Users\\ibrahim\\Downloads\\AI-FB-Robot\\media\\media1\\3.png"
+        }
+    ]
+}
+
+dans groups.json nous avons 
+
+
+{
+    "groups": [
+
+        {
+            "name": "ras",
+            "link":         "https://www.facebook.com/groups/312568698920238/",
+            "remarks": "ras",
+            "category": "ras",
+            "description": "ras"
+        },
+        {
+            "name": "ras",
+            "link":  "https://www.facebook.com/groups/InteligenciaDeNegociosBI/",
+            "remarks": "ras",
+            "category": "ras",
+            "description": "ras"
+        }
+    ]
+}
+
+et dans data1.json nous devons avoir
+
+{
+    "posts": [
+        "DSS oodoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+         "tom a hock"
+        
+    ],
+    "images": [
+            "C:\\Users\\ibrahim\\Downloads\\AI-FB-Robot\\media\\media1\\4.png",
+            "C:\\Users\\ibrahim\\Downloads\\AI-FB-Robot\\media\\media1\\6.png" 
+    ],
+    "groups": [
+        "https://www.facebook.com/groups/312568698920238/",
+        "https://www.facebook.com/groups/InteligenciaDeNegociosBI/"
+
+    ]
+}
+
+
+
+
 project/
 │
 ├── main.py              # Point d'entrée principal de l'application
@@ -105,6 +165,11 @@ project_root/
 
 pyinstaller --onefile --windowed --noconsole --icon=resources/icons/robot-512.ico --add-data "resources/*;resources" --paths "C:\Users\ibrahim\anaconda3\Library\bin" main.py
 conda install lzma
+
+pyinstaller --onefile --noconsole --icon=../resources/icons/facebook-icon-png-770-Windows.ico .\start.py
+
+--icon=resources/icons/robot-512.ico
+
 
 conda install bzip2
 conda install openssl
