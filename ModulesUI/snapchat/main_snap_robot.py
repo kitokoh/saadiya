@@ -35,9 +35,9 @@ class AboutDialog(QDialog):
         self.translator_manager.load_translations()
 
 
-        self.setWindowTitle(self.tr("À propos de AI AutoBlog ROBOT Pro"))
+        self.setWindowTitle(self.tr("À propos de AI SNAP ROBOT Pro"))
         layout = QVBoxLayout()
-        label = QLabel(self.tr("AI AutoBlog ROBOT Pro v1.0\n\nDéveloppé par Ibrahim Ali Mahadi.\n\nCette application utilise des techniques d'automatisation IA pour faciliter la gestion des médias, groupes et instances dans les réseaux sociaux."))
+        label = QLabel(self.tr("AI SNAP ROBOT Pro v1.0\n\nDéveloppé par Ibrahim MAX.\n\nCette application utilise des techniques d'automatisation IA pour faciliter la gestion des médias, groupes et instances dans les réseaux sociaux."))
         layout.addWidget(label)
         close_button = QPushButton(self.tr("Fermer"))
         close_button.clicked.connect(self.close)
@@ -74,13 +74,13 @@ class CertificateDialog(QDialog):
         self.animation.setEndValue(1.0)
         self.animation.start()
 
-class BlogMainWindow(QMainWindow):
+class SnapMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(self.tr('AI Blog ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI SNAP ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/article-marketing-3-512.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/snapchat-icon-1707.png'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)
@@ -221,7 +221,7 @@ class BlogMainWindow(QMainWindow):
             json.dump(preferences, f)
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
-        self.setWindowTitle(self.tr('AI AutoBlog ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI SNAP ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
@@ -296,7 +296,7 @@ class BlogMainWindow(QMainWindow):
         reply = QMessageBox.question(
             self, 
             self.tr("confirmez la désinstallation"), 
-            self.tr("Êtes-vous sûr de vouloir désinstaller toutes les instances de AutoBlog Robot ? Cela retirera toutes vos instances."),
+            self.tr("Êtes-vous sûr de vouloir désinstaller toutes les instances de SNAP Robot ? Cela retirera toutes vos instances."),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -353,6 +353,6 @@ class BlogMainWindow(QMainWindow):
 if __name__ == '__main__':
     import sys
     app = QApplication(sys.argv)
-    window = BlogMainWindow()
+    window = SnapMainWindow()
     window.show()
     sys.exit(app.exec_())

@@ -35,9 +35,9 @@ class AboutDialog(QDialog):
         self.translator_manager.load_translations()
 
 
-        self.setWindowTitle(self.tr("À propos de AI FB ROBOT Pro"))
+        self.setWindowTitle(self.tr("À propos de AI WP ROBOT Pro"))
         layout = QVBoxLayout()
-        label = QLabel(self.tr("AI FB ROBOT Pro v1.0\n\nDéveloppé par Ibrahim Hakkı.\n\nCette application utilise des techniques d'automatisation IA pour faciliter la gestion des médias, groupes et instances dans les réseaux sociaux."))
+        label = QLabel(self.tr("AI WP ROBOT Pro v1.0\n\nDéveloppé par Ibrahim MAX Pour Novatech.\n\nCette application utilise des techniques d'automatisation IA pour faciliter la gestion des médias, groupes et instances dans les réseaux sociaux."))
         layout.addWidget(label)
         close_button = QPushButton(self.tr("Fermer"))
         close_button.clicked.connect(self.close)
@@ -77,10 +77,10 @@ class CertificateDialog(QDialog):
 class WhatsMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI WP ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/facebook-icon-png-770.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/whatsapp-512.png'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)
@@ -172,8 +172,8 @@ class WhatsMainWindow(QMainWindow):
         self.tools_menu.addAction(QAction(self.tr("Heure de démarrage"), self, triggered=self.show_start_time))
         self.tools_menu.addAction(QAction(self.tr("Uninstall Instances"), self, triggered=self.uninstall_instances))
         self.tools_menu.addAction(QAction(self.tr("Invisible Instances"), self, triggered=self.show_invisible_instances))
-        self.tools_menu.addAction(QAction(self.tr("MAJ Env"), self, triggered=self.update_env))
-        self.tools_menu.addAction(QAction(self.tr("MAJ Text"), self, triggered=self.update_text))
+        self.tools_menu.addAction(QAction(self.tr("Environement"), self, triggered=self.update_env))
+        self.tools_menu.addAction(QAction(self.tr("Text to Robot"), self, triggered=self.update_text))
         self.tools_menu.addAction(QAction(self.tr("Delete Instance"), self, triggered=self.delete_instance))
         self.tools_menu.addAction(QAction(self.tr("Update Instance"), self, triggered=self.update_instance))
         self.translator = QTranslator()
@@ -196,13 +196,13 @@ class WhatsMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load("resources/lang/en_US/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/modules/main_fb_robot_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -221,7 +221,7 @@ class WhatsMainWindow(QMainWindow):
             json.dump(preferences, f)
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI WP ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
@@ -287,15 +287,16 @@ class WhatsMainWindow(QMainWindow):
 
 
     def show_start_time(self):
-        #QMessageBox.information(self, self.tr("Heure de démarrage"), self.tr("L'heure de démarrage est: ..."))
         self.setCentralWidget(InstallerApp())
+
+        QMessageBox.information(self, self.tr("Heure de démarrage"), self.tr("L'heure de démarrage est: ..."))
 
     def uninstall_instances(self):
         # Afficher un message de confirmation avant la désinstallation
         reply = QMessageBox.question(
             self, 
             self.tr("confirmez la désinstallation"), 
-            self.tr("Êtes-vous sûr de vouloir désinstaller toutes les instances de Facebook Robot ? Cela retirera toutes vos instances."),
+            self.tr("Êtes-vous sûr de vouloir désinstaller toutes les instances de Whatsapp Robot ? Cela retirera toutes vos instances."),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -311,7 +312,7 @@ class WhatsMainWindow(QMainWindow):
                     subprocess.Popen([uninstall_exe_path], shell=True)
 
                     # Afficher un message de succès
-                    QMessageBox.information(self, self.tr("Désinstallation"), self.tr("Instances désinstallées avec succès."))
+                    QMessageBox.information(self, self.tr("Désinstallation"), self.tr("Instances desinstallation ...."))
 
                     # Optionnel : Rediriger vers une autre vue, si nécessaire
                     self.setCentralWidget(FbRobot())
@@ -327,23 +328,26 @@ class WhatsMainWindow(QMainWindow):
             QMessageBox.information(self, self.tr("Annulé"), self.tr("Désinstallation annulée."))
     
     def show_invisible_instances(self):
-        QMessageBox.information(self, self.tr("Invisible Instances"), self.tr("Aucune instance invisible détectée."))
         self.setCentralWidget(InvisibleInstance())
 
+        QMessageBox.information(self, self.tr("Invisible Instances"), self.tr("Aucune instance invisible détectée."))
+
     def update_env(self):
-        QMessageBox.information(self, self.tr("MAJ Env"), self.tr("Environnement mis à jour avec succès."))
         self.setCentralWidget(MajEnv())
+        QMessageBox.information(self, self.tr("MAJ Env"), self.tr("Environnement mis à jour ...."))
+
 
     def update_text(self):
-        QMessageBox.information(self, self.tr("MAJ Text"), self.tr("Texte mis à jour avec succès."))
         self.setCentralWidget(JsonToRobot())
 
+        QMessageBox.information(self, self.tr("MAJ Text"), self.tr("Texte mis à jour ..."))
+
     def delete_instance(self):
-        QMessageBox.information(self, self.tr("Delete Instance"), self.tr("Instance supprimée avec succès."))
+        QMessageBox.information(self, self.tr("Delete Instance"), self.tr("Instance supprimée ...."))
         self.setCentralWidget(DeleteBon())
 
     def update_instance(self):
-        QMessageBox.information(self, self.tr("Update Instance"), self.tr("Instance mise à jour avec succès."))
+        QMessageBox.information(self, self.tr("Update Instance"), self.tr("Instance mise à jour ...."))
         self.setCentralWidget(UpdateInstance())
 
 if __name__ == '__main__':

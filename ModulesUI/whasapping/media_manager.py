@@ -181,7 +181,7 @@ class AddMedia(QWidget):
 
     def load_json(self):
         # Définir le chemin du fichier JSON
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text', 'text1', 'data.json')
+        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WP-Robot', 'text', 'text1', 'data.json')
 
         # Vérifier si le fichier et le dossier existent, sinon les créer
         if not os.path.exists(self.json_file):
@@ -196,7 +196,7 @@ class AddMedia(QWidget):
             return json.load(f)
 
     def update_json(self, media_data):
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text', 'text1', 'data.json')
+        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WP-Robot', 'text', 'text1', 'data.json')
 
         with open(self.json_file, 'w') as f:
             json.dump(media_data, f)
@@ -228,7 +228,7 @@ class AddMedia(QWidget):
                     continue  # Ignore les erreurs de conversion en nombre
 
             # Préparer le dossier cible
-            self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
+            self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WP-Robot', 'media', 'media1')
             if not os.path.exists(self.media_folder):
                 os.makedirs(self.media_folder, exist_ok=True)
 
@@ -260,8 +260,8 @@ class MediaTable(QWidget):
         self.init_language()  # Initialisation de la langue après la création des actions
 
         super().__init__(parent)
-        self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text', 'text1', 'data.json')
+        self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'media', 'media1')
+        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'text', 'text1', 'data.json')
         self.media_manager = AddMedia(parent=self)
 
         self.media_list = self.load_media()
@@ -489,7 +489,7 @@ class MediaTable(QWidget):
 # Lancer le transfert de fichiers
     def get_instance_list(self):
         # Chemin du dossier des instances
-        media_folder_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media')
+        media_folder_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'media')
 
         # Vérifier si le dossier existe
         if not os.path.exists(media_folder_path):
@@ -507,7 +507,7 @@ class MediaTable(QWidget):
         return instance_folders
 
     def load_media(self):
-        self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', 'media1')
+        self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'media', 'media1')
 
         # Vérifier si le dossier existe
         if not os.path.exists(self.media_folder):
@@ -609,7 +609,7 @@ class MediaTable(QWidget):
         menu = QMenu()
 
         # Action Edit
-        edit_action = menu.addAction(QIcon('resources/icons/edit.png'), self.tr('Edit'))
+        edit_action = menu.addAction(QIcon('resources/icons/Hopstarter-Soft-Scraps-Edit-Document.256.png'), self.tr('Edit'))
         edit_action.setIconVisibleInMenu(True)
         edit_action.triggered.connect(lambda: self.update_media(media))
 
@@ -619,7 +619,7 @@ class MediaTable(QWidget):
         delete_action.triggered.connect(lambda: self.delete_media(media))
 
         # Action Aperçu
-        preview_action = menu.addAction(QIcon('resources/icons/preview.png'), self.tr('Aperçu'))
+        preview_action = menu.addAction(QIcon('resources/icons/camera-icon-59.png'), self.tr('Aperçu'))
         preview_action.setIconVisibleInMenu(True)
         preview_action.triggered.connect(lambda: self.show_preview(media['preview_path']))
 
@@ -856,7 +856,7 @@ class UpdateMediaDialog1(QDialog):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI WA ROBOT Pro'))
         self.resize(900, 600)
         self.setCentralWidget(MediaTable(self))
 

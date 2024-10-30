@@ -622,7 +622,7 @@ class WpRobot(QtWidgets.QWidget):
         self.setWindowTitle(self.tr('Yönetim Uygulaması Pro'))
         self.showFullScreen()
         #self.setGeometry(100, 100, 1000, 700)
-        self.setWindowIcon(QIcon('resources/icons/robot-512.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/whatsapp-512.png'))  # Icône de la fenêtre
         
         #mes variables 
         self.instance_name = None
@@ -632,7 +632,7 @@ class WpRobot(QtWidgets.QWidget):
         # Layout principal
         self.main_layout = QVBoxLayout()
         # Ajouter le header
-        header = HeaderSection(self, title="FBK Robot Install Instances", app_name="FB ROBOT AI", slogan="AI Marketing & Management Auto")
+        header = HeaderSection(self, title="WA Robot Install Instances", app_name="WA ROBOT AI", slogan="AI Marketing Automation Solutions")
         self.main_layout.addWidget(header)
         # Titre et sous-titre
         title_label = QLabel(self.tr("Système de Gestion Automatisée"))
@@ -689,7 +689,7 @@ class WpRobot(QtWidgets.QWidget):
         # Créer les boutons avec icônes et les ajouter au layout
         buttons = [
             (self.tr('Tutoriel'), 'Delacro-Id-Start-Menu.256.png', self.run_menu),
-            (self.tr('Start Robot'), 'frpro-demoİnstall.png', self.run_system)
+            (self.tr('Start Robot'), 'security-icon.png', self.run_system)
         ]
 
         for text, icon, function in buttons:
@@ -848,7 +848,7 @@ class WpRobot(QtWidgets.QWidget):
             json.dump(preferences, f)
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI WA ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         #self.conditional_btn_premium.setText(self.tr('Instance'))
