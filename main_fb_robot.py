@@ -10,6 +10,7 @@ from media_manager import MediaTable
 from group_manager import GroupTable
 from instances_table import InstanceTable
 from fb_robot_install import FbRobot
+from statistique.stat import Dashboard
 
 from installFBrobotPy.demarrageAuto import InstallerApp
 #from installFBrobotPy.majenvqt import AppEnv 
@@ -101,7 +102,11 @@ class FaceMainWindow(QMainWindow):
                 padding: 10px;
             }
         """)
-
+        # Actions du menu avec self.tr pour les traductions
+        self.instance_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Home'), self)
+        self.instance_action.setToolTip(self.tr('Afficher la liste des instances'))
+        self.instance_action.triggered.connect(self.open_dashboard)
+        menubar.addAction(self.instance_action)
         # Actions du menu avec self.tr pour les traductions
         self.instance_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Instance'), self)
         self.instance_action.setToolTip(self.tr('Afficher la liste des instances'))
@@ -194,8 +199,9 @@ class FaceMainWindow(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        self.instance_table = FbRobot()
+        self.instance_table = Dashboard(title="AI FB ROBOT PRO", subtitle="Analytics Overview")
         layout.addWidget(self.instance_table)
+    
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
@@ -261,6 +267,8 @@ class FaceMainWindow(QMainWindow):
 
     def open_media(self):
         self.setCentralWidget(MediaTable(self))
+    def open_dashboard(self):
+        self.setCentralWidget(Dashboard())
 
     def open_instance(self):
         self.setCentralWidget(InstanceTable(self))

@@ -10,3 +10,5 @@ uvicorn
 sqlalchemy
 databases
 pydantic
+QtPy 
+PyQtChart

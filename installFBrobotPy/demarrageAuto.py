@@ -3,13 +3,13 @@ import os
 import subprocess
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QComboBox,
-    QMessageBox, QProgressBar, QHBoxLayout, QFormLayout, QPushButton, QTimeEdit, QCheckBox
+    QMessageBox, QProgressBar, QHBoxLayout, QFormLayout, QPushButton, QTimeEdit, QCheckBox, QScrollArea
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from ui.header import HeaderSection
 from ui.footer import FooterSection
-from imports import * 
+from imports import *
 
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
@@ -17,7 +17,7 @@ class InstallerApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("AI FB ROBOT PRO - Setup Assistant")
-        self.setGeometry(600, 300, 800, 500)  # Ajustement de la taille pour le nouvel élément
+        self.setGeometry(600, 300, 800, 500)
         self.current_language = "en"
         self.translations = self.load_translations()
         self.initUI()
@@ -55,13 +55,24 @@ class InstallerApp(QWidget):
         self.schedule_input.setEnabled(False)
         form_layout.addRow(self.schedule_label, self.schedule_input)
 
+        # Créer un conteneur pour les jours de la semaine
+        days_container = QScrollArea()
+        days_container.setWidgetResizable(True)
+        days_widget = QWidget()
+        days_layout = QVBoxLayout()
+
         # Ajout des cases à cocher pour les jours de la semaine
         self.days_checkboxes = {}
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
         for day in days:
             checkbox = QCheckBox(day)
+            checkbox.setStyleSheet("font-size: 16px; margin: 5px;")
             self.days_checkboxes[day] = checkbox
-            form_layout.addRow(checkbox)
+            days_layout.addWidget(checkbox)
+
+        days_widget.setLayout(days_layout)
+        days_container.setWidget(days_widget)
+        form_layout.addRow(self.trans("select_days"), days_container)
 
         button_layout = QHBoxLayout()
         install_button = QPushButton(self.trans("install_button"))
@@ -124,7 +135,6 @@ class InstallerApp(QWidget):
         """)
 
     def switch_language(self, language):
-        """Permet de changer la langue."""
         if language == "en":
             self.translator.load("resources/lang/en_US/modules/main_fb_robot_translated.qm")
         elif language == "fr":
@@ -168,14 +178,12 @@ class InstallerApp(QWidget):
         self.switch_language(selected_language)
 
     def toggle_time_input(self):
-        """Activer/désactiver l'entrée de temps selon le type de démarrage"""
         if self.start_type_combo.currentText() == self.trans("specific_time"):
             self.schedule_input.setEnabled(True)
         else:
             self.schedule_input.setEnabled(False)
 
     def run_installation(self):
-        """Lancer l'installation et planifier le démarrage du programme"""
         auto_start = self.auto_start_combo.currentText()
         start_type = self.start_type_combo.currentText()
         schedule_time = self.schedule_input.time().toString("HH:mm")
@@ -211,38 +219,65 @@ class InstallerApp(QWidget):
                 "title": "AI FB ROBOT PRO - Setup Assistant",
                 "auto_start_prompt": "Do you want Facebook Robot to start automatically?",
                 "start_type_prompt": "When should it start?",
-                "schedule_prompt": "Select the time to start (e.g. 15:00):",
-                "install_button": "Programmer demarrage automatique ",
+                "schedule_prompt": "At what time should it start?",
+                "select_days": "Select days of the week:",
+                "install_button": "Programmer",
+                "installation_complete": "Installation Complete",
+                "installation_complete_message": "Your installation has been completed successfully!",
                 "yes": "Yes",
                 "no": "No",
-                "startup": "Startup",
-                "specific_time": "Specific Time",
-                "installation_complete": "Installation complete!",
-                "installation_complete_message": "Check info.txt and journalInstallation.txt for details."
+                "startup": "On Startup",
+                "specific_time": "At Specific Time"
+            },
+            "fr": {
+                "title": "AI FB ROBOT PRO - Assistant d'installation",
+                "auto_start_prompt": "Voulez-vous que le Robot Facebook démarre automatiquement?",
+                "start_type_prompt": "Quand doit-il commencer?",
+                "schedule_prompt": "À quelle heure doit-il commencer?",
+                "select_days": "Sélectionnez les jours de la semaine :",
+                "install_button": "Planifier ",
+                "installation_complete": "Installation terminée",
+                "installation_complete_message": "Votre installation a été complétée avec succès !",
+                "yes": "Oui",
+                "no": "Non",
+                "startup": "Au démarrage",
+                "specific_time": "À une heure précise"
             },
             "tr": {
-                "title": "AI FB ROBOT PRO - Kurulum Asistanı",
-                "auto_start_prompt": "Facebook Robotu otomatik başlatılsın mı?",
-                "start_type_prompt": "Ne zaman başlatılsın?",
-                "schedule_prompt": "Başlatma zamanı seçin (örn: 15:00):",
-                "install_button": "Yükle",
+                "title": "AI FB ROBOT PRO - Kurulum Yardımcısı",
+                "auto_start_prompt": "Facebook Robot'un otomatik olarak başlamasını ister misiniz?",
+                "start_type_prompt": "Ne zaman başlamalı?",
+                "schedule_prompt": "Ne zaman başlamalı?",
+                "select_days": "Hafta günlerini seçin:",
+                "install_button": "Programla",
+                "installation_complete": "Kurulum Tamamlandı",
+                "installation_complete_message": "Kurulum başarıyla tamamlandı!",
                 "yes": "Evet",
                 "no": "Hayır",
-                "startup": "Başlangıç",
-                "specific_time": "Belirli Zaman",
-                "installation_complete": "Kurulum tamamlandı!",
-                "installation_complete_message": "Ayrıntılar için info.txt ve journalInstallation.txt dosyalarını kontrol edin."
-            }
+                "startup": "Başlangıçta",
+                "specific_time": "Belirli bir zamanda"
+            },
+            "ar": {
+                "title": "AI FB ROBOT PRO - مساعد التثبيت",
+                "auto_start_prompt": "هل تريد أن يبدأ Facebook Robot تلقائيًا؟",
+                "start_type_prompt": "متى يجب أن يبدأ؟",
+                "schedule_prompt": "في أي وقت يجب أن يبدأ؟",
+                "select_days": "حدد أيام الأسبوع:",
+                "install_button": "تثبيت",
+                "installation_complete": "اكتمال التثبيت",
+                "installation_complete_message": "تم إكمال التثبيت بنجاح!",
+                "yes": "نعم",
+                "no": "لا",
+                "startup": "عند بدء التشغيل",
+                "specific_time": "في وقت محدد"
+            },
         }
 
     def show_message(self, title, message):
         QMessageBox.information(self, title, message)
 
-def main():
+if __name__ == '__main__':
     app = QApplication(sys.argv)
-    installer = InstallerApp()
-    installer.show()
+    window = InstallerApp()
+    window.show()
     sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()  # Appelle la fonction main si le script est exécuté directement

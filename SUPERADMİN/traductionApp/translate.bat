@@ -19,7 +19,7 @@ echo.
 REM -------------------------------------------------------
 REM Créer un tableau avec les langues et sous-dossiers
 set languages=tr_TR ar_SA en_US pt_BR fr_Fr
-set ui_subdirs=ui modules
+set ui_subdirs=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
 
 REM Boucle sur les langues pour créer les répertoires
 for %%L in (%languages%) do (
@@ -31,6 +31,38 @@ for %%L in (%languages%) do (
     )
 )
 
+
+set languagests=tr_TR ar_SA en_US pt_BR fr_Fr
+set ui_subdirsts=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+
+
+REM Boucle sur les langues pour créer les répertoires
+for %%L in (%languagests%) do (
+    for %%S in (%ui_subdirsts%) do (
+        if not exist "%%L\%%S" (
+            echo Création du dossier %%L\%%S...
+            mkdir resources\langts\%%L\%%S
+        )
+    )
+)
+
+set langtstranslated=tr_TR ar_SA en_US pt_BR fr_Fr
+set ui_subdirststranslated=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+
+
+REM Boucle sur les langues pour créer les répertoires
+for %%L in (%langtstranslated%) do (
+    for %%S in (%ui_subdirststranslated%) do (
+        if not exist "%%L\%%S" (
+            echo Création du dossier %%L\%%S...
+            mkdir resources\langtstranslated\%%L\%%S
+        )
+    )
+)
+
+
+
+
 REM -------------------------------------------------------
 REM Générer les fichiers .ts pour chaque langue
 REM Boucle pour chaque fichier source à traduire
@@ -38,7 +70,7 @@ set ui_files=carousel feature_buttons footer header login register secondry_menu
 set module_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install
 set fbkrobot_files=demarrageAuto setup sendatajson sendatajson2 sendatajson3
 
-set whatssap_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
+set whatssap_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3 
 set instagram_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
 set linkeding_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
 set blog_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
