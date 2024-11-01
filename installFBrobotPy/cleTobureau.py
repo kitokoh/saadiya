@@ -113,6 +113,7 @@ def copy_file():
     source_file2 = os.path.join(user_data_dir, "resources", "tools", "start2.exe")
 
     print(f"Chemin du fichier source : {source_file}")
+    print(f"Chemin du fichier source : {source_file2}")
 
     # Chemin du fichier destination sur le bureau
     dest_file = os.path.join(desktop_path, "FB-Robot.exe")

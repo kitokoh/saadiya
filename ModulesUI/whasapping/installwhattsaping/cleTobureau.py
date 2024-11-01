@@ -109,14 +109,14 @@ def copy_file():
 
     # Chemin du fichier source cle.exe
     current_dir = os.getcwd()
-    source_file = os.path.join(user_data_dir, "resources", "tools", "cle.exe")
-    source_file2 = os.path.join(user_data_dir, "resources", "tools", "start2.exe")
+    source_file = os.path.join(user_data_dir, "resources", "tools", "wacle.exe")
+    source_file2 = os.path.join(user_data_dir, "resources", "tools", "wastart2.exe")
 
     print(f"Chemin du fichier source : {source_file}")
 
     # Chemin du fichier destination sur le bureau
-    dest_file = os.path.join(desktop_path, "FB-Robot.exe")
-    dest_file2 = os.path.join(desktop_path, "Robot-Multi.exe")
+    dest_file = os.path.join(desktop_path, "WA-Robot.exe")
+    dest_file2 = os.path.join(desktop_path, "WA-Robot-Multi.exe")
 
     # Vérification du fichier source
     if not os.path.exists(source_file):

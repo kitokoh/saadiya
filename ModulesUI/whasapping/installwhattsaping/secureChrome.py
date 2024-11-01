@@ -83,7 +83,7 @@ import sys
 import time
 
 def launch_chrome():
-    robot_folder = r'C:\bon'
+    robot_folder = r'C:\wabon'
     chrome_path = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 
     # Vérifier si Google Chrome est installé
@@ -108,7 +108,7 @@ def launch_chrome():
     # Boucle pour ouvrir plusieurs instances de Google Chrome avec des profils différents
     for i in range(1, count + 1):
         profile_path = os.path.join(os.getenv('USERPROFILE'), f'AppData\\Local\\Google\\Chrome\\User Data\\Profil {i}')
-        url = 'https://www.facebook.com/login'
+        url = 'https://www.wa.com'
         try:
             subprocess.Popen([chrome_path, f'--profile-directory=Default', f'--user-data-dir={profile_path}', url])
             print(f"Google Chrome ouvert avec succès avec le profil {i}.")

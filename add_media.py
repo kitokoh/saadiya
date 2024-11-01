@@ -9,13 +9,13 @@ class AddMedia:
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','add_media_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','add_media_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','add_media_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','add_media_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

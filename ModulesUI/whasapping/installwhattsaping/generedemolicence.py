@@ -6,8 +6,8 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 class LicenceGenerator:
     def __init__(self):
         # Initialisation des variables
-        self.licence_folder = 'C:\\bon'
-        self.tmp_folder = 'C:\\bon'
+        self.licence_folder = 'C:\\wabon'
+        self.tmp_folder = 'C:\\wabon'
         self.tmp_file = os.path.join(self.tmp_folder, 'tmp.txt')
         self.licence_file = os.path.join(self.licence_folder, 'python.txt')
         self.log_file = os.path.join(user_data_dir, 'resources', 'journalInstallation.txt')

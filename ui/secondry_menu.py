@@ -72,14 +72,24 @@ class SecondaryMenu(QWidget):
         self.setLayout(menu_layout)
     def switch_language(self, language):
         """Permet de changer la langue."""
+        # if language == "en":
+        #     self.translator.load("resources/lang/en_US/ui/secondry_menu_translated.qm")
+        # elif language == "fr":
+        #     self.translator.load("resources/lang/fr_FR/ui/secondry_menu_translated.qm")
+        # elif language == "tr":
+        #     self.translator.load("resources/lang/tr_TR/ui/secondry_menu_translated.qm")
+        # elif language == "ar":
+        #     self.translator.load("resources/lang/ar_AR/ui/secondry_menu_translated.qm")
+
+
         if language == "en":
-            self.translator.load("resources/lang/en_US/ui/secondry_menu_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','ui','secondry_menu_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/ui/secondry_menu_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','ui','secondry_menu_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/ui/secondry_menu_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','secondry_menu_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/ui/secondry_menu_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','secondry_menu_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

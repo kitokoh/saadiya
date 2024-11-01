@@ -86,11 +86,11 @@ class ScriptWorker(QThread):
         if language == "en":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -211,11 +211,11 @@ class LicenseDialog(QDialog):
         if language == "en":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -397,11 +397,11 @@ class UpdateLicenseDialog(QDialog):
         if language == "en":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -541,11 +541,11 @@ class HelpDialog(QDialog):
         if language == "en":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -811,11 +811,11 @@ class FbRobot(QtWidgets.QWidget):
         if language == "en":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','fb_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

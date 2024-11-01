@@ -82,7 +82,7 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 
 def generate_report():
     bon_dir = "C:\\bon"
-    ai_fb_robot_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
+    ai_fb_robot_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AI-WA-Robot")
     log_file =os.path.join(user_data_dir, "resources", "journalInstallation.txt")
 
     # Création du fichier log s'il n'existe pas

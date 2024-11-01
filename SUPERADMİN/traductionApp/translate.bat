@@ -63,27 +63,27 @@ for %%L in (%langtstranslated%) do (
 
 
 
-REM -------------------------------------------------------
+REM -------------------------------------------------------update_media_dialog demarrageAuto main_x_robot 
 REM Générer les fichiers .ts pour chaque langue
 REM Boucle pour chaque fichier source à traduire
 set ui_files=carousel feature_buttons footer header login register secondry_menu side_menu toggle_menu
-set module_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install
-set fbkrobot_files=demarrageAuto setup sendatajson sendatajson2 sendatajson3
+set module_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto
+set fbkrobot_files=demarrageAuto setup sendatajson sendatajson2 sendatajson3 supprimBon supprimeDossierİnstall uninstallQT updatejson
 
-set whatssap_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3 
-set instagram_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set linkeding_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set blog_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set adspro_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set branding_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set chatBot_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set emailing_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set pinterest_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set reddit_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set snapchat_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set tiktok_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set twitter_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
-set youtube_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 sendatajson3
+set whatssap_files=main main_wp_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson 
+set instagram_files=main main_insta_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set linkeding_files=main main_linkeding_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set blog_files=main main_blog_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set adspro_files=main main_ads_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set branding_files=main main_brand_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set chatBot_files=main main_chatbot_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set emailing_files=main main_mail_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set pinterest_files=main main_pin_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set reddit_files=main main_reddit_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set snapchat_files=main main_snap_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set tiktok_files=main main_tok_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set twitter_files=main main_x_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set youtube_files=main main_ytb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
 
 
 echo Génération des fichiers .ts pour l'UI...

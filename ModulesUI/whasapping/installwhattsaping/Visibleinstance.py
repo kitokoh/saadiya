@@ -102,7 +102,7 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 
 def show_folders():
     # Chemin du dossier principal
-    base_folder = "C:\\bon"
+    base_folder = "C:\\wabon"
 
     # Vérification si le dossier principal existe
     if os.path.exists(base_folder):

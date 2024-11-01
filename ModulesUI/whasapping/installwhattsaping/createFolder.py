@@ -127,8 +127,8 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 class LogWorker:
     def __init__(self):
         """Initialise la gestion des dossiers et journalise les actions"""
-        self.user_folder = r"C:\bon"  # Répertoire spécifique
-        self.download_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
+        self.user_folder = r"C:\wabon"  # Répertoire spécifique
+        self.download_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-WA-Robot")
         self.log_file = os.path.abspath(user_data_dir, 'resources', 'journalInstallation.txt')
 
         self.start_logging()

@@ -50,7 +50,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='resources/icons/robot-512.ico',  # Vérifiez le chemin d'accès à l'icône
+    icon='resources/icons/robot-icons-30504-Windows.ico',  # Vérifiez le chemin d'accès à l'icône
     distpath='D:/Installations/Nova360',  # Dossier de sortie
     workpath='D:/Installations/Nova360/build',  # Dossier de travail
 )

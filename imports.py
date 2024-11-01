@@ -18,8 +18,8 @@ from cryptography.fernet import Fernet
 import subprocess
 
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
-#user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
-_curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+#_curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
 
 # # Définir le chemin du dossier userdata
-user_data_dir = os.path.join(_curentfolder)
+#user_data_dir = os.path.join(_curentfolder)

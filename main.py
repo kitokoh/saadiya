@@ -9,6 +9,8 @@ from ui.login import LoginModule
 from home import HomePage  # Assurez-vous d'importer le module d'accueil
 from translation import TranslatorManager
 from imports import *
+from datetime import datetime, timedelta
+
 class Nova360ProApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -20,8 +22,8 @@ class Nova360ProApp(QMainWindow):
         self.setWindowTitle(self.tr("Nova360Pro - Connexion"))
         self.setGeometry(100, 100, 800, 600)
         # Initialiser et charger les traductions
-        self.translator_manager = TranslatorManager()
-        self.translator_manager.load_translations()
+       # self.translator_manager = TranslatorManager()
+        #self.translator_manager.load_translations()
         self.setWindowIcon(QIcon('resources/icons/robot-512.png'))  # Assurez-vous que le chemin de l'icône est correct
 
         # Widget central et layout principal
@@ -46,18 +48,24 @@ class Nova360ProApp(QMainWindow):
         # Connecter le signal de connexion réussie
         self.login_module.connection_successful.connect(self.show_home)
 
+
+        # Vérifier la session active au démarrage
+        if self.is_session_active():
+            self.show_home()
+        else:
+            self.show_login()
         # Afficher le module de connexion au démarrage
-        self.show_login()
+        #.show_login()
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','main_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','main_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','main_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -129,6 +137,23 @@ class Nova360ProApp(QMainWindow):
         # Ajouter la page d'accueil
         self.home_module = HomePage()  # Module de la page d'accueil
         self.main_layout.addWidget(self.home_module)
+
+
+    def is_session_active(self):
+        """Vérifie si la session utilisateur est active en lisant le fichier session.json."""
+        session_file = os.path.join(user_data_dir,'resources','data', 'session.json')
+        if os.path.exists(session_file):
+            with open(session_file, 'r') as f:
+                session_data = json.load(f)
+                expiration_time_str = session_data.get("expiration_time")
+                
+                # Convertir expiration_time en datetime pour la comparaison
+                if expiration_time_str:
+                    expiration_time = datetime.fromisoformat(expiration_time_str)
+                    if datetime.now() < expiration_time:  # Utiliser datetime.now() pour la comparaison
+                        return True
+        return False
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

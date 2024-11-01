@@ -12,6 +12,12 @@ from .carousel import CarouselWidget  # Assurez-vous que CarouselWidget est impo
 from .register import RegisterModule
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
+from datetime import datetime, timedelta
+
+# Durée maximale de la session en minutes
+SESSION_TIMEOUT = 30  # 30 minutes
+
+
 class LoginModule(QWidget):
     # Définir un signal pour indiquer que la connexion a réussi
     connection_successful = pyqtSignal()
@@ -139,14 +145,24 @@ class LoginModule(QWidget):
         self.max_attempts = 3  # Limite d'essais
     def switch_language(self, language):
         """Permet de changer la langue."""
+        # if language == "en":
+        #     self.translator.load("resources/lang/en_US/ui/login_translated.qm")
+        # elif language == "fr":
+        #     self.translator.load("resources/lang/fr_FR/ui/login_translated.qm")
+        # elif language == "tr":
+        #     self.translator.load("resources/lang/tr_TR/ui/login_translated.qm")
+        # elif language == "ar":
+        #     self.translator.load("resources/lang/ar_AR/ui/login_translated.qm")
+
+
         if language == "en":
-            self.translator.load("resources/lang/en_US/ui/login_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','ui','login_translated.qm'))
         elif language == "fr":
-            self.translator.load("resources/lang/fr_FR/ui/login_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','ui','login_translated.qm'))
         elif language == "tr":
-            self.translator.load("resources/lang/tr_TR/ui/login_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','login_translated.qm'))
         elif language == "ar":
-            self.translator.load("resources/lang/ar_AR/ui/login_translated.qm")
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','login_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -247,7 +263,8 @@ class LoginModule(QWidget):
         # Vérification des identifiants
         user_found = next((user for user in user_data if user['username'] == username), None)
         if user_found and user_found['password'] == self.hash_password(password):
-            
+            self.save_session(username)  # Sauvegarder la session
+
             self.connection_successful.emit()  # Émettre le signal de réussite
 
             QMessageBox.information(self, self.tr("Connexion réussie"), self.tr("Bienvenue, {}!").format(username))
@@ -272,3 +289,68 @@ class LoginModule(QWidget):
         self.hide()  # Masquer le module de connexion
         self.home_page = HomePage()  # Remplacez ceci par votre classe de page d'accueil
         self.home_page.show()  # Afficher la page d'accueil
+
+        if not self.is_session_active():
+            return
+        try:
+            with open(os.path.join(user_data_dir, 'resources', 'session.json'), 'r') as file:
+                session_data = json.load(file)
+                if session_data.get('is_logged_in'):
+                    username = session_data.get('username')
+                    QMessageBox.information(self, self.tr("Bienvenue"), self.tr(f"Bonjour, {username}!"))
+                    self.connection_successful.emit()  # Passer directement à l'application
+                    self.close()
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass  # Pas de session, l'utilisateur doit se connecter
+    def logout(self):
+        session_file = os.path.join(user_data_dir, 'resources', 'session.json')
+        if os.path.exists(session_file):
+            os.remove(session_file)
+        QMessageBox.information(self, self.tr("Déconnexion"), self.tr("Vous êtes maintenant déconnecté."))
+        # Recharger ou rediriger vers l'interface de connexion
+
+    def save_session(self, username):
+        """Sauvegarde les informations de session au moment de la connexion."""
+        now = datetime.now()
+        session_data = {
+            'username': username,
+            'is_logged_in': True,
+            'session_start': now.isoformat(),
+            'last_active': now.isoformat(),
+            'expiration_time': (now + timedelta(minutes=SESSION_TIMEOUT)).isoformat()
+        }
+        with open(os.path.join(user_data_dir, 'resources', 'data', 'session.json'), 'w') as file:
+            json.dump(session_data, file)
+
+    def update_last_active(self):
+        """Met à jour le champ last_active et expiration_time de la session active."""
+        session_file = os.path.join(user_data_dir, 'resources', 'data', 'session.json')
+        try:
+            with open(session_file, 'r') as file:
+                session_data = json.load(file)
+            session_data['last_active'] = datetime.now().isoformat()
+            session_data['expiration_time'] = (datetime.now() + timedelta(minutes=SESSION_TIMEOUT)).isoformat()
+            with open(session_file, 'w') as file:
+                json.dump(session_data, file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+
+    def is_session_active(self):
+        """Vérifie si la session est encore active en comparant l'heure actuelle avec last_active et expiration_time."""
+        session_file = os.path.join(user_data_dir, 'resources', 'data', 'session.json')
+        try:
+            with open(session_file, 'r') as file:
+                session_data = json.load(file)
+                last_active = datetime.fromisoformat(session_data.get('last_active'))
+                expiration_time = datetime.fromisoformat(session_data.get('expiration_time'))
+                
+                if datetime.now() > expiration_time:
+                    self.logout()
+                    QMessageBox.warning(self, self.tr("Session expirée"), self.tr("Votre session a expiré. Veuillez vous reconnecter."))
+                    return False
+                else:
+                    self.update_last_active()
+                    return True
+        except (FileNotFoundError, json.JSONDecodeError, ValueError):
+            return False
+

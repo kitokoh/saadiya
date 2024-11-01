@@ -398,23 +398,23 @@ def handle_instance_installation():
     instance_number = 1
 
     # Vérifie les instances existantes
-    while os.path.exists(f"C:\\bon\\robot{instance_number}"):
+    while os.path.exists(f"C:\\wabon\\robot{instance_number}"):
         instance_number += 1  # Incrémente le numéro d'instance
 
     log(f"Installation de l'instance {instance_number}...")
     install_instance(instance_number)
 
     # Rendre tous les dossiers invisibles
-    hide_directories("C:\\bon")
+    hide_directories("C:\\wabon")
 
 def install_instance(instance_number):
-    folder_path = f"C:\\bon\\robot{instance_number}"
+    folder_path = f"C:\\wabon\\robot{instance_number}"
     os.makedirs(folder_path, exist_ok=True)
     log(f"Création du dossier pour l'instance {instance_number}...")
 
     log(f"Clonage du dépôt GitHub pour l'instance {instance_number}...")
     #run_command(f'git clone https://github.com/kitokoh/bondist1.git {folder_path}')
-    run_command(f'git clone https://github.com/kitokoh/bon.git {folder_path}')
+    run_command(f'git clone https://github.com/kitokoh/wabon.git {folder_path}')
 
     log(f"Création de l'environnement virtuel pour robot{instance_number}...")
     run_command(f"python -m venv {folder_path}\\env{instance_number}")

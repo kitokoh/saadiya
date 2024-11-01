@@ -136,7 +136,7 @@ def log_action(message):
         f.write(f"{message}\n")
 
 def main():
-    base_folder = "C:\\bon"  # Chemin du dossier à masquer
+    base_folder = "C:\\wabon"  # Chemin du dossier à masquer
     hide_folders(base_folder)
 
 if __name__ == "__main__":

@@ -75,19 +75,19 @@ import time
 class FileCopyApp:
     def __init__(self):
         # Configuration des chemins
-        self.source_folder = os.path.join(os.getcwd(), "resources", "demoData")  # Dossier source pour les fichiers media
-        self.destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "media", "media1")
+        self.source_folder = os.path.join(os.getcwd(), "resources", "wademoData")  # Dossier source pour les fichiers media
+        self.destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-WA-Robot", "media", "media1")
         
         # Dossier source pour data.json
         self.data_json_source = os.path.join(self.source_folder, "data.json")
         # Dossier de destination pour data.json
-        self.data_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "text",'text1' )
+        self.data_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-WA-Robot", "text",'text1' )
         
 
                 # Dossier source pour data.json
         self.groups_json_source = os.path.join(self.source_folder, "groups.json")
         # Dossier de destination pour data.json
-        self.groups_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot", "text",'text1' )
+        self.groups_json_destination_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-WA-Robot", "text",'text1' )
         
         # Vérifie si le dossier de destination existe, sinon le crée
         if not os.path.exists(self.destination_folder):
@@ -98,7 +98,7 @@ class FileCopyApp:
             os.makedirs(self.data_json_destination_folder)
 
         # Liste des fichiers à copier
-        self.files_to_copy = ["1.mp4", "2.png", "3.png", "4.png", "5.png", "6.png", "7.png"]
+        self.files_to_copy = ["1.mp4", "2.png", "3.png", "4.png", "5.png", "6.png", "8.pdf"]
 
         # Exécution de la tâche
         self.copy_files()

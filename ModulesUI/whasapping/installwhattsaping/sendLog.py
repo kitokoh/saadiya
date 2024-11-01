@@ -300,7 +300,7 @@ def send_email():
         # Création du message
         recipient_email = "turk.novatech@gmail.com"
         subject = "Rapport installation instances"
-        body = "Bonjour,\n\nVeuillez trouver ci-joint le rapport d'installation.\n\nCordialement,\nVotre Système"
+        body = "Bonjour,\n\nVeuillez trouver ci-joint le rapport d'installation dewa robot.\n\nCordialement,\nVotre Système"
 
         msg = MIMEMultipart()
         msg['From'] = sender_email

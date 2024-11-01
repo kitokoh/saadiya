@@ -6,12 +6,20 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWi
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
 
-from media_manager import MediaTable
-from group_manager import GroupTable
-from instances_table import InstanceTable
-from fb_robot_install import FbRobot
+# from media_manager import MediaTable
+# from group_manager import GroupTable
+# from instances_table import InstanceTable
+# from fb_robot_install import FbRobot
 
-from installFBrobotPy.demarrageAuto import InstallerApp
+from ModulesUI.tiktok.media_manager import MediaTable
+from ModulesUI.tiktok.group_manager import GroupTable
+from ModulesUI.tiktok.instances_table import InstanceTable
+#from fb_robot_install import FbRobot
+from ModulesUI.twitter.wp_robot_install import WpRobot
+from statistique.stat import Dashboard
+
+
+from ModulesUI.tiktok.installwhattsaping.demarrageAuto import InstallerApp
 #from installFBrobotPy.majenvqt import AppEnv 
 #from installFBrobotPy.updatejson import InstallerApp
 #from installFBrobotPy.installGithub import InstallerApp
@@ -191,7 +199,7 @@ class SnapMainWindow(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        self.instance_table = FbRobot()
+        self.instance_table = Dashboard(title="Snapchat Robot Pro", subtitle="Analytics Overview")
         layout.addWidget(self.instance_table)
     def switch_language(self, language):
         """Permet de changer la langue."""
@@ -263,7 +271,7 @@ class SnapMainWindow(QMainWindow):
         self.setCentralWidget(InstanceTable(self))
 
     def open_install(self):
-        self.setCentralWidget(FbRobot())
+        self.setCentralWidget(WpRobot())
 
     def open_group(self):
         self.setCentralWidget(GroupTable(self))
@@ -315,7 +323,7 @@ class SnapMainWindow(QMainWindow):
                     QMessageBox.information(self, self.tr("Désinstallation"), self.tr("Instances desinstallation ...."))
 
                     # Optionnel : Rediriger vers une autre vue, si nécessaire
-                    self.setCentralWidget(FbRobot())
+                    self.setCentralWidget(WpRobot())
 
                 except Exception as e:
                     # Gestion des erreurs si l'exécution échoue

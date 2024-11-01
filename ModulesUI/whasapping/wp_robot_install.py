@@ -180,7 +180,7 @@ class ScriptWorker(QThread):
                 progress = int(((i + 1) / total_scripts) * 100)
                 self.progress_signal.emit(progress)
         # Signal to indicate completion
-        self.log_signal.emit(self.tr("Installation terminée avec succès."), "success")
+        self.log_signal.emit(self.tr("Installation de l instance terminée ...."), "success")
         self.progress_signal.emit(100)
 
 class LicenseDialog(QDialog):
@@ -488,7 +488,7 @@ class UpdateLicenseDialog(QDialog):
             prefix = "909"
 
         # Lire le contenu de python.txt
-        source_file_path = 'C:/bon/python.txt'
+        source_file_path = 'C:/wabon/python.txt'
         with open(source_file_path, 'r') as source_file:
             content = source_file.read()
 
@@ -496,7 +496,7 @@ class UpdateLicenseDialog(QDialog):
         updated_content = prefix + content[3:]
 
         # Créer le dossier robot si nécessaire
-        target_directory = f'C:/bon/robot{instance_number}'
+        target_directory = f'C:/wabon/robot{instance_number}'
         os.makedirs(target_directory, exist_ok=True)
 
         # Écrire le contenu mis à jour dans le nouveau fichier
@@ -882,7 +882,7 @@ class WpRobot(QtWidgets.QWidget):
         self.switch_language(selected_language)
     
     def update_conditional_premium(self):
-        if os.path.exists(r'C:\Bon\robot1\python.txt'):
+        if os.path.exists(r'C:\wabon\robot1\python.txt'):
             self.conditional_btn_premium.setText(self.tr("Update licence"))  # Utilisation de self.tr()
         else: 
             self.conditional_btn_premium.setText(self.tr("Demande Licence"))  # Utilisation de self.tr()
@@ -1096,23 +1096,23 @@ class WpRobot(QtWidgets.QWidget):
             (self.tr('verification permissions...'), os.path.join(user_data_dir, 'installFBrobotPy', 'permission.py')),
             (self.tr('verification du language...'), os.path.join(user_data_dir, 'installFBrobotPy', 'installGithub.py')),
             (self.tr('Verification de system versionnage...'), os.path.join(user_data_dir, 'installFBrobotPy', 'installpython.py')),
-            (self.tr('Création du dossier de l\'instance...'), os.path.join(user_data_dir, 'installFBrobotPy', 'createFolder.py')),
-            (self.tr('Initialisation du système...'), os.path.join(user_data_dir, 'installFBrobotPy', 'system.py')),
-            (self.tr('Organisation des fichiers...'), os.path.join(user_data_dir, 'installFBrobotPy', 'dossiers.py')),
-            (self.tr('Copie des fichiers média...'), os.path.join(user_data_dir, 'installFBrobotPy', 'copieMediaDemo.py')),
-            (self.tr('Génération des informations...'), os.path.join(user_data_dir, 'installFBrobotPy', 'geninfo.py')),
-            (self.tr('Installation de la licence de démo...'), os.path.join(user_data_dir, 'installFBrobotPy', 'generedemolicence.py')),
-            (self.tr('Mise à jour des configurations...'), os.path.join(user_data_dir, 'installFBrobotPy', 'updatejson.py')),
-            (self.tr('Finalisation de l\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'Visibleinstance.py')),
-            (self.tr('Mise à jour de l\'environnement...'), os.path.join(user_data_dir, 'installFBrobotPy', 'majenv.py')),
-            (self.tr('Vérification du système...'), os.path.join(user_data_dir, 'installFBrobotPy', 'verificateur.py')),
-            (self.tr('Configuration du bureau...'), os.path.join(user_data_dir, 'installFBrobotPy', 'cletobureau.py')),
-            (self.tr('Envoi des logs...'), os.path.join(user_data_dir, 'installFBrobotPy', 'sendlog.py')),
-            (self.tr('Visibilité du dossier...'), os.path.join(user_data_dir, 'installFBrobotPy', 'invisibleinstance.py')),
-            (self.tr('Affichage du message...'), os.path.join(user_data_dir, 'installFBrobotPy', 'affiheMessage.py')),
-            (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'installFBrobotPy', 'mailSucces.py')),
-            (self.tr('Rendre invisible bon...'), os.path.join(user_data_dir, 'installFBrobotPy', 'invisibleinstance.py')),
-            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'secureChrome.py'))
+            (self.tr('Création du dossier de l\'instance...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'createFolder.py')),
+            (self.tr('Initialisation du système...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'system.py')),
+            (self.tr('Organisation des fichiers...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'dossiers.py')),
+            (self.tr('Copie des fichiers média...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'copieMediaDemo.py')),
+            (self.tr('Génération des informations...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'geninfo.py')),
+            (self.tr('Installation de la licence de démo...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'generedemolicence.py')),
+            (self.tr('Mise à jour des configurations...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'updatejson.py')),
+            (self.tr('Finalisation de l\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'Visibleinstance.py')),
+            (self.tr('Mise à jour de l\'environnement...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'majenv.py')),
+            (self.tr('Vérification du système...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'verificateur.py')),
+            (self.tr('Configuration du bureau...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'cletobureau.py')),
+            (self.tr('Envoi des logs...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'sendlog.py')),
+            (self.tr('Visibilité du dossier...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleinstance.py')),
+            (self.tr('Affichage du message...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'affiheMessage.py')),
+            (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping','mailSucces.py')),
+            (self.tr('Rendre invisible bon...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleinstance.py')),
+            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'secureChrome.py'))
         ]
 
         # Initialize worker thread
@@ -1148,8 +1148,8 @@ class WpRobot(QtWidgets.QWidget):
     def update_progress(self, value):
         self.progress_bar.setValue(value)
         if value >= 100:
-            self.log(self.tr("Installation terminée avec succès."), "success")
-            self.show_notification(self.tr("Installation terminée avec succès !"), "success")
+            self.log(self.tr("Installation de l instance est terminée ...."), "success")
+            self.show_notification(self.tr("Installation de l instance est  terminée ..."), "success")
                # Optionnel : Rediriger vers une autre vue, si nécessaire
             #self.setCentralWidget(WpRobot())
             #self.timer.start(3000)  # Mettre à jour toutes les 5 secondes

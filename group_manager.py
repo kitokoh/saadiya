@@ -41,13 +41,13 @@ class AddGroupDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','group_manager_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','group_manager_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','group_manager_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','group_manager_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -127,13 +127,13 @@ class GroupTable(QWidget):
         self.group_list = self.load_groups()  # Charger les groupes
         self.visible_columns = [self.tr('Select'), self.tr('Name'), self.tr('Link'), self.tr('Remarks'), 
                                 self.tr('Category'), self.tr('Description'), self.tr('Actions')]
-        self.items_per_page = 5
+        self.items_per_page = 25
         self.current_page = 1
 
         layout = QVBoxLayout(self)
 
         # Ajouter le header
-        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing & Management Auto")
+        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
         layout.addWidget(header)
 
         # Disposition en haut pour le titre, la barre de recherche et les boutons
@@ -223,13 +223,13 @@ class GroupTable(QWidget):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','group_manager_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','group_manager_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','group_manager_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','group_manager_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

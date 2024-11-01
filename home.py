@@ -27,7 +27,7 @@ from ModulesUI.youtube.main_ytb_robot import YtbMainWindow  # Importez votre pag
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
-
+from ui.clientsBrand import Nosclient
 from imports import *
 class HomePage(QMainWindow):
     def __init__(self):
@@ -305,7 +305,7 @@ class HomePage(QMainWindow):
         main_layout.addLayout(duplicate_layout)
 
         # Ajouter un titre "Gestion Auto"
-        gestion_auto_label = QLabel("Gestion Auto")
+        gestion_auto_label = QLabel(self.tr("Autres Solutions"))
         gestion_auto_label.setFont(QFont("Arial", 20, QFont.Bold))
         gestion_auto_label.setAlignment(Qt.AlignCenter)
         gestion_auto_label.setStyleSheet("color: #2E7D32;")
@@ -315,13 +315,13 @@ class HomePage(QMainWindow):
         bottom_layout = QHBoxLayout()
 
         bottom_buttons = [
-            ("Chat Bot", "#4CAF50"),
+            ("Full Marketing", "#4CAF50"),
             ("Auto GES", "#4CAF50"),
-            ("Whats Contact", "#4CAF50"),
+            ("Contact 360", "#4CAF50"),
             ("GES Auto", "#4CAF50"),
             ("SAV", "#E91E63"),
             ("ERP", "#4CAF50"),
-            ("GÉD360", "#E91E63")
+            ("CRM360", "#E91E63")
         ]
 
         for text, color in bottom_buttons:
@@ -343,6 +343,13 @@ class HomePage(QMainWindow):
             bottom_layout.addWidget(button)
 
         main_layout.addLayout(bottom_layout)
+
+
+        client_layout = QHBoxLayout()
+        self.clients=Nosclient()
+
+        client_layout.addWidget(self.clients)
+        main_layout.addLayout(client_layout)
 
         # Créer un pied de page modernisé
         footer_layout = QHBoxLayout()
@@ -408,13 +415,13 @@ class HomePage(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','home_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','home_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','home_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','home_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
