@@ -114,9 +114,9 @@ class WhatsMainWindow(QMainWindow):
         self.media_action.triggered.connect(self.open_media)
         menubar.addAction(self.media_action)
 
-        self.group_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Groupes'), self)
+        self.group_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Contacts'), self)
         self.group_action.setToolTip(self.tr('Afficher la liste des groupes'))
-        self.group_action.triggered.connect(self.open_group)
+        self.group_action.triggered.connect(self.open_contacts)
         menubar.addAction(self.group_action)
 
         self.about_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('About'), self)
@@ -227,7 +227,7 @@ class WhatsMainWindow(QMainWindow):
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
         self.media_action.setText(self.tr('Médias'))
-        self.group_action.setText(self.tr('Groupes'))
+        self.group_action.setText(self.tr('Contacts'))
         self.about_action.setText(self.tr('About'))
         self.certificate_action.setText(self.tr('Certif'))
         self.language_menu.setTitle(self.tr('Langue'))
@@ -266,7 +266,7 @@ class WhatsMainWindow(QMainWindow):
     def open_install(self):
         self.setCentralWidget(WpRobot())
 
-    def open_group(self):
+    def open_contacts(self):
         self.setCentralWidget(GroupTable(self))
 
     def open_about(self):

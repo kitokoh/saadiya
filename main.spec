@@ -1,5 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files
 
+# Collect qtwebengine locale files
+qtwebengine_locales = collect_data_files(
+    'PyQt5',
+    subdir='Qt5/translations/qtwebengine_locales',
+    include_py_files=False
+)
 a = Analysis(
     ['main.py'],
     pathex=['C:\\Users\\ibrahim\\anaconda3\\Library\\bin', 'C:\\Users\\ibrahim\\Downloads\\Robot_Labo_Pro\\lang'],
@@ -18,9 +25,14 @@ a = Analysis(
         ('resources/tools/*', 'resources/tools'),
         ('resources/sounds/*', 'resources/sounds'),
         ('resources/demoData/*', 'resources/demoData'),
+         ('resources/demoData/*', 'resources/demoData'),
+         
+         ('resources/lang/*', 'resources/lang'),
+
         ('installFBrobotPy/*', 'installFBrobotPy')
     ],
-    hiddenimports=['sip'],
+    hiddenimports=['sip','PyQt5.QtWebEngineWidgets'],
+
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

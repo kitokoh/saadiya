@@ -133,7 +133,7 @@ class GroupTable(QWidget):
         layout = QVBoxLayout(self)
 
         # Ajouter le header
-        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing & Management Auto")
+        header = HeaderSection(self, title="CONTACT MANAGEMENT", app_name="WA ROBOT AI", slogan="AI Marketing AUTOMATION")
         layout.addWidget(header)
 
         # Disposition en haut pour le titre, la barre de recherche et les boutons

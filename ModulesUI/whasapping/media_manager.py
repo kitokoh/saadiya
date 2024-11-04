@@ -181,7 +181,7 @@ class AddMedia(QWidget):
 
     def load_json(self):
         # Définir le chemin du fichier JSON
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WP-Robot', 'text', 'text1', 'data.json')
+        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'text', 'text1', 'data.json')
 
         # Vérifier si le fichier et le dossier existent, sinon les créer
         if not os.path.exists(self.json_file):
@@ -196,7 +196,7 @@ class AddMedia(QWidget):
             return json.load(f)
 
     def update_json(self, media_data):
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WP-Robot', 'text', 'text1', 'data.json')
+        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'text', 'text1', 'data.json')
 
         with open(self.json_file, 'w') as f:
             json.dump(media_data, f)
@@ -228,7 +228,7 @@ class AddMedia(QWidget):
                     continue  # Ignore les erreurs de conversion en nombre
 
             # Préparer le dossier cible
-            self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WP-Robot', 'media', 'media1')
+            self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'media', 'media1')
             if not os.path.exists(self.media_folder):
                 os.makedirs(self.media_folder, exist_ok=True)
 

@@ -8,22 +8,22 @@ from PyQt5.QtChart import (
 )
 from PyQt5.QtGui import QFont, QColor, QPainter
 from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets, QtGui, QtCore
+
 from PyQt5.QtCore import QPropertyAnimation, QRect, Qt
 from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-import tkinter as tk
-from tkinter import messagebox, simpledialog, ttk
-import subprocess
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
 from ui.header import HeaderSection  # Import du header
-
+from ui.howToUse import VideoAndDownloadWidget
 from ui.footer import FooterSection  # Import du footer
 from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
 from statistique.activiteprogramme import Activite
+
 class Dashboard(QMainWindow):
-    def __init__(self, title="SAADIYA.AI", subtitle="Analytics Overview", validiter=None, var2=None, var3=None, var4=None, var5=None,
+    def __init__(self, title="SAADIYA.AI", subtitle="Analytics Overview", validiter=None, Nombregroupes=None, totalshare=None, nexttimeshare=None, var5=None,
         var6=None, var7=None, var8=None, var9=None, var10=None):
         super().__init__()
         
@@ -33,9 +33,9 @@ class Dashboard(QMainWindow):
 
         # Attribuer les variables pour utilisation dans la classe
         self.validiter = validiter
-        self.var2 = var2
-        self.var3 = var3
-        self.var4 = var4
+        self.Nombregroupes = Nombregroupes
+        self.totalshare= totalshare
+        self.nexttimeshare = nexttimeshare
         self.var5 = var5
         self.var6 = var6
         self.var7 = var7
@@ -114,7 +114,7 @@ class Dashboard(QMainWindow):
         self.setup_influence_rate_tab()
         self.setup_other_solutions_tab()
         self.programmer_solutions_tab()
-        
+       
         # Footer
         footer = QLabel(self.tr("© 2024 Marketing Automation. Next update: November 15, 2024."))
         footer.setFont(QFont("Arial", 10))
@@ -155,10 +155,10 @@ class Dashboard(QMainWindow):
         stats_layout = QHBoxLayout()
         stats_buttons = [
             (self.tr("License Valid Until"), self.validiter),
-            (self.tr("Next Post Time"), "12:00 PM"),
-            (self.tr("Active Groups"), "152"),
-            (self.tr("Total Shares"), "5280"),
-            (self.tr("Custom Stat"), "Surprise!")
+            (self.tr("Next Post Time"), self.nexttimeshare),
+            (self.tr("Active Groups"), self.Nombregroupes),
+            (self.tr("Total Shares"), self.totalshare),
+            (self.tr("Custom Rate"), "0.8")
         ]
 
         for i, (title, stat) in enumerate(stats_buttons):
@@ -192,7 +192,32 @@ class Dashboard(QMainWindow):
         # Charts Row
         chart_layout = QHBoxLayout()
         chart_layout.addWidget(self.create_bar_chart())
+
+    #  # Spécifier les liens des vidéos et des documents en paramètre
+    #     video_urls = ["https://www.youtube.com/watch?v=xyz789", "https://www.youtube.com/watch?v=uvw123"]
+    #     download_files = ["https://example.com/doc1.pdf", "https://example.com/doc2.pdf", "https://example.com/doc3.pdf"]
+
+    #     #app = QtWidgets.QApplication([])
+        
+    #     # Spécifier les liens des vidéos et des documents en paramètre
+    #     video_urls = ["https://www.youtube.com/watch?v=xyz789", "https://www.youtube.com/watch?v=uvw123"]
+    #     download_files = ["https://example.com/doc1.pdf", "https://example.com/doc2.pdf", "https://example.com/doc3.pdf"]
+
+    #     widget = VideoAndDownloadWidget(video_links=video_urls, download_links=download_files)
+    #    # widget.show()
+        #app.exec_()
+
+        # widget = VideoAndDownloadWidget(video_links=video_urls, download_links=download_files)
+        # widget.show()
+        # app.exec_()
+       # self.how_to_use_class= VideoAndDownloadWidget(video_links=video_urls, download_links=download_files)
+
+        #self.how_to_use= VideoAndDownloadWidget(video_links=video_urls, download_links=download_files)
+        #chart_layout.addWidget(widget)
         chart_layout.addWidget(self.create_line_chart())
+
+
+
         layout.addLayout(chart_layout)
 
         self.tab_general.setLayout(layout)

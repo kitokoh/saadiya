@@ -1,5 +1,6 @@
 pyinstaller
-pyqt5
+pyqt5==5.15.4
+pyqtwebengine==5.15.4
 pyqt5-sip
 PyQt5==5.15.4
 PyQt5-sip==12.9.0
@@ -12,3 +13,5 @@ databases
 pydantic
 QtPy 
 PyQtChart
+
+

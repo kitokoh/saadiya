@@ -23,6 +23,9 @@ from installFBrobotPy.majenvqt import MajEnv
 from installFBrobotPy.jsontorobot import JsonToRobot
 from installFBrobotPy.supprimBon import DeleteBon
 from installFBrobotPy.updateInstanceQt import UpdateInstance
+from statistique.nombredegrup import GroupCounter
+from statistique.nombretotalShare import LogLineCounter
+from statistique.prochainexecution import ScheduledTaskChecker
 
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
@@ -199,10 +202,19 @@ class FaceMainWindow(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        # Exemple d'utilisation
+        # construction statistiques
         license_checker = LicenseChecker(license_dir="C:\\bon")  # Passez le chemin ici
+        
+        file_path = 'C:\\bon\\robot1\\data.json'  # Spécifiez le chemin vers votre fichier data.json
+        group_counter = GroupCounter(file_path)   
+        self.Nombregroup =group_counter.count_groups()
+        # url = "C:\\bon\\robot1\\log.txt"
+        # self.totalshare = LogLineCounter(url)
+        # program_name = "FB-ROBOT.exe"
+        # task_checker = ScheduledTaskChecker(program_name)
+        # self.nexttimeshare = task_checker.check_task()
         print(license_checker.is_license_valid())
-        self.instance_table = Dashboard(title="AI FB ROBOT PRO", subtitle="Analytics Overview", validiter=license_checker.is_license_valid())
+        self.instance_table = Dashboard(title="AI FB ROBOT PRO", subtitle="Analytics Overview", validiter=license_checker.is_license_valid(),Nombregroupes=self.Nombregroup, totalshare="Nombre total" ,nexttimeshare="none")
         layout.addWidget(self.instance_table)
     
     def switch_language(self, language):
