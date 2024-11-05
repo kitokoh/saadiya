@@ -9,7 +9,7 @@ class FileTransferApp:
     def __init__(self):
         # Dossier source et cible
         self.source_dir = self.get_downloads_folder()
-        self.target_dir = "C:\\Bon"
+        self.target_dir = "C:\\snapbon"
         
     def get_downloads_folder(self):
         """Récupère le chemin du dossier Téléchargements de l'utilisateur."""

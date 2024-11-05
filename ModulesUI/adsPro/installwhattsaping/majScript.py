@@ -17,7 +17,7 @@ class App(QtWidgets.QWidget):
 
         # Champ pour le dossier parent robotx
         self.robotDirEdit = QtWidgets.QLineEdit(self)
-        self.robotDirEdit.setPlaceholderText("Entrez le chemin du dossier robot parent (ex: C:/bon)")
+        self.robotDirEdit.setPlaceholderText("Entrez le chemin du dossier robot parent (ex: C:/grambon)")
         layout.addWidget(self.robotDirEdit)
 
         # Champ pour le chemin du dossier contenant les sous-dossiers textx

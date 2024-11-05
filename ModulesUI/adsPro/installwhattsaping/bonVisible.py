@@ -33,20 +33,20 @@ class FolderVisibilityApp(QWidget):
         self.setLayout(self.layout)
 
     def show_folder(self):
-        folder_path = "C:\\bon"
+        folder_path = "C:\\grambon"
 
         # Vérifier si le dossier existe
         if os.path.exists(folder_path):
             try:
                 # Rendre le dossier visible en retirant les attributs +h et +s
                 ctypes.windll.kernel32.SetFileAttributesW(folder_path, 0x80)  # Attribut pour le rendre visible
-                self.info_label.setText("Le dossier C:\\bon est maintenant visible.")
-                QMessageBox.information(self, "Succès", "Le dossier C:\\bon est maintenant visible.")
+                self.info_label.setText("Le dossier C:\\grambon est maintenant visible.")
+                QMessageBox.information(self, "Succès", "Le dossier C:\\grambon est maintenant visible.")
             except Exception as e:
                 QMessageBox.critical(self, "Erreur", f"Impossible de rendre le dossier visible : {str(e)}")
         else:
-            self.info_label.setText("Le dossier C:\\bon n'existe pas.")
-            QMessageBox.warning(self, "Erreur", "Le dossier C:\\bon n'existe pas.")
+            self.info_label.setText("Le dossier C:\\grambon n'existe pas.")
+            QMessageBox.warning(self, "Erreur", "Le dossier C:\\grambon n'existe pas.")
 
 def main():
     app = QApplication(sys.argv)

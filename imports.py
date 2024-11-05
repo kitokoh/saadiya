@@ -17,6 +17,10 @@ from email.mime.application import MIMEApplication
 from cryptography.fernet import Fernet
 import subprocess
 
+
+from statistique.stat import Dashboard
+from checklicence import LicenseChecker
+from statistique.nombredegrup import GroupCounter
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 #_curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire

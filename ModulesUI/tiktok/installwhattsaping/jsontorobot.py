@@ -37,7 +37,7 @@ class JsonToRobot(QtWidgets.QMainWindow):
 
         # Chemin du fichier source et destination
         self.source_file = os.path.expanduser(r'~\Desktop\Fb-robot-ai\tex\textx\data.json')
-        self.dest_dir = r'C:\bon'
+        self.dest_dir = r'C:\tokbon'
 
         # Initialisation de l'interface utilisateur
         self.initUI()

@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+from PyQt5 import QtCore
 
 from PyQt5.QtWidgets import (
     QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout, 
@@ -25,7 +26,8 @@ from ModulesUI.twitter.main_x_robot import XMainWindow  # Importez votre page d'
 from ModulesUI.youtube.main_ytb_robot import YtbMainWindow  # Importez votre page d'accueil
 #from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-#pour changer la destinationet developper en local c  ext ici que ca se passe 
+#pour changer la destinationet developper en local c  ext ici que ca se passe
+#  
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 from ui.clientsBrand import Nosclient
 from imports import *
@@ -56,28 +58,58 @@ class HomePage(QMainWindow):
         self.setMenuBar(self.menu_bar)
 
         # Ajouter des menus à la barre de menu
-        file_menu = self.menu_bar.addMenu("Fichier")
-        edit_menu = self.menu_bar.addMenu("Édition")
-        view_menu = self.menu_bar.addMenu("Vue")
-        settings_menu = self.menu_bar.addMenu("Paramètres")
+        file_menu = self.menu_bar.addMenu(self.tr("Fichier"))
+        edit_menu = self.menu_bar.addMenu(self.tr("Édition"))
+        view_menu = self.menu_bar.addMenu(self.tr("Vue"))
+        settings_menu = self.menu_bar.addMenu(self.tr("Paramètres"))
+        help_menu = self.menu_bar.addMenu(self.tr("Aide"))
 
-        # Créer des actions de menu
-        exit_action = QAction("Quitter", self)
+        # Créer des actions de menu pour le menu Fichier
+        new_project_action = QAction(self.tr("Nouveau Projet"), self)
+        open_project_action = QAction(self.tr("Ouvrir Projet"), self)
+        save_project_action = QAction(self.tr("Enregistrer le Projet"), self)
+        export_action = QAction(self.tr("Exporter..."), self)
+        exit_action = QAction(self.tr("Quitter"), self)
         exit_action.triggered.connect(self.close)
 
-        file_menu.addAction("Nouvelle")
-        file_menu.addAction("Ouvrir")
+        file_menu.addAction(new_project_action)
+        file_menu.addAction(open_project_action)
+        file_menu.addAction(save_project_action)
+        file_menu.addSeparator()
+        file_menu.addAction(export_action)
+        file_menu.addSeparator()
         file_menu.addAction(exit_action)
 
-        edit_menu.addAction("Copier")
-        edit_menu.addAction("Coller")
+        # Actions de menu pour le menu Édition
+        edit_menu.addAction(self.tr("Copier"))
+        edit_menu.addAction(self.tr("Coller"))
+        edit_menu.addSeparator()
+        edit_menu.addAction(self.tr("Supprimer"))
+        edit_menu.addSeparator()
+        edit_menu.addAction(self.tr("Préférences"))
 
-        view_menu.addAction("Aperçu")
-        
-        # Action pour changer de thème
-        theme_action = QAction("Changer de thème", self)
+        # Actions de menu pour le menu Vue
+        view_menu.addAction(self.tr("Aperçu"))
+        view_menu.addAction(self.tr("Vue Grille"))
+        view_menu.addAction(self.tr("Vue Liste"))
+
+        # Actions de menu pour le menu Paramètres
+        theme_action = QAction(self.tr("Changer de thème"), self)
         theme_action.triggered.connect(self.change_theme)
+        language_action = QAction(self.tr("Changer de langue"), self)
+        language_action.triggered.connect(self.show_about)
+
         settings_menu.addAction(theme_action)
+        settings_menu.addAction(language_action)
+
+        # Actions de menu pour le menu Aide
+        help_action = QAction(self.tr("Aide en ligne"), self)
+        help_action.triggered.connect(self.open_help)
+        about_action = QAction(self.tr("À propos de Saadiya.ai"), self)
+        about_action.triggered.connect(self.show_about)
+
+        help_menu.addAction(help_action)
+        help_menu.addAction(about_action)
 
         # Layout pour l'en-tête
         header_layout = QHBoxLayout()
@@ -211,16 +243,50 @@ class HomePage(QMainWindow):
             ("Quitter", "resources/icons/windows-icon-42333.png"),
         ]
 
+        # for text, icon in side_buttons:
+            # button = QPushButton(text)
+            # button.setFont(QFont("Arial", 14))
+            # button.setIcon(QIcon(QPixmap(icon).scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            # button.setIconSize(QPixmap(icon).scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation).size())
+            # button.clicked.connect(lambda _, btn=text: self.side_menu_action(btn))
+            # side_menu_layout.addWidget(button)
+
         for text, icon in side_buttons:
             button = QPushButton(text)
+            
+            # Définir la police et l'icône
             button.setFont(QFont("Arial", 14))
-            button.setIcon(QIcon(QPixmap(icon).scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
-            button.setIconSize(QPixmap(icon).scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation).size())
+            pixmap = QPixmap(icon).scaled(24, 24, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            button.setIcon(QIcon(pixmap))
+            button.setIconSize(pixmap.size())
+
+            # Ajouter des propriétés visuelles
+            button.setStyleSheet("""
+                QPushButton {
+                    background-color: blue; /* Couleur de fond par défaut */
+                    border: none; /* Pas de bordure */
+                    padding: 10px; /* Espacement intérieur */
+                    border-radius: 8px; /* Coins arrondis */
+                }
+                QPushButton:hover {
+                    background-color: #d9d9d9; /* Couleur au survol */
+                }
+                QPushButton:pressed {
+                    background-color: #b3b3b3; /* Couleur au clic */
+                }
+            """)
+
+            # Connecter l'action
             button.clicked.connect(lambda _, btn=text: self.side_menu_action(btn))
+            
+            # Ajouter le bouton au layout
             side_menu_layout.addWidget(button)
 
-        # Layout pour les icônes et boutons du milieu
-        middle_layout = QHBoxLayout()
+        # Optionnel : ajouter de l'espacement entre les boutons
+            side_menu_layout.setSpacing(10)  # Espacement entre les boutons
+
+                # Layout pour les icônes et boutons du milieu
+            middle_layout = QHBoxLayout()
 
         # Liste des fonctionnalités avec leurs icônes et couleur
         features = [
@@ -228,7 +294,7 @@ class HomePage(QMainWindow):
             ("WhatsApping", "resources/icons/whatsapp-512.png", "#4CAF50", self.open_whatsapp),
             ("Blogging", "resources/icons/article-marketing-3-512.png", "#4CAF50", self.open_blogging),
             ("Insta Pro", "resources/icons/pink-message-icon-12055.png", "#4CAF50", self.open_instagram),
-            ("Ads Pro", "resources/icons/promotion-icon-png-3422.png", "#4CAF50", self.open_adsPro),
+            ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro),
             ("Branding", "resources/icons/subscribe-png-574.png", "#4CAF50", self.open_branding),
             ("Emailing", "resources/icons/pink-message-icon-12045.png", "#4CAF50", self.open_Emailing),
         ]
@@ -315,10 +381,10 @@ class HomePage(QMainWindow):
         bottom_layout = QHBoxLayout()
 
         bottom_buttons = [
-            ("Full Marketing", "#4CAF50"),
-            ("Auto GES", "#4CAF50"),
+            ("Swipes & Messages", "#4CAF50"),
+            ("Crypto Trade", "#4CAF50"),
             ("Contact 360", "#4CAF50"),
-            ("GES Auto", "#4CAF50"),
+            ("List Business Contacts", "#4CAF50"),
             ("SAV", "#E91E63"),
             ("ERP", "#4CAF50"),
             ("CRM360", "#E91E63")
@@ -440,7 +506,7 @@ class HomePage(QMainWindow):
             json.dump(preferences, f)
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI Marketing ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
@@ -590,6 +656,45 @@ class HomePage(QMainWindow):
         # Ouvrir un lien dans le navigateur par défaut
         import webbrowser
         webbrowser.open(url)
+    def open_help(self):
+        QMessageBox.information(
+        self,
+        self.tr("Help"),
+        self.tr(
+            "📘 **Help Guide for Saadiya.ai**\n\n"
+            "Welcome to the Saadiya.ai Help Center! Here, you'll find tips, tutorials, and support to help you make the most of Saadiya.ai.\n\n"
+            "🔹 **Getting Started**\n"
+            "Learn how to set up your accounts, schedule posts, and automate engagement with our easy-to-follow guides.\n\n"
+            "🔹 **FAQs**\n"
+            "Find answers to frequently asked questions and common troubleshooting tips.\n\n"
+            "🔹 **Technical Support**\n"
+            "For further assistance, contact our support team: support@saadiya.ai\n\n"
+            "🌐 **Visit Our Help Center**\n"
+            "Check out our online Help Center for additional resources and community forums: [www.saadiya.ai/help](https://www.saadiya.ai/help)\n\n"
+            "We're here to help you succeed!\n"
+        )
+                )
+    def show_about (self):
+        QMessageBox.information(
+            self,
+            self.tr("About Saadiya.ai"),
+            self.tr(
+                "🧠 **Saadiya.ai - The Ultimate Social Media Automation Solution**\n\n"
+                "Version: 1.0.0\n"
+                "Release Date: November 2024\n\n"
+                "🌍 **Empower Your Influence**\n"
+                "Effortlessly grow your presence across all major social media platforms – Facebook, WhatsApp, YouTube, LinkedIn, Pinterest, and more.\n\n"
+                "🚀 **Features**\n"
+                "- Automatic post scheduling and sharing\n"
+                "- Advanced engagement and comment automation\n"
+                "- Analytics and performance tracking\n\n"
+                "📞 **Need Help?**\n"
+                "Contact our support: support@saadiya.ai\n"
+                "Visit our website: [www.saadiya.ai](https://www.saadiya.ai)\n\n"
+                "© 2024 Nova360 Pro - Saadiya.ai. All rights reserved.\n"
+            )
+        )
+
 
     def side_menu_action(self, action):
         # Actions pour les boutons du menu latéral
@@ -598,9 +703,47 @@ class HomePage(QMainWindow):
         elif action == "Paramètres":
             QMessageBox.information(self, "Paramètres", "Ouvrir les paramètres...")
         elif action == "Aide":
-            QMessageBox.information(self, "Aide", "Ouvrir l'aide...")
+           # QMessageBox.information(self, "Aide", "Ouvrir l'aide...")
+           QMessageBox.information(
+                    self,
+                    self.tr("Help"),
+                    self.tr(
+                        "📘 **Help Guide for Saadiya.ai**\n\n"
+                        "Welcome to the Saadiya.ai Help Center! Here, you'll find tips, tutorials, and support to help you make the most of Saadiya.ai.\n\n"
+                        "🔹 **Getting Started**\n"
+                        "Learn how to set up your accounts, schedule posts, and automate engagement with our easy-to-follow guides.\n\n"
+                        "🔹 **FAQs**\n"
+                        "Find answers to frequently asked questions and common troubleshooting tips.\n\n"
+                        "🔹 **Technical Support**\n"
+                        "For further assistance, contact our support team: support@saadiya.ai\n\n"
+                        "🌐 **Visit Our Help Center**\n"
+                        "Check out our online Help Center for additional resources and community forums: [www.saadiya.ai/help](https://www.saadiya.ai/help)\n\n"
+                        "We're here to help you succeed!\n"
+                    )
+                )
+
         elif action == "À propos":
-            QMessageBox.information(self, "À propos", "AI FB ROBOT PRO v1.0\n© 2024 Nova360 Pro")
+           # QMessageBox.information(self, "À propos", "AI FB ROBOT PRO v1.0\n© 2024 Nova360 Pro")
+           QMessageBox.information(
+                        self,
+                        self.tr("About Saadiya.ai"),
+                        self.tr(
+                            "🧠 **Saadiya.ai - The Ultimate Social Media Automation Solution**\n\n"
+                            "Version: 1.0.0\n"
+                            "Release Date: November 2024\n\n"
+                            "🌍 **Empower Your Influence**\n"
+                            "Effortlessly grow your presence across all major social media platforms – Facebook, WhatsApp, YouTube, LinkedIn, Pinterest, and more.\n\n"
+                            "🚀 **Features**\n"
+                            "- Automatic post scheduling and sharing\n"
+                            "- Advanced engagement and comment automation\n"
+                            "- Analytics and performance tracking\n\n"
+                            "📞 **Need Help?**\n"
+                            "Contact our support: support@saadiya.ai\n"
+                            "Visit our website: [www.saadiya.ai](https://www.saadiya.ai)\n\n"
+                            "© 2024 Nova360 Pro - Saadiya.ai. All rights reserved.\n"
+                        )
+                    )
+
         elif action == "Quitter":
             self.close()
 

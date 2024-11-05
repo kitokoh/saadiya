@@ -20,16 +20,16 @@ from statistique.stat import Dashboard
 
 
 from installFBrobotPy.demarrageAuto import InstallerApp
-#from installFBrobotPy.majenvqt import AppEnv 
-#from installFBrobotPy.updatejson import InstallerApp
-#from installFBrobotPy.installGithub import InstallerApp
-#from installFBrobotPy.installpython import InstallerApp
+#from ModulesUI.AutoBlog.installwhattsaping.majenvqt import AppEnv 
+#from ModulesUI.AutoBlog.installwhattsaping.updatejson import InstallerApp
+#from ModulesUI.AutoBlog.installwhattsaping.installGithub import InstallerApp
+#from ModulesUI.AutoBlog.installwhattsaping.installpython import InstallerApp
 
-from installFBrobotPy.invisibleQT import InvisibleInstance
-from installFBrobotPy.majenvqt import MajEnv
-from installFBrobotPy.jsontorobot import JsonToRobot
-from installFBrobotPy.supprimBon import DeleteBon
-from installFBrobotPy.updateInstanceQt import UpdateInstance
+from ModulesUI.AutoBlog.installwhattsaping.invisibleQT import InvisibleInstance
+from ModulesUI.AutoBlog.installwhattsaping.majenvqt import MajEnv
+from ModulesUI.AutoBlog.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.AutoBlog.installwhattsaping.supprimBon import DeleteBon
+from ModulesUI.AutoBlog.installwhattsaping.updateInstanceQt import UpdateInstance
 
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
@@ -45,7 +45,41 @@ class AboutDialog(QDialog):
 
         self.setWindowTitle(self.tr("À propos de AI AutoBlog ROBOT Pro"))
         layout = QVBoxLayout()
-        label = QLabel(self.tr("AI AutoBlog ROBOT Pro v1.0\n\nDéveloppé par Ibrahim Ali Mahadi.\n\nCette application utilise des techniques d'automatisation IA pour faciliter la gestion des médias, groupes et instances dans les réseaux sociaux."))
+        label = QLabel(self.tr(
+                "<div style='background-color:#F5F7FA; padding:15px; border-radius:10px;'>"
+                "<h1 style='color:#1A5276; font-size:24px; font-weight:bold; text-align:center;'>Welcome to Nova360.ai</h1>"
+                
+                "<p style='font-size:16px; color:#333333; text-align:center;'>"
+                "<strong>Your All-in-One AI-Powered Social Media Automation Solution</strong>"
+                "</p><br>"
+                
+                "<div style='padding: 10px; border-left: 4px solid #1A5276;'>"
+                "<p style='font-size:14px; color:#5D6D7E; line-height:1.6; margin:0 20px;'>"
+                "Nova360.ai is the essential tool for entrepreneurs, brands, and influencers looking to simplify and scale their social media presence.<br>"
+                "With advanced AI, Nova360.ai automates every aspect of your social media strategy, allowing you to engage effortlessly,<br>"
+                "grow your influence, and remain at the forefront of your audience’s minds."
+                "</p>"
+                "</div><br>"
+                
+                "<h3 style='color:#1A5276; font-size:18px; margin-top:20px; text-align:center;'>Core Features</h3><br>"
+                
+                "<ul style='font-size:14px; color:#4A4A4A; padding-left: 40px;'>"
+                "<li style='margin-bottom:10px;'><strong>🌐 Smart Scheduling:</strong> Plan and post content across platforms with precision timing for maximum reach.</li><br>"
+                "<li style='margin-bottom:10px;'><strong>🤖 Automated Audience Engagement:</strong> Engage your audience with intelligent replies and dynamic comments.</li><br>"
+                "<li><strong>📂 Comprehensive Media & Group Management:</strong> Manage media assets, groups, and instances seamlessly to optimize your workflow.</li>"
+                "</ul><br>"
+                
+                "<p style='font-size:14px; color:#5D6D7E; line-height:1.6; text-align:center;'>"
+                "Join a thriving community of brands and individuals who trust Nova360.ai to elevate their social media automation.<br>"
+                "Save time, boost engagement, and focus on building your brand."
+                "</p><br>"
+                
+                "<p style='font-size:11px; color:#888888; text-align:center; margin-top:20px;'>"
+                "© 2024 Nova360 Pro | "
+                "<a href='https://www.nova360pro.com' style='color:#1A5276; text-decoration:none;'>www.nova360pro.com</a>"
+                "</p>"
+                "</div>"
+            ))
         layout.addWidget(label)
         close_button = QPushButton(self.tr("Fermer"))
         close_button.clicked.connect(self.close)
@@ -199,7 +233,19 @@ class BlogMainWindow(QMainWindow):
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
-        self.instance_table = Dashboard(title="Autobloging AI", subtitle="Analytics Overview")
+      # construction statistiques
+        license_checker = LicenseChecker(license_dir="C:\\blogbon")  # Passez le chemin ici
+        
+        file_path = 'C:\\blogbon\\robot1\\data.json'  # Spécifiez le chemin vers votre fichier data.json
+        group_counter = GroupCounter(file_path)   
+        self.Nombregroup =group_counter.count_groups()
+        # url = "C:\\blogbon\\robot1\\log.txt"
+        # self.totalshare = LogLineCounter(url)
+        # program_name = "FB-ROBOT.exe"
+        # task_checker = ScheduledTaskChecker(program_name)
+        # self.nexttimeshare = task_checker.check_task()
+        print(license_checker.is_license_valid())
+        self.instance_table = Dashboard(title="AI Blog ROBOT PRO", subtitle="Analytics Overview", validiter=license_checker.is_license_valid(),Nombregroupes=self.Nombregroup, totalshare="Nombre total" ,nexttimeshare="none")
         layout.addWidget(self.instance_table)
     def switch_language(self, language):
         """Permet de changer la langue."""

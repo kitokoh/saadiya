@@ -133,7 +133,7 @@ class GroupTable(QWidget):
         layout = QVBoxLayout(self)
 
         # Ajouter le header
-        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing & Management Auto")
+        header = HeaderSection(self, title="Linkeding GRUP MANAGEMENT", app_name="Linkeding Robot", slogan="AI Marketing Automation")
         layout.addWidget(header)
 
         # Disposition en haut pour le titre, la barre de recherche et les boutons
@@ -284,7 +284,7 @@ class GroupTable(QWidget):
 
     def load_groups(self):
         try:
-            filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-Lin-Robot', 'text','text1' , 'groups.json')
+            filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-IN-Robot', 'text','text1' , 'groups.json')
             with open(filedirect, 'r') as f:
                 data = json.load(f)
                 return data.get("groups", [])  # Retourne la liste des groupes
@@ -411,7 +411,7 @@ class GroupTable(QWidget):
             self.populate_table()  # Mettre à jour le tableau
 
     def save_groups(self):
-        filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-Lin-Robot', 'text','text1' , 'groups.json')
+        filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-IN-Robot', 'text','text1' , 'groups.json')
 
         with open(filedirect, 'w') as f:
             json.dump({"groups": self.group_list}, f, indent=4)

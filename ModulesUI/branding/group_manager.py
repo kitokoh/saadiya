@@ -284,7 +284,7 @@ class GroupTable(QWidget):
 
     def load_groups(self):
         try:
-            filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text','text1' , 'groups.json')
+            filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-BRAND-Robot', 'text','text1' , 'groups.json')
             with open(filedirect, 'r') as f:
                 data = json.load(f)
                 return data.get("groups", [])  # Retourne la liste des groupes
@@ -411,7 +411,7 @@ class GroupTable(QWidget):
             self.populate_table()  # Mettre à jour le tableau
 
     def save_groups(self):
-        filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text','text1' , 'groups.json')
+        filedirect= os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-BRAND-Robot', 'text','text1' , 'groups.json')
 
         with open(filedirect, 'w') as f:
             json.dump({"groups": self.group_list}, f, indent=4)

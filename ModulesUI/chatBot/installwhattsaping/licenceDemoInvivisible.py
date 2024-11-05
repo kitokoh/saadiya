@@ -24,7 +24,7 @@
 #         self.setLayout(layout)
 
 #     def hide_file(self):
-#         file_path = r"C:\bon\python.txt"
+#         file_path = r"C:\chatbotbon\python.txt"
 
 #         # Vérification si le fichier existe
 #         if os.path.exists(file_path):
@@ -43,7 +43,7 @@
 #             #                        "Le fichier python.txt est maintenant caché.")
 #         else:
 #             QMessageBox.critical(self, "Erreur", 
-#                                  "Le fichier python.txt n'existe pas dans C:\\bon!")
+#                                  "Le fichier python.txt n'existe pas dans C:\\chatbotbon!")
 
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)
@@ -69,10 +69,10 @@ def hide_file(file_path):
         new_attributes = os.popen(f'attrib "{file_path}"').read()
         print(f"Attributs après modification : {new_attributes.strip()}")
     else:
-        print(f"Erreur : Le fichier {file_path} n'existe pas dans C:\\bon!")
+        print(f"Erreur : Le fichier {file_path} n'existe pas dans C:\\chatbotbon!")
 
 def main():
-    file_path = r"C:\bon\python.txt"  # Chemin du fichier à cacher
+    file_path = r"C:\chatbotbon\python.txt"  # Chemin du fichier à cacher
     hide_file(file_path)
 
 if __name__ == '__main__':

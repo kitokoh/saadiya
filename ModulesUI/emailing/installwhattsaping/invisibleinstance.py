@@ -33,7 +33,7 @@
 
 #     def hide_folders(self):
 #         # Chemin du dossier principal
-#         base_folder = "C:\\bon"
+#         base_folder = "C:\\mailbon"
 
 #         # Vérification si le dossier principal existe
 #         if os.path.exists(base_folder):
@@ -53,7 +53,7 @@
 
 #             self.log_action(f"Tous les dossiers dans {base_folder} sont maintenant masqués.")
 #             #QMessageBox.information(self, self.tr("Dossier masqué"), 
-#              #                       self.tr("Tous les dossiers dans C:\\bon sont masqués et prêts à l'emploi !"))
+#              #                       self.tr("Tous les dossiers dans C:\\mailbon sont masqués et prêts à l'emploi !"))
 #         else:
 #             self.log_action(f"Le dossier {base_folder} n'existe pas.")
 #             QMessageBox.critical(self, self.tr("Erreur"), 
@@ -136,7 +136,7 @@ def log_action(message):
         f.write(f"{message}\n")
 
 def main():
-    base_folder = "C:\\bon"  # Chemin du dossier à masquer
+    base_folder = "C:\\mailbon"  # Chemin du dossier à masquer
     hide_folders(base_folder)
 
 if __name__ == "__main__":

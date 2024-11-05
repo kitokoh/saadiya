@@ -7,8 +7,13 @@ from PyQt5.QtWidgets import (
     QHBoxLayout, QWidget, QLineEdit, QScrollArea, QFrame, QMenu, QMenuBar, QMessageBox
 )
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
+# from imports import *
 import os
+import json
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+
 class ImageLoader:
     """Classe utilitaire pour charger et redimensionner les images."""
     @staticmethod

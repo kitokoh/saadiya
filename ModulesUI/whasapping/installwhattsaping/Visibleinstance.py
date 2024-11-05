@@ -33,7 +33,7 @@
 
 #     def show_folders(self):
 #         # Chemin du dossier principal
-#         base_folder = "C:\\bon"
+#         base_folder = "C:\\wabon"
 
 #         # Vérification si le dossier principal existe
 #         if os.path.exists(base_folder):
@@ -53,7 +53,7 @@
 
 #             self.log_action(f"Tous les dossiers dans {base_folder} sont maintenant visibles.")
 #             QMessageBox.information(self, self.tr("Dossiers visibles"), 
-#                                     self.tr("Tous les dossiers dans bon sont maintenant visibles et accessibles !"))
+#                                     self.tr("Tous les dossiers dans wabon sont maintenant visibles et accessibles !"))
 #         else:
 #             self.log_action(f"Le dossier {base_folder} n'existe pas.")
 #             QMessageBox.critical(self, self.tr("Erreur"), 

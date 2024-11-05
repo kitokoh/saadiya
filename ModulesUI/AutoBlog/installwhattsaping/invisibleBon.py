@@ -17,7 +17,7 @@
 #         layout.addWidget(self.label)
 
 #         self.folder_input = QLineEdit(self)
-#         self.folder_input.setText("C:\\bon")  # Chemin par défaut
+#         self.folder_input.setText("C:\\blogbon")  # Chemin par défaut
 #         layout.addWidget(self.folder_input)
 
 #         self.check_button = QPushButton(self.tr("Vérifier et Rendre Invisible"), self)
@@ -68,7 +68,7 @@ class FolderVisibilityApp(QWidget):
         layout.addWidget(self.label)
 
         self.folder_input = QLineEdit(self)
-        self.folder_input.setText("C:\\bon")  # Chemin par défaut
+        self.folder_input.setText("C:\\blogbon")  # Chemin par défaut
         layout.addWidget(self.folder_input)
 
         self.check_button = QPushButton("Vérifier et Rendre Invisible", self)

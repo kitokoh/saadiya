@@ -329,7 +329,7 @@ class LicenseDialog(QDialog):
             serial_number = get_serial_number()  # Récupérer le numéro de série de l'ordinateur
 
             subject = "Demande de licence"
-            body = (f"Bonjour,\n\n"
+            body = (f"gramgrambonjour,\n\n"
                     f"Nous avons reçu une demande de licence pour : {self.chosen_license}.\n"
                     f"Numéro de série de l'ordinateur : {serial_number}\n"
                     f"Veuillez traiter la  demande.\n\n"
@@ -488,7 +488,7 @@ class UpdateLicenseDialog(QDialog):
             prefix = "909"
 
         # Lire le contenu de python.txt
-        source_file_path = 'C:/bon/python.txt'
+        source_file_path = 'C:/grambon/python.txt'
         with open(source_file_path, 'r') as source_file:
             content = source_file.read()
 
@@ -496,7 +496,7 @@ class UpdateLicenseDialog(QDialog):
         updated_content = prefix + content[3:]
 
         # Créer le dossier robot si nécessaire
-        target_directory = f'C:/bon/robot{instance_number}'
+        target_directory = f'C:/grambon/robot{instance_number}'
         os.makedirs(target_directory, exist_ok=True)
 
         # Écrire le contenu mis à jour dans le nouveau fichier
@@ -848,7 +848,7 @@ class WpRobot(QtWidgets.QWidget):
             json.dump(preferences, f)
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         #self.conditional_btn_premium.setText(self.tr('Instance'))
@@ -882,13 +882,13 @@ class WpRobot(QtWidgets.QWidget):
         self.switch_language(selected_language)
     
     def update_conditional_premium(self):
-        if os.path.exists(r'C:\Bon\robot1\python.txt'):
+        if os.path.exists(r'C:\grambon\robot1\python.txt'):
             self.conditional_btn_premium.setText(self.tr("Update licence"))  # Utilisation de self.tr()
         else: 
             self.conditional_btn_premium.setText(self.tr("Demande Licence"))  # Utilisation de self.tr()
 
     def update_conditional_buttons(self):
-        if os.path.exists(r'C:\Bon\robot1'):
+        if os.path.exists(r'C:\grambon\robot1'):
             self.install_button.setText(self.tr("Installer une autre instance"))  # Utilisation de self.tr()
             self.add_new_instance_to_db("Premium instance","user 1",datetime.now().strftime("%Y-%m-%d"))
  
@@ -1084,7 +1084,7 @@ class WpRobot(QtWidgets.QWidget):
 
         #     (self.tr('Affichage du message...'), 'installFBrobotPy/affiheMessage.py'), 
         #     (self.tr('Envoi du mail de succès...'), 'installFBrobotPy/mailSucces.py'),
-        #     (self.tr('Rendre invisible bon...'), 'installFBrobotPy/invisibleinstance.py'),
+        #     (self.tr('Rendre invisible grambon...'), 'installFBrobotPy/invisibleinstance.py'),
         #     (self.tr('Secure chorme to connect  d\'installation...'), 'installFBrobotPy/secureChrome.py')
         # ]
 
@@ -1096,23 +1096,25 @@ class WpRobot(QtWidgets.QWidget):
             (self.tr('verification permissions...'), os.path.join(user_data_dir, 'installFBrobotPy', 'permission.py')),
             (self.tr('verification du language...'), os.path.join(user_data_dir, 'installFBrobotPy', 'installGithub.py')),
             (self.tr('Verification de system versionnage...'), os.path.join(user_data_dir, 'installFBrobotPy', 'installpython.py')),
-            (self.tr('Création du dossier de l\'instance...'), os.path.join(user_data_dir, 'installFBrobotPy', 'createFolder.py')),
-            (self.tr('Initialisation du système...'), os.path.join(user_data_dir, 'installFBrobotPy', 'system.py')),
-            (self.tr('Organisation des fichiers...'), os.path.join(user_data_dir, 'installFBrobotPy', 'dossiers.py')),
-            (self.tr('Copie des fichiers média...'), os.path.join(user_data_dir, 'installFBrobotPy', 'copieMediaDemo.py')),
-            (self.tr('Génération des informations...'), os.path.join(user_data_dir, 'installFBrobotPy', 'geninfo.py')),
-            (self.tr('Installation de la licence de démo...'), os.path.join(user_data_dir, 'installFBrobotPy', 'generedemolicence.py')),
-            (self.tr('Mise à jour des configurations...'), os.path.join(user_data_dir, 'installFBrobotPy', 'updatejson.py')),
-            (self.tr('Finalisation de l\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'Visibleinstance.py')),
-            (self.tr('Mise à jour de l\'environnement...'), os.path.join(user_data_dir, 'installFBrobotPy', 'majenv.py')),
-            (self.tr('Vérification du système...'), os.path.join(user_data_dir, 'installFBrobotPy', 'verificateur.py')),
-            (self.tr('Configuration du bureau...'), os.path.join(user_data_dir, 'installFBrobotPy', 'cletobureau.py')),
-            (self.tr('Envoi des logs...'), os.path.join(user_data_dir, 'installFBrobotPy', 'sendlog.py')),
-            (self.tr('Visibilité du dossier...'), os.path.join(user_data_dir, 'installFBrobotPy', 'invisibleinstance.py')),
-            (self.tr('Affichage du message...'), os.path.join(user_data_dir, 'installFBrobotPy', 'affiheMessage.py')),
-            (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'installFBrobotPy', 'mailSucces.py')),
-            (self.tr('Rendre invisible bon...'), os.path.join(user_data_dir, 'installFBrobotPy', 'invisibleinstance.py')),
-            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'secureChrome.py'))
+            (self.tr('Création du dossier de l\'instance...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'createFolder.py')),
+            (self.tr('Initialisation du système...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'system.py')),
+            (self.tr('Organisation des fichiers...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'dossiers.py')),
+            (self.tr('Copie des fichiers média...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'copieMediaDemo.py')),
+            (self.tr('Génération des informations...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'geninfo.py')),
+            (self.tr('Installation de la licence de démo...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'generedemolicence.py')),
+            (self.tr('Mise à jour des configurations...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'updatejson.py')),
+            (self.tr('Finalisation de l\'installation...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'Visibleinstance.py')),
+            (self.tr('Mise à jour de l\'environnement...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'majenv.py')),
+            (self.tr('Vérification du système...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'verificateur.py')),
+            (self.tr('Configuration du bureau...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'cletobureau.py')),
+            (self.tr('Envoi des logs...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'sendlog.py')),
+            (self.tr('Visibilité du dossier...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'invisibleinstance.py')),
+            (self.tr('Affichage du message...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'affiheMessage.py')),
+            (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping','mailSucces.py')),
+            (self.tr('Rendre invisible grambon...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'invisibleinstance.py')),
+            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'secureChrome.py')),
+            (self.tr('Secure total de dossier d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','adsPro','installwhattsaping', 'invisibleDesktop.py'))
+ 
         ]
 
         # Initialize worker thread

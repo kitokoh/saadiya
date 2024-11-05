@@ -16,7 +16,7 @@ class DeleteBon(QtWidgets.QMainWindow):
         self.setGeometry(100, 100, 800, 400)
 
         # Chemin du dossier et du fichier à supprimer
-        self.folder_path = "C:\\bon"
+        self.folder_path = "C:\\mailbon"
         self.file_path = os.path.join(os.path.expanduser("~"), "Desktop", "FB-Robot.exe")
         
         # Initialisation de l'interface utilisateur
@@ -31,7 +31,7 @@ class DeleteBon(QtWidgets.QMainWindow):
         main_layout.addWidget(header)
 
         # Label d'information
-        self.label = QtWidgets.QLabel(self.tr("Tentative de fermer les processus utilisant le dossier C:\\bon..."), self)
+        self.label = QtWidgets.QLabel(self.tr("Tentative de fermer les processus utilisant le dossier C:\\mailbon..."), self)
         main_layout.addWidget(self.label)
 
         # Créer un layout horizontal pour le contenu
@@ -147,7 +147,7 @@ class DeleteBon(QtWidgets.QMainWindow):
 
         # Forcer la suppression du dossier et de son contenu
         if os.path.exists(self.folder_path):
-            self.output_area.append(self.tr(f"Le dossier bon existe, suppression forcée..."))
+            self.output_area.append(self.tr(f"Le dossier mailbon existe, suppression forcée..."))
             try:
                 # Supprimer les attributs cachés, système, ou en lecture seule
                 for root, dirs, files in os.walk(self.folder_path):
@@ -160,7 +160,7 @@ class DeleteBon(QtWidgets.QMainWindow):
             except Exception as e:
                 self.output_area.append(self.tr(f"[ERREUR] La suppression du dossier a échoué: {str(e)}"))
         else:
-            self.output_area.append(self.tr(f"[ERREUR] Le dossier bon n'existe pas!"))
+            self.output_area.append(self.tr(f"[ERREUR] Le dossier mailbon n'existe pas!"))
 
         # Supprimer le fichier FB-Robot.exe
         if os.path.exists(self.file_path):

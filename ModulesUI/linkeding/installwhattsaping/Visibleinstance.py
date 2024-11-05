@@ -33,7 +33,7 @@
 
 #     def show_folders(self):
 #         # Chemin du dossier principal
-#         base_folder = "C:\\bon"
+#         base_folder = "C:\\inbon"
 
 #         # Vérification si le dossier principal existe
 #         if os.path.exists(base_folder):
@@ -53,7 +53,7 @@
 
 #             self.log_action(f"Tous les dossiers dans {base_folder} sont maintenant visibles.")
 #             QMessageBox.information(self, self.tr("Dossiers visibles"), 
-#                                     self.tr("Tous les dossiers dans bon sont maintenant visibles et accessibles !"))
+#                                     self.tr("Tous les dossiers dans inbon sont maintenant visibles et accessibles !"))
 #         else:
 #             self.log_action(f"Le dossier {base_folder} n'existe pas.")
 #             QMessageBox.critical(self, self.tr("Erreur"), 
@@ -102,7 +102,7 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 
 def show_folders():
     # Chemin du dossier principal
-    base_folder = "C:\\bon"
+    base_folder = "C:\\inbon"
 
     # Vérification si le dossier principal existe
     if os.path.exists(base_folder):
@@ -121,7 +121,7 @@ def show_folders():
             time.sleep(0.1)  # Simuler un léger délai pour la progression
 
         log_action(f"Tous les dossiers dans {base_folder} sont maintenant visibles.")
-        print("Tous les dossiers dans 'bon' sont maintenant visibles et accessibles !")
+        print("Tous les dossiers dans 'inbon' sont maintenant visibles et accessibles !")
     else:
         log_action(f"Le dossier {base_folder} n'existe pas.")
         print(f"Erreur : Le dossier {base_folder} n'existe pas.")

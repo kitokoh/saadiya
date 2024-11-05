@@ -12,7 +12,7 @@
 
 #     def run(self):
 #         """Gère la création des dossiers et journalise les actions"""
-#         user_folder = r"C:\bon"  # Répertoire spécifique
+#         user_folder = r"C:\brandbon"  # Répertoire spécifique
 #         download_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
 #         log_file = os.path.abspath(user_data_dir, 'resources', 'journalInstallation.txt')
 
@@ -21,14 +21,14 @@
 #         # Démarrer la journalisation
 #         self.log_signal.emit(f"[INFO] - Script démarré le {current_time}\n")
 
-#         # Vérifier et créer le dossier "bon"
+#         # Vérifier et créer le dossier "brandbon"
 #         if not os.path.exists(user_folder):
 #             os.makedirs(user_folder)
-#             self.log_signal.emit(f"[INFO] - Le dossier 'bon' a été créé avec succès.\n")
-#             self.log_to_file(log_file, f"[INFO] - Dossier 'bon' créé avec succès le {current_time}\n")
+#             self.log_signal.emit(f"[INFO] - Le dossier 'brandbon' a été créé avec succès.\n")
+#             self.log_to_file(log_file, f"[INFO] - Dossier 'brandbon' créé avec succès le {current_time}\n")
 #         else:
-#             self.log_signal.emit(f"[INFO] - Le dossier 'bon' existe déjà.\n")
-#             self.log_to_file(log_file, f"[INFO] - Dossier 'bon' existant vérifié le {current_time}\n")
+#             self.log_signal.emit(f"[INFO] - Le dossier 'brandbon' existe déjà.\n")
+#             self.log_to_file(log_file, f"[INFO] - Dossier 'brandbon' existant vérifié le {current_time}\n")
 
 #         # Vérifier et créer le dossier "AI-FB-Robot" dans "Downloads"
 #         if not os.path.exists(download_folder):
@@ -127,7 +127,7 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 class LogWorker:
     def __init__(self):
         """Initialise la gestion des dossiers et journalise les actions"""
-        self.user_folder = r"C:\bon"  # Répertoire spécifique
+        self.user_folder = r"C:\brandbon"  # Répertoire spécifique
         self.download_folder = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
         self.log_file = os.path.abspath(user_data_dir, 'resources', 'journalInstallation.txt')
 
@@ -141,14 +141,14 @@ class LogWorker:
         print(f"[INFO] - Script démarré le {current_time}\n")
         self.log_to_file(f"[INFO] - Script démarré le {current_time}\n")
 
-        # Vérifier et créer le dossier "bon"
+        # Vérifier et créer le dossier "brandbon"
         if not os.path.exists(self.user_folder):
             os.makedirs(self.user_folder)
-            print(f"[INFO] - Le dossier 'bon' a été créé avec succès.\n")
-            self.log_to_file(f"[INFO] - Dossier 'bon' créé avec succès le {current_time}\n")
+            print(f"[INFO] - Le dossier 'brandbon' a été créé avec succès.\n")
+            self.log_to_file(f"[INFO] - Dossier 'brandbon' créé avec succès le {current_time}\n")
         else:
-            print(f"[INFO] - Le dossier 'bon' existe déjà.\n")
-            self.log_to_file(f"[INFO] - Dossier 'bon' existant vérifié le {current_time}\n")
+            print(f"[INFO] - Le dossier 'brandbon' existe déjà.\n")
+            self.log_to_file(f"[INFO] - Dossier 'brandbon' existant vérifié le {current_time}\n")
 
         # Vérifier et créer le dossier "AI-FB-Robot" dans "Downloads"
         if not os.path.exists(self.download_folder):

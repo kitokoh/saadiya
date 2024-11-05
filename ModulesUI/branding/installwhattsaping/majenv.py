@@ -21,10 +21,10 @@ def is_hidden(filepath):
     except Exception as e:
         return False
 
-def update_env_files(base_dir='C:/bon'):
+def update_env_files(base_dir='C:/brandbon'):
     log_file_path = os.path.join(user_data_dir, "resources", "journalinstallation.txt")
 
-    log("Démarrage de la mise à jour des fichiers .env dans le dossier C:/bon.")
+    log("Démarrage de la mise à jour des fichiers .env dans le dossier C:/brandbon.")
 
     # Initialisation du fichier log
     with open(log_file_path, 'a') as log_file:
@@ -38,7 +38,7 @@ def update_env_files(base_dir='C:/bon'):
     folders = [folder for folder in os.listdir(base_dir) if folder.startswith('robot') and os.path.isdir(os.path.join(base_dir, folder))]
 
     if not folders:
-        log("Aucun dossier 'robotX' trouvé dans C:/bon.")
+        log("Aucun dossier 'robotX' trouvé dans C:/brandbon.")
         return
 
     log(f"{len(folders)} dossiers trouvés : {', '.join(folders)}.")

@@ -23,7 +23,7 @@
 #         self.generate_report()
 
 #     def generate_report(self):
-#         bon_dir = "C:\\bon"
+#         grambon_dir = "C:\\grambon"
 #         ai_fb_robot_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
 #         log_file = os.path.join(os.path.expanduser("~"), "Desktop", "journalinstallation.txt")
 
@@ -34,8 +34,8 @@
 #                 log.write("Rapport d'installation\n")
 #                 log.write("===============================\n\n")
 
-#         # Démarrage du rapport pour 'bonDir'
-#         self.log_directory_report(bon_dir, log_file)
+#         # Démarrage du rapport pour 'grambonDir'
+#         self.log_directory_report(grambon_dir, log_file)
 #         self.log_directory_report(ai_fb_robot_dir, log_file)
 
 #         # Fin du script
@@ -81,7 +81,7 @@ import sys
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 def generate_report():
-    bon_dir = "C:\\bon"
+    grambon_dir = "C:\\grambon"
     ai_fb_robot_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
     log_file =os.path.join(user_data_dir, "resources", "journalInstallation.txt")
 
@@ -92,8 +92,8 @@ def generate_report():
             log.write("Rapport d'installation\n")
             log.write("===============================\n\n")
 
-    # Démarrage du rapport pour 'bonDir'
-    log_directory_report(bon_dir, log_file)
+    # Démarrage du rapport pour 'grambonDir'
+    log_directory_report(grambon_dir, log_file)
     log_directory_report(ai_fb_robot_dir, log_file)
 
     # Fin du script

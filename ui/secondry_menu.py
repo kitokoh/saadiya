@@ -1,7 +1,13 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QPushButton
 from PyQt5.QtCore import pyqtSignal
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
+import os
+
+import json
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 class SecondaryMenu(QWidget):
     # Signal pour notifier un changement de contenu
     menu_selected = pyqtSignal(str)

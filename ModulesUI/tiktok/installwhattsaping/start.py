@@ -5,8 +5,8 @@
 # def run_robot_instance(instance_number):
 #     """Exécute une instance de robotX."""
 #     # Chemins d'accès
-#     env_script_path = f"C:\\bon\\robot{instance_number}\\env{instance_number}\\Scripts"
-#     robot_path = f"C:\\bon\\robot{instance_number}"
+#     env_script_path = f"C:\\tokbon\\robot{instance_number}\\env{instance_number}\\Scripts"
+#     robot_path = f"C:\\tokbon\\robot{instance_number}"
 
 #     # Commandes à exécuter
 #     commands = [
@@ -27,7 +27,7 @@
 
 # def main():
 #     """Main function pour parcourir les robots et les exécuter."""
-#     base_path = "C:\\bon"
+#     base_path = "C:\\tokbon"
 #     threads = []
 
 #     # Vérifier tous les dossiers dans le chemin spécifié
@@ -54,8 +54,8 @@ import threading
 def run_robot_instance(instance_number):
     """Exécute une instance de robotX."""
     # Chemins d'accès
-    env_script_path = f"C:\\bon\\robot{instance_number}\\env{instance_number}\\Scripts"
-    robot_path = f"C:\\bon\\robot{instance_number}"
+    env_script_path = f"C:\\tokbon\\robot{instance_number}\\env{instance_number}\\Scripts"
+    robot_path = f"C:\\tokbon\\robot{instance_number}"
 
     # Commandes à exécuter
     commands = [
@@ -76,7 +76,7 @@ def run_robot_instance(instance_number):
 
 def main():
     """Main function pour parcourir les robots et les exécuter."""
-    base_path = "C:\\bon"
+    base_path = "C:\\tokbon"
     threads = []
 
     # Vérifier tous les dossiers dans le chemin spécifié

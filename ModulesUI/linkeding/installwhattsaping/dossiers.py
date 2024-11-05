@@ -58,14 +58,14 @@
 #         os.makedirs(media_dir, exist_ok=True)
 #         os.makedirs(text_dir, exist_ok=True)
 
-#         # Vérifier et compter les dossiers roboti dans C:\bon
-#         robot_dirs = [d for d in os.listdir('C:\\bon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\bon', d))]
+#         # Vérifier et compter les dossiers roboti dans C:\inbon
+#         robot_dirs = [d for d in os.listdir('C:\\inbon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\inbon', d))]
 #         robot_count = len(robot_dirs)
 
 #         # Si aucun dossier n'est trouvé
 #         if robot_count == 0:
-#             self.log_execution("Aucun dossier roboti trouvé dans C:\\bon.")
-#             QMessageBox.warning(self, "Erreur", "Aucun dossier roboti trouvé dans C:\\bon.")
+#             self.log_execution("Aucun dossier roboti trouvé dans C:\\inbon.")
+#             QMessageBox.warning(self, "Erreur", "Aucun dossier roboti trouvé dans C:\\inbon.")
 #             self.info_label.setText("Opération terminée.")
 #             self.schedule_closing()
 #             return
@@ -134,7 +134,7 @@ class RobotApp:
 
     def create_robot_directories(self):
         # Définir le chemin du dossier Téléchargements
-        download_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AI-FB-Robot")
+        download_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AI-IN-Robot")
 
         # Créer le dossier AI-FB-Robot dans Téléchargements
         if not os.path.exists(download_dir):
@@ -150,13 +150,13 @@ class RobotApp:
         os.makedirs(text_dir, exist_ok=True)
 
         # Vérifier et compter les dossiers roboti dans C:\bon
-        robot_dirs = [d for d in os.listdir('C:\\bon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\bon', d))]
+        robot_dirs = [d for d in os.listdir('C:\\inbon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\inbon', d))]
         robot_count = len(robot_dirs)
 
         # Si aucun dossier n'est trouvé
         if robot_count == 0:
-            self.log_execution("Aucun dossier roboti trouvé dans C:\\bon.")
-            print("Aucun dossier roboti trouvé dans C:\\bon.")
+            self.log_execution("Aucun dossier roboti trouvé dans C:\\inbon.")
+            print("Aucun dossier roboti trouvé dans C:\\inbon.")
             return
 
         # Si un seul dossier est trouvé

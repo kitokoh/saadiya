@@ -58,14 +58,14 @@
 #         os.makedirs(media_dir, exist_ok=True)
 #         os.makedirs(text_dir, exist_ok=True)
 
-#         # Vérifier et compter les dossiers roboti dans C:\bon
-#         robot_dirs = [d for d in os.listdir('C:\\bon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\bon', d))]
+#         # Vérifier et compter les dossiers roboti dans C:\wabon
+#         robot_dirs = [d for d in os.listdir('C:\\wabon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\wabon', d))]
 #         robot_count = len(robot_dirs)
 
 #         # Si aucun dossier n'est trouvé
 #         if robot_count == 0:
-#             self.log_execution("Aucun dossier roboti trouvé dans C:\\bon.")
-#             QMessageBox.warning(self, "Erreur", "Aucun dossier roboti trouvé dans C:\\bon.")
+#             self.log_execution("Aucun dossier roboti trouvé dans C:\\wabon.")
+#             QMessageBox.warning(self, "Erreur", "Aucun dossier roboti trouvé dans C:\\wabon.")
 #             self.info_label.setText("Opération terminée.")
 #             self.schedule_closing()
 #             return

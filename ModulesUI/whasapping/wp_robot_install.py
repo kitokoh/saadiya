@@ -888,7 +888,7 @@ class WpRobot(QtWidgets.QWidget):
             self.conditional_btn_premium.setText(self.tr("Demande Licence"))  # Utilisation de self.tr()
 
     def update_conditional_buttons(self):
-        if os.path.exists(r'C:\Bon\robot1'):
+        if os.path.exists(r'C:\wabon\robot1'):
             self.install_button.setText(self.tr("Installer une autre instance"))  # Utilisation de self.tr()
             self.add_new_instance_to_db("Premium instance","user 1",datetime.now().strftime("%Y-%m-%d"))
  
@@ -1112,10 +1112,12 @@ class WpRobot(QtWidgets.QWidget):
             (self.tr('Affichage du message...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'affiheMessage.py')),
             (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping','mailSucces.py')),
             (self.tr('Rendre invisible bon...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleinstance.py')),
-            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'secureChrome.py'))
+            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'secureChrome.py')),
+            (self.tr('Secure total de dossier d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleDesktop.py'))
+ 
         ]
 
-        # Initialize worker thread
+        # Initialize worker thread invisibleDesktop
         self.worker = ScriptWorker(scripts)
         self.worker.log_signal.connect(self.log)
         self.worker.progress_signal.connect(self.update_progress)

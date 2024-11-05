@@ -1112,10 +1112,12 @@ class FbRobot(QtWidgets.QWidget):
             (self.tr('Affichage du message...'), os.path.join(user_data_dir, 'installFBrobotPy', 'affiheMessage.py')),
             (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'installFBrobotPy', 'mailSucces.py')),
             (self.tr('Rendre invisible bon...'), os.path.join(user_data_dir, 'installFBrobotPy', 'invisibleinstance.py')),
-            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'secureChrome.py'))
+            (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'secureChrome.py')),
+            (self.tr('Secure desktok folder d\'installation...'), os.path.join(user_data_dir, 'installFBrobotPy', 'invisibleDesktop.py'))
+
         ]
 
-        # Initialize worker thread
+        # Initialize worker thread invisibleDesktop.py
         self.worker = ScriptWorker(scripts)
         self.worker.log_signal.connect(self.log)
         self.worker.progress_signal.connect(self.update_progress)

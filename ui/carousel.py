@@ -3,8 +3,12 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QStackedWidget, QPushB
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import QTimer, Qt, QPropertyAnimation, QThread, pyqtSignal, QTranslator, QLocale
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
 import os
+
+import json
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Classe pour charger des images de manière asynchrone
 class ImageLoader(QThread):

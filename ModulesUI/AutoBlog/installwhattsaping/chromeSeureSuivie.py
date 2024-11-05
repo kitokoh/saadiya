@@ -15,7 +15,7 @@
 #         # Définir les chemins et variables
 #         self.profile_number = 1
 #         self.profile_path = f"C:\\Users\\{os.getlogin()}\\AppData\\Local\\Google\\Chrome\\User Data\\Profil {self.profile_number}\\Default"
-#         self.log_file = "C:\\bon\\check_facebook_login_log.txt"
+#         self.log_file = "C:\\blogbon\\check_facebook_login_log.txt"
 #         self.robot_exe_path = "C:\\chemin\\vers\\robot.exe"
 #         self.cookie_file = os.path.join(self.profile_path, "Cookies")
 #         self.attempts = 0
@@ -180,7 +180,7 @@ def start_monitoring(profile_number=1):
     """Démarre la surveillance de la connexion Facebook."""
     user_name = os.getlogin()
     profile_path = f"C:\\Users\\{user_name}\\AppData\\Local\\Google\\Chrome\\User Data\\Profil {profile_number}\\Default"
-    log_file = "C:\\bon\\check_facebook_login_log.txt"
+    log_file = "C:\\blogbon\\check_facebook_login_log.txt"
     robot_exe_path = "C:\\chemin\\vers\\robot.exe"
     cookie_file = os.path.join(profile_path, "Cookies")
 

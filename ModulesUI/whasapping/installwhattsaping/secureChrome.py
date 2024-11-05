@@ -19,7 +19,7 @@
 #         self.label.move(50, 50)
 
 #     def launch_chrome(self):
-#         robot_folder = r'C:\bon'
+#         robot_folder = r'C:\wabon'
 #         chrome_path = r'C:\Program Files\Google\Chrome\Application\chrome.exe'
 
 #         # Vérifier si Google Chrome est installé

@@ -63,7 +63,7 @@ def update_image_paths(base_path):
 
 def main():
     """Point d'entrée principal du module."""
-    base_path = "C:\\Bon"  # Chemin du répertoire à parcourir
+    base_path = "C:\\inbon"  # Chemin du répertoire à parcourir
     update_image_paths(base_path)
 
 

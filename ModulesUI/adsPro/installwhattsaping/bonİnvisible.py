@@ -33,20 +33,20 @@
 #         self.setLayout(self.layout)
 
 #     def hide_folder(self):
-#         folder_path = "C:\\bon"
+#         folder_path = "C:\\grambon"
 
 #         # Vérifier si le dossier existe
 #         if os.path.exists(folder_path):
 #             try:
 #                 # Cacher le dossier avec les attributs +h et +s
 #                 ctypes.windll.kernel32.SetFileAttributesW(folder_path, 0x02 | 0x04)
-#                 self.info_label.setText("Le dossier C:\\bon est maintenant caché.")
-#                 #QMessageBox.information(self, "Succès", "Le dossier C:\\bon est maintenant caché.")
+#                 self.info_label.setText("Le dossier C:\\grambon est maintenant caché.")
+#                 #QMessageBox.information(self, "Succès", "Le dossier C:\\grambon est maintenant caché.")
 #             except Exception as e:
 #                 QMessageBox.critical(self, "Erreur", f"Impossible de cacher le dossier : {str(e)}")
 #         else:
-#             self.info_label.setText("Le dossier C:\\bon n'existe pas.")
-#             QMessageBox.warning(self, "Erreur", "Le dossier C:\\bon n'existe pas.")
+#             self.info_label.setText("Le dossier C:\\grambon n'existe pas.")
+#             QMessageBox.warning(self, "Erreur", "Le dossier C:\\grambon n'existe pas.")
 
 # def main():
 #     app = QApplication(sys.argv)
@@ -64,7 +64,7 @@ import ctypes
 
 def hide_folder():
     """Vérifie si le dossier existe et le cache."""
-    folder_path = "C:\\bon"
+    folder_path = "C:\\grambon"
 
     # Vérifier si le dossier existe
     if os.path.exists(folder_path):

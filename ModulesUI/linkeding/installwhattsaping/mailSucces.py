@@ -21,7 +21,7 @@
 
 #     def run_script(self):
 #         # Chemins pour l'environnement virtuel et le script Python
-#         env_path = r"C:\bon\robot1\env1\Scripts\activate"
+#         env_path = r"C:\inbon\robot1\env1\Scripts\activate"
 #         script_path = r"C:\bon\robot1\mailapresinstall.py"
 
 #         try:

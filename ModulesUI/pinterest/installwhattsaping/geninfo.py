@@ -11,7 +11,7 @@
 #     def __init__(self):
 #         super().__init__()
 
-#         self.licence_folder = "C:\\bon"
+#         self.licence_folder = "C:\\pinbon"
 #         self.tmp_file = os.path.join(self.licence_folder, "tmp.txt")
 #         self.log_file = os.path.join(os.path.expanduser("~"), "Desktop", "journalInstallation.txt")
 #         self.error_flag = 0
@@ -130,7 +130,7 @@
 #     def __init__(self):
 #         super().__init__()
 
-#         self.licence_folder = "C:\\bon"
+#         self.licence_folder = "C:\\pinbon"
 #         self.tmp_file = os.path.join(self.licence_folder, "tmp.txt")
 #         self.log_file = os.path.join(os.path.expanduser("~"), "Desktop", "journalInstallation.txt")
 #         self.error_flag = 0
@@ -241,7 +241,7 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 
 class LicenseGenerator:
     def __init__(self):
-        self.licence_folder = "C:\\bon"
+        self.licence_folder = "C:\\pinbon"
         self.tmp_file = os.path.join(self.licence_folder, "tmp.txt")
         self.log_file = os.path.join(user_data_dir, "resources", "journalInstallation.txt")
         self.error_flag = 0

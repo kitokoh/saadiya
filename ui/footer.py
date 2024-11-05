@@ -3,8 +3,12 @@ from PyQt5.QtWidgets import QLabel, QHBoxLayout, QFrame, QPushButton, QApplicati
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt, pyqtSignal, QTranslator, QLocale, QLibraryInfo
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
 import os
+
+import json
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 class FooterSection(QFrame):
     # Signal émis lors du clic sur les boutons
     privacy_clicked = pyqtSignal()

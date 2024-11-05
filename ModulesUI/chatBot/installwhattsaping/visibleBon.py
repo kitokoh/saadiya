@@ -24,18 +24,18 @@ class FolderVisibilityApp(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def check_and_make_visible(self):
-        folder_path = "C:\\bon"
+        folder_path = "C:\\chatbotbon"
 
         # Vérifie si le dossier existe
         if os.path.exists(folder_path):
             self.toggle_folder_visibility(folder_path)
         else:
-            QMessageBox.critical(self, "Erreur", "Le dossier C:\\bon n'existe pas!")
+            QMessageBox.critical(self, "Erreur", "Le dossier C:\\chatbotbon n'existe pas!")
 
     def toggle_folder_visibility(self, folder_path):
         # Enlève les attributs caché et système
         os.system(f'attrib -h -s "{folder_path}"')
-        QMessageBox.information(self, "Succès", "Le dossier C:\\bon est maintenant visible.")
+        QMessageBox.information(self, "Succès", "Le dossier C:\\chatbotbon est maintenant visible.")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

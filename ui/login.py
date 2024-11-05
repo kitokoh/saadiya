@@ -11,7 +11,11 @@ from home import HomePage
 from .carousel import CarouselWidget  # Assurez-vous que CarouselWidget est importé
 from .register import RegisterModule
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
+
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 from datetime import datetime, timedelta
 
 # Durée maximale de la session en minutes

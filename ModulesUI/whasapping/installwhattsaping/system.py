@@ -165,8 +165,8 @@
 #             self.log(f"Erreur lors de l'exécution de la commande: {e.output.decode().strip()}")
 #             return None
 #     def handle_instance_installation(self):
-#         folder_path_robot1 = "C:\\bon\\robot1"
-#         folder_path_robot2 = "C:\\bon\\robot2"
+#         folder_path_robot1 = "C:\\wabon\\robot1"
+#         folder_path_robot2 = "C:\\wabon\\robot2"
 
 #         # Si robot1 et robot2 existent déjà, demande combien d'instances l'utilisateur souhaite installer
 #         if os.path.exists(folder_path_robot1) and os.path.exists(folder_path_robot2):
@@ -201,7 +201,7 @@
 #             self.install_instance(1)
 
 #     def install_instance(self, instance_number):
-#         folder_path = f"C:\\bon\\robot{instance_number}"
+#         folder_path = f"C:\\wabon\\robot{instance_number}"
 #         if not os.path.exists(folder_path):
 #             os.makedirs(folder_path, exist_ok=True)
 #             self.log(f"Création du dossier pour l'instance {instance_number}...")
@@ -226,8 +226,8 @@
 #             self.log(f"L'instance {instance_number} existe déjà. Aucune action nécessaire.")
 
 #     def update_install_button(self):
-#         folder_path_robot1 = "C:\\bon\\robot1"
-#         folder_path_robot2 = "C:\\bon\\robot2"
+#         folder_path_robot1 = "C:\\wabon\\robot1"
+#         folder_path_robot2 = "C:\\wabon\\robot2"
         
 #         if os.path.exists(folder_path_robot1) and os.path.exists(folder_path_robot2):
 #             self.start_button.setText("Installer une autre instance")
@@ -292,8 +292,8 @@
 #             log("Installeur Python non trouvé.")
 
 # def handle_instance_installation():
-#     folder_path_robot1 = "C:\\bon\\robot1"
-#     folder_path_robot2 = "C:\\bon\\robot2"
+#     folder_path_robot1 = "C:\\wabon\\robot1"
+#     folder_path_robot2 = "C:\\wabon\\robot2"
 
 #     if os.path.exists(folder_path_robot1) and os.path.exists(folder_path_robot2):
 #         log("Instances 1 et 2 déjà installées.")
@@ -317,7 +317,7 @@
 #         install_instance(1)
 
 # def install_instance(instance_number):
-#     folder_path = f"C:\\bon\\robot{instance_number}"
+#     folder_path = f"C:\\wabon\\robot{instance_number}"
 #     if not os.path.exists(folder_path):
 #         os.makedirs(folder_path, exist_ok=True)
 #         log(f"Création du dossier pour l'instance {instance_number}...")

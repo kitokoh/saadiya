@@ -12,7 +12,7 @@
 #         super(LicenseGeneratorApp, self).__init__()
 #         uic.loadUi('interface.ui', self)  # Charger l'interface à partir d'un fichier .ui
 
-#         self.licence_folder = "C:\\bon"
+#         self.licence_folder = "C:\\ininbon"
 #         self.licence_file = "test.txt"
 #         self.generate_button.clicked.connect(self.generate_license)
 
@@ -27,7 +27,7 @@
 #     def generate_license(self):
 #         error_flag = 0
 
-#         # Créer le dossier C:\bon s'il n'existe pas
+#         # Créer le dossier C:\inbon s'il n'existe pas
 #         if not os.path.exists(self.licence_folder):
 #             try:
 #                 os.makedirs(self.licence_folder)
@@ -133,13 +133,13 @@
 
 # class LicenseGenerator:
 #     def __init__(self):
-#         self.licence_folder = "C:\\bon"
+#         self.licence_folder = "C:\\inbon"
 #         self.licence_file = "test.txt"
 
 #     def generate_license(self):
 #         error_flag = 0
 
-#         # Créer le dossier C:\bon s'il n'existe pas
+#         # Créer le dossier C:\inbon s'il n'existe pas
 #         if not os.path.exists(self.licence_folder):
 #             try:
 #                 os.makedirs(self.licence_folder)
