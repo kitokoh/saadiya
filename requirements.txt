@@ -13,5 +13,8 @@ databases
 pydantic
 QtPy 
 PyQtChart
+reportlab
+secure-smtplib
+
 
 

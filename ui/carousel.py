@@ -116,7 +116,7 @@ class CarouselWidget(QWidget):
         
         # Liste des éléments à afficher dans le carrousel
         self.items = [
-            {"image": "resources/icons/robot-icons-30504.png", "text": self.tr("Bienvenue dans Nova360Pro, Votre Assistant")},
+            {"image": "resources/icons/robot-icons-30504.png", "text": self.tr("Bonjour je suis, votre partenaire stratégique\n pour l'automatisation et l'innovation.\n \n Transformer votre stratégie marketing \net booster vos performances.")},
             {"image": "resources/images/9.jpg", "text": self.tr("Explorez nos fonctionnalités")},
             {"image": "resources/icons/automated_8345946.png", "text": self.tr("Découvrez des astuces professionnelles")}
         ]

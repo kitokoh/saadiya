@@ -32,7 +32,7 @@ class Nova360ProApp(QMainWindow):
         self.main_layout = QVBoxLayout(self.central_widget)
 
         # Initialisation des modules d'en-tête, de pied de page et de connexion
-        self.header = HeaderSection(self, title=self.tr("AI Marketing Automation"), app_name="Nova360 AI", slogan=self.tr("AI Marketing & Management Auto"))
+        self.header = HeaderSection(self, title=self.tr("Robot Marketing Automation"), app_name="Nova360 AI", slogan=self.tr("Marketing & Management Automation"))
         self.footer = FooterSection()  # Pied de page
         self.login_module = LoginModule()  # Module de connexion
 

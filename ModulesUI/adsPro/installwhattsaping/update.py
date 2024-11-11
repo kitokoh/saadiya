@@ -57,7 +57,7 @@ class UpdateApp(QtWidgets.QWidget):
 
         instance_index = 1
         while True:
-            foldername = f"C:\\bon\\robot{instance_index}"
+            foldername = f"C:\\grambon\\robot{instance_index}"
             if os.path.exists(foldername):
                 self.log_and_update_instance(foldername, instance_index)
                 instance_index += 1

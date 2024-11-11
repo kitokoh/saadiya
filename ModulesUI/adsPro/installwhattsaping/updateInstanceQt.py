@@ -171,7 +171,7 @@ class UpdateInstance(QWidget):
 
         instance_index = 1
         while True:
-            foldername = f"C:\\bon\\robot{instance_index}"
+            foldername = f"C:\\grambon\\robot{instance_index}"
             if os.path.exists(foldername):
                 self.output_area.append(f"Mise à jour de robot{instance_index}...\n")
                 self.update_instance(foldername, instance_index)

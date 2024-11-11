@@ -58,14 +58,14 @@
 #         os.makedirs(media_dir, exist_ok=True)
 #         os.makedirs(text_dir, exist_ok=True)
 
-#         # Vérifier et compter les dossiers roboti dans C:\pinbon
-#         robot_dirs = [d for d in os.listdir('C:\\pinbon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\pinbon', d))]
+#         # Vérifier et compter les dossiers roboti dans C:\instabon
+#         robot_dirs = [d for d in os.listdir('C:\\instabon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\instabon', d))]
 #         robot_count = len(robot_dirs)
 
 #         # Si aucun dossier n'est trouvé
 #         if robot_count == 0:
-#             self.log_execution("Aucun dossier roboti trouvé dans C:\\pinbon.")
-#             QMessageBox.warning(self, "Erreur", "Aucun dossier roboti trouvé dans C:\\pinbon.")
+#             self.log_execution("Aucun dossier roboti trouvé dans C:\\instabon.")
+#             QMessageBox.warning(self, "Erreur", "Aucun dossier roboti trouvé dans C:\\instabon.")
 #             self.info_label.setText("Opération terminée.")
 #             self.schedule_closing()
 #             return
@@ -149,14 +149,14 @@ class RobotApp:
         os.makedirs(media_dir, exist_ok=True)
         os.makedirs(text_dir, exist_ok=True)
 
-        # Vérifier et compter les dossiers roboti dans C:\pinbon
-        robot_dirs = [d for d in os.listdir('C:\\pinbon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\pinbon', d))]
+        # Vérifier et compter les dossiers roboti dans C:\instabon
+        robot_dirs = [d for d in os.listdir('C:\\instabon') if d.startswith('robot') and os.path.isdir(os.path.join('C:\\instabon', d))]
         robot_count = len(robot_dirs)
 
         # Si aucun dossier n'est trouvé
         if robot_count == 0:
-            self.log_execution("Aucun dossier roboti trouvé dans C:\\pinbon.")
-            print("Aucun dossier roboti trouvé dans C:\\pinbon.")
+            self.log_execution("Aucun dossier roboti trouvé dans C:\\instabon.")
+            print("Aucun dossier roboti trouvé dans C:\\instabon.")
             return
 
         # Si un seul dossier est trouvé

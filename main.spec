@@ -24,12 +24,10 @@ a = Analysis(
         ('resources/videos/*', 'resources/videos'),
         ('resources/tools/*', 'resources/tools'),
         ('resources/sounds/*', 'resources/sounds'),
-        ('resources/demoData/*', 'resources/demoData'),
-         ('resources/demoData/*', 'resources/demoData'),
-         
-         ('resources/lang/*', 'resources/lang'),
 
-        ('installFBrobotPy/*', 'installFBrobotPy')
+         
+         ('resources/lang/*', 'resources/lang')
+
     ],
     hiddenimports=['sip','PyQt5.QtWebEngineWidgets'],
 

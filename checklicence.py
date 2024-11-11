@@ -2,12 +2,24 @@ import os
 import re
 import datetime
 import subprocess
-
+from mail.mail_in_to_in import Mailer1
+from mail.mail_in_to_out import Mailer2
 class LicenseChecker:
     def __init__(self, license_dir="C:\\bon"):
         self.license_dir = license_dir
-        self.license_file = os.path.join(self.license_dir, 'python.txt')
+       # self.license_file = os.path.join(self.license_dir, 'python.txt')
         self.fixed_mac_address = "E4-42-A6-3A-AC"  # MAC fixe à vérifier
+
+        self.default_license_file = os.path.join(self.license_dir, 'python.txt')
+        self.robot1_license_file = os.path.join(self.license_dir, "robot1", "python.txt")
+        
+        # Determine which license file to use
+        if os.path.exists(self.robot1_license_file):
+            print("Using python.txt in robot1 folder.")
+            self.license_file = self.robot1_license_file
+        else:
+            print("Using default python.txt in license_dir.")
+            self.license_file = self.default_license_file
 
     def get_license_file(self):
         """Vérifie si le fichier de licence est présent dans le répertoire spécifié."""
@@ -15,6 +27,18 @@ class LicenseChecker:
             print(f"Fichier de licence trouvé : {self.license_file}")
             return self.license_file
         return None
+    # def get_license_file(self):
+    #     """Reads and returns only the first line of the license file if it exists."""
+    #     if os.path.exists(self.license_file):
+    #         print(f"Fichier de licence trouvé : {self.license_file}")
+    #         with open(self.license_file, "r", encoding="utf-8") as file:
+    #             first_line = file.readline().strip()  # Read only the first line and remove any trailing whitespace
+    #         print(f"Fichier de licence trouvé : {first_line}")
+
+    #         return first_line
+    #     print("Aucun fichier de licence trouvé.")
+    #     return None
+
 
     def parse_license(self, license_str):
         """Extrait les informations clés de la licence et les valide."""
@@ -78,7 +102,7 @@ class LicenseChecker:
 
         try:
             with open(license_file, 'r') as f:
-                license_content = f.read().strip()
+                license_content = f.readline().strip()
                 print("Contenu du fichier de licence lu avec succès.")
         except IOError:
             return "Invalid"
@@ -99,6 +123,12 @@ class LicenseChecker:
         expiration_date = license_date + datetime.timedelta(days=validity_days)
 
         if current_time > expiration_date:
+            mailer = Mailer1()
+            mailer.send_email(email_type= 'mail8')
+
+            mailer2 = Mailer2()
+            mailer2.send_email(email_type="admin_message3",extra_subject=None)  # Exemple d'envoi d'e-mail
+
             print(f"Erreur : La licence a expiré le {expiration_date.strftime('%Y-%m-%d %H:%M:%S')}.")
             return "Invalid"
 
@@ -106,6 +136,6 @@ class LicenseChecker:
         print(f"Licence valide jusqu'au {expiration_date.strftime('%Y-%m-%d %H:%M:%S')}.")
         return expiration_date.strftime('%A %d %B %Y')
 
-# Exemple d'utilisation
-#license_checker = LicenseChecker(license_dir="C:\\bon")
-#print(license_checker.is_license_valid())
+# #Exemple d'utilisation
+# license_checker = LicenseChecker(license_dir="C:\\bon")
+# print(license_checker.is_license_valid())

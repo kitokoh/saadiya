@@ -11,12 +11,13 @@ from home import HomePage
 from .carousel import CarouselWidget  # Assurez-vous que CarouselWidget est importé
 from .register import RegisterModule
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-
+from ui.welcomeSyle import WelcomeDialog
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from PyQt5.QtCore import Qt, QTranslator, QLocale
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 from datetime import datetime, timedelta
+from mail.mail_in_to_in import Mailer1
 
 # Durée maximale de la session en minutes
 SESSION_TIMEOUT = 30  # 30 minutes
@@ -47,28 +48,70 @@ class LoginModule(QWidget):
         form_frame = QFrame(self)
         form_frame.setStyleSheet("""
             background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
+            border-radius: 15px;  /* Arrondir les coins du formulaire */
             padding: 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);  /* Flou en arrière-plan */
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);  /* Ombre plus marquée pour un effet de profondeur */
         """)
         form_layout = QVBoxLayout(form_frame)
 
         # Titre du formulaire
-        title_label = QLabel(self.tr("Connexion à Nova360Pro"))
-        title_label.setFont(QFont("Roboto", 20, QFont.Bold))  # Police moderne
+        title_label = QLabel(self.tr("Connexion à Nova360 AI"))
+        title_label.setFont(QFont("Roboto", 24, QFont.Bold))  # Police moderne et taille de police plus grande
         title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet("""
+            color: #333333;  /* Texte sombre pour un contraste optimal */
+            margin-bottom: 20px;  /* Espacement sous le titre */
+        """)
+        # Frame contenant le formulaire
+        form_frame = QFrame(self)
+        form_frame.setStyleSheet("""
+            background-color: rgba(255, 255, 255, 0.95);  /* Fond blanc avec légère transparence */
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        """)
+        form_layout = QVBoxLayout(form_frame)
+
+        # Titre du formulaire
+        title_label = QLabel(self.tr("Connexion à Nova360 AI"))
+        title_label.setFont(QFont("Roboto", 26, QFont.Bold))  # Police moderne et imposante
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet("""
+            color: #2D74DA;
+            margin-bottom: 10px;
+        """)
         form_layout.addWidget(title_label)
+
+        # Sous-titre commercial
+        subtitle_label = QLabel(self.tr("Automatisez votre marketing avec une efficacité inégalée"))
+        subtitle_label.setFont(QFont("Roboto", 13, QFont.Light))
+        subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setStyleSheet("""
+            color: #777;  /* Gris clair pour un sous-titre élégant */
+            margin-bottom: 15px;
+            font-style: italic;
+        """)
+        form_layout.addWidget(subtitle_label)
 
         # Champ de saisie pour le nom d'utilisateur
         self.username_input = QLineEdit(self)
         self.username_input.setPlaceholderText(self.tr("Nom d'utilisateur"))
         self.username_input.setStyleSheet("""
             padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-            transition: transform 0.2s ease-in-out;
+            border-radius: 8px;
+            border: 2px solid #2D74DA;  /* Bordure élégante bleue */
+            background-color: #F5F8FA;
+            font-size: 15px;
+            color: #333;
+            transition: all 0.3s ease-in-out;
+        """)
+        self.username_input.setStyleSheet(self.username_input.styleSheet() + """
+            QLineEdit:focus {
+                border-color: #1A59A0;  /* Bordure bleu foncé au focus */
+                box-shadow: 0 0 8px rgba(26, 89, 160, 0.3);
+            }
         """)
         form_layout.addWidget(self.username_input)
 
@@ -78,30 +121,42 @@ class LoginModule(QWidget):
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.setStyleSheet("""
             padding: 12px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-size: 14px;
-            transition: transform 0.2s ease-in-out;
+            border-radius: 8px;
+            border: 2px solid #2D74DA;
+            background-color: #F5F8FA;
+            font-size: 15px;
+            color: #333;
+            transition: all 0.3s ease-in-out;
+        """)
+        self.password_input.setStyleSheet(self.password_input.styleSheet() + """
+            QLineEdit:focus {
+                border-color: #1A59A0;
+                box-shadow: 0 0 8px rgba(26, 89, 160, 0.3);
+            }
         """)
         form_layout.addWidget(self.password_input)
 
         # Bouton de connexion
         self.login_button = QPushButton(self.tr("Se connecter"), self)
-        self.login_button.setIcon(QIcon("resources/images/login.jpg"))  # Ajout d'une icône
+        self.login_button.setIcon(QIcon("resources/images/login.jpg"))
         self.login_button.setStyleSheet("""
-            background-color: #007BFF;
+            background-color: #2D74DA;
             color: white;
-            padding: 12px;
-            border-radius: 55px;
-            font-size: 18px;
-            transition: background-color 0.3s ease;
+            padding: 14px 28px;
+            border-radius: 40px;  /* Coins arrondis pour un bouton moderne */
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid red;  /* Bordure visible bleue */
+            transition: all 0.3s ease-in-out;
         """)
-        self.login_button.setCursor(Qt.PointingHandCursor)
         self.login_button.setStyleSheet(self.login_button.styleSheet() + """
             QPushButton:hover {
-                background-color: #0056b3;
+                background-color: #1A59A0;
+                transform: scale(1.05);
             }
         """)
+        self.login_button.setCursor(Qt.PointingHandCursor)
         self.login_button.clicked.connect(self.login)
         form_layout.addWidget(self.login_button)
 
@@ -109,10 +164,13 @@ class LoginModule(QWidget):
         self.forgot_password_button = QPushButton(self.tr("Mot de passe oublié ?"), self)
         self.forgot_password_button.setStyleSheet("""
             background: transparent;
-            color: #007BFF;
+            color: #2D74DA;
             border: none;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: bold;
             margin-top: 10px;
+            text-decoration: underline;
+            cursor: pointer;
         """)
         self.forgot_password_button.setCursor(Qt.PointingHandCursor)
         self.forgot_password_button.clicked.connect(self.reset_password)
@@ -120,33 +178,70 @@ class LoginModule(QWidget):
 
         # Lien pour créer un compte
         self.signup_button = QPushButton(self.tr("Créer un compte"), self)
-        self.signup_button.setIcon(QIcon("resources/icons/facebook-icon-png-745.png"))  # Ajout d'une icône pour le bouton inscription
+        self.signup_button.setIcon(QIcon("resources/icons/facebook-icon-png-745.png"))
         self.signup_button.setStyleSheet("""
             background-color: #28A745;
             color: white;
-            padding: 12px;
-            border-radius: 5px;
+            padding: 14px 28px;
+            border-radius: 40px;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+                                         
+            border: 2px solid blue;
+            transition: all 0.3s ease-in-out;
         """)
-        self.signup_button.setCursor(Qt.PointingHandCursor)
         self.signup_button.setStyleSheet(self.signup_button.styleSheet() + """
             QPushButton:hover {
                 background-color: #218838;
+                transform: scale(1.05);
             }
         """)
+        self.signup_button.setCursor(Qt.PointingHandCursor)
         self.signup_button.clicked.connect(self.create_account)
         form_layout.addWidget(self.signup_button)
 
-        # Espacement entre les widgets
-        form_layout.setSpacing(15)
+        # Espacement et marges ajustées pour une interface plus compacte
+        form_layout.setSpacing(10)  # Réduit l'espacement entre les éléments
+        form_layout.setContentsMargins(20, 20, 20, 20)  # Marges internes réduites pour plus de compacité
 
         # Ajouter le formulaire à la mise en page principale
+        self.layout.addWidget(form_frame)
+
+                # Ajouter le formulaire à la mise en page principale
         self.layout.addWidget(form_frame)
 
         # Variables de contrôle
         self.failed_attempts = 0
         self.max_attempts = 3  # Limite d'essais
+    def button_style(self):
+        return """
+            QPushButton {
+                background: linear-gradient(45deg, #007BFF, #0056b3);
+                color: blue;
+                font-size: 18px;
+                font-weight: bold;
+                padding: 12px 30px;
+                border-radius: 8px;
+                border: 2px solid #0056b3;
+                transition: background-color 0.3s, transform 0.2s;
+            }
+
+            QPushButton:hover {
+                background: linear-gradient(45deg, #0056b3, #003d7a);
+                transform: scale(1.05);
+            }
+
+            QPushButton:pressed {
+                background: linear-gradient(45deg, #003d7a, #002b56);
+                transform: scale(0.98);
+            }
+
+            QPushButton:focus {
+                outline: none;
+            }
+        """
+
     def switch_language(self, language):
         """Permet de changer la langue."""
         # if language == "en":
@@ -167,6 +262,8 @@ class LoginModule(QWidget):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','login_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','login_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','ui','login_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -213,6 +310,8 @@ class LoginModule(QWidget):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                 'pt': 'pt',
+
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -271,7 +370,69 @@ class LoginModule(QWidget):
 
             self.connection_successful.emit()  # Émettre le signal de réussite
 
-            QMessageBox.information(self, self.tr("Connexion réussie"), self.tr("Bienvenue, {}!").format(username))
+            # QMessageBox.information(self, self.tr("Connexion réussie"), self.tr("Bienvenue, {}!").format(username))
+            # QMessageBox.information(
+            #     self,
+            #     self.tr("🎉 Successful Login!"),
+            #     self.tr(
+            #         "<h2 style='color:#2E86C1;'>Welcome, {}!</h2>"
+            #         "<p style='font-size:14px; color:#4A4A4A;'>"
+            #         "You've entered <strong>Saadiya.ai's Command Center</strong> — the heart of your automated marketing strategy.</p>"
+            #         "<p style='font-size:13px; color:#4A4A4A;'>"
+            #         "Here, you can design and schedule your marketing campaigns, hand the execution over to our intelligent AI-driven bots, "
+            #         "and watch as your reach and influence expand effortlessly.</p>"
+            #         "<br>"
+            #         "<h3 style='color:#2E86C1;'>Next Steps</h3>"
+            #         "<ul style='font-size:13px; color:#4A4A4A;'>"
+            #         "<li><strong>Define Your Goals:</strong> Outline your marketing objectives to focus your strategy.</li>"
+            #         "<li><strong>Schedule Campaigns:</strong> Set precise timing to engage your audience when it matters most.</li>"
+            #         "<li><strong>Let Saadiya Execute:</strong> Our robots handle the rest, ensuring your brand grows while you focus on bigger visions.</li>"
+            #         "</ul>"
+            #         "<p style='font-size:13px; color:#4A4A4A;'>"
+            #         "Ready to accelerate? Start now and let nova.ai take your brand to new heights!</p>"
+            #     ).format(username)
+            # )
+            mailer = Mailer1()
+            mailer.send_email(email_type="mail1")
+            dialog = WelcomeDialog(username)
+            dialog.exec_()
+
+            QMessageBox.information(
+                self,
+                self.tr("🎉 Bienvenue chez Nova360.ai!"),
+                self.tr(
+                    "<div style='background-color:#F0F8FF; padding:20px; border-radius:10px;'>"
+                    "<h1 style='color:#2E86C1; font-size:24px; text-align:center;'>Bienvenue, {}</h1>"
+                    "<p style='font-size:16px; color:#333333; text-align:center;'>"
+                    "<strong>Votre Hub d'Automatisation Marketing Intelligent</strong>"
+                    "</p><br>"
+                    
+                    "<div style='padding: 10px; border-left: 5px solid #2E86C1; margin: 10px 0;'>"
+                    "<p style='font-size:14px; color:#555555; line-height:1.6;'>"
+                    "Vous avez désormais accès à Nova360.ai, la solution ultime pour automatiser et optimiser vos stratégies marketing.<br>"
+                    "Programmez vos campagnes, définissez vos objectifs, et laissez nos robots intelligents s'occuper du reste."
+                    "</p>"
+                    "</div><br>"
+                    
+                    "<h3 style='color:#2E86C1; font-size:18px;'>🔑 Fonctionnalités Clés</h3>"
+                    "<ul style='font-size:14px; color:#555555; padding-left: 40px;'>"
+                    "<li style='margin-bottom:10px;'><strong>📅 Programmation Intelligente :</strong> Planifiez et automatisez vos publications sur plusieurs plateformes avec une précision optimale.</li>"
+                    "<li style='margin-bottom:10px;'><strong>🤖 Engagement Automatisé :</strong> Interagissez avec votre audience grâce à des réponses et commentaires intelligents générés par l'IA.</li>"
+                    "<li><strong>📊 Analyse et Reporting :</strong> Suivez les performances de vos campagnes en temps réel et ajustez vos stratégies pour un impact maximal.</li>"
+                    "</ul><br>"
+                    
+                    "<p style='font-size:14px; color:#555555; text-align:center;'>"
+                    "Prêt à révolutionner votre marketing? Commencez dès maintenant et laissez Nova360.ai propulser votre marque vers de nouveaux sommets!"
+                    "</p><br>"
+                    
+                    "<p style='font-size:12px; color:#888888; text-align:center;'>"
+                    "© 2024 Nova360 Pro | "
+                    "<a href='https://www.nova360pro.com' style='color:#2E86C1; text-decoration:none;'>www.nova360pro.com</a>"
+                    "</p>"
+                    "</div>"
+                ).format(username)
+            )
+
             self.failed_attempts = 0  # Réinitialiser le compteur d'échecs
 
             self.close()
@@ -301,7 +462,44 @@ class LoginModule(QWidget):
                 session_data = json.load(file)
                 if session_data.get('is_logged_in'):
                     username = session_data.get('username')
-                    QMessageBox.information(self, self.tr("Bienvenue"), self.tr(f"Bonjour, {username}!"))
+                    dialog = WelcomeDialog(username)
+                    dialog.exec_()
+
+                    QMessageBox.information(
+                        self,
+                        self.tr("🎉 Bienvenue chez Nova360.ai!"),
+                        self.tr(
+                            "<div style='background-color:#F0F8FF; padding:20px; border-radius:10px;'>"
+                            "<h1 style='color:#2E86C1; font-size:24px; text-align:center;'>Bienvenue, {}</h1>"
+                            "<p style='font-size:16px; color:#333333; text-align:center;'>"
+                            "<strong>Votre Hub d'Automatisation Marketing Intelligent</strong>"
+                            "</p><br>"
+                            
+                            "<div style='padding: 10px; border-left: 5px solid #2E86C1; margin: 10px 0;'>"
+                            "<p style='font-size:14px; color:#555555; line-height:1.6;'>"
+                            "Vous avez désormais accès à Nova360.ai, la solution ultime pour automatiser et optimiser vos stratégies marketing.<br>"
+                            "Programmez vos campagnes, définissez vos objectifs, et laissez nos robots intelligents s'occuper du reste."
+                            "</p>"
+                            "</div><br>"
+                            
+                            "<h3 style='color:#2E86C1; font-size:18px;'>🔑 Fonctionnalités Clés</h3>"
+                            "<ul style='font-size:14px; color:#555555; padding-left: 40px;'>"
+                            "<li style='margin-bottom:10px;'><strong>📅 Programmation Intelligente :</strong> Planifiez et automatisez vos publications sur plusieurs plateformes avec une précision optimale.</li>"
+                            "<li style='margin-bottom:10px;'><strong>🤖 Engagement Automatisé :</strong> Interagissez avec votre audience grâce à des réponses et commentaires intelligents générés par l'IA.</li>"
+                            "<li><strong>📊 Analyse et Reporting :</strong> Suivez les performances de vos campagnes en temps réel et ajustez vos stratégies pour un impact maximal.</li>"
+                            "</ul><br>"
+                            
+                            "<p style='font-size:14px; color:#555555; text-align:center;'>"
+                            "Prêt à révolutionner votre marketing? Commencez dès maintenant et laissez Nova360.ai propulser votre marque vers de nouveaux sommets!"
+                            "</p><br>"
+                            
+                            "<p style='font-size:12px; color:#888888; text-align:center;'>"
+                            "© 2024 Nova360 Pro | "
+                            "<a href='https://www.nova360pro.com' style='color:#2E86C1; text-decoration:none;'>www.nova360pro.com</a>"
+                            "</p>"
+                            "</div>"
+                        ).format(username)
+                    )
                     self.connection_successful.emit()  # Passer directement à l'application
                     self.close()
         except (FileNotFoundError, json.JSONDecodeError):

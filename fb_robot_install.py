@@ -22,7 +22,10 @@ from cryptography.fernet import Fernet
 from datetime import datetime
 from ui.header import HeaderSection  # Import du header
 from ui.footer import FooterSection  # Import du footer
-
+from mail.mail_in_to_out import Mailer2
+from mail.mail_in_to_in import Mailer1
+from mail.mail_in_in_pj import Mailer3
+#from licenceYonetimi.sendproforma import ProformaGenerator
 # Importation des modules de scripts
 from installFBrobotPy import createFolder, system, dossiers, copieMediaDemo, majenv, geninfo
 from installFBrobotPy import generedemolicence, updatejson, Visibleinstance, verificateur
@@ -33,7 +36,8 @@ from installFBrobotPy.demarrageAuto import InstallerApp
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
 from media_manager import MediaTable
-
+from licenceYonetimi.validatelicens import LicenseValidator
+from licenceYonetimi.sendproforma import ProformaGenerator
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
@@ -68,7 +72,41 @@ def get_serial_number():
     except IndexError:
         print("Erreur : Impossible de récupérer le numéro de série via PowerShell.")
         return None
+def get_windows_username():
+    """Récupère le nom de l'utilisateur Windows courant."""
+    try:
+        # Méthode 1 : Utiliser os.getlogin()
+        username = os.getlogin()
+        if username:
+            return username
+    except Exception as e:
+        print(f"Erreur avec os.getlogin() : {e}")
 
+    # try:
+    #     # Méthode 2 : Utiliser la variable d'environnement USERNAME
+    #     username = os.getenv("USERNAME")
+    #     if username:
+    #         return username
+    # except Exception as e:
+    #     print(f"Erreur avec os.getenv() : {e}")
+
+    print("Erreur : Impossible de récupérer le nom d'utilisateur.")
+    return None
+
+def get_subfolders(directory_path):
+    """Retourne la liste des sous-dossiers directs d'un dossier donné."""
+    try:
+        # Vérifie si le chemin existe et est un dossier
+        if not os.path.isdir(directory_path):
+            print(f"Le chemin spécifié n'est pas un dossier : {directory_path}")
+            return []
+
+        # Récupère les sous-dossiers
+        subfolders = [name for name in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, name))]
+        return subfolders
+    except Exception as e:
+        print(f"Erreur lors de la récupération des sous-dossiers : {e}")
+        return []
 # Worker thread to execute scripts without blocking the GUI
 class ScriptWorker(QThread):
     log_signal = pyqtSignal(str, str)  # message, level
@@ -196,7 +234,7 @@ class LicenseDialog(QDialog):
         layout.addWidget(label)
 
         self.combo_box = QComboBox()
-        self.combo_box.addItems(["Mensuelle", "Annuelle", "Lifetime"])
+        self.combo_box.addItems([self.tr("Mensuelle"), self.tr("Annuelle"), self.tr("Lifetime")])
         layout.addWidget(self.combo_box)
 
         submit_btn = QPushButton(self.tr("Envoyer la demande"))
@@ -280,8 +318,8 @@ class LicenseDialog(QDialog):
         QMessageBox.information(
             self,
             "Demande de licence",
-            "Votre demande de licence est en cours d'envoi. "
-            "Veuillez patienter un instant pendant que nous vous enverrons votre licence par email.",
+            "Votre demande de licence est en cours d'envoi.... "
+            "Veuillez patienter un instant pendant que nous vous enverrons votre licence par email...",
             QMessageBox.Ok
         )
 
@@ -289,10 +327,31 @@ class LicenseDialog(QDialog):
         if self.send_license_email():
             QMessageBox.information(
                 self,
-                "Licence envoyée",
-                "Votre licence a été envoyée avec succès. Veuillez vérifier votre boîte de réception.",
+                "Demande de Licence envoyée",
+                "Votre demande de licence a été envoyée avec succès. Veuillez vérifier votre boîte de réception. instantanement",
                 QMessageBox.Ok
             )
+            # mailer = Mailer2()
+            # mailer.send_email(email_type="admin_message1",extra_subject=None, extra_body=body)  # Exemple d'envoi d'e-mail
+
+           # mailer1 = Mailer1()
+            #mailer1.send_email(email_type="mail1")  # Exemple d'envoi d'e-mail
+
+            # Génération de la facture proforma
+            proforma = ProformaGenerator(self.chosen_license)  # remplacer par "mensuelle" ou "lifetime" si besoin
+            pdf_path = proforma.generate_proforma_pdf()
+                        # Envoie du proforma 
+            print(f"Chemin PDF généré : {pdf_path}")
+
+            mailer2 = Mailer3()
+    
+            # Envoi d'un e-mail simple
+            mailer2.send_email_with_attachments(
+                email_type="mail1",
+                attachments = [f"resources/proforma.pdf"]
+            )
+            self.clear_fields()
+            self.accept()
         else:
             QMessageBox.warning(
                 self,
@@ -300,6 +359,8 @@ class LicenseDialog(QDialog):
                 "Une erreur s'est produite lors de l'envoi de votre licence. Veuillez réessayer.",
                 QMessageBox.Ok
             )
+    def clear_fields(self):
+        pass
 
     def load_encrypted_data(file_path):
             """Charge et déchiffre les données à partir d'un fichier."""
@@ -320,34 +381,62 @@ class LicenseDialog(QDialog):
     def send_license_email(self):
         """Envoie l'email de licence à l'utilisateur."""
         try:
-            # Charger les informations d'envoi
-            server = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','server.txt'))
-            sender_email = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','adress.txt'))
-            password = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','tes.txt'))
+            # # Charger les informations d'envoi
+            # server = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','server.txt'))
+            # sender_email = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','adress.txt'))
+            # password = load_encrypted_data(os.path.join(user_data_dir, 'resources', 'data','tes.txt'))
             
-            receiver_email = "turk.novatech@gmail.com"  # Destinataire fixe
+            # receiver_email = "turk.novatech@gmail.com"  # Destinataire fixe
             serial_number = get_serial_number()  # Récupérer le numéro de série de l'ordinateur
+            username = get_windows_username()
+           # print(f"Nom de l'utilisateur courant : {username}")
 
-            subject = "Demande de licence"
-            body = (f"Bonjour,\n\n"
-                    f"Nous avons reçu une demande de licence pour : {self.chosen_license}.\n"
+            # Obtenir la liste des sous-dossiers d'un dossier donné
+            #dossier_path = input("Entrez le chemin vers un dossier : ")
+            #subfolders = get_subfolders("C:\bon")
+            #print(f"Sous-dossiers de '{dossier_path}' : {subfolders}")
+            # subject = "Demande de licence"
+            body = (f"Nous avons reçu une demande de licence pour : {self.chosen_license}.\n"
                     f"Numéro de série de l'ordinateur : {serial_number}\n"
-                    f"Veuillez traiter la  demande.\n\n"
+                    f"le username de lutilisateur system : {username}\n"
+                    f"les sous dossiers present : robot1\n"
+                    f"nom du dossier : bon\n"
                     "Merci de votre confiance.\n")
 
-            # Créer le message
-            msg = MIMEMultipart()
-            msg['From'] = sender_email
-            msg['To'] = receiver_email
-            msg['Subject'] = subject
-            msg.attach(MIMEText(body, 'plain'))
+            # # Créer le message
+            # msg = MIMEMultipart()
+            # msg['From'] = sender_email
+            # msg['To'] = receiver_email
+            # msg['Subject'] = subject
+            # msg.attach(MIMEText(body, 'plain'))
 
-            # Se connecter au serveur SMTP et envoyer l'email
-            with smtplib.SMTP(server, 587) as smtp_server:
-                smtp_server.starttls()  # Activer la sécurité
-                smtp_server.login(sender_email, password)
-                smtp_server.send_message(msg)
+            # # Se connecter au serveur SMTP et envoyer l'email
+            # with smtplib.SMTP(server, 587) as smtp_server:
+            #     smtp_server.starttls()  # Activer la sécurité
+            #     smtp_server.login(sender_email, password)
+            #     smtp_server.send_message(msg)
+            mailer = Mailer2()
+            mailer.send_email(email_type="admin_message1",extra_subject=None, extra_body=body)  # Exemple d'envoi d'e-mail
 
+            # mailer1 = Mailer1()
+            # mailer1.send_email(email_type="mail1")  # Exemple d'envoi d'e-mail
+
+            # # Génération de la facture proforma
+            # proforma = ProformaGenerator("annuelle")  # remplacer par "mensuelle" ou "lifetime" si besoin
+            # pdf_path = proforma.generate_proforma_pdf()
+            #             # Envoie du proforma 
+
+            # mailer2 = Mailer3()
+    
+            # # Envoi d'un e-mail simple
+            # mailer2.send_email_with_attachments(
+            #     email_type="mail1",
+            #     attachments=["D:\\gestion\\entreeJeux\\KpsPlastic\\hayvancilik\\catalogKps.pdf"]
+            # )
+            
+
+
+                    # Envoi d'un e-mail simple
             return True  # Email envoyé avec succès
         except Exception as e:
             print(f"Erreur lors de l'envoi de l'email: {str(e)}")
@@ -355,20 +444,17 @@ class LicenseDialog(QDialog):
 class UpdateLicenseDialog(QDialog):
     
     def __init__(self, parent=None):
-        self.translator = QTranslator()
-        self.init_language()  
         super().__init__(parent)
         
         self.setWindowTitle(self.tr("Mettre à jour la licence"))
         self.setFixedSize(400, 250)
         self.setStyleSheet("background-color: #f0f0f0;")
-        # Initialiser le traducteur
-        self.translator = QTranslator()
-        self.init_language()  # Initialisation de la langue après la création des actions
 
-        layout = QVBoxLayout()
+        # Initialize LicenseValidator
+        self.validator = LicenseValidator()
         
-        # Créer une bordure autour du formulaire
+        # Set up layout
+        layout = QVBoxLayout()
         frame = QFrame(self)
         frame.setStyleSheet("background-color: #ffffff; border-radius: 10px; padding: 20px;")
         frame_layout = QVBoxLayout(frame)
@@ -377,42 +463,54 @@ class UpdateLicenseDialog(QDialog):
         label.setStyleSheet("font-weight: bold; font-size: 14px;")
         frame_layout.addWidget(label)
 
+        # License input field
         self.license_input = QLineEdit(self)
-        self.license_input.setPlaceholderText("Code de licence ici...")
+        self.license_input.setPlaceholderText("xxxxx-xxxxx-xxxxx-xxxxx-xxxxx-xxxxx")
         self.license_input.setStyleSheet("padding: 10px; font-size: 12px; border: 1px solid #ccc; border-radius: 5px;")
         frame_layout.addWidget(self.license_input)
 
-        # Créer un bouton pour valider la licence
+        # Validate license button
         validate_btn = QPushButton(self.tr("Valider la licence"))
         validate_btn.setStyleSheet("background-color: #007BFF; color: white; padding: 10px; border: none; border-radius: 5px;")
         validate_btn.clicked.connect(self.validate_license)
         frame_layout.addWidget(validate_btn)
 
-        # Ajouter le cadre au layout principal
         layout.addWidget(frame)
-
         self.setLayout(layout)
-    def switch_language(self, language):
-        """Permet de changer la langue."""
-        if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','fb_robot_install_translated.qm'))
-        elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','fb_robot_install_translated.qm'))
-        elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
-        elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
-
-        # Installer le traducteur pour appliquer la nouvelle langue
-        QApplication.instance().installTranslator(self.translator)
+    
+    def validate_license(self):
+        """Validates and updates the license using LicenseValidator."""
+        license_code = self.license_input.text().strip()
         
-            # Sauvegarder le choix de l'utilisateur
-        self.save_language_choice(language)
+        if not license_code:
+            QMessageBox.warning(self, "Erreur", "Veuillez entrer un code de licence.", QMessageBox.Ok)
+            return
 
+        # Check license validity
+        if not self.validator.validate_license(license_code):
+            QMessageBox.warning(self, "Erreur", "Code de licence invalide.", QMessageBox.Ok)
+            return
 
-        # Réappliquer la traduction sur tous les éléments visibles de l'interface
-        self.retranslateUi()
-
+        try:
+            # Update python.txt file based on the license
+            self.validator.update_python_file(license_code)
+            QMessageBox.information(self, "Mise à jour réussie", "Votre licence a été mise à jour avec succès. \n Vous pouvez désormais continuer à utiliser toutes les fonctionnalités.", QMessageBox.Ok)
+            mailer2 = Mailer3()
+    
+            # Envoi d'un e-mail simple
+            mailer2.send_email_with_attachments(
+                email_type="mail12",
+                attachments = []
+            )         
+            mailer = Mailer2()
+            mailer.send_email(email_type="admin_message4",extra_subject=None)  # Exemple d'envoi d'e-mail
+        
+            self.clear_fields()
+            self.accept()
+        except Exception as e:
+            QMessageBox.warning(self, "Erreur", f"Une erreur est survenue : {e}", QMessageBox.Ok)
+    def clear_fields(self):
+        pass
     def save_language_choice(self, language):
         """Sauvegarde le choix de langue de l'utilisateur dans un fichier JSON."""
         preferences = {'language': language}
@@ -455,27 +553,6 @@ class UpdateLicenseDialog(QDialog):
 
         self.switch_language(selected_language)
 
-    def validate_license(self):
-        """Valider et mettre à jour la licence."""
-        license_code = self.license_input.text().strip()
-
-        if not license_code:
-            QMessageBox.warning(self, "Erreur", "Veuillez entrer un code de licence.", QMessageBox.Ok)
-            return
-
-        # Enregistrer la licence brute dans un fichier
-        instance_number = license_code[-1]  # Dernier chiffre du code de licence
-        raw_license_file = f"resources/data/licence{instance_number}.txt"
-        
-        with open(raw_license_file, 'w') as file:
-            file.write(license_code)
-
-        # Décryptage de la licence
-        decrypt_char = license_code[-2].lower()  # Avant dernier caractère
-        if decrypt_char in ('a', 'b', 'c'):
-            self.process_license(decrypt_char, instance_number)
-        else:
-            QMessageBox.warning(self, "Erreur", "Code de licence invalide.", QMessageBox.Ok)
 
     def process_license(self, decrypt_char, instance_number):
         """Traite la licence en fonction du caractère de décryptage."""
@@ -515,16 +592,18 @@ class HelpDialog(QDialog):
         self.setFixedSize(400, 300)
         layout = QVBoxLayout()
 
-        help_text = QLabel(f"""{self.tr('<h2>Aide et Tutoriels</h2>')}
-            {self.tr('<p>Bienvenue dans le système de gestion automatisée. Voici quelques instructions pour vous aider :</p>')}
-            <ul>
-                <li><b>{self.tr("Démarrage Auto")}</b>: {self.tr("programme le demarrage automatisé de l.")}</li>
-                <li><b>{self.tr("Démarrer Système")}</b>: {self.tr("Initialise le système.")}</li>
-                <li><b>{self.tr("Installer une autre instance")}</b>: {self.tr("Installe une nouvelle instance si le dossier 'robot1' existe.")}</li>
-                <li><b>{self.tr("Demander votre licence")}</b>: {self.tr("Demande une licence en choisissant le type souhaité.")}</li>
-            </ul>
-            {self.tr('<p>Pour toute assistance supplémentaire, veuillez contacter le support technique.</p>')}
-        """)
+        help_text = QLabel(self.tr("<h2>Aide et Tutoriels</h2>")
+            + "<p>" + self.tr("Bienvenue dans le système de gestion automatisée. Voici quelques instructions pour vous aider à naviguer dans les fonctionnalités clés :") + "</p>"
+            + "<ul>"
+                + "<li><b>" + self.tr("Démarrage Auto") + "</b>: " + self.tr("Configure le démarrage automatique de l'application pour une gestion sans intervention.") + "</li>"
+                + "<li><b>" + self.tr("Démarrer Système") + "</b>: " + self.tr("Initialise le système et lance les processus requis pour une utilisation immédiate.") + "</li>"
+                + "<li><b>" + self.tr("Installer une autre instance") + "</b>: " + self.tr("Permet d'installer une nouvelle instance du programme si le dossier 'robot1' est déjà présent.") + "</li>"
+                + "<li><b>" + self.tr("Demander votre licence") + "</b>: " + self.tr("Soumettez une demande de licence en sélectionnant l'option la mieux adaptée à vos besoins.") + "</li>"
+            + "</ul>"
+            + "<p>" + self.tr("Pour toute aide supplémentaire, n'hésitez pas à contacter notre support technique pour des conseils personnalisés.") + "</p>"
+        )
+
+
         help_text.setWordWrap(True)
         layout.addWidget(help_text)
 
@@ -712,10 +791,10 @@ class FbRobot(QtWidgets.QWidget):
 
        # Ajouter un bouton d'aide
         help_btn = QPushButton(self.tr('Valider licence'), self)  # Utilisation de self.tr()
-        help_btn.setIcon(QIcon('resources/icons/information-icon-6055-Windows.ico'))
+        help_btn.setIcon(QIcon('resources/icons/house-key-icon-41543-Windows.ico'))
         help_btn.setStyleSheet(""" 
             QPushButton {
-                background-color: #95a5a6;
+                background-color: green;
                 color: white;
                 padding: 10px;
                 border-radius: 5px;

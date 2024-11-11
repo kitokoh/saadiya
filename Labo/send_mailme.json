@@ -1,0 +1,52 @@
+{
+    "admin_message1": {
+        "subject": "Nouvelle demande de licence reçue",
+        "body": "Bonjour Super Admin,\n\nL'utilisateur {username} vient de soumettre une demande de licence pour Nova360 AI. Veuillez examiner la demande et lui fournir un code de licence dès que possible.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Email : {mail}\n\nMerci de traiter cette demande rapidement.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Haute"
+    },
+    "admin_message2": {
+        "subject": "Nouvel utilisateur inscrit",
+        "body": "Bonjour Super Admin,\n\nUn nouvel utilisateur vient de s'inscrire sur Nova360 AI.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Email : {mail}\n- Date d'inscription : {date}\n\nMerci de vérifier les informations et d'activer le compte si nécessaire.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Normale"
+    },
+    "admin_message3": {
+        "subject": "Licence de l'utilisateur expirée",
+        "body": "Bonjour Super Admin,\n\nLa licence de l'utilisateur {username} a expiré aujourd'hui.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Type de licence : {licence_type}\n- Date d'expiration : {expiry_date}\n\nVeuillez contacter l'utilisateur pour un renouvellement éventuel ou suspendre l'accès si nécessaire.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Élevée"
+    },
+    "admin_message4": {
+        "subject": "Licence de l'utilisateur activée",
+        "body": "Bonjour Super Admin,\n\nLa licence de l'utilisateur {username} a été activée avec succès.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Type de licence : {licence_type}\n- Date d'activation : {activation_date}\n\nL'utilisateur a désormais accès complet aux fonctionnalités de Nova360 AI.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Normale"
+    },
+    "admin_message5": {
+        "subject": "Rapport d'activité hebdomadaire",
+        "body": "Bonjour Super Admin,\n\nVoici le rapport hebdomadaire des activités clés sur Nova360 AI :\n\n- Nouveaux utilisateurs inscrits : {new_users_count}\n- Licences actives : {active_licenses_count}\n- Licences expirées : {expired_licenses_count}\n- Demandes de support non résolues : {open_support_requests}\n\nMerci de vérifier ces données et de prendre des actions nécessaires pour toute intervention.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Normale"
+    },
+    "admin_message6": {
+        "subject": "Demande de support utilisateur",
+        "body": "Bonjour Super Admin,\n\nL'utilisateur {username} a envoyé une demande de support avec le sujet suivant : {support_subject}.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Email : {mail}\n- Date de la demande : {request_date}\n\nMerci de vérifier la demande et de coordonner une réponse.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Haute"
+    },
+    "admin_message7": {
+        "subject": "Expiration de licence imminente",
+        "body": "Bonjour Super Admin,\n\nLa licence de l'utilisateur {username} expirera dans les 3 prochains jours.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Type de licence : {licence_type}\n- Date d'expiration : {expiry_date}\n\nMerci de contacter l'utilisateur pour une proposition de renouvellement ou d'interrompre l'accès si nécessaire.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Haute"
+    },
+    "admin_message8": {
+        "subject": "Demande de renouvellement de licence",
+        "body": "Bonjour Super Admin,\n\nL'utilisateur {username} a demandé un renouvellement de sa licence.\n\nDétails utilisateur:\n- Nom d'utilisateur : {username}\n- Type de licence actuelle : {current_licence_type}\n- Date de demande : {request_date}\n\nMerci de traiter cette demande rapidement et de procéder au renouvellement.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Haute"
+    },
+    "admin_message9": {
+        "subject": "Alertes de performances de la plateforme",
+        "body": "Bonjour Super Admin,\n\nVoici les alertes de performances détectées sur Nova360 AI :\n\n- Taux d'erreur de connexion : {login_error_rate}%\n- Temps de réponse moyen : {average_response_time} ms\n- Nombre d'utilisateurs actifs ce jour : {active_users_count}\n\nVeuillez vérifier les performances et prendre des mesures si nécessaire.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Critique"
+    },
+    "admin_message10": {
+        "subject": "Revue mensuelle des licences",
+        "body": "Bonjour Super Admin,\n\nVoici un aperçu du statut des licences pour ce mois :\n\n- Licences totales : {total_licenses}\n- Licences actives : {active_licenses}\n- Licences expirées : {expired_licenses}\n- Nouveaux utilisateurs inscrits : {new_users_count}\n\nMerci de vérifier et de suivre les renouvellements ou les actions nécessaires.\n\nCordialement,\nLe système Nova360 AI",
+        "priority": "Normale"
+    }
+}

@@ -15,7 +15,7 @@ from ModulesUI.tiktok.media_manager import MediaTable
 from ModulesUI.tiktok.group_manager import GroupTable
 from ModulesUI.tiktok.instances_table import InstanceTable
 #from fb_robot_install import FbRobot
-from ModulesUI.twitter.wp_robot_install import WpRobot
+from ModulesUI.adsPro.wp_robot_install import WpRobot
 from statistique.stat import Dashboard
 
 
@@ -25,11 +25,11 @@ from installFBrobotPy.demarrageAuto import InstallerApp
 #from installFBrobotPy.installGithub import InstallerApp
 #from installFBrobotPy.installpython import InstallerApp
 
-from installFBrobotPy.invisibleQT import InvisibleInstance
-from installFBrobotPy.majenvqt import MajEnv
-from installFBrobotPy.jsontorobot import JsonToRobot
-from installFBrobotPy.supprimBon import DeleteBon
-from installFBrobotPy.updateInstanceQt import UpdateInstance
+from ModulesUI.adsPro.installwhattsaping.invisibleQT import InvisibleInstance
+from ModulesUI.adsPro.installwhattsaping.majenvqt import MajEnv
+from ModulesUI.adsPro.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.adsPro.installwhattsaping.supprimBon import DeleteBon
+from ModulesUI.adsPro.installwhattsaping.updateInstanceQt import UpdateInstance
 
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
@@ -276,13 +276,13 @@ class AdsMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_EN','adsPro','main_ads_robot_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','adsPro','main_ads_robot_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','adsPro','main_ads_robot_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_AR','adsPro','main_ads_robot_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

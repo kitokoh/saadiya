@@ -84,13 +84,13 @@ class ScriptWorker(QThread):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_AR','youtubepro','wp_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -209,13 +209,13 @@ class LicenseDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'settings.json'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_AR','youtubepro','wp_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -395,13 +395,13 @@ class UpdateLicenseDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_AR','youtubepro','wp_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -539,13 +539,13 @@ class HelpDialog(QDialog):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -809,13 +809,13 @@ class WpRobot(QtWidgets.QWidget):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','youtubepro','wp_robot_install_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','youtubepro','wp_robot_install_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssaping','fb_robot_install_translated.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_AR','youtubepro','wp_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

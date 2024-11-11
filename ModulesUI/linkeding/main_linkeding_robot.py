@@ -280,13 +280,13 @@ class LinkedingMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_EN','linkedingpro','main_linkeding_robot_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','linkedingpro','main_linkeding_robot_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','linkedingpro','main_linkeding_robot_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','linkedingpro','main_linkeding_robot_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

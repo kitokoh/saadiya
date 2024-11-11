@@ -1,0 +1,63 @@
+{
+    "mail1": {
+        "subject": "Demande de licence Nova360 AI reçue",
+        "body": "Bonjour {username},\n\nMerci d'avoir choisi Nova360 AI pour automatiser et booster votre stratégie marketing !\n\nNous avons bien reçu votre demande de licence, et notre équipe s'assurera de la traiter dans les meilleurs délais. En fonction de notre disponibilité, le traitement pourrait prendre jusqu'à une heure.\n\nEn attendant, n'hésitez pas à explorer notre centre d’aide pour découvrir comment tirer pleinement parti de notre solution.\n\nÀ très bientôt,\n\nL'équipe Nova360 AI",
+        "attachments": ["C:/path/to/welcome-guide.pdf"]
+    },
+    "mail2": {
+        "subject": "Réinitialisation de votre mot de passe Nova360 AI",
+        "body": "Bonjour {username},\n\nNous avons bien reçu votre demande de réinitialisation de mot de passe. Veuillez cliquer sur le lien ci-dessous pour créer un nouveau mot de passe sécurisé.\n\n[Réinitialiser mon mot de passe]\n\nSi vous n'avez pas fait cette demande, veuillez ignorer cet email.\n\nCordialement,\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail3": {
+        "subject": "Confirmation de votre adresse e-mail",
+        "body": "Bonjour {username},\n\nMerci de confirmer votre adresse e-mail pour activer votre compte Nova360 AI. Veuillez cliquer sur le lien suivant pour valider votre adresse :\n\n[Confirmer mon adresse e-mail]\n\nSi vous n'avez pas demandé cette action, merci de nous le signaler immédiatement.\n\nMerci pour votre confiance,\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail4": {
+        "subject": "Merci d'avoir rejoint Nova360 AI",
+        "body": "Bonjour {username},\n\nNous sommes ravis de vous accueillir dans la communauté Nova360 AI ! En tant que membre, vous avez maintenant accès à des outils de marketing intelligents et une assistance dédiée pour booster votre succès.\n\nÀ très bientôt sur Nova360 AI,\n\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail5": {
+        "subject": "Demande de licence Nova360 AI reçue",
+        "body": "Bonjour {username},\n\nNous avons bien reçu votre demande de licence pour Nova360 AI. Choisissez une de nos options pour confirmer votre souscription :\n\n1. **Licence mensuelle** : Profitez de toutes les fonctionnalités pour un coût flexible.\n2. **Licence annuelle** : Accédez à nos outils tout au long de l'année avec une réduction avantageuse.\n3. **Licence à vie** : Bénéficiez d'un accès permanent sans frais additionnels.\n\nPour finaliser votre souscription, réglez le montant via :\n- **Carte bancaire**\n- **PayPal**\n- **Virement bancaire**\n\nMerci de votre intérêt pour Nova360 AI,\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail6": {
+        "subject": "Confirmation de votre demande de licence Nova360 AI",
+        "body": "Bonjour {username},\n\nVotre demande de licence Nova360 AI a bien été reçue. Après réception de votre paiement, nous vous enverrons votre code de licence pour activer votre accès.\n\nPour toute question, notre support client est là pour vous aider.\n\nMerci de votre confiance,\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail7": {
+        "subject": "Bienvenue dans la famille Nova360 AI !",
+        "body": "Bonjour {username},\n\nVotre licence Nova360 AI est activée et vous êtes prêt(e) à explorer nos solutions ! Votre choix de licence ({licence_type}) vous donne accès aux outils marketing les plus avancés pour automatiser et optimiser vos campagnes.\n\nEnsemble, transformons votre succès !\n\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail8": {
+        "subject": "Licence Nova360 AI expirée",
+        "body": "Bonjour {username},\n\nVotre licence Nova360 AI a expiré. Pour continuer à profiter de nos fonctionnalités, pensez à renouveler votre licence.\n\nProfitez d'une offre spéciale pour tout renouvellement aujourd'hui ! Contactez notre équipe pour en savoir plus.\n\nAu plaisir de vous retrouver bientôt,\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail9": {
+        "subject": "Merci pour votre fidélité avec Nova360 AI",
+        "body": "Bonjour {username},\n\nMerci d'être resté(e) avec nous dans l'aventure Nova360 AI. Votre engagement nous inspire à améliorer sans cesse notre plateforme. Restez à l'affût de nos nouveautés !\n\nCordialement,\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail10": {
+        "subject": "Obtenez votre licence Nova360 AI maintenant",
+        "body": "Bonjour {username},\n\nNous avons remarqué que vous explorez Nova360 AI sans licence active. Passez à la vitesse supérieure avec l'une de nos licences pour un accès complet à toutes les fonctionnalités !\n\nContactez-nous dès aujourd'hui pour choisir l'offre qui vous correspond.\n\nL'équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail11": {
+        "subject": "Votre licence Nova360 AI expire bientôt",
+        "body": "Bonjour {username},\n\nVotre licence Nova360 AI arrive à expiration dans 1 jour. Pour éviter toute interruption de vos automatisations, nous vous invitons à renouveler votre licence en choisissant une des options suivantes :\n\n1. **Licence mensuelle**\n2. **Licence annuelle** (économisez jusqu'à 20%)\n3. **Licence à vie**\n\nCliquez ici pour renouveler : [Lien de renouvellement]\n\nNous restons à votre disposition pour toute question.\n\nCordialement,\nL’équipe Nova360 AI",
+        "attachments": []
+    },
+    "mail12": {
+        "subject": "Félicitations, Licence Activée !",
+        "body": "Bonjour {username},\n\nFélicitations ! Votre licence Nova360 AI a bien été activée et vous avez maintenant accès à toutes nos fonctionnalités avancées. Vous êtes prêt à explorer pleinement notre plateforme et à automatiser votre stratégie marketing.\n\nNous sommes ravis de vous accompagner dans cette nouvelle étape de votre succès. N'hésitez pas à consulter notre centre d'aide pour optimiser votre expérience.\n\nMerci de faire partie de la famille Nova360 AI, et à très bientôt pour de nouvelles réussites !\n\nL’équipe Nova360 AI",
+        "attachments": []
+    }
+
+}

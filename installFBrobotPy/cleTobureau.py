@@ -112,13 +112,22 @@ def copy_file():
     source_file = os.path.join(user_data_dir, "resources", "tools", "cle.exe")
     source_file2 = os.path.join(user_data_dir, "resources", "tools", "start2.exe")
 
+    source_file3 = os.path.join(user_data_dir, "resources", "tools", "FB-Robot.exe")
+    source_file4 = os.path.join(user_data_dir, "resources", "tools", "FB-Robot-Multi.exe")
+
+
     print(f"Chemin du fichier source : {source_file}")
     print(f"Chemin du fichier source : {source_file2}")
+    print(f"Chemin du fichier source : {source_file3}")
+    print(f"Chemin du fichier source : {source_file4}")
 
     # Chemin du fichier destination sur le bureau
     dest_file = os.path.join(desktop_path, "FB-Robot.exe")
     dest_file2 = os.path.join(desktop_path, "Robot-Multi.exe")
 
+    # Chemin du fichier destination sur le bureau
+    dest_file3 = os.path.join(desktop_path, "FB-Robot1.exe")
+    dest_file4 = os.path.join(desktop_path, "Robot-Multi1.exe")
     # Vérification du fichier source
     if not os.path.exists(source_file):
         print(f"Erreur : Le fichier source cle.exe est introuvable à l'emplacement {source_file}.")
@@ -132,6 +141,8 @@ def copy_file():
         print(f"Succès : Le fichier a été copié sur le bureau sous le nom FB-Robot.exe.")
         shutil.copy(source_file2, dest_file2)
         print(f"Succès : Le fichier a été copié sur le bureau sous le nom FB-Robot.exe.")
+        shutil.copy(source_file3, dest_file3)
+        shutil.copy(source_file4, dest_file4)
 
     except Exception as e:
         print(f"Erreur lors de la copie : {str(e)}")

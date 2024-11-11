@@ -1,0 +1,1 @@
+aulieu de le deplacer va plutot controller les dossier destinnee a ressources  en empechant certant dossiss d y fiffugure 

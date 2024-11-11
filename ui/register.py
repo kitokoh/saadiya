@@ -1,21 +1,25 @@
 import json
 import re
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QHBoxLayout
+    QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QHBoxLayout,QComboBox
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QPixmap
-from mail.mail import Mailer  # Importer la classe Mailer
+from mail.mail_in_to_in import Mailer1  # Importer la classe Mailer1
+from mail.mail_in_to_out import Mailer2  # Importer la classe Mailer1
+
 import hashlib  # Pour le hachage des mots de passe
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 import os
+from PyQt5.QtGui import QFont, QPixmap, QIcon
+
 
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from PyQt5.QtCore import Qt, QTranslator, QLocale
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout,QDialog, QWidget
 import os
-class RegisterModule(QWidget):
+class RegisterModule(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
                 # Initialiser le traducteur
@@ -27,7 +31,9 @@ class RegisterModule(QWidget):
         self.translator_manager.load_translations()
         # Mise en page principale
         self.setWindowTitle(self.tr("Créer un compte"))
-        self.setFixedSize(600, 500)
+        self.setWindowIcon(QIcon('resources/icons/robot-icons-30497.png'))  # Spécifiez le chemin de l'icône
+
+        self.setFixedSize(700, 500)
         self.layout = QHBoxLayout(self)
         self.layout.setAlignment(Qt.AlignCenter)
 
@@ -36,7 +42,7 @@ class RegisterModule(QWidget):
         self.image_label.setPixmap(QPixmap("resources/images/2.jpg").scaled(450, 450, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.layout.addWidget(self.image_label)
 
-        # Mise en page pour le formulaire
+            # Mise en page pour le formulaire
         form_layout = QVBoxLayout()
 
         # Titre du formulaire
@@ -71,7 +77,50 @@ class RegisterModule(QWidget):
         self.email_input.setStyleSheet(self.input_style())
         form_layout.addWidget(self.email_input)
 
-        # Bouton de création de compte
+        # Champ "Licence" avec une liste déroulante
+        self.licence_input = QComboBox(self)
+        self.licence_input.addItems([
+            self.tr("demo"),
+            self.tr("annuelle"),
+            self.tr("mensuelle"),
+            self.tr("lifetime")
+        ])  # Ajout des options
+        self.licence_input.setCurrentText("demo")  # Sélection par défaut
+
+        # Appliquer un style personnalisé tout en utilisant input_style
+        self.licence_input.setStyleSheet(self.input_style() + """
+            QComboBox {
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #007BFF;  /* Bordure bleue pour un design soigné */
+                background-color: #F8F9FA;  /* Fond clair */
+                font-size: 14px;
+                transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            QComboBox:hover {
+                border-color: #0056b3;  /* Bordure bleue plus foncée lors du survol */
+            }
+
+            QComboBox:focus {
+                border-color: #0056b3;  /* Bordure bleue foncée quand le champ est sélectionné */
+                box-shadow: 0 0 8px rgba(0, 86, 179, 0.4);  /* Ombre douce pour la mise en avant */
+            }
+
+            QComboBox::drop-down {
+                border: none;  /* Retirer la bordure du menu déroulant */
+                background-color: #FFFFFF;  /* Fond blanc pour le menu déroulant */
+            }
+
+            QComboBox::down-arrow {
+                image: url('resources/icons/arrow-down.png');  /* Icône personnalisée pour la flèche */
+            }
+        """)
+
+        # Ajouter le champ de sélection à la mise en page
+        form_layout.addWidget(self.licence_input)
+
+                # Bouton de création de compte
         self.signup_button = QPushButton(self.tr("Créer un compte"), self)
         self.signup_button.setStyleSheet(self.button_style())
         self.signup_button.clicked.connect(self.create_account)
@@ -79,6 +128,7 @@ class RegisterModule(QWidget):
 
         # Ajouter le layout du formulaire à la mise en page principale
         self.layout.addLayout(form_layout)
+
 
         # Spacer pour centrer le formulaire
         form_layout.addStretch()
@@ -101,6 +151,8 @@ class RegisterModule(QWidget):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','register_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','register_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','ui','register_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -147,6 +199,8 @@ class RegisterModule(QWidget):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',
+
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -159,28 +213,58 @@ class RegisterModule(QWidget):
         return """
             QLineEdit {
                 padding: 10px;
-                border-radius: 5px;
-                border: 1px solid #007BFF;
-                margin-bottom: 15px;
+                border-radius: 8px; /* Bordures arrondies pour un aspect moderne */
+                border: 1px solid #007BFF; /* Bordure bleue par défaut */
+                background-color: #FFFFFF; /* Fond blanc */
+                font-size: 14px; /* Taille de police confortable */
+                color: #333333; /* Texte sombre pour une meilleure lisibilité */
+                margin-bottom: 20px; /* Espacement entre les champs */
+                transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transition douce */
             }
+
             QLineEdit:focus {
-                border: 1px solid #0056b3;
+                border: 1px solid #0056b3; /* Bordure bleue plus foncée lorsqu'en focus */
+                box-shadow: 0 0 8px rgba(0, 86, 179, 0.6); /* Ombre pour accentuer l'état actif */
+            }
+
+            QLineEdit:disabled {
+                background-color: #f2f2f2; /* Fond gris clair pour les champs désactivés */
+                border: 1px solid #cccccc; /* Bordure grise pour les champs désactivés */
+                color: #999999; /* Texte gris pour les champs désactivés */
+            }
+
+            QLineEdit::placeholder {
+                color: #888888; /* Couleur grise pour le texte du placeholder */
+                font-style: italic; /* Texte en italique pour le placeholder */
             }
         """
 
+
     def button_style(self):
-        """Retourne le style CSS pour le bouton."""
         return """
             QPushButton {
-                background-color: #007BFF;
-                color: white;
-                padding: 10px;
-                border-radius: 5px;
-                border: none;
-                font-size: 16px;
+                background: linear-gradient(45deg, #007BFF, #0056b3);
+                color: blue;
+                font-size: 18px;
+                font-weight: bold;
+                padding: 12px 30px;
+                border-radius: 8px;
+                border: 2px solid #0056b3;
+                transition: background-color 0.3s, transform 0.2s;
             }
+
             QPushButton:hover {
-                background-color: #0056b3;
+                background: linear-gradient(45deg, #0056b3, #003d7a);
+                transform: scale(1.05);
+            }
+
+            QPushButton:pressed {
+                background: linear-gradient(45deg, #003d7a, #002b56);
+                transform: scale(0.98);
+            }
+
+            QPushButton:focus {
+                outline: none;
             }
         """
 
@@ -217,30 +301,58 @@ class RegisterModule(QWidget):
         email = self.email_input.text().strip()
 
         if not username or not password or not confirm_password or not email:
-            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Veuillez remplir tous les champs obligatoires."))
+           # QMessageBox.warning(self, self.tr("Erreur"), self.tr("Veuillez remplir tous les champs obligatoires."))
+            QMessageBox.warning(
+                self, 
+                self.tr("⚠️ Warning - Missing Information"), 
+                self.tr("Please fill in all required fields to proceed."))
+
             return
 
         if password != confirm_password:
-            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Les mots de passe ne correspondent pas."))
+         #   QMessageBox.warning(self, self.tr("Erreur"), self.tr("Les mots de passe ne correspondent pas."))
+            QMessageBox.warning(
+                    self, 
+                    self.tr("⚠️ Error - Password Mismatch"), 
+                    self.tr("The passwords entered do not match. Please check and try again.")
+                )
+
             return
 
         if len(username) < 3:
-            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Le nom d'utilisateur doit comporter au moins 3 caractères."))
+            QMessageBox.warning(
+                self,
+                self.tr("⚠️ Error - Username Too Short"),
+                self.tr("The username must be at least 3 characters long. Please enter a longer username.")
+            )
             return
 
         if len(password) < 6:
-            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Le mot de passe doit comporter au moins 6 caractères."))
+            QMessageBox.warning(
+                self,
+                self.tr("⚠️ Error - Password Too Short"),
+                self.tr("The password must be at least 6 characters long. Please choose a more secure password.")
+            )
             return
 
         if not self.validate_email(email):
-            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Adresse e-mail invalide."))
+            QMessageBox.warning(
+                self,
+                self.tr("⚠️ Error - Invalid Email Address"),
+                self.tr("The entered email address is invalid. Please enter a correct email address.")
+            )
             return
 
         user_data = self.load_user_data()
 
         if self.user_exists(username, email, user_data):
-            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Ce nom d'utilisateur ou cette adresse e-mail est déjà pris."))
+            QMessageBox.warning(
+                self,
+                self.tr("⚠️ Error - Username or Email Already Taken"),
+                self.tr("This username or email address is already in use. Please choose a different one.")
+            )
             return
+
 
         # Chiffrement du mot de passe
         hashed_password = self.hash_password(password)
@@ -250,12 +362,25 @@ class RegisterModule(QWidget):
         self.save_user_data(user_data)
 
         # Envoi d'un e-mail de confirmation
-        mailer = Mailer()
-        mailer.send_email(email, 'mail1')
+        mailer = Mailer1()
+        mailer.send_email_to_user(user_email=email,email_type= 'mail4')
+        mailer2 = Mailer2()
+        mailer2.send_email(email_type="admin_message2",extra_subject=None)  # Exemple d'envoi d'e-mail
 
-        QMessageBox.information(self, self.tr("Succès"), self.tr("Compte créé avec succès ! Vous pouvez maintenant vous connecter."))
+
+       # QMessageBox.information(self, self.tr("Succès"), self.tr("Compte créé avec succès ! Vous pouvez maintenant vous connecter."))
+        QMessageBox.information(
+                    self, 
+                    self.tr("🎉 Success - Welcome!"), 
+                    self.tr("Your account has been created successfully!\n\n"
+                            "✨ You’re now ready to explore our features and enhance your strategies.\n\n"
+                            "👉 Log in now to begin your journey with us!"))
+                
+       
         self.clear_fields()
-        self.close()  # Fermez le formulaire après la création réussie du compte
+        self.accept()
+
+        #self.close()  # Fermez le formulaire après la création réussie du compte
 
     def clear_fields(self):
         """Réinitialise les champs de saisie."""

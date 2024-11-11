@@ -61,6 +61,8 @@ class HeaderSection(QFrame):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','header_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','header_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','ui','header_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -106,6 +108,8 @@ class HeaderSection(QFrame):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',
+
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -131,9 +135,11 @@ class HeaderSection(QFrame):
         self.title_label.setStyleSheet("color: #2E7D32; padding: 10px;")
         layout.addWidget(self.title_label)
 
-        # Logo du menu
+        # Logo du menu robot-icons-30504.png
         menu_logo_label = QLabel(self)
+        #menu_pixmap = ImageLoader.load_pixmap("resources/icons/robot-icons-30504.png", 100, 100)
         menu_pixmap = ImageLoader.load_pixmap("resources/icons/robot-icons-30497.png", 100, 100)
+
         if not menu_pixmap.isNull():
             menu_logo_label.setPixmap(menu_pixmap)
         else:

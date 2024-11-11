@@ -1,7 +1,12 @@
 import sys
+import os
+import json
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QLabel, QScrollArea, QVBoxLayout, QFrame
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap, QFont, QColor, QPalette
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class LogoCarousel(QWidget):
     def __init__(self, logos, logos_per_view=5):
@@ -16,6 +21,7 @@ class LogoCarousel(QWidget):
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setStyleSheet("background-color: #ffffff; border: none; border-radius: 15px;")
+        # Initialiser le traducteur
 
         self.carousel_widget = QWidget()
         self.carousel_layout = QHBoxLayout(self.carousel_widget)
@@ -52,9 +58,16 @@ class LogoCarousel(QWidget):
 
 class Nosclient(QWidget):
     def __init__(self):
+
         super().__init__()
+                # Initialiser et charger les traductions
+
+        self.translator = QTranslator()       
+        self.init_language()  # Initialisation de la langue après la création des actions
+
         self.setWindowTitle("Trust Carousel")
         self.setGeometry(100, 100, 800, 400)
+
         self.initUI()
 
     def initUI(self):
@@ -63,7 +76,9 @@ class Nosclient(QWidget):
         palette.setColor(QPalette.Window, QColor(240, 248, 255))  # Alice Blue
         palette.setColor(QPalette.WindowText, QColor(50, 50, 50))  # Dark Grey
         self.setPalette(palette)
-
+        # self.translator = QTranslator()
+        # self.init_language()  # Initialisation de la langue après la création des actions
+        
         main_layout = QVBoxLayout()
         main_layout.setSpacing(15)
 
@@ -125,6 +140,82 @@ class Nosclient(QWidget):
 
         # Set the main layout
         self.setLayout(main_layout)
+    def switch_language(self, language):
+        """Permet de changer la langue."""
+        # if language == "en":
+        #     self.translator.load("resources/lang/en_US/ui/clientsBrand_translated.qm")
+        # elif language == "fr":
+        #     self.translator.load("resources/lang/fr_FR/ui/clientsBrand_translated.qm")
+        # elif language == "tr":
+        #     self.translator.load("resources/lang/tr_TR/ui/clientsBrand_translated.qm")
+        # elif language == "ar":
+        #     self.translator.load("resources/lang/ar_AR/ui/clientsBrand_translated.qm")
+
+
+        if language == "en":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','ui','clientsBrand_translated.qm'))
+        elif language == "fr":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','ui','clientsBrand_translated.qm'))
+        elif language == "tr":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','clientsBrand_translated.qm'))
+        elif language == "ar":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','clientsBrand_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','ui','clientsBrand_translated.qm'))
+
+        # Installer le traducteur pour appliquer la nouvelle langue
+        QApplication.instance().installTranslator(self.translator)
+        
+            # Sauvegarder le choix de l'utilisateur
+        self.save_language_choice(language)
+
+
+        # Réappliquer la traduction sur tous les éléments visibles de l'interface
+        self.retranslateUi()
+
+    def save_language_choice(self, language):
+        """Sauvegarde le choix de langue de l'utilisateur dans un fichier JSON."""
+        preferences = {'language': language}
+        with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'w') as f:
+            json.dump(preferences, f)
+    def retranslateUi(self):
+        """Recharge les textes traduits dans l'interface."""
+        # self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        # # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
+        # # Par exemple, pour les actions du menu :
+        # self.instance_action.setText(self.tr('Instance'))
+        # self.media_action.setText(self.tr('Médias'))
+        # self.group_action.setText(self.tr('Groupes'))
+        # self.about_action.setText(self.tr('About'))
+        # self.certificate_action.setText(self.tr('Certif'))
+        # self.language_menu.setTitle(self.tr('Langue'))
+        pass
+    def init_language(self):
+        """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""
+        # Vérifiez si le fichier de préférences existe
+        if os.path.exists(os.path.join(user_data_dir, 'resources', 'settings.json')):
+            with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'r') as f:
+                preferences = json.load(f)
+                selected_language = preferences.get('language', 'en')  # Par défaut à l'anglais si non trouvé
+        else:
+            # Obtenir le code de langue du système
+            system_locale = QLocale.system().name()[:2]  # Par exemple: 'fr', 'en', 'tr', etc.
+
+            # Dictionnaire pour mapper les codes de langue aux traductions
+            language_map = {
+                'en': 'en',
+                'fr': 'fr',
+                'tr': 'tr',
+                'ar': 'ar',
+                'pt': 'pt',
+
+            }
+
+            # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
+            selected_language = language_map.get(system_locale, 'en')
+
+        self.switch_language(selected_language)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

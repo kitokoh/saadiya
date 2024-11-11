@@ -17,9 +17,9 @@ echo Démarrage de la traduction vers différentes langues...
 echo.
 
 REM -------------------------------------------------------
-REM Créer un tableau avec les langues et sous-dossiers
+REM Créer un tableau avec les langues et sous-dossiers le dossier statistique est directement compiler dans les uix 
 set languages=tr_TR ar_SA en_US pt_BR fr_Fr
-set ui_subdirs=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+set ui_subdirs=ui modules adsPro blogpro brandingpro chatBotpro emailingpro  instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
 
 REM Boucle sur les langues pour créer les répertoires
 for %%L in (%languages%) do (
@@ -60,30 +60,45 @@ for %%L in (%langtstranslated%) do (
     )
 )
 
+set langtstranslatedtoHuman=tr_TR ar_SA en_US pt_BR fr_Fr
+set ui_subdirststranslatedtohuman=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+
+
+REM Boucle sur les langues pour créer les répertoires
+for %%L in (%langtstranslatedtoHuman%) do (
+    for %%S in (%ui_subdirststranslatedtohuman%) do (
+        if not exist "%%L\%%S" (
+            echo Création du dossier %%L\%%S...
+            mkdir resources\langtstranslatedtoHuman\%%L\%%S
+        )
+    )
+)
+
 
 
 
 REM -------------------------------------------------------update_media_dialog demarrageAuto main_x_robot 
 REM Générer les fichiers .ts pour chaque langue
 REM Boucle pour chaque fichier source à traduire
-set ui_files=carousel feature_buttons footer header login register secondry_menu side_menu toggle_menu
+set ui_files=stat  carousel feature_buttons footer header login register secondry_menu side_menu toggle_menu clientsBrand common howToUse welcomeStyle
 set module_files=main main_fb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto
 set fbkrobot_files=demarrageAuto setup sendatajson sendatajson2 sendatajson3 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set stat_files=stat logtograph nombredegrup nombretotalShare prochaineexecution
 
-set whatssap_files=main main_wp_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson 
-set instagram_files=main main_insta_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set linkeding_files=main main_linkeding_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set blog_files=main main_blog_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set adspro_files=main main_ads_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set branding_files=main main_brand_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set chatBot_files=main main_chatbot_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set emailing_files=main main_mail_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set pinterest_files=main main_pin_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set reddit_files=main main_reddit_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set snapchat_files=main main_snap_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set tiktok_files=main main_tok_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set twitter_files=main main_x_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
-set youtube_files=main main_ytb_robot instances_table home group_manager media_manager utils fb_robot_install demarrageAuto setup sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set whatssap_files= main_wp_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson 
+set instagram_files= main_insta_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set linkeding_files= main_linkeding_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set blog_files= main_blog_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set adspro_files= main_ads_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set branding_files= main_brand_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set chatBot_files= main_chatbot_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set emailing_files= main_mail_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set pinterest_files= main_pin_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set reddit_files= main_reddit_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set snapchat_files= main_snap_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set tiktok_files= main_tok_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set twitter_files= main_x_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
+set youtube_files= main_ytb_robot instances_table group_manager media_manager demarrageAuto wp_robot_install setup system sendatajson sendatajson2 supprimBon supprimeDossierİnstall uninstallQT updatejson
 
 
 echo Génération des fichiers .ts pour l'UI...
@@ -92,6 +107,12 @@ for %%L in (%languages%) do (
         pylupdate5 ui/%%F.py -ts resources/langts/%%L/ui/%%F.ts
     )
 )
+for %%L in (%languages%) do (
+    for %%F in (%stat_files%) do (
+        pylupdate5 statistique/%%F.py -ts resources/langts/%%L/ui/%%F.ts
+    )
+)
+
 
 echo Génération des fichiers .ts pour les modules...
 for %%L in (%languages%) do (

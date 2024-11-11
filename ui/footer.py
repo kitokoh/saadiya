@@ -44,6 +44,8 @@ class FooterSection(QFrame):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','footer_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','footer_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','ui','footer_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -89,6 +91,8 @@ class FooterSection(QFrame):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',
+
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -146,19 +150,19 @@ class FooterSection(QFrame):
         self.terms_clicked.emit()  # Émettre le signal pour indiquer que le bouton a été cliqué
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
 
-    # Charger la traduction selon la langue du système
-    translator = QTranslator()
-    system_locale = QLocale.system().name()  # ex : 'fr_FR', 'en_US', etc.
-    qm_path = f"lang/{system_locale}/ui/footer.qm"  # Chemin de ton fichier .qm
+#     # Charger la traduction selon la langue du système
+#     translator = QTranslator()
+#     system_locale = QLocale.system().name()  # ex : 'fr_FR', 'en_US', etc.
+#     qm_path = f"lang/{system_locale}/ui/footer.qm"  # Chemin de ton fichier .qm
 
-    if translator.load(qm_path):
-        app.installTranslator(translator)
+#     if translator.load(qm_path):
+#         app.installTranslator(translator)
 
-    # Créer et afficher la fenêtre principale
-    window = FooterSection()
-    window.show()
+#     # Créer et afficher la fenêtre principale
+#     window = FooterSection()
+#     window.show()
 
-    sys.exit(app.exec_())
+#     sys.exit(app.exec_())

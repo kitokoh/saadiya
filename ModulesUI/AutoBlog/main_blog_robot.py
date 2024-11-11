@@ -15,7 +15,7 @@ from ModulesUI.tiktok.media_manager import MediaTable
 from ModulesUI.tiktok.group_manager import GroupTable
 from ModulesUI.tiktok.instances_table import InstanceTable
 #from fb_robot_install import FbRobot
-from ModulesUI.twitter.wp_robot_install import WpRobot
+from ModulesUI.AutoBlog.wp_robot_install import WpRobot
 from statistique.stat import Dashboard
 
 
@@ -250,13 +250,13 @@ class BlogMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_EN','blogpro','main_blog_robot_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','blogpro','main_blog_robot_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','blogpro','main_blog_robot_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','blogpro','main_blog_robot_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)

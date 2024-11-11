@@ -1,3 +1,104 @@
+
+
+
+envoyer la licence et les deux pdf l une pour le invoice eet lautre pur le recu executer check licenc suffit pour demarrer la bet qui pourra 
+
+pour leapeiemt je doisen  plus de fic-verr et consort ajouter paiement par cryptomaie fiverr et consort 
+
+installer obstudio car demain cest le jours des demos 
+j ai retrouver le logicielle que xavier utilise 
+
+sacahnt que j ai un sheet contenant plusieur sheet 
+genre les sheet contenent les info sur le prospect 
+le sheet contenant les infos sur la licence et la facture 
+et informations de l utlisateur , 
+propose moi un code permettant de generer un dashboard supermodernet tres bien disigner 
+je veux avoir la de lire ce qui est utlie et meme executer certaire script google script 
+
+
+
+
+propmpt 
+propose moi un bat capable de genere le .exe pour toute les version et mini en un clic il me demande si je veux traduire d abord  puis il fait le reste 
+a la fin il execute les fichier inno setup et ca meedonne automatiquement le .exe voulu 
+puis il met a jour ces point exe directement dans github gitlab etc... avec les message significative 
+
+prompt propose moi un prompt capable de donner tout les texte necessaire pour promouvoir notre solution d automatisation dennamme fb roboot je veux que ca generer des video par ai des images etc.. 
+prompt propose moi un prompt capble de generer l image et la video de lemballlage commercial de notre logicielle  
+
+idee : parmi les different group qui represente nos equipte apprettre de robots fonctionnelle qui chaque groupes directement sur le net  faire que les demandes viennt a go go 
+
+prompt : propose moi les idee necessaire pour que je puisse vendre cette solution directement dans les different plateforme genre fiverr et consor donne les texte hauutment vendeur necessaire ainsi que les hastag et autres 
+
+prompt pour ces text ci apres , propose moi ce qui est meilleur et traduit le moi en fr an ar tr et pt 
+
+prompt propose un code google script capble de de voir sur une nouvelle ligne est inserrrer  a on sheet de pourvoir envoyer un mail au prospect de verifier d abord la langue de lutlisateur puis de lenvoyer un mail de bienvenue 
+
+propose moi un google script capable de lire dans un sheet de lire la lang delutilisateur qui peut etre fr an ar tr ou pt 
+en fonction de langue de lutlisateur , le script lui envoi un mail
+voici un exemple d entree dans le sheet JohnDoe		john@example.com	mensuelle		robot1	bon				09/11/2024	Jojoh-rypZ2-NAaO1-lZMf1-11A01-011v-VC	non envoyer 																			
+le programme doit etre capable de dire bon jour tel . suite a  votre demande de renouvelement de votre licence annuelle voici votre licience Jojoh-rypZ2-NAaO1-lZMf1-11A01-011v-VC puis ajoute avec quelle informationcomme copier et coller ca dans votre application et autre pour le text vu que tu connais deja lidee la je prefere te laisser me surprendre 
+une fois que la licence envoyer tu doit revenir et mettre le statut de la licence a jur ca sera send
+aussi le mail doit avoir dans son corp deux image montrant comment activer la licence 
+le mail doit avoir une belle signature  
+et a toi d ajouter les textes et les disign necessaire 
+aussi une fois la licence envoyer il ya egalement un autre sheet facture a mettre ajour la bas tu vas renseigner que licence mesnuelle   envoyer  a tel adress mail  le nom du user est tel parexemple 
+fais en sorte que le truc soit capable  d accepter de piece jointe egalement 
+pour le disign il me faut du heigt level en terme de style et de tout 
+
+propose moi un code google script capable de gererla  facture sousfaormat pdf 
+les information de la fecture seron lu a aprtir dun fcihier sheet 
+la facture est pour l achat d une licence pouur l utilisation de notre robot 
+si le nom du dossier est bon la designation de la facture doit etre genre licence pour fb robot
+si le non du dossier est wabon alors la designationdoit ere licience pour whattsap robot 
+si le nom du dossier et inbon ca doit etre licence pour linkedin robot 
+si le nom du dossier est instabon alors ca doit etre licence pour instagrm robot 
+si le nom du dossier est pinbon alors ca sera licences  licence pour pinterestrobot 
+si le nom du dossier est ytbon alors ca sera pour youtube robot 
+si le nom du dossier est brandBon alors sa sera pour brand robot 
+si le nom du dossier est tokbon alors sa sera pour tiktok bon
+si le nom du dossier est sanapbon alors cest pour snapchat  
+si le nom du dossier est redditbon alors cest pour reddit 
+si le nom du dossier est xbon alors cest pour twitter 
+si le nom du dossier est grambon alors cest pour telegramme 
+si le nom du dossier est mailbon cest pour l emailing 
+si le nom du dossier est blogbon cest pour le blogging 
+
+tu doit mettre des destext significiative et commercial
+
+en haut de l invoice il ya une ligne diviser en deux colone la dexieeme cole tu ecrit le titre de notre entre prise genre Saadiya.ai
+et la premeire colonne contient le titre Invoice  puis les detaitl de linvoice comme suit 
+la facture doit avoir un numero unique denommer invoice number 
+Saadiya username :
+Saadiya  licence : 
+puis vien une ligne encore diviser en deux colone Saadiya et bill to 
+le nom de notre entreprise est saadiya.ai 
+799 Market St Floor 8
+United States 
+San dransisco , California 94103 
+puis viens  une ligne informative montant paid on sebtember 17, 2024 par exemple 
+puis 
+Mensionner aussi if you have question about your invoice visit https saadiya.ai/invoices-and-receipts-overview 
+
+puis viens le tabeau de linvoice  ayant 4 colone 
+description ty  unit price et Amount
+
+puis viendra subtotal total et applied balance 
+
+et en footer tu met le numerao de l invoice  . date du jour puis le numero du page 1\1 
+
+enfin je dois dire queje veux que la facture soit en francais anglais arbe tuc ou portugais selon la valeur lang present dans le sheet 
+
+
+
+
+
+
+
+
+
+
+
 git rm -r --cached .
 git add .
 git commit -m "Nettoyage du cache"

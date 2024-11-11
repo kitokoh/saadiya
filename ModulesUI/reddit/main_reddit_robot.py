@@ -15,7 +15,7 @@ from ModulesUI.tiktok.media_manager import MediaTable
 from ModulesUI.tiktok.group_manager import GroupTable
 from ModulesUI.tiktok.instances_table import InstanceTable
 #from fb_robot_install import FbRobot
-from ModulesUI.twitter.wp_robot_install import WpRobot
+from ModulesUI.reddit.wp_robot_install import WpRobot
 from statistique.stat import Dashboard
 
 from installFBrobotPy.demarrageAuto import InstallerApp
@@ -180,7 +180,7 @@ class RedditMainWindow(QMainWindow):
         self.media_action.triggered.connect(self.open_media)
         menubar.addAction(self.media_action)
 
-        self.group_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Groupes'), self)
+        self.group_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Contacts'), self)
         self.group_action.setToolTip(self.tr('Afficher la liste des groupes'))
         self.group_action.triggered.connect(self.open_group)
         menubar.addAction(self.group_action)
@@ -275,13 +275,13 @@ class RedditMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_EN','redditpro','main_reddit_robot_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','redditpro','main_reddit_robot_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','redditpro','main_reddit_robot_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','redditpro','main_reddit_robot_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -305,10 +305,13 @@ class RedditMainWindow(QMainWindow):
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
         self.media_action.setText(self.tr('Médias'))
-        self.group_action.setText(self.tr('Groupes'))
+        self.group_action.setText(self.tr('Contacts'))
         self.about_action.setText(self.tr('About'))
         self.certificate_action.setText(self.tr('Certif'))
         self.language_menu.setTitle(self.tr('Langue'))
+        # self.language_menu.setTitle(self.tr('Installer'))
+        # self.language_menu.setTitle(self.tr('Home'))
+
 
     def init_language(self):
         """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""

@@ -32,8 +32,8 @@ class AboutDialog(QDialog):
         super().__init__(parent)
 
                 # Initialiser et charger les traductions
-        self.translator_manager = TranslatorManager()
-        self.translator_manager.load_translations()
+        # self.translator_manager = TranslatorManager()
+        # self.translator_manager.load_translations()
 
 
         self.setWindowTitle(self.tr("À propos de AI WP ROBOT Pro"))
@@ -269,13 +269,13 @@ class WhatsMainWindow(QMainWindow):
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','whatssappro','main_wp_robot_translated.qm'))
         elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','whatssappro','main_wp_robot_translated.qm'))
         elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','whatssappro','main_wp_robot_translated.qm'))
         elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','main_wp_robot.qm'))
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','whatssappro','main_wp_robot_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -298,6 +298,9 @@ class WhatsMainWindow(QMainWindow):
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
+        # self.instance_action.setText(self.tr('Home'))
+        # self.instance_action.setText(self.tr('Installer'))
+
         self.media_action.setText(self.tr('Médias'))
         self.group_action.setText(self.tr('Contacts'))
         self.about_action.setText(self.tr('About'))
