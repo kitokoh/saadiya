@@ -40,6 +40,8 @@ class ImageLoader(QThread):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','carousel_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','carousel_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_PT','ui','carousel_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -116,7 +118,7 @@ class CarouselWidget(QWidget):
         
         # Liste des éléments à afficher dans le carrousel
         self.items = [
-            {"image": "resources/icons/robot-icons-30504.png", "text": self.tr("Bonjour je suis, votre partenaire stratégique\n pour l'automatisation et l'innovation.\n \n Transformer votre stratégie marketing \net booster vos performances.")},
+            {"image": "resources/icons/robot-icons-30504.png", "text": self.tr("Bonjour, je suis votre partenaire pour automatiser votre marketing.")},
             {"image": "resources/images/9.jpg", "text": self.tr("Explorez nos fonctionnalités")},
             {"image": "resources/icons/automated_8345946.png", "text": self.tr("Découvrez des astuces professionnelles")}
         ]

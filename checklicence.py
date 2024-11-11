@@ -2,7 +2,7 @@ import os
 import re
 import datetime
 import subprocess
-from mail.mail_in_to_in import Mailer1
+from mail.mail_in_in_pj import Mailer3
 from mail.mail_in_to_out import Mailer2
 class LicenseChecker:
     def __init__(self, license_dir="C:\\bon"):
@@ -123,8 +123,17 @@ class LicenseChecker:
         expiration_date = license_date + datetime.timedelta(days=validity_days)
 
         if current_time > expiration_date:
-            mailer = Mailer1()
-            mailer.send_email(email_type= 'mail8')
+            # mailer = Mailer1()
+            # mailer.send_email(email_type="mail8")
+
+            mailer = Mailer3()
+    
+            # Envoi d'un e-mail simple
+            mailer.send_email_with_attachments(
+                email_type="mail8",
+                attachments = []
+            )
+
 
             mailer2 = Mailer2()
             mailer2.send_email(email_type="admin_message3",extra_subject=None)  # Exemple d'envoi d'e-mail

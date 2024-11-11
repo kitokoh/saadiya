@@ -25,7 +25,9 @@ class Nova360ProApp(QMainWindow):
        # self.translator_manager = TranslatorManager()
         #self.translator_manager.load_translations()
         self.setWindowIcon(QIcon('resources/icons/robot-512.png'))  # Assurez-vous que le chemin de l'icône est correct
+        self.translator = QTranslator()
 
+        self.init_language()
         # Widget central et layout principal
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
@@ -87,12 +89,13 @@ class Nova360ProApp(QMainWindow):
         self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
-        self.instance_action.setText(self.tr('Instance'))
-        self.media_action.setText(self.tr('Médias'))
-        self.group_action.setText(self.tr('Groupes'))
-        self.about_action.setText(self.tr('About'))
-        self.certificate_action.setText(self.tr('Certif'))
-        self.language_menu.setTitle(self.tr('Langue'))
+        # self.instance_action.setText(self.tr('Instance'))
+        # self.media_action.setText(self.tr('Médias'))
+        # self.group_action.setText(self.tr('Groupes'))
+        # self.about_action.setText(self.tr('About'))
+        # self.certificate_action.setText(self.tr('Certif'))
+        # self.language_menu.setTitle(self.tr('Langue'))
+        pass
 
     def init_language(self):
         """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""

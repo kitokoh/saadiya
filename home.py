@@ -34,7 +34,9 @@ from imports import *
 class HomePage(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.translator = QTranslator()
 
+        self.init_language()
         # Initialiser et charger les traductions
         self.translator_manager = TranslatorManager()
         self.translator_manager.load_translations()
@@ -411,11 +413,11 @@ class HomePage(QMainWindow):
         main_layout.addLayout(bottom_layout)
 
 
-        client_layout = QHBoxLayout()
-        self.clients=Nosclient()
+       # client_layout = QHBoxLayout()
+       # self.clients=Nosclient()
 
-        client_layout.addWidget(self.clients)
-        main_layout.addLayout(client_layout)
+        #client_layout.addWidget(self.clients)
+        #main_layout.addLayout(client_layout)
 
         # Créer un pied de page modernisé
         footer_layout = QHBoxLayout()
@@ -488,7 +490,8 @@ class HomePage(QMainWindow):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','home_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','home_translated.qm'))
-
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','home_translated.qm'))
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
         
@@ -509,12 +512,13 @@ class HomePage(QMainWindow):
         self.setWindowTitle(self.tr('AI Marketing ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
-        self.instance_action.setText(self.tr('Instance'))
-        self.media_action.setText(self.tr('Médias'))
-        self.group_action.setText(self.tr('Groupes'))
-        self.about_action.setText(self.tr('About'))
-        self.certificate_action.setText(self.tr('Certif'))
-        self.language_menu.setTitle(self.tr('Langue'))
+        # self.instance_action.setText(self.tr('Instance'))
+        # self.media_action.setText(self.tr('Médias'))
+        # self.group_action.setText(self.tr('Groupes'))
+        # self.about_action.setText(self.tr('About'))
+        # self.certificate_action.setText(self.tr('Certif'))
+        # self.language_menu.setTitle(self.tr('Langue'))
+        pass
 
     def init_language(self):
         """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""

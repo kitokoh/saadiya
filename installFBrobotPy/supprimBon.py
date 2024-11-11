@@ -1,12 +1,21 @@
 import os
 import sys
+import json
 import subprocess
 import shutil
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 
 # Importe les sections de l'en-tête et du pied de page
 from ui.header import HeaderSection  # Assurez-vous que ce fichier existe
 from ui.footer import FooterSection  # Assurez-vous que ce fichier existe
+_current_folder = os.getcwd()
+#user_data_dir1 = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+
+user_data_dir1 = os.path.dirname(_current_folder)
+user_data_dir = os.path.join(user_data_dir1, 'lang', 'resources')
+key_data_dir = os.path.join(user_data_dir1, 'lang', 'resources')
 
 class DeleteBon(QtWidgets.QMainWindow):
     def __init__(self):
@@ -14,7 +23,9 @@ class DeleteBon(QtWidgets.QMainWindow):
 
         self.setWindowTitle(self.tr("Dossier Management"))
         self.setGeometry(100, 100, 800, 400)
+        self.translator = QTranslator()
 
+        self.init_language()
         # Chemin du dossier et du fichier à supprimer
         self.folder_path = "C:\\bon"
         self.file_path = os.path.join(os.path.expanduser("~"), "Desktop", "FB-Robot.exe")
@@ -25,13 +36,15 @@ class DeleteBon(QtWidgets.QMainWindow):
     def initUI(self):
         # Créer un layout vertical principal
         main_layout = QtWidgets.QVBoxLayout()
+        self.translator = QTranslator()
 
+        self.init_language()
         # Ajouter le header au layout principal
         header = HeaderSection(self, title="Facebook Robot Pro", app_name="Nova360 AI", slogan="Gestion des Dossiers")
         main_layout.addWidget(header)
 
         # Label d'information
-        self.label = QtWidgets.QLabel(self.tr("Tentative de fermer les processus utilisant le dossier C:\\bon..."), self)
+        self.label = QtWidgets.QLabel(self.tr("Tentative de fermer les processus utilisant le dossier bon..."), self)
         main_layout.addWidget(self.label)
 
         # Créer un layout horizontal pour le contenu
@@ -112,6 +125,82 @@ class DeleteBon(QtWidgets.QMainWindow):
                 border-radius: 8px;
             }
         """)
+    def switch_language(self, language):
+        """Permet de changer la langue."""
+        # if language == "en":
+        #     self.translator.load("resources/lang/en_US/ui/login_translated.qm")
+        # elif language == "fr":
+        #     self.translator.load("resources/lang/fr_FR/ui/login_translated.qm")
+        # elif language == "tr":
+        #     self.translator.load("resources/lang/tr_TR/ui/login_translated.qm")
+        # elif language == "ar":
+        #     self.translator.load("resources/lang/ar_AR/ui/login_translated.qm")
+
+
+        if language == "en":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','ui','login_translated.qm'))
+        elif language == "fr":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','ui','login_translated.qm'))
+        elif language == "tr":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','ui','login_translated.qm'))
+        elif language == "ar":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','ui','login_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','ui','login_translated.qm'))
+
+        # Installer le traducteur pour appliquer la nouvelle langue
+        QApplication.instance().installTranslator(self.translator)
+        
+            # Sauvegarder le choix de l'utilisateur
+        self.save_language_choice(language)
+
+
+        # Réappliquer la traduction sur tous les éléments visibles de l'interface
+        self.retranslateUi()
+
+    def save_language_choice(self, language):
+        """Sauvegarde le choix de langue de l'utilisateur dans un fichier JSON."""
+        preferences = {'language': language}
+        with open(os.path.join(user_data_dir, 'settings.json'), 'w') as f:
+            json.dump(preferences, f)
+    def retranslateUi(self):
+        """Recharge les textes traduits dans l'interface."""
+        # self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        # # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
+        # # Par exemple, pour les actions du menu :
+        # self.instance_action.setText(self.tr('Instance'))
+        # self.media_action.setText(self.tr('Médias'))
+        # self.group_action.setText(self.tr('Groupes'))
+        # self.about_action.setText(self.tr('About'))
+        # self.certificate_action.setText(self.tr('Certif'))
+        # self.language_menu.setTitle(self.tr('Langue'))
+        pass
+
+    def init_language(self):
+        """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""
+        # Vérifiez si le fichier de préférences existe
+        if os.path.exists(os.path.join(user_data_dir, 'resources', 'settings.json')):
+            with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'r') as f:
+                preferences = json.load(f)
+                selected_language = preferences.get('language', 'en')  # Par défaut à l'anglais si non trouvé
+        else:
+            # Obtenir le code de langue du système
+            system_locale = QLocale.system().name()[:2]  # Par exemple: 'fr', 'en', 'tr', etc.
+
+            # Dictionnaire pour mapper les codes de langue aux traductions
+            language_map = {
+                'en': 'en',
+                'fr': 'fr',
+                'tr': 'tr',
+                'ar': 'ar',
+                 'pt': 'pt',
+
+            }
+
+            # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
+            selected_language = language_map.get(system_locale, 'en')
+
+        self.switch_language(selected_language)
 
     def close_processes(self):
         self.output_area.clear()
@@ -176,11 +265,11 @@ class DeleteBon(QtWidgets.QMainWindow):
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    translator = QtCore.QTranslator()
+    # translator = QtCore.QTranslator()
 
-    # Chargez le fichier de traduction ici, par exemple "fr_FR.qm" pour le français
-    translator.load("path_to_translations/fr_FR.qm")  # Mettez le chemin correct vers votre fichier de traduction
-    app.installTranslator(translator)
+    # # Chargez le fichier de traduction ici, par exemple "fr_FR.qm" pour le français
+    # translator.load("path_to_translations/fr_FR.qm")  # Mettez le chemin correct vers votre fichier de traduction
+    # app.installTranslator(translator)
 
     window = DeleteBon()
     window.show()

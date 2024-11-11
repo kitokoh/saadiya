@@ -23,7 +23,6 @@ from installFBrobotPy.majenvqt import MajEnv
 from installFBrobotPy.jsontorobot import JsonToRobot
 from installFBrobotPy.supprimBon import DeleteBon
 from installFBrobotPy.updateInstanceQt import UpdateInstance
-from checklicence import LicenseChecker
 
 from statistique.nombredegrup import GroupCounter
 from statistique.nombretotalShare import LogLineCounter
@@ -275,7 +274,7 @@ class FaceMainWindow(QMainWindow):
         # program_name = "FB-ROBOT.exe"
         # task_checker = ScheduledTaskChecker(program_name)
         # self.nexttimeshare = task_checker.check_task()
-        print(license_checker.is_license_valid())
+        #print(license_checker.is_license_valid())
         self.instance_table = Dashboard(title="AI FB ROBOT PRO", subtitle="Analytics Overview", validiter=license_checker.is_license_valid(),Nombregroupes=self.Nombregroup, totalshare="Nombre total" ,nexttimeshare="none")
         layout.addWidget(self.instance_table)
     
