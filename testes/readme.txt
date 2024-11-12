@@ -1,0 +1,1 @@
+ici je vais trouver la solution pour les testes sous toutes les plateformes possibles  et la gestion du retour utilisateur 

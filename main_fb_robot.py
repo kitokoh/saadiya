@@ -167,10 +167,10 @@ class FaceMainWindow(QMainWindow):
             }
         """)
         # Actions du menu avec self.tr pour les traductions
-        self.instance_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Home'), self)
-        self.instance_action.setToolTip(self.tr('Afficher la liste des instances'))
-        self.instance_action.triggered.connect(self.open_dashboard)
-        menubar.addAction(self.instance_action)
+        self.home_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Home'), self)
+        self.home_action.setToolTip(self.tr('Afficher la liste des instances'))
+        self.home_action.triggered.connect(self.open_dashboard)
+        menubar.addAction(self.home_action)
         # Actions du menu avec self.tr pour les traductions
         self.instance_action = QAction(QIcon("ressources/icons/facebook-icon-png-745.png"), self.tr('Instance'), self)
         self.instance_action.setToolTip(self.tr('Afficher la liste des instances'))
@@ -308,7 +308,9 @@ class FaceMainWindow(QMainWindow):
         """Recharge les textes traduits dans l'interface."""
         self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
-        # Par exemple, pour les actions du menu :
+        # Par exemple, pour les actions du menu : home_action
+        self.home_action.setText(self.tr('Home'))
+
         self.instance_action.setText(self.tr('Instance'))
         self.media_action.setText(self.tr('Médias'))
         self.group_action.setText(self.tr('Groupes'))
@@ -344,7 +346,20 @@ class FaceMainWindow(QMainWindow):
     def open_media(self):
         self.setCentralWidget(MediaTable(self))
     def open_dashboard(self):
-        self.setCentralWidget(Dashboard())
+        license_checker = LicenseChecker(license_dir="C:\\bon")  # Passez le chemin ici
+        
+        file_path = 'C:\\bon\\robot1\\data.json'  # Spécifiez le chemin vers votre fichier data.json
+        group_counter = GroupCounter(file_path)   
+        Nombregroup =group_counter.count_groups()
+        # url = "C:\\bon\\robot1\\log.txt"
+        # self.totalshare = LogLineCounter(url)
+        # program_name = "FB-ROBOT.exe"
+        # task_checker = ScheduledTaskChecker(program_name)
+        # self.nexttimeshare = task_checker.check_task()
+        #print(license_checker.is_license_valid())
+        dash = Dashboard(title="AI FB ROBOT PRO", subtitle="Analytics Overview", validiter=license_checker.is_license_valid(),Nombregroupes=Nombregroup, totalshare="Nombre total" ,nexttimeshare="none")
+        
+        self.setCentralWidget(dash)
 
     def open_instance(self):
         self.setCentralWidget(InstanceTable(self))

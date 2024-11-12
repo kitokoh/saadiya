@@ -1,4 +1,4 @@
-
+propose un script capable d
 
 
 envoyer la licence et les deux pdf l une pour le invoice eet lautre pur le recu executer check licenc suffit pour demarrer la bet qui pourra 
@@ -13,7 +13,7 @@ genre les sheet contenent les info sur le prospect
 le sheet contenant les infos sur la licence et la facture 
 et informations de l utlisateur , 
 propose moi un code permettant de generer un dashboard supermodernet tres bien disigner 
-je veux avoir la de lire ce qui est utlie et meme executer certaire script google script 
+je veux avoir la de lire ce qui est utlie et meme executer certaine script google script 
 
 
 

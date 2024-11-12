@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://africanovatech.com/wp-content/uploads/2024/11/9.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #formContainer {
+            width: 100%;
+            max-width: 600px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            color: #00bcd4;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            color: #ddd;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 48%;
+            padding: 12px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            background-color: #2a2a2a;
+            color: #fff;
+            box-sizing: border-box;
+        }
+
+        select,
+        input,
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #333;
+            color: #fff;
+        }
+
+        select:focus,
+        input:focus,
+        button:focus {
+            border-color: #00bcd4;
+            outline: none;
+        }
+
+        button {
+            background-color: #00bcd4;
+            color: #fff;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 15px;
+            padding: 14px;
+        }
+
+        button:hover {
+            background-color: #0097a7;
+        }
+
+        #loader {
+            display: none;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        #thankYouMessage {
+            display: none;
+            text-align: center;
+            color: #00bcd4;
+            font-size: 18px;
+        }
+
+        .company-field {
+            display: none;
+        }
+
+        .input-group div {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="formContainer">
+        <h2 id="formTitle">Robot License Form</h2>
+        <form id="licenseForm" onsubmit="submitForm(event)">
+
+            <!-- Language and Robot Version Selection -->
+            <div class="input-group">
+                <div style="width: 30%;">
+                    <label for="languageSelect">Language</label>
+                    <select id="languageSelect" onchange="changeLanguage()">
+                        <option value="en">English</option>
+                        <option value="fr">Français</option>
+                        <option value="ar">عربى</option>
+                        <option value="tr">Türkçe</option>
+                        <option value="pt">Português</option>
+                    </select>
+                </div>
+                <div style="width: 65%;">
+                    <label for="robotVersion">Robot Version</label>
+                    <select id="robotVersion">
+                        <option value="fbRobot">FB Robot</option>
+                        <option value="full">Full Version</option>
+                        <option value="instaRobot">Instagram Robot</option>
+                        <option value="whatsappRobot">WhatsApp Robot</option>
+                        <option value="linkedinRobot">LinkedIn Robot</option>
+                        <option value="youtubeRobot">YouTube Robot</option>
+                    </select>
+                </div>
+            </div>
+
+            <label for="name">User Name</label>
+            <input type="text" id="name" name="name" required placeholder="Enter your name">
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required placeholder="Enter your email">
+
+            <label for="phone">Phone Number</label>
+            <div class="input-group">
+                <select id="phoneCountry" style="width: 30%;" onchange="updatePhoneNumberPrefix()">
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+90" selected>Turkey (+90)</option>
+                    <!-- Add other countries as needed -->
+                </select>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+            </div>
+
+            <!-- Usage and Company Fields -->
+            <div class="input-group">
+                <div style="width: 48%;">
+                    <label for="usageType">Usage</label>
+                    <select id="usageType" name="usageType" onchange="toggleCompanyFields()">
+                        <option value="personal">Personal</option>
+                        <option value="company">Company</option>
+                    </select>
+                </div>
+                <div style="width: 48%;">
+                    <!-- Ancien ID 'phone' ici -->
+                    <label for="phone">Phone Number 2 </label>
+                    <input type="tel" id="phoneNumber" name="phone" placeholder="Phone" required>
+
+                </div>
+            </div>
+
+            <div class="input-group company-field">
+                <div style="width: 88%;">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="companyName" name="companyName" placeholder="Enter company name">
+                </div>
+                <div style="width: 88%;">
+                    <label for="role">Role in Company</label>
+                    <input type="text" id="role" name="role" placeholder="Enter your role">
+                </div>
+            </div>
+
+            <button type="submit" id="submitButton">Envoyer</button>
+            <div id="loader">Submitting...</div>
+        </form>
+        <div id="thankYouMessage" style="display:none;">
+            <h2>Thank You!</h2>
+            <p>Your submission has been received. We will get back to you shortly.</p>
+        </div>
+
+
+
+        <script>
+            const translations = {
+                en: {
+                    title: "Robot License Form",
+                    name: "User Name",
+                    email: "Email Address",
+                    phone: "Phone Number",
+                    usage: "Usage",
+                    usageOptions: { personal: "Personal", company: "Company" },
+                    submit: "Submit",  // Ajoutez cette ligne
+                    thankYouTitle: "Thank You!",
+                    thankYouMessage: "Your submission has been received. We will get back to you shortly."
+                },
+                fr: {
+                    title: "Formulaire de Licence Robot",
+                    name: "Nom d'utilisateur",
+                    email: "Adresse électronique",
+                    phone: "Numéro de téléphone",
+                    usage: "Usage",
+                    usageOptions: { personal: "Personnel", company: "Entreprise" },
+                    submit: "Envoyer",  // Ajoutez cette ligne
+                    thankYouTitle: "Merci!",
+                    thankYouMessage: "Votre soumission a été reçue. Nous vous contacterons sous peu."
+                },
+                // Faites de même pour les autres langues...
+            };
+
+
+            function changeLanguage() {
+                const selectedLanguage = document.getElementById('languageSelect').value;
+                const lang = translations[selectedLanguage];
+
+                // Update the form title and labels based on the selected language
+                document.getElementById('formTitle').innerText = lang.title;
+                document.querySelector('label[for="name"]').innerText = lang.name;
+                document.querySelector('label[for="email"]').innerText = lang.email;
+                document.querySelector('label[for="phone"]').innerText = lang.phone;
+                document.querySelector('label[for="usageType"]').innerText = lang.usage;
+                //     document.querySelector('button').innerText = lang.submit;
+                document.querySelector('button[type="submit"]').innerText = lang.submit;
+
+                // Update the usage options based on the selected language
+                const usageType = document.getElementById('usageType');
+                usageType.querySelector(`option[value="personal"]`).innerText = lang.usageOptions.personal;
+                usageType.querySelector(`option[value="company"]`).innerText = lang.usageOptions.company;
+
+                // Update thank you message
+                document.getElementById('thankYouMessage').querySelector('h2').innerText = lang.thankYouTitle;
+                document.getElementById('thankYouMessage').querySelector('p').innerText = lang.thankYouMessage;
+            }
+
+            // Dynamically adjust the phone input based on the selected country
+            function updatePhoneNumberPrefix() {
+                const countryCode = document.getElementById('phoneCountry').value;
+                const phoneInput = document.getElementById('phone');
+                phoneInput.value = countryCode + phoneInput.value.slice(phoneInput.value.indexOf(countryCode) + countryCode.length);
+            }
+
+            // Toggle visibility of the company fields based on the "usage" selection
+            function toggleCompanyFields() {
+                const usageType = document.getElementById('usageType').value;
+                const companyFields = document.querySelectorAll('.company-field');
+
+                if (usageType === 'company') {
+                    companyFields.forEach(field => field.style.display = 'block');
+                } else {
+                    companyFields.forEach(field => field.style.display = 'none');
+                }
+            }
+            // Fonction de soumission du formulaire côté frontend
+            function submitForm(event) {
+                event.preventDefault();
+                const formData = {
+                    name: document.getElementById('name').value || '',
+                    email: document.getElementById('email').value || '',
+                    phone: document.getElementById('phone').value || '',
+                    usageType: document.getElementById('usageType').value || '',
+                    companyName: document.getElementById('companyName').value || '',
+                    role: document.getElementById('role').value || '',
+                    languageSelect: document.getElementById('languageSelect').value || '',
+                    phoneCountry: document.getElementById('phoneCountry').value || '',
+                };
+
+                // Vérifiez si toutes les valeurs sont correctes
+                console.log(formData);
+
+                document.getElementById('loader').style.display = 'block';
+
+                google.script.run
+                    .withSuccessHandler(function (response) {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('licenseForm').style.display = 'none';
+                        document.getElementById('thankYouMessage').style.display = 'block';
+                    })
+                    .withFailureHandler(function (error) {
+                        console.error("Erreur lors de l'envoi du formulaire :", error);
+                        alert("Une erreur est survenue. Veuillez réessayer.");
+                    })
+                    .submitFormData(formData);
+
+            }
+
+
+
+
+            // Form submission handler
+            function handleFormSubmit(event) {
+                event.preventDefault();
+                const formData = new FormData(document.getElementById('licenseForm'));
+
+                // Show loading state
+                document.getElementById('loader').style.display = 'block';
+
+                // Simulate a form submission and show thank you message after 2 seconds
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('licenseForm').style.display = 'none';
+                    document.getElementById('thankYouMessage').style.display = 'block';
+                }, 2000);
+            }
+
+            // Initialize form with default settings (e.g., language = English)
+            changeLanguage();
+            toggleCompanyFields();
+        </script>
+</body>
+
+</html>
