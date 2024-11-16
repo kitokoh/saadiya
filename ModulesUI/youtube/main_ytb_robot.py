@@ -147,7 +147,7 @@ class YtbMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI YTB ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/youtube-logo-png-3580.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/youtube-logo-png-3580-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

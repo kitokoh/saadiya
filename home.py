@@ -46,7 +46,7 @@ class HomePage(QMainWindow):
         self.setGeometry(100, 100, 1280, 800)  # Taille de la fenêtre
         self.setStyleSheet("background-color: #F5F5F5;")
         # Définir l'icône de la fenêtre
-        self.setWindowIcon(QIcon('resources/icons/robot-icons-30497.png'))  # Spécifiez le chemin de l'icône
+        self.setWindowIcon(QIcon('resources/icons/robot-icons-30504-Windows.ico'))  # Spécifiez le chemin de l'icône
 
         # Créer un widget central
         central_widget = QWidget(self)
@@ -138,7 +138,7 @@ class HomePage(QMainWindow):
 
         # Logo du menu
         menu_logo_label = QLabel(self)
-        menu_pixmap = QPixmap("resources/icons/robot-icons-30497.png")
+        menu_pixmap = QPixmap("resources/icons/robot-icons-30504-Windows.ico")
         menu_logo_label.setPixmap(menu_pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         menu_logo_label.setAlignment(Qt.AlignCenter)
         header_layout.addWidget(menu_logo_label)
@@ -162,7 +162,7 @@ class HomePage(QMainWindow):
 
         # Logo GIF (plus grand)
         gif_logo_label = QLabel(self)
-        gif_pixmap = QPixmap("resources/icons/robot-256.gif")  
+        gif_pixmap = QPixmap("resources/icons/robot-256.png")  
         gif_logo_label.setPixmap(gif_pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         gif_logo_label.setAlignment(Qt.AlignCenter)
         header_layout.addWidget(gif_logo_label)
@@ -184,7 +184,7 @@ class HomePage(QMainWindow):
         # Bouton de menu toggle
         toggle_button = QPushButton("≡")
         toggle_button.setFont(QFont("Arial", 16, QFont.Bold))
-        toggle_button.setIcon(QIcon(QPixmap("resources/icons/frpr-demoİnstall.png").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+        toggle_button.setIcon(QIcon(QPixmap("resources/icons/robot-icons-30497-Windows.ico").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
         toggle_button.setStyleSheet("""
             QPushButton {
                 background-color: #2E7D32;
@@ -238,11 +238,11 @@ class HomePage(QMainWindow):
 
         # Boutons du menu latéral
         side_buttons = [
-            ("Accueil", "resources/icons/robot-256.png"),
-            ("Paramètres", "resources/icons/automated_8345946.png"),
+            ("Accueil", "resources/icons/robot-icons-30504-Windows.ico"),
+            ("Paramètres", "resources/icons/robot-icons-30497-Windows.ico"),
             ("Aide", "resources/icons/information-icon-6055-Windows.ico"),
             ("À propos", "resources/icons/information-icon-6055-Windows.ico"),
-            ("Quitter", "resources/icons/windows-icon-42333.png"),
+            ("Quitter", "resources/icons/robot-icons-30504-Windows.ico"),
         ]
 
         # for text, icon in side_buttons:
@@ -292,13 +292,13 @@ class HomePage(QMainWindow):
 
         # Liste des fonctionnalités avec leurs icônes et couleur
         features = [
-            ("FB Robot Pro", "resources/icons/facebook-icon-png-770.png", "#E91E63", self.open_facebook),
+            ("FB Robot Pro", "resources/icons/facebook-icon-png-770-Windows.ico", "#E91E63", self.open_facebook),
             ("WhatsApping", "resources/icons/whatsapp-512.png", "#4CAF50", self.open_whatsapp),
-            ("Blogging", "resources/icons/article-marketing-3-512.png", "#4CAF50", self.open_blogging),
-            ("Insta Pro", "resources/icons/pink-message-icon-12055.png", "#4CAF50", self.open_instagram),
+            ("Blogging", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico", "#4CAF50", self.open_blogging),
+            ("Insta Pro", "resources/icons/instagram-icon-956-Windows.ico", "#4CAF50", self.open_instagram),
             ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro),
-            ("Branding", "resources/icons/subscribe-png-574.png", "#4CAF50", self.open_branding),
-            ("Emailing", "resources/icons/pink-message-icon-12045.png", "#4CAF50", self.open_Emailing),
+            ("Branding", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding),
+            ("Emailing", "resources/icons/pink-message-icon-12045-Windows.ico", "#4CAF50", self.open_Emailing),
         ]
 
 
@@ -333,13 +333,13 @@ class HomePage(QMainWindow):
 
         # Duplication des boutons avec modifications
         duplicate_features = [
-            ("Twitter Bot", "resources/icons/aquicon-icon-18708.png", "#1DA1F2",self.open_twitter),
-            ("LinkedIn Pro", "resources/icons/aquicon-icon-18717.png", "#0077B5",self.open_linkeding),
-            ("Pinterest Bot", "resources/icons/available-updates-512.png", "#BD081C",self.open_pinterest),
-            ("Snapchat Bot", "resources/icons/snapchat-icon-1707.png", "#FFFC00",self.open_snapchat),
-            ("TikTok Pro", "resources/icons/diving-png-4436.png", "#010101",self.open_tiktok),
-            ("Reddit Bot", "resources/icons/robot-icons-30506.png", "#FF4500",self.open_reddit),
-            ("YouTube Pro", "resources/icons/youtube-logo-png-3580.png", "#FF0000",self.open_youtube),
+            ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2",self.open_twitter),
+            ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5",self.open_linkeding),
+            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C",self.open_pinterest),
+            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00",self.open_snapchat),
+            ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101",self.open_tiktok),
+            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500",self.open_reddit),
+            ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000",self.open_youtube),
         ]
 
         duplicate_layout = QHBoxLayout()

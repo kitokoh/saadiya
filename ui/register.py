@@ -31,7 +31,7 @@ class RegisterModule(QDialog):
         self.translator_manager.load_translations()
         # Mise en page principale
         self.setWindowTitle(self.tr("Créer un compte"))
-        self.setWindowIcon(QIcon('resources/icons/robot-icons-30497.png'))  # Spécifiez le chemin de l'icône
+        self.setWindowIcon(QIcon('resources/icons/878952-Hornet-Secure.ico'))  # Spécifiez le chemin de l'icône
 
         self.setFixedSize(700, 500)
         self.layout = QHBoxLayout(self)
@@ -39,7 +39,7 @@ class RegisterModule(QDialog):
 
         # Zone pour l'image
         self.image_label = QLabel(self)
-        self.image_label.setPixmap(QPixmap("resources/images/2.jpg").scaled(450, 450, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.image_label.setPixmap(QPixmap("resources/images/7.jpg").scaled(450, 450, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.layout.addWidget(self.image_label)
 
             # Mise en page pour le formulaire
@@ -113,7 +113,7 @@ class RegisterModule(QDialog):
             }
 
             QComboBox::down-arrow {
-                image: url('resources/icons/arrow-down.png');  /* Icône personnalisée pour la flèche */
+                image: url('resources/icons/telgrampng.png');  /* Icône personnalisée pour la flèche */
             }
         """)
 

@@ -9,9 +9,16 @@ from PyQt5.QtWidgets import QApplication, QMessageBox
 import sys
 
 # Définition des répertoires
-current_folder = os.getcwd()
-data_dir = os.path.join(os.path.dirname(current_folder),'lang', 'resources', 'data')
-settings_dir = os.path.join(os.path.dirname(current_folder), 'lang','resources')
+user_data_dir1 = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+
+#user_data_dir1 = os.path.dirname(_current_folder)
+user_data_dir = os.path.join(user_data_dir1, 'resources', 'data')
+#key_data_dir = os.path.join(user_data_dir1, 'resources')
+
+
+#current_folder = os.getcwd()
+data_dir = os.path.join(user_data_dir1, 'resources', 'data')
+settings_dir = os.path.join(user_data_dir1, 'resources')
 lang_file = os.path.join(settings_dir, 'lang.json')
 
 class ProformaGenerator:

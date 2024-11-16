@@ -14,6 +14,7 @@ a = Analysis(
         ('C:\\Users\\ibrahim\\anaconda3\\Library\\bin\\liblzma.dll', '.'), 
         ('C:\\Users\\ibrahim\\anaconda3\\Library\\bin\\LIBBZ2.dll', '.'), 
         ('C:\\Users\\ibrahim\\anaconda3\\Library\\bin\\libssl-3-x64.dll', '.'), 
+        ('C:/Users/ibrahim/anaconda3/Lib/site-packages/PyQt5/Qt5/bin/*.dll', '.'),
         ('C:\\Users\\ibrahim\\anaconda3\\Library\\bin\\libcrypto-3-x64.dll', '.')
     ],
     datas=[
@@ -25,11 +26,13 @@ a = Analysis(
         ('resources/tools/*', 'resources/tools'),
         ('resources/sounds/*', 'resources/sounds'),
 
-         
+         ('resources/*.key', 'resources'),
+
          ('resources/lang/*', 'resources/lang')
 
     ],
-    hiddenimports=['sip','PyQt5.QtWebEngineWidgets'],
+    hiddenimports=['sip', 'ssl','PyQt5.QtWebEngineWidgets', 'cryptography', 'smtplib', 'email.mime.multipart', 'email.mime.text', 'email.mime.base', 'email.encoders'],
+
 
     hookspath=[],
     hooksconfig={},
@@ -50,7 +53,7 @@ exe = EXE(
     name='main',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=False,
+    strip=True,
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
@@ -63,6 +66,8 @@ exe = EXE(
     icon='resources/icons/robot-icons-30504-Windows.ico',  # Vérifiez le chemin d'accès à l'icône
     distpath='D:/Installations/Nova360',  # Dossier de sortie
     workpath='D:/Installations/Nova360/build',  # Dossier de travail
+    onefile=True  # Active l'option --onefile
+
 )
 
 coll = COLLECT(
@@ -70,7 +75,7 @@ coll = COLLECT(
     a.binaries,
     a.zipfiles,
     a.datas,
-    strip=False,
+    strip=True,
     upx=True,
     name='collect'
 )

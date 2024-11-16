@@ -122,7 +122,7 @@ class BlogMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI Blog ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/article-marketing-3-512.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

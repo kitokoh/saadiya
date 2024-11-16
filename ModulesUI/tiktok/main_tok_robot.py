@@ -146,7 +146,7 @@ class TokMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI Tiktok ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/security-icon.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/camera-icon-59-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

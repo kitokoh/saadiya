@@ -138,7 +138,7 @@ class HeaderSection(QFrame):
         # Logo du menu robot-icons-30504.png
         menu_logo_label = QLabel(self)
         #menu_pixmap = ImageLoader.load_pixmap("resources/icons/robot-icons-30504.png", 100, 100)
-        menu_pixmap = ImageLoader.load_pixmap("resources/icons/robot-icons-30497.png", 100, 100)
+        menu_pixmap = ImageLoader.load_pixmap("resources/icons/robot-icons-30497-Windows.ico", 100, 100)
 
         if not menu_pixmap.isNull():
             menu_logo_label.setPixmap(menu_pixmap)
@@ -164,7 +164,7 @@ class HeaderSection(QFrame):
 
         # Logo GIF
         gif_logo_label = QLabel(self)
-        gif_pixmap = ImageLoader.load_pixmap("resources/icons/robot-256.gif", 100, 100)
+        gif_pixmap = ImageLoader.load_pixmap("resources/icons/robot-256.png", 100, 100)
         if not gif_pixmap.isNull():
             gif_logo_label.setPixmap(gif_pixmap)
         else:
@@ -190,7 +190,7 @@ class HeaderSection(QFrame):
          # Bouton de menu toggle
         toggle_button = QPushButton(self.tr("≡"))
         toggle_button.setFont(QFont("Arial", 16, QFont.Bold))
-        toggle_button.setIcon(QIcon(QPixmap("resources/icons/Delacro-Id-Start-Menu.256.png").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+        toggle_button.setIcon(QIcon(QPixmap("resources/icons/robot-icons-30497-Windows.ico").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
         toggle_button.setStyleSheet("""
             QPushButton {
                 background-color: #2E7D32;
@@ -240,11 +240,11 @@ class HeaderSection(QFrame):
 
         # Boutons du menu latéral
         side_buttons = [
-            ("Accueil", "resources/icons/home-icon.png"),
-            ("Paramètres", "resources/icons/settings-icon.png"),
-            ("Aide", "resources/icons/help-icon.png"),
-            ("À propos", "resources/icons/info-icon.png"),
-            ("Quitter", "resources/icons/exit-icon.png"),
+            ("Accueil", "resources/icons/robot-icons-30504-Windows.ico"),
+            ("Paramètres", "resources/icons/camera-icon-59-Windows.ico"),
+            ("Aide", "resources/icons/information-icon-6055-Windows.ico"),
+            ("À propos", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico"),
+            ("Quitter", "resources/icons/robot-256.ico"),
         ]
 
         for text, icon in side_buttons:

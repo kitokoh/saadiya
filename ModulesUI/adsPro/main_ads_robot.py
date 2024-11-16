@@ -148,7 +148,7 @@ class AdsMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI AdsPro ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/robot-icons-30498.jpg'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/promotion-icon-png-3422-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

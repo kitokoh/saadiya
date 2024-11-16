@@ -147,7 +147,7 @@ class BrandMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI Branding ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/android-icon-3083.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/promotion-icon-png-3422-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

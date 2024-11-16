@@ -24,7 +24,7 @@ class Nova360ProApp(QMainWindow):
         # Initialiser et charger les traductions
        # self.translator_manager = TranslatorManager()
         #self.translator_manager.load_translations()
-        self.setWindowIcon(QIcon('resources/icons/robot-512.png'))  # Assurez-vous que le chemin de l'icône est correct
+        self.setWindowIcon(QIcon('resources/icons/robot-icons-30504-Windows.ico'))  # Assurez-vous que le chemin de l'icône est correct
         self.translator = QTranslator()
 
         self.init_language()

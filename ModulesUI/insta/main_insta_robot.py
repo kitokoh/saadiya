@@ -148,7 +148,7 @@ class InstaMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI Instagram ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/instagram-icon-956.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/instagram-icon-956-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

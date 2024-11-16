@@ -18,10 +18,10 @@ from installFBrobotPy.demarrageAuto import InstallerApp
 #from installFBrobotPy.installGithub import InstallerApp
 #from installFBrobotPy.installpython import InstallerApp
 
-from installFBrobotPy.invisibleQT import InvisibleInstance
-from installFBrobotPy.majenvqt import MajEnv
+#from installFBrobotPy.invisibleQT import InvisibleInstance
+#from installFBrobotPy.majenvqt import MajEnv
 from installFBrobotPy.jsontorobot import JsonToRobot
-from installFBrobotPy.supprimBon import DeleteBon
+#from installFBrobotPy.supprimBon import DeleteBon
 from installFBrobotPy.updateInstanceQt import UpdateInstance
 
 from statistique.nombredegrup import GroupCounter
@@ -145,7 +145,7 @@ class FaceMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/facebook-icon-png-770.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/facebook-icon-png-770-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)
@@ -238,12 +238,12 @@ class FaceMainWindow(QMainWindow):
 
         # Menu Tools
         self.tools_menu = menubar.addMenu(self.tr("Tools"))
-        self.tools_menu.addAction(QAction(self.tr("Heure de démarrage"), self, triggered=self.show_start_time))
+        self.tools_menu.addAction(QAction(self.tr("Scheduling"), self, triggered=self.show_start_time))
         self.tools_menu.addAction(QAction(self.tr("Uninstall Instances"), self, triggered=self.uninstall_instances))
-        self.tools_menu.addAction(QAction(self.tr("Invisible Instances"), self, triggered=self.show_invisible_instances))
-        self.tools_menu.addAction(QAction(self.tr("MAJ Env"), self, triggered=self.update_env))
-        self.tools_menu.addAction(QAction(self.tr("MAJ Text"), self, triggered=self.update_text))
-        self.tools_menu.addAction(QAction(self.tr("Delete Instance"), self, triggered=self.delete_instance))
+        #self.tools_menu.addAction(QAction(self.tr("Invisible Instances"), self, triggered=self.show_invisible_instances))
+        #self.tools_menu.addAction(QAction(self.tr("MAJ Env"), self, triggered=self.update_env))
+        self.tools_menu.addAction(QAction(self.tr("Update Robot"), self, triggered=self.update_text))
+        #self.tools_menu.addAction(QAction(self.tr("Delete Instance"), self, triggered=self.delete_instance))
         self.tools_menu.addAction(QAction(self.tr("Update Instance"), self, triggered=self.update_instance))
 
 
@@ -288,6 +288,8 @@ class FaceMainWindow(QMainWindow):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','main_fb_robot_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','main_fb_robot_translated.qm'))
+        elif language == "ar":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','modules','main_fb_robot_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -335,6 +337,7 @@ class FaceMainWindow(QMainWindow):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                 'pt': 'pt',
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -404,13 +407,13 @@ class FaceMainWindow(QMainWindow):
 
         if reply == QMessageBox.Yes:
             # Chemin vers le fichier uninstall.exe
-            uninstall_exe_path = os.path.join("resources", "tools", "uninstall.exe")
+            uninstall_exe_path = os.path.join(user_data_dir,"resources", "tools", "uninstall.exe")
 
             # Vérifier si le fichier uninstall.exe existe
             if os.path.exists(uninstall_exe_path):
                 try:
                     # Exécuter uninstall.exe
-                    subprocess.Popen([uninstall_exe_path], shell=True)
+                    subprocess.Popen([uninstall_exe_path],  shell=True)
 
                     # Afficher un message de succès
                     QMessageBox.information(self, self.tr("Désinstallation"), self.tr("Instances désinstallées avec succès."))
@@ -430,11 +433,11 @@ class FaceMainWindow(QMainWindow):
     
     def show_invisible_instances(self):
         QMessageBox.information(self, self.tr("Invisible Instances"), self.tr("Aucune instance invisible détectée."))
-        self.setCentralWidget(InvisibleInstance())
+        #self.setCentralWidget(InvisibleInstance())
 
     def update_env(self):
         QMessageBox.information(self, self.tr("MAJ Env"), self.tr("Environnement mis à jour avec succès."))
-        self.setCentralWidget(MajEnv())
+       # self.setCentralWidget(MajEnv())
 
     def update_text(self):
         QMessageBox.information(self, self.tr("MAJ Text"), self.tr("Texte mis à jour avec succès."))
@@ -442,7 +445,7 @@ class FaceMainWindow(QMainWindow):
 
     def delete_instance(self):
         QMessageBox.information(self, self.tr("Delete Instance"), self.tr("Instance supprimée avec succès."))
-        self.setCentralWidget(DeleteBon())
+       # self.setCentralWidget(DeleteBon())
 
     def update_instance(self):
         QMessageBox.information(self, self.tr("Update Instance"), self.tr("Instance mise à jour avec succès."))

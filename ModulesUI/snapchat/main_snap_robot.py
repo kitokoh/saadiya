@@ -148,7 +148,7 @@ class SnapMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI SNAP ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/snapchat-icon-1707.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/snapchat-icon-1707-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

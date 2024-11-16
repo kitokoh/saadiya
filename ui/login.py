@@ -14,13 +14,13 @@ from translation import TranslatorManager  # Importer le gestionnaire de traduct
 from ui.welcomeSyle import WelcomeDialog
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from PyQt5.QtCore import Qt, QTranslator, QLocale
-user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 from datetime import datetime, timedelta
 from mail.mail_in_to_in import Mailer1
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Durée maximale de la session en minutes
-SESSION_TIMEOUT = 30  # 30 minutes
+SESSION_TIMEOUT = 144000  # 30 minutes
 
 
 class LoginModule(QWidget):
@@ -138,7 +138,7 @@ class LoginModule(QWidget):
 
         # Bouton de connexion
         self.login_button = QPushButton(self.tr("Se connecter"), self)
-        self.login_button.setIcon(QIcon("resources/images/login.jpg"))
+        self.login_button.setIcon(QIcon("resources/icons/house-key-icon-41543-Windows.ico"))
         self.login_button.setStyleSheet("""
             background-color: #2D74DA;
             color: white;
@@ -178,7 +178,7 @@ class LoginModule(QWidget):
 
         # Lien pour créer un compte
         self.signup_button = QPushButton(self.tr("Créer un compte"), self)
-        self.signup_button.setIcon(QIcon("resources/icons/facebook-icon-png-745.png"))
+        self.signup_button.setIcon(QIcon("resources/icons/878952-Hornet-Secure.ico"))
         self.signup_button.setStyleSheet("""
             background-color: #28A745;
             color: white;
@@ -392,11 +392,11 @@ class LoginModule(QWidget):
             #         "Ready to accelerate? Start now and let nova.ai take your brand to new heights!</p>"
             #     ).format(username)
             # )
-            mailer = Mailer1()
-            mailer.send_email(email_type="mail1")
+
             dialog = WelcomeDialog(username)
             dialog.exec_()
-
+            mailer = Mailer1()
+            mailer.send_email(email_type="mail1")
             QMessageBox.information(
                 self,
                 self.tr("🎉 Bienvenue chez Nova360.ai!"),

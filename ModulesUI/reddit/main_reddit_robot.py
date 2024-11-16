@@ -147,7 +147,7 @@ class RedditMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI REDDIT ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/robot-icons-30506.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/subscribe-png-574-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

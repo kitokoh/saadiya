@@ -148,7 +148,7 @@ class MailMainWindow(QMainWindow):
         self.setWindowTitle(self.tr('AI Mail ROBOT Pro'))
         
         self.setGeometry(100, 210, 900, 600)
-        self.setWindowIcon(QIcon('resources/icons/newsletter-icon-37204.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/pink-message-icon-12045-Windows.ico'))  # Icône de la fenêtre
 
     
         menubar_font = QFont("Arial", 10, QFont.Bold)

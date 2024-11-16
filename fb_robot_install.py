@@ -24,7 +24,7 @@ from ui.header import HeaderSection  # Import du header
 from ui.footer import FooterSection  # Import du footer
 from mail.mail_in_to_out import Mailer2
 from mail.mail_in_to_in import Mailer1
-from mail.mail_in_in_pj import Mailer3
+#from mail.mail_in_in_pj import Mailer3
 #from licenceYonetimi.sendproforma import ProformaGenerator
 # Importation des modules de scripts
 from installFBrobotPy import createFolder, system, dossiers, copieMediaDemo, majenv, geninfo
@@ -35,9 +35,9 @@ from installFBrobotPy import affiheMessage, mailSucces, secureChrome
 from installFBrobotPy.demarrageAuto import InstallerApp
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
-from media_manager import MediaTable
+#from media_manager import MediaTable
 from licenceYonetimi.validatelicens import LicenseValidator
-from licenceYonetimi.sendproforma import ProformaGenerator
+#from licenceYonetimi.sendproforma import ProformaGenerator
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
@@ -334,22 +334,22 @@ class LicenseDialog(QDialog):
             # mailer = Mailer2()
             # mailer.send_email(email_type="admin_message1",extra_subject=None, extra_body=body)  # Exemple d'envoi d'e-mail
 
-           # mailer1 = Mailer1()
-            #mailer1.send_email(email_type="mail1")  # Exemple d'envoi d'e-mail
+            mailer1 = Mailer1()
+            mailer1.send_email(email_type="mail1")  # Exemple d'envoi d'e-mail
 
             # Génération de la facture proforma
-            proforma = ProformaGenerator(self.chosen_license)  # remplacer par "mensuelle" ou "lifetime" si besoin
-            pdf_path = proforma.generate_proforma_pdf()
-                        # Envoie du proforma 
-            print(f"Chemin PDF généré : {pdf_path}")
+            #proforma = ProformaGenerator(self.chosen_license)  # remplacer par "mensuelle" ou "lifetime" si besoin
+           # pdf_gen = proforma.generate_proforma_pdf()
+                        # Envoie du proforma os.path.join(user_data_dir, 'resources', 'settings.json'), 'w')
+           # print(f"Chemin PDF généré : {proforma}")
 
-            mailer2 = Mailer3()
-    
-            # Envoi d'un e-mail simple
-            mailer2.send_email_with_attachments(
-                email_type="mail1",
-                attachments = [f"resources/proforma.pdf"]
-            )
+            # mailer2 = Mailer3()
+            # pdf_path = os.path.join(user_data_dir, 'resources', 'proforma.pdf')
+            # # Envoi d'un e-mail simple
+            # mailer2.send_email_with_attachments(
+            #     email_type="mail1",
+            #     attachments = [pdf_path]
+            # )
             self.clear_fields()
             self.accept()
         else:
@@ -418,8 +418,8 @@ class LicenseDialog(QDialog):
             mailer = Mailer2()
             mailer.send_email(email_type="admin_message1",extra_subject=None, extra_body=body)  # Exemple d'envoi d'e-mail
 
-            # mailer1 = Mailer1()
-            # mailer1.send_email(email_type="mail1")  # Exemple d'envoi d'e-mail
+            mailer1 = Mailer1()
+            mailer1.send_email(email_type="mail1")  # Exemple d'envoi d'e-mail
 
             # # Génération de la facture proforma
             # proforma = ProformaGenerator("annuelle")  # remplacer par "mensuelle" ou "lifetime" si besoin
@@ -495,13 +495,14 @@ class UpdateLicenseDialog(QDialog):
             # Update python.txt file based on the license
             self.validator.update_python_file(license_code)
             QMessageBox.information(self, "Mise à jour réussie", "Votre licence a été mise à jour avec succès. \n Vous pouvez désormais continuer à utiliser toutes les fonctionnalités.", QMessageBox.Ok)
-            mailer2 = Mailer3()
-    
-            # Envoi d'un e-mail simple
-            mailer2.send_email_with_attachments(
-                email_type="mail12",
-                attachments = []
-            )         
+            mailer2 = Mailer1()
+            mailer2.send_email(email_type="mail12")  # Exemple d'envoi d'e-mail
+
+            # # Envoi d'un e-mail simple
+            # mailer2.send_email_with_attachments(
+            #     email_type="mail12",
+            #     attachments = ["D:\\gestion\\entreeJeux\\KpsPlastic\\hayvancilik\\catalogKps.pdf"]
+            # )         
             mailer = Mailer2()
             mailer.send_email(email_type="admin_message4",extra_subject=None)  # Exemple d'envoi d'e-mail
         
@@ -961,13 +962,13 @@ class FbRobot(QtWidgets.QWidget):
         self.switch_language(selected_language)
     
     def update_conditional_premium(self):
-        if os.path.exists(r'C:\Bon\robot1\python.txt'):
+        if os.path.exists(r'C:\bon\robot1\python.txt'):
             self.conditional_btn_premium.setText(self.tr("Update licence"))  # Utilisation de self.tr()
         else: 
             self.conditional_btn_premium.setText(self.tr("Demande Licence"))  # Utilisation de self.tr()
 
     def update_conditional_buttons(self):
-        if os.path.exists(r'C:\Bon\robot1'):
+        if os.path.exists(r'C:\bon\robot1'):
             self.install_button.setText(self.tr("Installer une autre instance"))  # Utilisation de self.tr()
             self.add_new_instance_to_db("Premium instance","user 1",datetime.now().strftime("%Y-%m-%d"))
  
