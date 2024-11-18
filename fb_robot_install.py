@@ -129,6 +129,8 @@ class ScriptWorker(QThread):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','fb_robot_install_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','fb_robot_install_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','modules','fb_robot_install_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -175,6 +177,8 @@ class ScriptWorker(QThread):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',
+
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
