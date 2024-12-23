@@ -5,9 +5,12 @@ from PyQt5 import QtCore
 
 from PyQt5.QtWidgets import (
     QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout, 
-    QHBoxLayout, QWidget, QLineEdit, QScrollArea, QFrame, QMenu, QMenuBar, QMessageBox
+    QHBoxLayout, QWidget, QLineEdit, QScrollArea,QGraphicsDropShadowEffect, QFrame, QMenu, QMenuBar, QMessageBox
 )
-from PyQt5.QtGui import QFont, QPixmap, QIcon
+#from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+#from PyQt5.QtGui import QColor
+
+from PyQt5.QtGui import QFont, QPixmap, QIcon,QColor
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve
 from main_fb_robot import FaceMainWindow  # Importez votre page d'accueil
 from ModulesUI.whasapping.main_wp_robot import WhatsMainWindow  # Importez votre page d'accueil
@@ -124,10 +127,18 @@ class HomePage(QMainWindow):
                 border: 3px solid #4CAF50;
                 border-radius: 10px;
                 background-color: white;
-                box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+               
+                                   
             }
         """)
         header_frame.setLayout(header_layout)
+
+        # Ajouter un effet d'ombre
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)  # Rayon de flou
+        shadow.setOffset(5, 5)  # Décalage horizontal et vertical
+        shadow.setColor(QColor(0, 0, 0, 50))  # Couleur noire avec transparence
+        header_frame.setGraphicsEffect(shadow)
 
         # Titre de l'application
         title_label = QLabel("AI Marketing Automation")
@@ -319,12 +330,15 @@ class HomePage(QMainWindow):
                 }}
                 QPushButton:hover {{
                     background-color: {self.lighten_color(color)};
-                    transform: scale(1.05); 
+                    border: 2px solid #AAAAAA; /* Ajoute un effet de surbrillance */
+                    padding: 8px; /* Simule une légère contraction pour donner un effet visuel */
                 }}
                 QPushButton:pressed {{
                     background-color: {color};
+                    border: 2px solid #888888; /* Accentue l'effet d'appui */
                 }}
             """)
+
             button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
 
             middle_layout.addWidget(button)
@@ -360,12 +374,16 @@ class HomePage(QMainWindow):
                 }}
                 QPushButton:hover {{
                     background-color: {self.lighten_color(color)};
-                    transform: scale(1.05); 
+                    border: 2px solid #AAAAAA; /* Accentuation de la bordure */
+                    margin: -2px; /* Simule un effet de zoom sans changer les dimensions */
                 }}
                 QPushButton:pressed {{
                     background-color: {color};
+                    border: 2px solid #888888; /* Bordure plus sombre */
+                    padding: 12px; /* Simule un enfoncement visuel */
                 }}
             """)
+
             button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
 
             duplicate_layout.addWidget(button)
@@ -401,12 +419,20 @@ class HomePage(QMainWindow):
                     color: white;
                     padding: 20px;
                     border-radius: 15px;
+                    border: 2px solid #CCCCCC;
                 }}
                 QPushButton:hover {{
                     background-color: {self.lighten_color(color)};
-                    transform: scale(1.05);
+                    margin: -2px; /* Simule un effet de zoom */
+                    border: 2px solid #AAAAAA; /* Bordure accentuée */
+                }}
+                QPushButton:pressed {{
+                    background-color: {color};
+                    border: 2px solid #888888; /* Bordure plus sombre */
+                    padding: 22px; /* Simule un effet d'enfoncement */
                 }}
             """)
+
             button.clicked.connect(lambda _, btn=text: self.show_message(btn))  
             bottom_layout.addWidget(button)
 

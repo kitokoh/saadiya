@@ -21,8 +21,34 @@ import subprocess
 from statistique.stat import Dashboard
 from checklicence import LicenseChecker
 from statistique.nombredegrup import GroupCounter
+
+import platform
+
+def get_user_data_dir():
+    os_name = platform.system()  # Detect the operating system
+    if os_name == "Windows":
+        # Use the AppData/Roaming directory for Windows
+        user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+    elif os_name == "Darwin":
+        # Use the Library/Application Support directory for macOS
+        user_data_dir = os.path.join(os.path.expanduser("~"), "Library", "Application Support", "saadiya")
+    else:
+        # For other OS (like Linux), use ~/.local/share
+        user_data_dir = os.path.join(os.path.expanduser("~"), ".local", "share", "saadiya")
+    
+    # Create the directory if it doesn't exist
+    os.makedirs(user_data_dir, exist_ok=True)
+    return user_data_dir
+
+# Usage
+user_data_dir = get_user_data_dir()
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
-user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+#j utilise ce ligne de code dans mon application  pyqt pour le .exe propose moi le code qui 
+#permet de generer aussi le .dmg et met des condition de maniere a ceque si nous somme face a un os 
+#alors ca utiliste tel lien et si on est en face d un .exe ca utilise ca 
+
+
+#user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
 
 # # # Définir le chemin du dossier userdata

@@ -1,3 +1,4 @@
+
 L'erreur `WinError 10013`, qui signifie "Tentative d'accès à un socket d'une manière non autorisée", est généralement liée à des problèmes de réseau ou de permission lors du démarrage de votre serveur FastAPI avec Uvicorn sur Windows. Voici quelques étapes que vous pouvez suivre pour résoudre ce problème :
 
 ### Étape 1 : Vérifiez le port

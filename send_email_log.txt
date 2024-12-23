@@ -57,5 +57,7 @@
 2024-10-18 20:01:56,903 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
 2024-10-18 20:48:04,689 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment1.pdf : [Errno 2] No such file or directory: 'C:/path/to/attachment1.pdf'
 2024-10-18 20:48:04,689 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment2.jpg : [Errno 2] No such file or directory: 'C:/path/to/attachment2.jpg'
+
 2024-10-18 20:48:04,689 - ERROR - Erreur lors de la jointure du fichier C:/path/to/attachment3.txt : [Errno 2] No such file or directory: 'C:/path/to/attachment3.txt'
+
 2024-10-18 20:48:06,031 - INFO - E-mail envoyé à africa.novatech@gmail.com avec succès.
