@@ -27,7 +27,7 @@ from statistique.activiteprogramme import Activite
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class Dashboard(QMainWindow):
-    def __init__(self, title="SAADIYA.AI", subtitle="Analytics Overview", validiter=None, Nombregroupes=None, totalshare=None, nexttimeshare=None, var5=None,
+    def __init__(self, title="guepard.ai", subtitle="Analytics Overview", validiter=None, Nombregroupes=None, totalshare=None, nexttimeshare=None, var5=None,
         var6=None, var7=None, var8=None, var9=None, var10=None):
         super().__init__()
         
@@ -66,7 +66,7 @@ class Dashboard(QMainWindow):
         subtitle_label.setFont(QFont("Arial", 12, QFont.StyleItalic))
         subtitle_label.setStyleSheet("color: #777; padding: 5px; text-align: left;")
         
-        main_layout.addWidget(title_label, alignment=Qt.AlignCenter)
+         #main_layout.addWidget(title_label, alignment=Qt.AlignCenter)
         #main_layout.addWidget(subtitle_label, alignment=Qt.AlignCenter)
 
         # Tabs

@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
 )
 #from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 #from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QMovie
 
 from PyQt5.QtGui import QFont, QPixmap, QIcon,QColor
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve
@@ -51,12 +52,20 @@ class HomePage(QMainWindow):
         # Définir l'icône de la fenêtre
         self.setWindowIcon(QIcon('resources/icons/robot-icons-30504-Windows.ico'))  # Spécifiez le chemin de l'icône
 
+
+
+
+
         # Créer un widget central
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
 
+
+
         # Layout principal en vertical
-        main_layout = QVBoxLayout()
+        main_layout = QVBoxLayout(central_widget)
+
+
 
         # Menu en-tête
         self.menu_bar = QMenuBar(self)
@@ -110,7 +119,7 @@ class HomePage(QMainWindow):
         # Actions de menu pour le menu Aide
         help_action = QAction(self.tr("Aide en ligne"), self)
         help_action.triggered.connect(self.open_help)
-        about_action = QAction(self.tr("À propos de Saadiya.ai"), self)
+        about_action = QAction(self.tr("À propos de nova360.turknovatech.com"), self)
         about_action.triggered.connect(self.show_about)
 
         help_menu.addAction(help_action)
@@ -124,6 +133,10 @@ class HomePage(QMainWindow):
         header_frame = QFrame()
         header_frame.setStyleSheet("""
             QFrame {
+                background-image: url('resources/images/back.webp');
+                background-position: center;
+                background-size: cover;
+                                 
                 border: 3px solid #4CAF50;
                 border-radius: 10px;
                 background-color: white;
@@ -184,6 +197,8 @@ class HomePage(QMainWindow):
         search_bar.setFont(QFont("Arial", 14))
         search_bar.setStyleSheet("""
             QLineEdit {
+                background-image: url('resources/images/back.webp');
+
                 border: 2px solid #CCCCCC;
                 border-radius: 8px;
                 padding: 8px;  
@@ -223,17 +238,31 @@ class HomePage(QMainWindow):
         self.side_menu.setStyleSheet("""
             QWidget {
                 background-color: #4CAF50;
+                background-image: url('resources/images/ba.webp');
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+                border-radius: 10px; /* Adoucit les bords */
             }
             QPushButton {
-                background-color: #66BB6A;
+                background-color: rgba(255, 255, 255, 0.2); /* Transparent subtilement */
                 color: white;
-                border: none;
-                padding: 15px;
+                border: 1px solid #ffffff50; /* Bordure légère et subtile */
+                padding: 12px 20px; /* Ajustement du padding pour un rendu plus équilibré */
                 text-align: left;
-                font-size: 16px;
+                font-size: 15px;
+                font-weight: bold; /* Ajoute un contraste subtil */
+                border-radius: 8px; /* Coins arrondis */
+                transition: all 0.3s ease; /* Transition fluide pour le hover */
             }
             QPushButton:hover {
-                background-color: #81C784;
+                background-color: rgba(255, 255, 255, 0.4); /* Accentuation subtile sur hover */
+                color: #f5f5f5;
+                transform: scale(1.05); /* Légère mise en avant */
+            }
+            QPushButton:pressed {
+                background-color: rgba(255, 255, 255, 0.6); /* Couleur plus marquée au clic */
+                transform: scale(1.02); /* Réduction subtile pour effet de clic */
             }
         """)
         self.side_menu.setVisible(False)  # Cache le menu latéral au départ
@@ -300,6 +329,7 @@ class HomePage(QMainWindow):
 
                 # Layout pour les icônes et boutons du milieu
             middle_layout = QHBoxLayout()
+ # Ajouter une image de fond au format .webp
 
         # Liste des fonctionnalités avec leurs icônes et couleur
         features = [
@@ -452,6 +482,8 @@ class HomePage(QMainWindow):
         footer_frame = QFrame()
         footer_frame.setStyleSheet("""
             QFrame {
+                                   
+
                 border: none;
                 background-color: #2E7D32;
             }
@@ -563,6 +595,7 @@ class HomePage(QMainWindow):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -691,25 +724,25 @@ class HomePage(QMainWindow):
         self,
         self.tr("Help"),
         self.tr(
-            "📘 **Help Guide for Saadiya.ai**\n\n"
-            "Welcome to the Saadiya.ai Help Center! Here, you'll find tips, tutorials, and support to help you make the most of Saadiya.ai.\n\n"
+            "📘 **Help Guide for nova360.turknovatech.com**\n\n"
+            "Welcome to the nova360.turknovatech.com Help Center! Here, you'll find tips, tutorials, and support to help you make the most of nova360.turknovatech.com.\n\n"
             "🔹 **Getting Started**\n"
             "Learn how to set up your accounts, schedule posts, and automate engagement with our easy-to-follow guides.\n\n"
             "🔹 **FAQs**\n"
             "Find answers to frequently asked questions and common troubleshooting tips.\n\n"
             "🔹 **Technical Support**\n"
-            "For further assistance, contact our support team: support@saadiya.ai\n\n"
+            "For further assistance, contact our support team: support@nova360.turknovatech.com\n\n"
             "🌐 **Visit Our Help Center**\n"
-            "Check out our online Help Center for additional resources and community forums: [www.saadiya.ai/help](https://www.saadiya.ai/help)\n\n"
+            "Check out our online Help Center for additional resources and community forums: [www.nova360.turknovatech.com/help](https://www.nova360.turknovatech.com/help)\n\n"
             "We're here to help you succeed!\n"
         )
                 )
     def show_about (self):
         QMessageBox.information(
             self,
-            self.tr("About Saadiya.ai"),
+            self.tr("About nova360.turknovatech.com"),
             self.tr(
-                "🧠 **Saadiya.ai - The Ultimate Social Media Automation Solution**\n\n"
+                "🧠 **nova360.turknovatech.com - The Ultimate Social Media Automation Solution**\n\n"
                 "Version: 1.0.0\n"
                 "Release Date: November 2024\n\n"
                 "🌍 **Empower Your Influence**\n"
@@ -719,9 +752,9 @@ class HomePage(QMainWindow):
                 "- Advanced engagement and comment automation\n"
                 "- Analytics and performance tracking\n\n"
                 "📞 **Need Help?**\n"
-                "Contact our support: support@saadiya.ai\n"
-                "Visit our website: [www.saadiya.ai](https://www.saadiya.ai)\n\n"
-                "© 2024 Nova360 Pro - Saadiya.ai. All rights reserved.\n"
+                "Contact our support: support@nova360.turknovatech.com\n"
+                "Visit our website: [www.nova360.turknovatech.com](https://www.nova360.turknovatech.com)\n\n"
+                "© 2024 Nova360 Pro - nova360.turknovatech.com. All rights reserved.\n"
             )
         )
 
@@ -738,16 +771,16 @@ class HomePage(QMainWindow):
                     self,
                     self.tr("Help"),
                     self.tr(
-                        "📘 **Help Guide for Saadiya.ai**\n\n"
-                        "Welcome to the Saadiya.ai Help Center! Here, you'll find tips, tutorials, and support to help you make the most of Saadiya.ai.\n\n"
+                        "📘 **Help Guide for nova360.turknovatech.com**\n\n"
+                        "Welcome to the nova360.turknovatech.com Help Center! Here, you'll find tips, tutorials, and support to help you make the most of nova360.turknovatech.com.\n\n"
                         "🔹 **Getting Started**\n"
                         "Learn how to set up your accounts, schedule posts, and automate engagement with our easy-to-follow guides.\n\n"
                         "🔹 **FAQs**\n"
                         "Find answers to frequently asked questions and common troubleshooting tips.\n\n"
                         "🔹 **Technical Support**\n"
-                        "For further assistance, contact our support team: support@saadiya.ai\n\n"
+                        "For further assistance, contact our support team: support@nova360.turknovatech.com\n\n"
                         "🌐 **Visit Our Help Center**\n"
-                        "Check out our online Help Center for additional resources and community forums: [www.saadiya.ai/help](https://www.saadiya.ai/help)\n\n"
+                        "Check out our online Help Center for additional resources and community forums: [www.nova360.turknovatech.com/help](https://www.nova360.turknovatech.com/help)\n\n"
                         "We're here to help you succeed!\n"
                     )
                 )
@@ -756,9 +789,9 @@ class HomePage(QMainWindow):
            # QMessageBox.information(self, "À propos", "AI FB ROBOT PRO v1.0\n© 2024 Nova360 Pro")
            QMessageBox.information(
                         self,
-                        self.tr("About Saadiya.ai"),
+                        self.tr("About nova360.turknovatech.com"),
                         self.tr(
-                            "🧠 **Saadiya.ai - The Ultimate Social Media Automation Solution**\n\n"
+                            "🧠 **nova360.turknovatech.com - The Ultimate Social Media Automation Solution**\n\n"
                             "Version: 1.0.0\n"
                             "Release Date: November 2024\n\n"
                             "🌍 **Empower Your Influence**\n"
@@ -768,9 +801,9 @@ class HomePage(QMainWindow):
                             "- Advanced engagement and comment automation\n"
                             "- Analytics and performance tracking\n\n"
                             "📞 **Need Help?**\n"
-                            "Contact our support: support@saadiya.ai\n"
-                            "Visit our website: [www.saadiya.ai](https://www.saadiya.ai)\n\n"
-                            "© 2024 Nova360 Pro - Saadiya.ai. All rights reserved.\n"
+                            "Contact our support: support@nova360.turknovatech.com\n"
+                            "Visit our website: [www.nova360.turknovatech.com](https://www.nova360.turknovatech.com)\n\n"
+                            "© 2024 Nova360 Pro - nova360.turknovatech.com. All rights reserved.\n"
                         )
                     )
 

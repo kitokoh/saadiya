@@ -120,6 +120,9 @@ class HeaderSection(QFrame):
     def setup_ui(self):
         self.setStyleSheet("""
             QFrame {
+                background-image: url('resources/images/back.webp');
+                background-position: center;
+                background-size: cover;
                 border: 3px solid #4CAF50;
                 border-radius: 10px;
                 background-color: white;
@@ -297,15 +300,17 @@ class HeaderSection(QFrame):
     def toggle_side_menu(self):
         # Animation pour afficher ou masquer le menu latéral
         if self.side_menu.isVisible():
-            self.side_menu_animation.setStartValue(QRect(0, 80, 200, 600))
-            self.side_menu_animation.setEndValue(QRect(0, 80, 0, 600))
-            self.side_menu_animation.start()
+            self._extracted_from_toggle_side_menu_4(200, 0)
             self.side_menu.setVisible(False)
         else:
             self.side_menu.setVisible(True)
-            self.side_menu_animation.setStartValue(QRect(0, 80, 0, 600))
-            self.side_menu_animation.setEndValue(QRect(0, 80, 200, 600))
-            self.side_menu_animation.start()
+            self._extracted_from_toggle_side_menu_4(0, 200)
+
+    # TODO Rename this here and in `toggle_side_menu`
+    def _extracted_from_toggle_side_menu_4(self, arg0, arg1):
+        self.side_menu_animation.setStartValue(QRect(0, 80, arg0, 600))
+        self.side_menu_animation.setEndValue(QRect(0, 80, arg1, 600))
+        self.side_menu_animation.start()
 
     def on_toggle_clicked(self):
         self.menu_toggled.emit()  # Émettre le signal lorsque le bouton de menu est cliqué

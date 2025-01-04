@@ -94,6 +94,8 @@ class AddGroupDialog(QDialog):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',
+
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut
@@ -275,6 +277,7 @@ class GroupTable(QWidget):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt':'pt',
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut

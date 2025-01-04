@@ -1,0 +1,5 @@
+rendre les ajout des buton dans le remote et dans la plateforme dynamique a 100 pour cent en ajoutant a la base de donne et a une api 
+version mobile du telecommande et version rasbery pi
+version dmg et veresion pour linux 
+plus de ai
+api comme buffer actif 

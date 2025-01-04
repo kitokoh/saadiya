@@ -44,7 +44,7 @@ class AboutDialog(QDialog):
         layout = QVBoxLayout()
         label = QLabel(self.tr(
                     "<div style='background-color:#F5F7FA; padding:15px; border-radius:10px;'>"
-                    "<h1 style='color:#1A5276; font-size:24px; font-weight:bold; text-align:center;'>Welcome to Nova360.ai</h1>"
+                    "<h1 style='color:#1A5276; font-size:24px; font-weight:bold; text-align:center;'>Welcome to nova360.turknovatech.com</h1>"
                     
                     "<p style='font-size:16px; color:#333333; text-align:center;'>"
                     "<strong>Your All-in-One AI-Powered Social Media Automation Solution</strong>"
@@ -52,8 +52,8 @@ class AboutDialog(QDialog):
                     
                     "<div style='padding: 10px; border-left: 4px solid #1A5276;'>"
                     "<p style='font-size:14px; color:#5D6D7E; line-height:1.6; margin:0 20px;'>"
-                    "Nova360.ai is the essential tool for entrepreneurs, brands, and influencers looking to simplify and scale their social media presence.<br>"
-                    "With advanced AI, Nova360.ai automates every aspect of your social media strategy, allowing you to engage effortlessly,<br>"
+                    "nova360.turknovatech.com is the essential tool for entrepreneurs, brands, and influencers looking to simplify and scale their social media presence.<br>"
+                    "With advanced AI, nova360.turknovatech.com automates every aspect of your social media strategy, allowing you to engage effortlessly,<br>"
                     "grow your influence, and remain at the forefront of your audience’s minds."
                     "</p>"
                     "</div><br>"
@@ -67,7 +67,7 @@ class AboutDialog(QDialog):
                     "</ul><br>"
                     
                     "<p style='font-size:14px; color:#5D6D7E; line-height:1.6; text-align:center;'>"
-                    "Join a thriving community of brands and individuals who trust Nova360.ai to elevate their social media automation.<br>"
+                    "Join a thriving community of brands and individuals who trust nova360.turknovatech.com to elevate their social media automation.<br>"
                     "Save time, boost engagement, and focus on building your brand."
                     "</p><br>"
                     
@@ -105,7 +105,7 @@ class CertificateDialog(QDialog):
                 
                 "<p style='font-size:14px; color:#4A4A4A; line-height:1.6;'>"
                 "Votre licence est actuellement valide jusqu'au <strong style='color:#D35400;'>31 décembre 202x</strong>.<br>"
-                "Pour continuer à profiter de toutes les fonctionnalités premium de <strong>Nova360.ai</strong>, veuillez penser à renouveler votre licence avant cette date.<br>"
+                "Pour continuer à profiter de toutes les fonctionnalités premium de <strong>nova360.turknovatech.com</strong>, veuillez penser à renouveler votre licence avant cette date.<br>"
                 "</p><br>"
                 
                 "<div style='padding: 10px; border-left: 4px solid #D35400; margin: 10px 0;'>"

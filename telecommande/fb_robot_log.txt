@@ -1,0 +1,577 @@
+2025-01-02 09:40:54,887 - INFO - Starting run_fb_robot function.
+2025-01-02 09:40:54,957 - DEBUG - Detected Windows OS.
+2025-01-02 09:40:54,958 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 09:40:54,958 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:40:54,959 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:40:54,960 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:40:54,960 - DEBUG - Attempting to execute the file.
+2025-01-02 09:40:54,970 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:46:13,324 - INFO - Starting run_fb_robot function.
+2025-01-02 09:46:13,325 - DEBUG - Detected Windows OS.
+2025-01-02 09:46:13,326 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 09:46:13,327 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:46:13,328 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:46:13,330 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:46:13,331 - DEBUG - Attempting to execute the file.
+2025-01-02 09:46:13,358 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:56:55,904 - INFO - Starting run_fb_robot function.
+2025-01-02 09:56:56,036 - DEBUG - Detected Windows OS.
+2025-01-02 09:56:56,036 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 09:56:56,037 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:56:56,037 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:56:56,038 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:56:56,038 - DEBUG - Attempting to execute the file.
+2025-01-02 09:56:56,049 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:57:06,522 - INFO - Starting run_fb_robot function.
+2025-01-02 09:57:06,523 - DEBUG - Detected Windows OS.
+2025-01-02 09:57:06,523 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 09:57:06,523 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:57:06,524 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:57:06,524 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 09:57:06,525 - DEBUG - Attempting to execute the file.
+2025-01-02 09:57:06,528 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 15:51:17,766 - INFO - Starting run_fb_robot function.
+2025-01-02 15:51:18,047 - DEBUG - Detected Windows OS.
+2025-01-02 15:51:18,047 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 15:51:18,047 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 15:51:18,048 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 15:51:18,048 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 15:51:18,048 - DEBUG - Attempting to execute the file.
+2025-01-02 15:51:18,058 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:22:41,753 - INFO - Starting run_fb_robot function.
+2025-01-02 17:22:42,897 - DEBUG - Detected Windows OS.
+2025-01-02 17:22:42,897 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 17:22:42,898 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:22:42,898 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:22:42,899 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:22:42,899 - DEBUG - Attempting to execute the file.
+2025-01-02 17:22:42,909 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:55:37,753 - INFO - Starting run_fb_robot function.
+2025-01-02 17:55:37,864 - DEBUG - Detected Windows OS.
+2025-01-02 17:55:37,865 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 17:55:37,865 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:55:37,865 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:55:37,866 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 17:55:37,866 - DEBUG - Attempting to execute the file.
+2025-01-02 17:55:37,877 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:24:03,503 - INFO - Starting run_fb_robot function.
+2025-01-02 19:24:03,605 - DEBUG - Detected Windows OS.
+2025-01-02 19:24:03,605 - DEBUG - APPDATA environment variable: C:\Users\cheic\AppData\Roaming
+2025-01-02 19:24:03,605 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:24:03,606 - DEBUG - Final path to execute: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:24:03,606 - INFO - File found at path: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:24:03,607 - DEBUG - Attempting to execute the file.
+2025-01-02 19:24:03,890 - INFO - Successfully launched: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:49:32,702 - INFO - Determining the path for Fb Robot.
+2025-01-02 19:49:32,807 - DEBUG - Detected Windows OS.
+2025-01-02 19:49:32,808 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:49:32,808 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:51:32,537 - INFO - Determining the path for Fb Robot.
+2025-01-02 19:51:32,635 - DEBUG - Detected Windows OS.
+2025-01-02 19:51:32,636 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:51:32,636 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:53:10,633 - INFO - Determining the path for Fb Robot.
+2025-01-02 19:53:10,731 - DEBUG - Detected Windows OS.
+2025-01-02 19:53:10,732 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:53:10,732 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:53:14,649 - INFO - Determining the path for Fb Robot.
+2025-01-02 19:53:14,649 - DEBUG - Detected Windows OS.
+2025-01-02 19:53:14,650 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:53:14,651 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:58:28,660 - INFO - Determining the path for Fb Robot.
+2025-01-02 19:58:28,766 - DEBUG - Detected Windows OS.
+2025-01-02 19:58:28,766 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:58:28,767 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 19:58:28,767 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:02:11,644 - INFO - Determining the path for Fb Robot.
+2025-01-02 20:02:11,746 - DEBUG - Detected Windows OS.
+2025-01-02 20:02:11,746 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:02:11,747 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:02:11,747 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:03:18,809 - INFO - Determining the path for Fb Robot.
+2025-01-02 20:03:18,866 - DEBUG - Detected Windows OS.
+2025-01-02 20:03:18,866 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:03:18,867 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:03:18,867 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:12:35,749 - ERROR - tab_widget is not initialized.
+2025-01-02 20:21:13,461 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:24:00,139 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:24:07,416 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:38:47,315 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:39:13,746 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:49:41,137 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 20:50:20,442 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:17:07,644 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: <PyQt5.QtWidgets.QTextEdit object at 0x000001F8F99504D0>
+2025-01-02 21:17:07,756 - ERROR - Failed to start process: arguments did not match any overloaded call:
+  start(self, program: Optional[str], arguments: Iterable[Optional[str]], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, command: Optional[str], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+2025-01-02 21:17:07,786 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:17:17,894 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:21,118 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:25,946 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:17:27,566 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:17:28,082 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:17:28,326 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:17:28,909 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:17:31,274 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:42,746 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:45,207 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:45,730 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:45,946 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:46,146 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:46,382 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:46,570 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:17:47,165 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:54,958 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:56,202 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:56,722 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:57,198 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:57,530 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:57,774 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:58,022 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:18:59,574 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:00,086 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:00,306 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:00,989 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:01,250 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:01,458 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:01,726 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:22,787 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: <PyQt5.QtWidgets.QTextEdit object at 0x000001E671A504D0>
+2025-01-02 21:19:22,792 - ERROR - Failed to start process: arguments did not match any overloaded call:
+  start(self, program: Optional[str], arguments: Iterable[Optional[str]], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, command: Optional[str], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+2025-01-02 21:19:22,798 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:19:45,926 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:47,834 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:48,403 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:19:48,654 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:22:52,816 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: <PyQt5.QtWidgets.QTextEdit object at 0x000001F889A504D0>
+2025-01-02 21:22:52,822 - ERROR - Failed to start process: arguments did not match any overloaded call:
+  start(self, program: Optional[str], arguments: Iterable[Optional[str]], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, command: Optional[str], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+2025-01-02 21:22:52,828 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:23:01,323 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:23:11,498 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:23:12,727 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:23:15,506 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:23:16,299 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:24:30,758 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:24:32,498 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:24:32,866 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:24:33,107 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:27:17,244 - INFO - Opening terminal tab with title: Fb Robot Terminal and executable: <PyQt5.QtWidgets.QTextEdit object at 0x000001F889A507A0>
+2025-01-02 21:27:17,246 - ERROR - Failed to start process: arguments did not match any overloaded call:
+  start(self, program: Optional[str], arguments: Iterable[Optional[str]], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, command: Optional[str], mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+  start(self, mode: Union[QIODevice.OpenMode, QIODevice.OpenModeFlag] = QIODevice.ReadWrite): argument 1 has unexpected type 'QTextEdit'
+2025-01-02 21:27:18,173 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:27:46,539 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:27:47,039 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:27:48,206 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:27:48,399 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:27:48,608 - WARNING - Aucun widget trouvé pour l'onglet à l'index 1
+2025-01-02 21:45:52,158 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:46:06,128 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:08,232 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:09,428 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:10,124 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:10,544 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:10,996 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:11,240 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:11,460 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:11,676 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:11,879 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:12,080 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:12,308 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:12,588 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:12,779 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:13,052 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:46:13,255 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:39,887 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 21:50:47,600 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:49,084 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:49,832 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:51,252 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:51,840 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:52,236 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:52,472 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:53,252 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:58,168 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:58,532 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:58,764 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:58,952 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:50:59,396 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:54:05,204 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:54:06,248 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:54:06,516 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:54:06,925 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 21:54:07,153 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:34,821 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:11:37,225 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:42,865 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:46,434 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:46,933 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:47,145 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:47,341 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:11:47,538 - WARNING - Aucun widget trouvé pour l'onglet à l'index 0
+2025-01-02 22:13:19,110 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:20:24,311 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:20:45,643 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:48:23,543 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:53:28,335 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:53:46,338 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:55:39,159 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:57:13,207 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:57:55,690 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 22:59:45,826 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:04:10,350 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:08:02,666 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:09:55,093 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:13:59,764 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:19:22,542 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:34:39,559 - INFO - Determining the path for Fb Robot.
+2025-01-02 23:34:39,668 - DEBUG - Detected Windows OS.
+2025-01-02 23:34:39,668 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:34:39,669 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:38:01,055 - INFO - Determining the path for Fb Robot.
+2025-01-02 23:38:01,162 - DEBUG - Detected Windows OS.
+2025-01-02 23:38:01,163 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:38:01,164 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-02 23:38:01,179 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:29:55,496 - INFO - Determining the path for Fb Robot.
+2025-01-03 07:29:55,705 - DEBUG - Detected Windows OS.
+2025-01-03 07:29:55,705 - DEBUG - Constructed path for Windows: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:29:55,706 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:29:55,728 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:54:48,388 - INFO - Determining the path for Fb Robot.
+2025-01-03 07:54:48,761 - DEBUG - Detected Windows OS.
+2025-01-03 07:54:48,761 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:54:48,773 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:56:33,029 - INFO - Determining the path for Fb Robot.
+2025-01-03 07:56:33,149 - DEBUG - Detected Windows OS.
+2025-01-03 07:56:33,150 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 07:56:33,173 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 08:04:29,287 - INFO - Determining the path for Fb Robot.
+2025-01-03 08:04:29,391 - DEBUG - Detected Windows OS.
+2025-01-03 08:04:29,391 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 08:04:29,404 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 08:04:50,356 - INFO - Determining the path for Multi Fb.
+2025-01-03 08:04:50,357 - ERROR - No executable defined for robot: Multi Fb
+2025-01-03 08:04:57,363 - INFO - Determining the path for WA.
+2025-01-03 08:04:57,365 - ERROR - No executable defined for robot: WA
+2025-01-03 08:05:03,129 - INFO - Determining the path for Insta.
+2025-01-03 08:05:03,130 - ERROR - No executable defined for robot: Insta
+2025-01-03 08:09:34,079 - INFO - Determining the path for Multi Fb.
+2025-01-03 08:09:34,080 - ERROR - No executable defined for robot: Multi Fb
+2025-01-03 08:09:54,455 - INFO - Determining the path for Multi Fb.
+2025-01-03 08:09:54,456 - ERROR - No executable defined for robot: Multi Fb
+2025-01-03 08:17:22,714 - INFO - Determining the path for Multi Fb.
+2025-01-03 08:17:24,053 - DEBUG - Detected Windows OS.
+2025-01-03 08:17:24,055 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 08:17:26,658 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:23:12,797 - INFO - Determining the path for Multi Fb.
+2025-01-03 12:23:12,960 - DEBUG - Detected Windows OS.
+2025-01-03 12:23:12,961 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:23:13,887 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:25:37,881 - INFO - Determining the path for WA +.
+2025-01-03 12:25:37,984 - DEBUG - Detected Windows OS.
+2025-01-03 12:25:37,985 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 12:25:44,917 - INFO - Determining the path for Multi Fb.
+2025-01-03 12:25:44,918 - DEBUG - Detected Windows OS.
+2025-01-03 12:25:44,919 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:25:44,930 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:27:34,869 - INFO - Determining the path for Fb Robot.
+2025-01-03 12:27:34,869 - DEBUG - Detected Windows OS.
+2025-01-03 12:27:34,870 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 12:27:36,428 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 12:30:22,522 - INFO - Determining the path for Multi Fb.
+2025-01-03 12:30:22,623 - DEBUG - Detected Windows OS.
+2025-01-03 12:30:22,623 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:30:22,634 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 12:32:05,914 - INFO - Determining the path for Fb Robot.
+2025-01-03 12:32:06,010 - DEBUG - Detected Windows OS.
+2025-01-03 12:32:06,011 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 12:32:06,021 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 12:35:57,034 - INFO - Determining the path for Insta.
+2025-01-03 12:35:57,439 - DEBUG - Detected Windows OS.
+2025-01-03 12:35:57,440 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 13:03:23,843 - INFO - Determining the path for Fb Robot.
+2025-01-03 13:03:23,844 - DEBUG - Detected Windows OS.
+2025-01-03 13:03:23,845 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 13:03:25,838 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 14:43:27,623 - INFO - Determining the path for Multi Fb.
+2025-01-03 14:43:27,627 - DEBUG - Detected Windows OS.
+2025-01-03 14:43:27,629 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 14:43:29,183 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 14:43:48,213 - INFO - Determining the path for WA +.
+2025-01-03 14:43:48,213 - DEBUG - Detected Windows OS.
+2025-01-03 14:43:48,214 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 14:43:51,501 - INFO - Determining the path for WA +.
+2025-01-03 14:43:51,502 - DEBUG - Detected Windows OS.
+2025-01-03 14:43:51,502 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 15:18:18,359 - INFO - Determining the path for Fb Robot.
+2025-01-03 15:18:18,822 - DEBUG - Detected Windows OS.
+2025-01-03 15:18:18,823 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 15:18:18,833 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:03:08,666 - INFO - Determining the path for WA +.
+2025-01-03 16:03:08,772 - DEBUG - Detected Windows OS.
+2025-01-03 16:03:08,773 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 16:03:16,746 - INFO - Determining the path for Insta.
+2025-01-03 16:03:16,746 - DEBUG - Detected Windows OS.
+2025-01-03 16:03:16,747 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 16:03:18,770 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 16:25:18,120 - INFO - Determining the path for FB Robot.
+2025-01-03 16:25:18,231 - DEBUG - Detected Windows OS.
+2025-01-03 16:25:18,231 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:25:18,242 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:27:12,636 - INFO - Determining the path for Multi FB.
+2025-01-03 16:27:12,637 - DEBUG - Detected Windows OS.
+2025-01-03 16:27:12,638 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 16:27:12,651 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 16:27:13,705 - INFO - Determining the path for WA +.
+2025-01-03 16:27:13,705 - DEBUG - Detected Windows OS.
+2025-01-03 16:27:14,077 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 16:27:15,644 - INFO - Determining the path for WA +.
+2025-01-03 16:27:15,644 - DEBUG - Detected Windows OS.
+2025-01-03 16:27:15,645 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 16:27:21,676 - INFO - Determining the path for Insta.
+2025-01-03 16:27:21,676 - DEBUG - Detected Windows OS.
+2025-01-03 16:27:21,677 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 16:27:21,684 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 16:34:21,740 - INFO - Determining the path for FB Robot.
+2025-01-03 16:34:21,846 - DEBUG - Detected Windows OS.
+2025-01-03 16:34:21,847 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:34:21,858 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:44:41,737 - INFO - Determining the path for FB Robot.
+2025-01-03 16:44:41,846 - DEBUG - Detected Windows OS.
+2025-01-03 16:44:41,847 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:44:41,860 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:51:44,270 - INFO - Determining the path for FB Robot.
+2025-01-03 16:51:44,372 - DEBUG - Detected Windows OS.
+2025-01-03 16:51:44,372 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:51:44,383 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 16:53:55,326 - INFO - Determining the path for Multi FB.
+2025-01-03 16:53:55,425 - DEBUG - Detected Windows OS.
+2025-01-03 16:53:55,425 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 16:53:55,436 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 16:54:18,826 - INFO - Determining the path for WA +.
+2025-01-03 16:54:18,827 - DEBUG - Detected Windows OS.
+2025-01-03 16:54:18,827 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_plus.exe
+2025-01-03 16:54:31,374 - INFO - Determining the path for WA CRM.
+2025-01-03 16:54:31,375 - ERROR - No executable defined for robot: WA CRM
+2025-01-03 16:54:37,162 - INFO - Determining the path for FB Comment.
+2025-01-03 16:54:37,163 - ERROR - No executable defined for robot: FB Comment
+2025-01-03 16:54:39,594 - INFO - Determining the path for Insta.
+2025-01-03 16:54:39,595 - DEBUG - Detected Windows OS.
+2025-01-03 16:54:39,595 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 16:54:39,603 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\insta.exe
+2025-01-03 17:02:14,590 - INFO - Determining the path for IN Job.
+2025-01-03 17:02:14,591 - ERROR - No executable defined for robot: IN Job
+2025-01-03 17:02:19,118 - INFO - Determining the path for Blog.
+2025-01-03 17:02:19,119 - ERROR - No executable defined for robot: Blog
+2025-01-03 17:02:31,946 - INFO - Determining the path for PIN.
+2025-01-03 17:02:31,947 - ERROR - No executable defined for robot: PIN
+2025-01-03 17:02:35,054 - INFO - Determining the path for X.
+2025-01-03 17:02:35,055 - ERROR - No executable defined for robot: X
+2025-01-03 17:03:09,446 - INFO - Determining the path for YTB.
+2025-01-03 17:03:09,447 - ERROR - No executable defined for robot: YTB
+2025-01-03 17:03:11,306 - INFO - Determining the path for PIN.
+2025-01-03 17:03:11,307 - ERROR - No executable defined for robot: PIN
+2025-01-03 17:03:13,190 - INFO - Determining the path for X.
+2025-01-03 17:03:13,191 - ERROR - No executable defined for robot: X
+2025-01-03 17:03:16,131 - INFO - Determining the path for TOK.
+2025-01-03 17:03:16,131 - ERROR - No executable defined for robot: TOK
+2025-01-03 18:41:15,773 - INFO - Determining the path for FB Robot.
+2025-01-03 18:41:15,961 - DEBUG - Detected Windows OS.
+2025-01-03 18:41:15,962 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 18:41:15,974 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:09:09,279 - ERROR - Program 'FB Robot' is not supported.
+2025-01-03 19:14:34,343 - ERROR - Program 'FB Robot' is not supported.
+2025-01-03 19:21:33,776 - ERROR - Program 'FB Robot' is not supported.
+2025-01-03 19:25:41,228 - ERROR - Program 'FB Robot' is not supported.
+2025-01-03 19:25:41,229 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.
+2025-01-03 19:28:15,577 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.
+2025-01-03 19:29:37,757 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.
+2025-01-03 19:30:37,969 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.
+2025-01-03 19:36:49,316 - INFO - Determining the path for FB Robot.
+2025-01-03 19:36:49,316 - DEBUG - Detected Windows OS.
+2025-01-03 19:36:49,317 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:36:49,331 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:49:35,633 - INFO - Determining the path for FB Robot.
+2025-01-03 19:49:35,633 - DEBUG - Detected Windows OS.
+2025-01-03 19:49:35,634 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:49:35,646 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:49:44,276 - INFO - Determining the path for Multi FB.
+2025-01-03 19:49:44,277 - DEBUG - Detected Windows OS.
+2025-01-03 19:49:44,277 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 19:49:44,286 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 19:49:54,551 - WARNING - Cannot execute WA +. Required folder conditions are not met.
+2025-01-03 19:52:03,086 - INFO - Determining the path for FB Robot.
+2025-01-03 19:52:03,086 - DEBUG - Detected Windows OS.
+2025-01-03 19:52:03,087 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:52:03,098 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 19:52:18,629 - INFO - Determining the path for WA +.
+2025-01-03 19:52:18,630 - DEBUG - Detected Windows OS.
+2025-01-03 19:52:18,630 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-03 19:52:18,631 - ERROR - Executable not found: None
+2025-01-03 19:54:05,587 - INFO - Determining the path for WA +.
+2025-01-03 19:54:05,587 - DEBUG - Detected Windows OS.
+2025-01-03 19:54:05,588 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-03 19:54:05,588 - ERROR - Executable not found: None
+2025-01-03 19:54:37,873 - INFO - Determining the path for WA CRM.
+2025-01-03 19:54:37,873 - DEBUG - Detected Windows OS.
+2025-01-03 19:54:37,873 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-03 19:54:37,874 - ERROR - Executable not found: None
+2025-01-03 19:54:46,530 - INFO - Determining the path for FB Comment.
+2025-01-03 19:54:46,531 - DEBUG - Detected Windows OS.
+2025-01-03 19:54:46,531 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-03 19:54:46,531 - ERROR - Executable not found: None
+2025-01-03 19:55:39,224 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-03 19:55:47,036 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-03 19:55:53,807 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-03 19:55:56,707 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-03 19:55:59,591 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-03 19:56:01,203 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-03 19:56:05,099 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-03 21:47:34,539 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-03 22:21:32,921 - INFO - Determining the path for FB Robot.
+2025-01-03 22:21:32,921 - DEBUG - Detected Windows OS.
+2025-01-03 22:21:32,921 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 22:21:33,000 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 22:21:33,006 - INFO - Determining the path for Multi FB.
+2025-01-03 22:21:33,007 - DEBUG - Detected Windows OS.
+2025-01-03 22:21:33,007 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 22:21:33,023 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 22:21:33,030 - INFO - Determining the path for WA +.
+2025-01-03 22:21:33,030 - DEBUG - Detected Windows OS.
+2025-01-03 22:21:33,031 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-03 22:21:33,031 - ERROR - Executable not found: None
+2025-01-03 22:21:33,038 - INFO - Determining the path for WA CRM.
+2025-01-03 22:21:33,038 - DEBUG - Detected Windows OS.
+2025-01-03 22:21:33,039 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-03 22:21:33,039 - ERROR - Executable not found: None
+2025-01-03 22:21:33,043 - INFO - Determining the path for FB Comment.
+2025-01-03 22:21:33,044 - DEBUG - Detected Windows OS.
+2025-01-03 22:21:33,044 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-03 22:21:33,044 - ERROR - Executable not found: None
+2025-01-03 22:21:33,046 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-03 22:21:33,047 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-03 22:21:33,048 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-03 22:21:33,050 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-03 22:21:33,051 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-03 22:21:33,052 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-03 22:21:33,053 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-03 22:25:15,215 - WARNING - FB Robot is already running.
+2025-01-03 22:25:15,215 - WARNING - Multi FB is already running.
+2025-01-03 22:25:15,219 - INFO - Determining the path for WA +.
+2025-01-03 22:25:15,219 - DEBUG - Detected Windows OS.
+2025-01-03 22:25:15,220 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-03 22:25:15,220 - ERROR - Executable not found: None
+2025-01-03 22:25:15,224 - INFO - Determining the path for WA CRM.
+2025-01-03 22:25:15,225 - DEBUG - Detected Windows OS.
+2025-01-03 22:25:15,225 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-03 22:25:15,225 - ERROR - Executable not found: None
+2025-01-03 22:25:15,229 - INFO - Determining the path for FB Comment.
+2025-01-03 22:25:15,229 - DEBUG - Detected Windows OS.
+2025-01-03 22:25:15,230 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-03 22:25:15,230 - ERROR - Executable not found: None
+2025-01-03 22:25:15,232 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-03 22:25:15,233 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-03 22:25:15,234 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-03 22:25:15,235 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-03 22:25:15,237 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-03 22:25:15,238 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-03 22:25:15,239 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-03 22:31:53,884 - INFO - Determining the path for FB Robot.
+2025-01-03 22:31:53,885 - DEBUG - Detected Windows OS.
+2025-01-03 22:31:53,886 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 22:31:53,901 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 22:31:53,908 - INFO - Determining the path for Multi FB.
+2025-01-03 22:31:53,908 - DEBUG - Detected Windows OS.
+2025-01-03 22:31:53,909 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 22:31:53,920 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 22:31:53,927 - INFO - Determining the path for WA +.
+2025-01-03 22:31:53,927 - DEBUG - Detected Windows OS.
+2025-01-03 22:31:53,928 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-03 22:31:53,928 - ERROR - Executable not found: None
+2025-01-03 22:31:53,935 - INFO - Determining the path for WA CRM.
+2025-01-03 22:31:53,935 - DEBUG - Detected Windows OS.
+2025-01-03 22:31:53,936 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-03 22:31:53,936 - ERROR - Executable not found: None
+2025-01-03 22:31:53,940 - INFO - Determining the path for FB Comment.
+2025-01-03 22:31:53,941 - DEBUG - Detected Windows OS.
+2025-01-03 22:31:53,941 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-03 22:31:53,941 - ERROR - Executable not found: None
+2025-01-03 22:31:53,942 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-03 22:31:53,943 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-03 22:31:53,943 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-03 22:31:53,944 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-03 22:31:53,944 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-03 22:31:53,945 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-03 22:31:53,947 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-03 23:21:25,078 - INFO - Determining the path for FB Robot.
+2025-01-03 23:21:25,078 - DEBUG - Detected Windows OS.
+2025-01-03 23:21:25,079 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 23:21:25,090 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 23:22:17,933 - INFO - Determining the path for Multi FB.
+2025-01-03 23:22:17,933 - DEBUG - Detected Windows OS.
+2025-01-03 23:22:17,934 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 23:22:17,943 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 23:22:42,913 - INFO - Determining the path for WA +.
+2025-01-03 23:22:42,913 - DEBUG - Detected Windows OS.
+2025-01-03 23:22:42,914 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-03 23:22:42,914 - ERROR - Executable not found: None
+2025-01-03 23:23:05,416 - INFO - Determining the path for FB Comment.
+2025-01-03 23:23:05,417 - DEBUG - Detected Windows OS.
+2025-01-03 23:23:05,417 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-03 23:23:05,418 - ERROR - Executable not found: None
+2025-01-03 23:23:08,934 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-03 23:23:41,176 - INFO - Determining the path for FB Robot.
+2025-01-03 23:23:41,177 - DEBUG - Detected Windows OS.
+2025-01-03 23:23:41,179 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 23:23:41,197 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-03 23:27:32,089 - INFO - Determining the path for Multi FB.
+2025-01-03 23:27:32,090 - DEBUG - Detected Windows OS.
+2025-01-03 23:27:32,092 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 23:27:32,107 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-03 23:30:21,032 - INFO - Determining the path for FB Comment.
+2025-01-03 23:30:21,032 - DEBUG - Detected Windows OS.
+2025-01-03 23:30:21,033 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-03 23:30:21,033 - ERROR - Executable not found: None
+2025-01-04 00:25:49,409 - INFO - Determining the path for FB Robot.
+2025-01-04 00:25:49,410 - DEBUG - Detected Windows OS.
+2025-01-04 00:25:49,412 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 00:25:49,432 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 00:25:49,445 - INFO - Determining the path for WA +.
+2025-01-04 00:25:49,445 - DEBUG - Detected Windows OS.
+2025-01-04 00:25:49,445 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-04 00:25:49,446 - ERROR - Executable not found: None
+2025-01-04 00:25:49,456 - INFO - Determining the path for WA CRM.
+2025-01-04 00:25:49,456 - DEBUG - Detected Windows OS.
+2025-01-04 00:25:49,457 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-04 00:25:49,457 - ERROR - Executable not found: None
+2025-01-04 00:25:49,463 - INFO - Determining the path for FB Comment.
+2025-01-04 00:25:49,463 - DEBUG - Detected Windows OS.
+2025-01-04 00:25:49,464 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-04 00:25:49,464 - ERROR - Executable not found: None
+2025-01-04 00:25:49,465 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-04 00:25:49,467 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-04 00:25:49,469 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-04 00:25:49,470 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-04 00:25:49,472 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-04 00:25:49,473 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-04 00:25:49,474 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-04 00:36:35,163 - DEBUG - Starting new HTTPS connection (1): nova360.turknovatech.com:443
+2025-01-04 00:43:31,960 - DEBUG - Starting new HTTPS connection (1): nova360.turknovatech.com:443
+2025-01-04 00:43:34,120 - DEBUG - https://nova360.turknovatech.com:443 "GET /storage/themes/2.0.0/Nova360.exe HTTP/11" 200 266660296
+2025-01-04 01:34:55,793 - DEBUG - Starting new HTTPS connection (1): nova360.turknovatech.com:443
+2025-01-04 01:34:57,383 - DEBUG - https://nova360.turknovatech.com:443 "GET /storage/themes/2.0.0/Nova360.exe HTTP/11" 200 266660296
+2025-01-04 07:56:23,885 - DEBUG - Starting new HTTPS connection (1): nova360.turknovatech.com:443
+2025-01-04 07:56:29,477 - DEBUG - https://nova360.turknovatech.com:443 "GET /storage/themes/2.0.0/Nova360.exe HTTP/11" 200 266660296
+2025-01-04 15:10:27,713 - INFO - Determining the path for FB Robot.
+2025-01-04 15:10:27,720 - DEBUG - Detected Windows OS.
+2025-01-04 15:10:27,721 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 15:10:33,975 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe

@@ -117,7 +117,7 @@ class FooterSection(QFrame):
         terms_button = self.create_button(self.tr("Termes et Conditions"))
         terms_button.clicked.connect(self.on_terms_clicked)
 
-        footer_text = QLabel(self.tr("visit www.turknovatech.com | © 2024 by Türk Novatech - Tous droits réservés."))
+        footer_text = QLabel(self.tr("visit www.turknovatech.com | © 2025 by Türk Novatech - Tous droits réservés."))
         footer_text.setFont(QFont("Arial", 10))
         footer_text.setAlignment(Qt.AlignCenter)
         footer_text.setStyleSheet("color: white;")

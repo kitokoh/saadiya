@@ -420,7 +420,7 @@ def install_instance(instance_number):
     run_command(f"python -m venv {folder_path}\\env{instance_number}")
 
     log(f"Installation des dépendances pour robot{instance_number}...")
-    run_command(f"{folder_path}\\env{instance_number}\\Scripts\\activate && pip install -r {folder_path}\\requirements.txt")
+    run_command(f"{folder_path}\\env{instance_number}\\Scripts\\activate  && pip install setuptools && python setup.py install && pip install alright --upgrade && pip install webdriver_manager && pip install selenium && pip install -r {folder_path}\\requirements.txt")
 
     log(f"Installation terminée pour l'instance {instance_number}.")
 

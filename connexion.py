@@ -56,6 +56,8 @@ class LoginWidget(QWidget):
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','connexion_translated.qm'))
         elif language == "ar":
             self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','connexion_translated.qm'))
+        elif language == "pt":
+            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','pt_BR','modules','connexion_translated.qm'))
 
         # Installer le traducteur pour appliquer la nouvelle langue
         QApplication.instance().installTranslator(self.translator)
@@ -74,7 +76,7 @@ class LoginWidget(QWidget):
             json.dump(preferences, f)
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
-        self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
+        self.setWindowTitle(self.tr('AI Nova360 Pro'))
         # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
         # Par exemple, pour les actions du menu :
         self.instance_action.setText(self.tr('Instance'))
