@@ -2,7 +2,8 @@ import sys
 import os
 import subprocess
 from PyQt5 import QtCore
-
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QVBoxLayout, QMessageBox, QProgressBar
+import json
 from PyQt5.QtWidgets import (
     QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout, 
     QHBoxLayout, QWidget, QLineEdit, QScrollArea,QGraphicsDropShadowEffect, QFrame, QMenu, QMenuBar, QMessageBox
@@ -10,6 +11,7 @@ from PyQt5.QtWidgets import (
 #from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 #from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QMovie
+from PyQt5.QtCore import Qt, QTimer
 
 from PyQt5.QtGui import QFont, QPixmap, QIcon,QColor
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve
@@ -36,8 +38,15 @@ user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saa
 from ui.clientsBrand import Nosclient
 from imports import *
 class HomePage(QMainWindow):
-    def __init__(self):
+    def __init__(self,main_app=None):
         super().__init__()
+        self.main_app = main_app  # Stocke une référence à MainApp
+       
+       #charger les settingss 
+        self.settings_file = "settings.json"  # Chemin vers le fichier JSON
+    
+        self.load_settings()
+
         self.translator = QTranslator()
 
         self.init_language()
@@ -47,7 +56,7 @@ class HomePage(QMainWindow):
 
         # Configuration principale de la fenêtre
         self.setWindowTitle("AI FB ROBOT PRO - Marketing Automation")
-        self.setGeometry(100, 100, 1280, 800)  # Taille de la fenêtre
+        self.setGeometry(100, 100, 1220, 800)  # Taille de la fenêtre
         self.setStyleSheet("background-color: #F5F5F5;")
         # Définir l'icône de la fenêtre
         self.setWindowIcon(QIcon('resources/icons/robot-icons-30504-Windows.ico'))  # Spécifiez le chemin de l'icône
@@ -333,18 +342,19 @@ class HomePage(QMainWindow):
 
         # Liste des fonctionnalités avec leurs icônes et couleur
         features = [
-            ("FB Robot Pro", "resources/icons/facebook-icon-png-770-Windows.ico", "#E91E63", self.open_facebook),
-            ("WhatsApping", "resources/icons/whatsapp-512.png", "#4CAF50", self.open_whatsapp),
-            ("Blogging", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico", "#4CAF50", self.open_blogging),
-            ("Insta Pro", "resources/icons/instagram-icon-956-Windows.ico", "#4CAF50", self.open_instagram),
-            ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro),
-            ("Branding", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding),
-            ("Emailing", "resources/icons/pink-message-icon-12045-Windows.ico", "#4CAF50", self.open_Emailing),
+            ("FB Robot Pro", "resources/icons/facebook-icon-png-770-Windows.ico", "#E91E63", self.open_facebook, "facebook_bot"),
+            ("WhatsApping", "resources/icons/whatsapp-512.png", "#4CAF50", self.open_whatsapp, "whatsapp_bot"),
+            ("Blogging", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico", "#4CAF50", self.open_blogging, "blogging_bot"),
+            ("Insta Pro", "resources/icons/instagram-icon-956-Windows.ico", "#4CAF50", self.open_instagram, "instagram_bot"),
+            ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro, "telegram_bot"),
+            ("Branding", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding, "branding_bot"),
+            ("Emailing", "resources/icons/pink-message-icon-12045-Windows.ico", "#4CAF50", self.open_Emailing, "emailing_bot"),
         ]
 
+   # Boutons des fonctionnalités
 
         # Ajouter des boutons avec animation et icônes dynamiques
-        for text, icon, color, func in features:
+        for text, icon, color, func, key in features:
             button = QPushButton(text)
             button.setFont(QFont("Arial", 14))  # Taille de police réduite
             button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))  # Icônes plus petites
@@ -368,6 +378,10 @@ class HomePage(QMainWindow):
                     border: 2px solid #888888; /* Accentue l'effet d'appui */
                 }}
             """)
+            if self.is_feature_enabled(key):
+                button.clicked.connect(func)
+            else:
+                button.clicked.connect(lambda _, k=key: self.prompt_enable_feature(k))
 
             button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
 
@@ -376,22 +390,60 @@ class HomePage(QMainWindow):
         main_layout.addLayout(middle_layout)
 
         # Duplication des boutons avec modifications
+        # duplicate_features = [
+        #     ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2",self.open_twitter),
+        #     ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5",self.open_linkeding),
+        #     ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C",self.open_pinterest),
+        #     ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00",self.open_snapchat),
+        #     ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101",self.open_tiktok),
+        #     ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500",self.open_reddit),
+        #     ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000",self.open_youtube),
+        # ]
         duplicate_features = [
-            ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2",self.open_twitter),
-            ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5",self.open_linkeding),
-            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C",self.open_pinterest),
-            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00",self.open_snapchat),
-            ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101",self.open_tiktok),
-            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500",self.open_reddit),
-            ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000",self.open_youtube),
+            ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2", self.open_twitter, "twitter_bot"),
+            ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5", self.open_linkedin, "linkedin_bot"),
+            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C", self.open_pinterest, "pinterest_bot"),
+            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00", self.open_snapchat, "snapchat_bot"),
+            ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101", self.open_tiktok, "tiktok_bot"),
+            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500", self.open_reddit, "reddit_bot"),
+            ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000", self.open_youtube, "youtube_bot"),
         ]
-
         duplicate_layout = QHBoxLayout()
 
-        for text, icon, color, func in duplicate_features:
+        # for text, icon, color, func in duplicate_features:
+        #     button = QPushButton(text)
+        #     button.setFont(QFont("Arial", 14))  # Taille de police réduite
+        #     button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))  # Icônes plus petites
+        #     button.setStyleSheet(f"""
+        #         QPushButton {{
+        #             background-color: {color};
+        #             color: white;
+        #             border: 2px solid #CCCCCC;
+        #             border-radius: 15px;
+        #             padding: 10px;
+        #             min-width: 150px;
+        #             min-height: 150px;
+        #         }}
+        #         QPushButton:hover {{
+        #             background-color: {self.lighten_color(color)};
+        #             border: 2px solid #AAAAAA; /* Accentuation de la bordure */
+        #             margin: -2px; /* Simule un effet de zoom sans changer les dimensions */
+        #         }}
+        #         QPushButton:pressed {{
+        #             background-color: {color};
+        #             border: 2px solid #888888; /* Bordure plus sombre */
+        #             padding: 12px; /* Simule un enfoncement visuel */
+        #         }}
+        #     """)
+
+        #     button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
+
+        #     duplicate_layout.addWidget(button)
+        self.buttons = {}
+        for text, icon, color, func, setting_key in duplicate_features:
             button = QPushButton(text)
-            button.setFont(QFont("Arial", 14))  # Taille de police réduite
-            button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))  # Icônes plus petites
+            button.setFont(QFont("Arial", 14))
+            button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
             button.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {color};
@@ -404,18 +456,34 @@ class HomePage(QMainWindow):
                 }}
                 QPushButton:hover {{
                     background-color: {self.lighten_color(color)};
-                    border: 2px solid #AAAAAA; /* Accentuation de la bordure */
-                    margin: -2px; /* Simule un effet de zoom sans changer les dimensions */
+                    border: 2px solid #AAAAAA;
+                    margin: -2px;
                 }}
                 QPushButton:pressed {{
                     background-color: {color};
-                    border: 2px solid #888888; /* Bordure plus sombre */
-                    padding: 12px; /* Simule un enfoncement visuel */
+                    border: 2px solid #888888;
+                    padding: 12px;
                 }}
             """)
 
+            if self.is_feature_enabled(key):
+                button.clicked.connect(func)
+            else:
+                button.clicked.connect(lambda _, k=key: self.prompt_enable_feature(k))
+
             button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
 
+        #     middle_layout.addWidget(button)
+
+        # main_layout.addLayout(middle_layout)
+
+
+
+        #     # Vérifie si le module est activé ou non
+        #     button.setEnabled(self.settings.get(setting_key, False))
+        #     button.clicked.connect(lambda _, f=func, k=setting_key: self.handle_button_click(f, k))
+
+        #     self.buttons[setting_key] = button
             duplicate_layout.addWidget(button)
 
         main_layout.addLayout(duplicate_layout)
@@ -469,6 +537,11 @@ class HomePage(QMainWindow):
         main_layout.addLayout(bottom_layout)
 
 
+
+        # Bouton pour ouvrir un nouvel onglet
+        open_tab_button = QPushButton("Ouvrir un nouvel onglet")
+        open_tab_button.clicked.connect(self.open_new_tab)
+       # main_layout.addWidget(open_tab_button)
        # client_layout = QHBoxLayout()
        # self.clients=Nosclient()
 
@@ -538,6 +611,239 @@ class HomePage(QMainWindow):
 
         self.show()
 # Fonction pour ouvrir Facebook Robot
+
+    def load_settings(self):
+        try:
+            with open(self.settings_file, "r") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return {}
+
+    def save_settings(self):
+        with open(self.settings_file, "w") as file:
+            json.dump(self.settings, file, indent=4)
+
+    def is_feature_enabled(self, feature_key):
+        return self.settings.get(feature_key, False)
+
+    def enable_feature(self, feature_key):
+        self.settings[feature_key] = True
+        self.save_settings()
+
+
+    def handle_button_click(self, feature_key, func):
+        """Gère le clic sur un bouton."""
+        if self.feature_manager.is_feature_enabled(feature_key):
+            # La fonctionnalité est activée, exécute la fonction
+            func()
+        else:
+            # La fonctionnalité est désactivée, afficher le popup
+            self.prompt_enable_feature(feature_key)
+
+    def prompt_enable_feature(self, feature_key):
+        """Affiche un popup pour activer une fonctionnalité."""
+        reply = QMessageBox.question(
+            None,
+            "Activation nécessaire",
+            f"Le module '{feature_key}' n'est pas activé. Souhaitez-vous l'activer ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            self.activate_feature(feature_key)
+
+    def activate_feature(self, feature_key):
+        """Active une fonctionnalité avec une barre de progression."""
+        progress = QProgressBar()
+        progress.setMaximum(100)
+        progress.show()
+
+        def complete_activation():
+            progress.setValue(100)
+            self.feature_manager.enable_feature(feature_key)
+            QMessageBox.information(None, "Activation réussie", f"Le module '{feature_key}' est maintenant activé.")
+            progress.close()
+
+        timer = QTimer()
+        timer.timeout.connect(complete_activation)
+        timer.start(2000)  # Simule une activation en 2 secondes
+
+
+
+
+    # def prompt_enable_feature(self, feature_key):
+    #     reply = QMessageBox.question(
+    #         None,
+    #         "Activation nécessaire",
+    #         f"Le module '{feature_key}' n'est pas activé. Souhaitez-vous l'activer ?",
+    #         QMessageBox.Yes | QMessageBox.No
+    #     )
+    #     if reply == QMessageBox.Yes:
+    #         self.activate_feature(feature_key)
+
+    # # def activate_feature(self, feature_key):
+    # #     progress = QProgressBar()
+    # #     progress.setMaximum(100)
+    # #     progress.show()
+
+    # #     def complete_activation():
+    # #         progress.setValue(100)
+    # #         self.enable_feature(feature_key)
+    # #         QMessageBox.information(None, "Activation réussie", f"Le module '{feature_key}' est maintenant activé.")
+    # #         progress.close()
+
+    # #     timer = QTimer()
+    # #     timer.timeout.connect(complete_activation)
+    # #     timer.start(2000)  # Simule une activation en 2 secondes
+
+
+
+
+        
+
+    # def open_new_tab(self):
+    #         """Ouvre une nouvelle classe dans un nouvel onglet."""
+    #         # Vérifiez que main_app existe
+    #         if hasattr(self, 'main_app') and self.main_app is not None:
+    #             new_widget = QWidget()
+    #             new_layout = QVBoxLayout(new_widget)
+    #             new_layout.addWidget(QPushButton("Contenu du nouvel onglet"))
+    #             self.main_app.add_custom_tab(new_widget, "Nouvel Onglet", "new_icon.ico")
+    #         else:
+    # def open_new_tab(self, tab_name=None, icon_path=None):
+    #     """Ouvre un nouvel onglet avec un widget personnalisé.
+        
+    #     Args:
+    #         tab_name (str): Le titre de l'onglet. Défaut : "Nouvel Onglet".
+    #         icon_path (str): Le chemin vers l'icône pour l'onglet. Défaut : None.
+    #     """
+    #     if not self.main_app:
+    #         print("Erreur : main_app n'est pas défini.")
+    #         return
+
+    #     # Créer un widget pour le nouvel onglet
+    #     new_widget = QLabel(f"Contenu de l'onglet : {tab_name}")
+    #     new_widget.setAlignment(Qt.AlignCenter)  # Optionnel : centrer le texte
+
+    #     # Ajouter le nouvel onglet avec le titre et l'icône fournis
+    #     self.main_app.add_custom_tab(new_widget, tab_name, icon_path)
+
+    def open_accueil_window(self):
+        tab_name = "Nova360"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+            self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+
+        # Ajoutez l'instance existante au nouvel onglet
+        self.add_custom_tab(self.nova360pro, tab_name, "nova_icon.ico")
+
+
+
+
+    def load_settings(self):
+        """Charge les paramètres depuis le fichier JSON."""
+        try:
+            with open(self.settings_file, "r") as file:
+                self.settings = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.settings = {}
+
+    # def save_settings(self):
+    #     """Enregistre les paramètres dans le fichier JSON."""
+    #     with open(self.settings_file, "w") as file:
+    #         json.dump(self.settings, file, indent=4)
+
+    # def handle_button_click(self, func, setting_key):
+    #     """Gère le clic sur un bouton."""
+    #     if self.settings.get(setting_key, False):
+    #         func()
+    #     else:
+    #         self.show_activation_popup(setting_key)
+
+    def show_activation_popup(self, setting_key):
+        """Affiche un popup pour activer un module."""
+        reply = QMessageBox.question(
+            self, "Activation requise",
+            f"Le module '{setting_key}' est désactivé. Voulez-vous l'activer ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            self.activate_module(setting_key)
+
+    def activate_module(self, setting_key):
+        """Active un module avec une barre de progression."""
+        progress_dialog = QProgressBar(self)
+        progress_dialog.setRange(0, 100)
+        progress_dialog.setValue(0)
+        progress_dialog.show()
+
+        def update_progress():
+            value = progress_dialog.value() + 10
+            if value > 100:
+                progress_dialog.close()
+                self.settings[setting_key] = True
+                self.save_settings()
+                self.buttons[setting_key].setEnabled(True)
+            else:
+                progress_dialog.setValue(value)
+
+        timer = QTimer(self)
+        timer.timeout.connect(update_progress)
+        timer.start(300)
+
+    # def lighten_color(self, color):
+    #     """Éclaircit une couleur en hexadécimal."""
+    #     r = min(int(color[1:3], 16) + 30, 255)
+    #     g = min(int(color[3:5], 16) + 30, 255)
+    #     b = min(int(color[5:], 16) + 30, 255)
+    #     return f"#{r:02X}{g:02X}{b:02X}"
+   
+   
+   
+    def open_new_tab(self, tab_name="Nouvel Onglet", icon_path=None, widget=None):
+        """Ouvre un nouvel onglet avec un widget personnalisé.
+        
+        Args:
+            tab_name (str): Le titre de l'onglet. Défaut : "Nouvel Onglet".
+            icon_path (str): Le chemin vers l'icône pour l'onglet. Défaut : None.
+            widget (QWidget): Le widget personnalisé à afficher dans l'onglet. Défaut : QLabel avec un message.
+        """
+        if not self.main_app:
+            print("Erreur : main_app n'est pas défini.")
+            return
+
+        # Utiliser le widget fourni ou créer un widget par défaut
+        if widget is None:
+            widget = QLabel(f"Contenu de l'onglet : {tab_name}")
+            widget.setAlignment(Qt.AlignCenter)  # Optionnel : centrer le texte
+
+        # Ajouter le nouvel onglet avec le titre, l'icône et le widget
+        self.main_app.add_custom_tab(widget, tab_name, icon_path)
+
+
+    # def open_new_tab(self):
+    #     if not self.main_app:
+    #         print("Erreur : main_app n'est pas défini.")
+    #         return
+
+    #     # Créer un nouvel onglet
+    #     new_widget = QLabel("Contenu du nouvel ongletttt")
+    #     self.main_app.add_custom_tab(new_widget, "Nouvel Onglet", "new_icon.ico")
+   
+   
+    # def open_new_tab(self):
+    #     if self.main_app:
+    #         new_widget = QLabel("Contenu du nouvel onglet")
+    #         self.main_app.add_custom_tab(new_widget, "Nouvel Onglet", "new_icon.ico")
+    #     else:
+    #         print("Erreur : main_app n'est pas défini.")
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":
@@ -607,86 +913,340 @@ class HomePage(QMainWindow):
         #self.hide()  # Masquer le module de connexion
         self.home_page = HomePage()  # Remplacez ceci par votre classe de page d'accueil
         self.home_page.show()  # Afficher la page d'accueil
+    def find_tab_by_name(self, name):
+        for i in range(self.main_app.tab_widget.count()):
+            if self.main_app.tab_widget.tabText(i) == name:
+                return i  # Renvoie l'index si trouvé
+        return -1  # Aucun onglet trouvé
     def open_facebook(self):
         #self.hide()  # Masquer le module de connexion
-        self.face_main = FaceMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
+        tab_name = "FB Robot"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = FaceMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
+
         # subprocess.Popen([sys.executable, "main_fb_robot.py"])
 
     # Fonction pour ouvrir WhatsApping
     def open_whatsapp(self):
         #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = WhatsMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "WA CRM"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = WhatsMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
+        #self.face_main.show()  # Afficher la page d'accueil
         # subprocess.Popen([sys.executable, "main_fb_robot.py"])
 
     # Fonction pour ouvrir Blogging
     def open_blogging(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = BlogMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-        
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "bloging"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+           self.face_main = BlogMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     # Fonction pour ouvrir Insta Pro
     def open_instagram(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "İnsta"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+           self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_youtube(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = YtbMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Youtube"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = YtbMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_twitter(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = XMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Twitter"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = XMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_tiktok(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = TokMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Tiktok"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = TokMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_snapchat(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Snapchat"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_reddit(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = RedditMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Reddit"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = RedditMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_pinterest(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
-    def open_linkeding(self):
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Pinterest"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
+    def open_linkedin(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = LinkedingMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Linkedin"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = LinkedingMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_Emailing(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = MailMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Emailing"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = MailMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_chatbot(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = ChatBotMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Chatbot"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+           self.face_main = ChatBotMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
     def open_branding(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = BrandMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Branding"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = BrandMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
   
     def open_adsPro(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
-        self.face_main = AdsMainWindow()  # Remplacez ceci par votre classe de page d'accueil
-        self.face_main.show()  # Afficher la page d'accueil
-      
+
+
+
+
+
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "Ads Pro"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = AdsMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
       
 
     def lighten_color(self, color):
@@ -713,6 +1273,7 @@ class HomePage(QMainWindow):
 
     def show_message(self, button_text):
         # Afficher un message lorsque l'un des boutons est cliqué
+        self.open_new_tab(button_text,"cool.ico")
         QMessageBox.information(self, "Info", f"Vous avez cliqué sur {button_text}!")
 
     def open_link(self, url):

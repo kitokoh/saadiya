@@ -575,3 +575,148 @@
 2025-01-04 15:10:27,720 - DEBUG - Detected Windows OS.
 2025-01-04 15:10:27,721 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
 2025-01-04 15:10:33,975 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 20:47:25,374 - INFO - Determining the path for FB Robot.
+2025-01-04 20:47:25,380 - DEBUG - Detected Windows OS.
+2025-01-04 20:47:25,381 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 20:47:27,535 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 20:47:27,928 - INFO - Determining the path for WA +.
+2025-01-04 20:47:27,928 - DEBUG - Detected Windows OS.
+2025-01-04 20:47:27,928 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-04 20:47:27,929 - ERROR - Executable not found: None
+2025-01-04 20:47:27,934 - INFO - Determining the path for WA CRM.
+2025-01-04 20:47:27,934 - DEBUG - Detected Windows OS.
+2025-01-04 20:47:27,935 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-04 20:47:27,935 - ERROR - Executable not found: None
+2025-01-04 20:47:27,940 - INFO - Determining the path for FB Comment.
+2025-01-04 20:47:27,941 - DEBUG - Detected Windows OS.
+2025-01-04 20:47:27,942 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-04 20:47:27,942 - ERROR - Executable not found: None
+2025-01-04 20:47:27,944 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-04 20:47:27,945 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-04 20:47:27,946 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-04 20:47:27,948 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-04 20:47:27,949 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-04 20:47:27,951 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-04 20:47:27,952 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-04 20:48:51,067 - INFO - Determining the path for FB Robot.
+2025-01-04 20:48:51,068 - DEBUG - Detected Windows OS.
+2025-01-04 20:48:51,068 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 20:48:51,080 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-04 20:48:51,089 - INFO - Determining the path for WA +.
+2025-01-04 20:48:51,089 - DEBUG - Detected Windows OS.
+2025-01-04 20:48:51,090 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-04 20:48:51,090 - ERROR - Executable not found: None
+2025-01-04 20:48:51,098 - INFO - Determining the path for WA CRM.
+2025-01-04 20:48:51,098 - DEBUG - Detected Windows OS.
+2025-01-04 20:48:51,099 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-04 20:48:51,099 - ERROR - Executable not found: None
+2025-01-04 20:48:51,105 - INFO - Determining the path for FB Comment.
+2025-01-04 20:48:51,105 - DEBUG - Detected Windows OS.
+2025-01-04 20:48:51,106 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-04 20:48:51,106 - ERROR - Executable not found: None
+2025-01-04 20:48:51,108 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-04 20:48:51,110 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-04 20:48:51,111 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-04 20:48:51,113 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-04 20:48:51,114 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-04 20:48:51,115 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-04 20:48:51,116 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-05 00:36:28,329 - INFO - Determining the path for Multi FB.
+2025-01-05 00:36:28,336 - DEBUG - Detected Windows OS.
+2025-01-05 00:36:28,337 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 00:36:30,598 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 01:28:51,753 - INFO - Determining the path for FB Robot.
+2025-01-05 01:28:51,755 - DEBUG - Detected Windows OS.
+2025-01-05 01:28:51,756 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-05 01:28:53,557 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-05 01:29:19,048 - INFO - Determining the path for Multi FB.
+2025-01-05 01:29:19,048 - DEBUG - Detected Windows OS.
+2025-01-05 01:29:19,049 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 01:29:19,195 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 01:29:28,388 - INFO - Determining the path for WA +.
+2025-01-05 01:29:28,388 - DEBUG - Detected Windows OS.
+2025-01-05 01:29:28,389 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-05 01:29:28,389 - ERROR - Executable not found: None
+2025-01-05 01:29:42,715 - INFO - Determining the path for WA CRM.
+2025-01-05 01:29:42,716 - DEBUG - Detected Windows OS.
+2025-01-05 01:29:42,716 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-05 01:29:42,717 - ERROR - Executable not found: None
+2025-01-05 01:29:54,468 - INFO - Determining the path for FB Comment.
+2025-01-05 01:29:54,652 - DEBUG - Detected Windows OS.
+2025-01-05 01:29:54,653 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-05 01:29:54,653 - ERROR - Executable not found: None
+2025-01-05 01:30:02,306 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-05 01:30:10,442 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-05 01:30:24,284 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-05 01:30:31,514 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-05 01:30:38,736 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-05 01:30:44,610 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-05 01:30:48,939 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-05 01:41:41,942 - WARNING - Cannot execute Insta. Required folder conditions are not met.
+2025-01-05 01:41:48,727 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-05 01:41:50,389 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-05 01:41:52,182 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-05 01:41:55,789 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-05 01:42:08,937 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-05 01:42:13,076 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-05 01:42:19,567 - WARNING - Cannot execute TOK. Required folder conditions are not met.
+2025-01-05 01:44:47,804 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-05 01:44:49,789 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-05 01:44:52,081 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-05 01:44:55,898 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-05 01:45:33,527 - INFO - Determining the path for FB Robot.
+2025-01-05 01:45:33,528 - DEBUG - Detected Windows OS.
+2025-01-05 01:45:33,529 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-05 01:45:33,540 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-05 01:46:17,151 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-05 01:46:28,983 - INFO - Determining the path for Multi FB.
+2025-01-05 01:46:28,983 - DEBUG - Detected Windows OS.
+2025-01-05 01:46:28,984 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 01:46:28,992 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 01:46:38,889 - INFO - Determining the path for WA +.
+2025-01-05 01:46:38,889 - DEBUG - Detected Windows OS.
+2025-01-05 01:46:38,890 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-05 01:46:38,890 - ERROR - Executable not found: None
+2025-01-05 01:59:34,928 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-05 01:59:41,996 - INFO - Determining the path for FB Robot.
+2025-01-05 01:59:41,996 - DEBUG - Detected Windows OS.
+2025-01-05 01:59:41,997 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-05 01:59:42,009 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-05 02:01:59,439 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-05 02:02:01,804 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-05 02:02:03,677 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-05 02:02:07,260 - WARNING - Cannot execute IN Job. Required folder conditions are not met.
+2025-01-05 02:07:26,211 - INFO - Determining the path for WA +.
+2025-01-05 02:07:26,211 - DEBUG - Detected Windows OS.
+2025-01-05 02:07:26,212 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-05 02:07:26,212 - ERROR - Executable not found: None
+2025-01-05 02:07:35,416 - INFO - Determining the path for FB Comment.
+2025-01-05 02:07:35,416 - DEBUG - Detected Windows OS.
+2025-01-05 02:07:35,417 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_comment.exe
+2025-01-05 02:07:35,418 - ERROR - Executable not found: None
+2025-01-05 02:15:26,802 - INFO - Determining the path for Multi FB.
+2025-01-05 02:15:26,803 - DEBUG - Detected Windows OS.
+2025-01-05 02:15:26,803 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 02:15:28,686 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 02:20:04,666 - INFO - Determining the path for WA CRM.
+2025-01-05 02:20:04,667 - DEBUG - Detected Windows OS.
+2025-01-05 02:20:04,667 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-05 02:20:04,668 - ERROR - Executable not found: None
+2025-01-05 02:20:09,355 - INFO - Determining the path for WA CRM.
+2025-01-05 02:20:09,356 - DEBUG - Detected Windows OS.
+2025-01-05 02:20:09,356 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-05 02:20:09,357 - ERROR - Executable not found: None
+2025-01-05 02:20:11,558 - INFO - Determining the path for WA +.
+2025-01-05 02:20:11,559 - DEBUG - Detected Windows OS.
+2025-01-05 02:20:11,559 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-05 02:20:11,560 - ERROR - Executable not found: None
+2025-01-05 02:20:14,980 - INFO - Determining the path for Multi FB.
+2025-01-05 02:20:14,981 - DEBUG - Detected Windows OS.
+2025-01-05 02:20:14,981 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 02:20:14,996 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\multi_fb.exe
+2025-01-05 02:23:58,574 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-05 02:24:01,009 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-06 18:33:08,161 - INFO - Determining the path for FB Robot.
+2025-01-06 18:33:08,162 - DEBUG - Detected Windows OS.
+2025-01-06 18:33:08,162 - INFO - Executable found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe
+2025-01-06 18:33:08,957 - INFO - Process started: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\fb_robot.exe

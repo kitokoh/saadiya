@@ -1,3 +1,11 @@
+
+
+https://gifer.com/en/Awgm
+
+
+ajouter le button central et un bon message d acceuil a defaut 
+extraire le apk en retrouvant les extention manquantes 
+
 Suggestions pour améliorer le design :
 Typographie :
 

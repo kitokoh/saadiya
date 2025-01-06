@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import (
     QPushButton, QLabel, QSizePolicy, QGraphicsDropShadowEffect, QDesktopWidget,
     QMainWindow, QTextEdit, QMessageBox, QDialog
 )
+
+from PyQt5.QtGui import QMovie, QColor
+
 from PyQt5.QtGui import QFont, QIcon, QColor, QPixmap
 from PyQt5.QtCore import Qt, QTimer, QTime, QDateTime, QProcess, QSize
 import subprocess
@@ -18,6 +21,8 @@ import win32con
 from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtCore import QSettings
 from firstime import FirstTimeGuide
+from PyQt5.QtCore import QPropertyAnimation, pyqtProperty
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
 
 try:
     import pygetwindow as gw
@@ -32,6 +37,194 @@ logging.basicConfig(
         logging.StreamHandler()  # Console output
     ]
 )
+
+from PyQt5.QtWidgets import QLabel, QGraphicsDropShadowEffect
+from PyQt5.QtCore import QPropertyAnimation, Qt
+from PyQt5.QtGui import QColor, QMovie
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
+
+
+from PyQt5.QtWidgets import QLabel, QGraphicsDropShadowEffect
+from PyQt5.QtCore import QPropertyAnimation, Qt
+from PyQt5.QtGui import QColor, QMovie
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
+
+
+
+from PyQt5.QtCore import Qt, QPropertyAnimation, QRect
+from PyQt5.QtGui import QColor, QFont, QMovie
+from PyQt5.QtWidgets import (
+    QApplication, QLabel, QGraphicsDropShadowEffect, QGraphicsOpacityEffect, QVBoxLayout, 
+    QWidget, QProgressBar, QPushButton, QHBoxLayout
+)
+
+
+
+class AnimatedScreen(QLabel):
+    def __init__(self, text="Ready to Control", parent=None):
+        super().__init__(parent)
+        self.setText(text)
+        self.setAlignment(Qt.AlignCenter)
+        self.setFixedHeight(200)
+
+                # Digital screen with modern styling
+        self.setStyleSheet(self.get_screen_stylesheet())
+
+
+        # Ajout des animations et effets
+        self.apply_shadow_effect()
+        self.add_text_glow_animation()
+        self.add_pulsing_border_animation()
+
+        # Initialisation du GIF
+        self.background_movie = None
+
+        # Initialisation de l'opacité du texte
+        self._text_opacity = 1.0  # Définir la valeur initiale de l'opacité
+
+        # Transition de texte
+        self.text_animation = QPropertyAnimation(self, b"textOpacity")
+
+    def get_text_opacity(self):
+        return self._text_opacity
+
+    def set_text_opacity(self, opacity):
+        self._text_opacity = opacity
+        self.setStyleSheet(
+            f"""
+            QLabel {{
+                color: rgba(0, 255, 136, {int(opacity * 255)});
+                font-size: 24px;
+                font-weight: bold;
+            }}
+            """
+        )
+
+    textOpacity = pyqtProperty(float, get_text_opacity, set_text_opacity)
+
+  
+
+
+    textOpacity = pyqtProperty(float, get_text_opacity, set_text_opacity)
+
+    def apply_shadow_effect(self):
+        """Ajoute une ombre portée au texte."""
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setOffset(3, 3)
+        shadow.setColor(QColor(0, 0, 0, 200))  # Noir semi-transparent
+        self.setGraphicsEffect(shadow)
+
+    def get_screen_stylesheet(self):
+        """Renvoie le style CSS pour le QLabel."""
+        return """
+            QLabel {
+                background-color: rgba(45, 45, 45, 180);  /* Arrière-plan semi-transparent */
+                color: #00ff88;  /* Couleur du texte */
+                font-size: 24px;  /* Taille du texte */
+                font-weight: bold;  /* Texte en gras */
+                border-radius: 15px;  /* Coins arrondis */
+                padding: 15px;  /* Espacement intérieur */
+                border: 2px solid #00ff88;  /* Bordure verte */
+            }
+        """
+
+    def add_text_glow_animation(self):
+        """Ajoute une animation de glow au texte."""
+        effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(effect)
+
+        self.glow_animation = QPropertyAnimation(effect, b"opacity")
+        self.glow_animation.setDuration(2000)  # Durée de l'animation en ms
+        self.glow_animation.setStartValue(0.8)
+        self.glow_animation.setKeyValueAt(0.5, 1.0)
+        self.glow_animation.setEndValue(0.8)
+        self.glow_animation.setLoopCount(-1)  # Animation infinie
+        self.glow_animation.start()
+
+    def add_pulsing_border_animation(self):
+        """Ajoute une animation pulsante à la bordure."""
+        self.border_animation = QPropertyAnimation(self, b"styleSheet")
+        self.border_animation.setDuration(1500)
+        self.border_animation.setLoopCount(-1)  # Animation infinie
+
+        # Définition des styles pour l'animation
+        start_style = """
+            QLabel {
+                background-color: rgba(45, 45, 45, 180);
+                color: #00ff88;
+                font-size: 24px;
+                font-weight: bold;
+                border-radius: 15px;
+                padding: 15px;
+                border: 3px solid #00ff88;  /* Bordure verte */
+            }
+        """
+        end_style = """
+            QLabel {
+                background-color: rgba(45, 45, 45, 180);
+                color: #00ff88;
+                font-size: 24px;
+                font-weight: bold;
+                border-radius: 15px;
+                padding: 15px;
+                border: 3px solid #8800ff;  /* Bordure violette */
+            }
+        """
+
+        self.border_animation.setStartValue(start_style)
+        self.border_animation.setEndValue(end_style)
+        self.border_animation.start()
+
+    def set_background_gif(self, gif_path):
+        """Ajoute ou change le GIF animé comme arrière-plan."""
+        if self.background_movie:
+            self.background_movie.stop()  # Arrête l'ancien GIF
+
+        self.background_movie = QMovie(gif_path)
+        if self.background_movie.isValid():
+            self.setMovie(self.background_movie)
+            self.background_movie.start()
+        else:
+            print(f"Erreur : Le fichier GIF '{gif_path}' est introuvable ou invalide.")
+
+    def add_typing_text(self, text, interval=100):
+        """Affiche un texte avec un effet dactylographique."""
+        self.current_text = ""
+        self.full_text = text
+        self.typing_timer = QTimer(self)
+        self.typing_timer.timeout.connect(self._append_next_char)
+        self.typing_timer.start(interval)
+
+    def _append_next_char(self):
+        """Ajoute le caractère suivant au texte."""
+        if len(self.current_text) < len(self.full_text):
+            self.current_text += self.full_text[len(self.current_text)]
+            self.setText(self.current_text)
+        else:
+            self.typing_timer.stop()
+
+    def add_progress_bar(self):
+        """Ajoute une barre de progression sous le texte."""
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setGeometry(10, self.height() - 30, self.width() - 20, 20)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                background-color: rgba(45, 45, 45, 180);
+                border: 1px solid #00ff88;
+                border-radius: 10px;
+                text-align: center;
+                color: white;
+            }
+            QProgressBar::chunk {
+                background-color: #00ff88;
+                border-radius: 10px;
+            }
+        """)
+        self.progress_bar.setValue(50)  # Par exemple, pourcentage actuel
+
+
+
 
 class RemoteControl(QWidget):
     def __init__(self):
@@ -95,7 +288,7 @@ class RemoteControl(QWidget):
         self.setWindowTitle("Nova360 AI - Remote Control")
         self.setWindowIcon(QIcon('../resources/icons/robot-icons-30504-Windows.ico'))  # Assurez-vous que le chemin de l'icône est correct
 
-        self.setFixedSize(450, 700)  # Set fixed size for the window
+        self.setFixedSize(450, 730)  # Set fixed size for the window
 
         # Make the window always stay on top
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
@@ -124,13 +317,39 @@ class RemoteControl(QWidget):
         #     guide.exec_()
 
                 # Digital screen with modern styling
-        self.screen = QLabel("Ready to Control")
-        self.screen.setFixedHeight(self.height() // 5)
-        self.screen.setAlignment(Qt.AlignCenter)
-        self.apply_shadow_effect(self.screen)
-        self.screen.setStyleSheet(self.get_screen_stylesheet())
+#         self.screen = QLabel("Ready to Control")
+#         self.screen.setFixedHeight(self.height() // 5)
+#         self.screen.setAlignment(Qt.AlignCenter)
+#         self.apply_shadow_effect 1()
+#         self.screen.setStyleSheet(self.get_screen_stylesheet())
+
+# # Ajout de l'animation de glow
+#         self.add_text_glow_animation()
+#         self.set_background_gif("path/to/your/background.gif")  # Exemple : 'assets/animated-bg.gif'
+#         self.screen.add_pulsing_border_animation()
+#         main_layout.addWidget(self.screen)
+
+
+
+
+        # Initialisation de l'écran principal
+        self.screen = AnimatedScreen("Ready to Contro2222l", self)
+        # Définir un GIF en arrière-plan
+        self.screen.set_background_gif("gifs/1.gif")  # Par exemple : 'assets/animated-bg.gif'
+        self.screen.get_screen_stylesheet()
+
+        # Ajout d'une animation de bordure pulsante
+        self.screen.add_pulsing_border_animation()
+
+        # Ajout de l'écran au layout principal
         main_layout.addWidget(self.screen)
 
+        #self.activate_light("Module Chosen")
+        lambda: self.activate_light1("Stategie Marketing School ")
+
+        # Bouton pour changer le GIF d'arrière-plan
+        gif_path = "gifs/1.gif"  # Chemin du GIF sélectionné
+        self.change_background_gif(gif_path)
         # Central area: circular buttons and small buttons
         central_layout = QHBoxLayout()
 
@@ -142,12 +361,12 @@ class RemoteControl(QWidget):
         left_buttons = QVBoxLayout()
 
         button_actions = {
-            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot"),
-            "Multi FB": lambda: self.execute_robot_in_tab("Multi FB"),
-            "WA +": lambda: self.execute_robot_in_tab("WA +"),
-            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM"),
-            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment"),
-            "Insta": lambda: self.execute_robot_in_tab("Insta"),
+            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","gifs/fb_robot.gif"),
+            "Multi FB": lambda: self.execute_robot_in_tab("Multi FB","Robot satarting","gifs/multi_fb.gif"),
+            "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","gifs/wa.gif"),
+            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","gifs/wa_crm.gif"),
+            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","gifs/fb_comment.gif"),
+            "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","gifs/insta.gif"),
 
         }
         self.button_states = {
@@ -178,28 +397,28 @@ class RemoteControl(QWidget):
 
 
         button_actions2 = {
-            "IN Job": lambda: self.execute_robot_in_tab("IN Job"),
-            "Blog": lambda: self.execute_robot_in_tab("Blog"),
-            "YTB": lambda: self.execute_robot_in_tab("YTB"),
-            "PIN": lambda: self.execute_robot_in_tab("PIN"),
-            "X": lambda: self.execute_robot_in_tab("X"),
-            "TOK": lambda: self.execute_robot_in_tab("TOK"),
+            "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","gifs/in_job.gif"),
+            "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","gifs/blog.gif"),
+            "YTB": lambda: self.execute_robot_in_tab("YTB","Robot satarting","gifs/ytb.gif"),
+            "PIN": lambda: self.execute_robot_in_tab("PIN","Robot satarting","gifs/pin.gif"),
+            "X": lambda: self.execute_robot_in_tab("X","Robot satarting","gifs/x.gif"),
+            "TOK": lambda: self.execute_robot_in_tab("TOK","Robot satarting","gifs/tok.gif"),
 
         }
 
         #pour le buttons executle all 
         self.button_actionss = {
-            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot"),
-            "WA +": lambda: self.execute_robot_in_tab("WA +"),
-            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM"),
-            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment"),
-            "Insta": lambda: self.execute_robot_in_tab("Insta"),
-            "IN Job": lambda: self.execute_robot_in_tab("IN Job"),
-            "Blog": lambda: self.execute_robot_in_tab("Blog"),
-            "YTB": lambda: self.execute_robot_in_tab("YTB"),
-            "PIN": lambda: self.execute_robot_in_tab("PIN"),
-            "X": lambda: self.execute_robot_in_tab("X"),
-            "TOK": lambda: self.execute_robot_in_tab("TOK"),
+            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","gifs/fb_robot.gif"),
+            "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","gifs/1.gif"),
+            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","gifs/1.gif"),
+            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","gifs/1.gif"),
+            "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","gifs/1.gif"),
+            "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","gifs/1.gif"),
+            "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","gifs/1.gif"),
+            "YTB": lambda: self.execute_robot_in_tab("YTB","Robot satarting","gifs/1.gif"),
+            "PIN": lambda: self.execute_robot_in_tab("PIN","Robot satarting","gifs/1.gif"),
+            "X": lambda: self.execute_robot_in_tab("X","Robot satarting","gifs/1.gif"),
+            "TOK": lambda: self.execute_robot_in_tab("TOK","Robot satarting","gifs/1.gif"),
         }
         for btn in [self.open_panel_btn, self.start_robots_btn, self.choice_module_btn]:
             self.apply_shadow_effect(btn)
@@ -352,6 +571,48 @@ class RemoteControl(QWidget):
 
     #     # Apply the main layout
         self.setLayout(main_layout)
+
+
+
+
+    def activate_light1(self, message):
+        """Simule un effet lumineux rouge sur l'écran."""
+        self.screen.change_style(message, self.get_light_stylesheet1())
+        QTimer.singleShot(20000, self.reset_light1)  # Réinitialisation après 2 secondes
+
+    def reset_light1(self):
+        """Réinitialise le style par défaut."""
+        self.screen.change_style("Ready to Control11", self.screen.get_screen_stylesheet())
+
+    def get_light_stylesheet1(self):
+        """Renvoie le style pour l'écran lorsque la lumière est activée."""
+        return """
+            QLabel {
+                background-color: #ff4500;  /* Rouge lumineux */
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                border: 2px solid #8b0000;
+                border-radius: 15px;
+                padding: 15px;
+            }
+        """
+
+    def change_background_gif(self, gif_path):
+        """Change dynamiquement le GIF d'arrière-plan selon le chemin fourni."""
+        if gif_path:  # Vérifie si un chemin est fourni
+            if self.screen.background_movie:
+                current_gif = self.screen.background_movie.fileName()
+                if current_gif != gif_path:  # Vérifie si le GIF est déjà en cours
+                    self.screen.set_background_gif(gif_path)  # Définit le nouveau GIF
+                else:
+                    print("Le GIF sélectionné est déjà en cours d'affichage.")
+            else:
+                # Si aucun GIF n'est actuellement affiché, on en affiche un nouveau
+                self.screen.set_background_gif(gif_path)
+        else:
+            print("Erreur : Aucun chemin de GIF valide n'a été fourni.")
+        
     # # Vérification si c'est la première exécution (après la définition des boutons)
     #     if self.settings.get("remotefirst", "False") == "False":
     #         guide = FirstTimeGuide(self)
@@ -359,6 +620,85 @@ class RemoteControl(QWidget):
     #         # Mettez à jour la variable "remotefirst" pour qu'elle ne s'affiche qu'une fois
     #         self.settings["remotefirst"] = "True"
     #         self.save_settings()
+
+
+    def apply_shadow_effect1(self):
+        """Applique un effet d'ombre au widget."""
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setOffset(3, 3)
+        shadow.setColor(QColor(0, 0, 0, 200))  # Noir semi-transparent
+        self.setGraphicsEffect(shadow)
+
+    def get_screen_stylesheet(self):
+        """Renvoie le style CSS pour l'écran numérique."""
+        return """
+            QLabel {
+                background-color: rgba(45, 45, 45, 180);  /* Transparence légère */
+                color: #00ff88;  /* Vert néon */
+                font-size: 22px;
+                font-weight: bold;
+                border-radius: 15px;
+                padding: 15px;
+                border: 2px solid #888;  /* Bordure gris clair */
+            }
+        """
+
+    def add_text_glow_animation(self):
+        """Ajoute une animation subtile de lueur au texte."""
+        effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(effect)
+
+        self.glow_animation = QPropertyAnimation(effect, b"opacity")
+        self.glow_animation.setDuration(2000)  # Durée de l'animation (ms)
+        self.glow_animation.setStartValue(0.8)
+        self.glow_animation.setKeyValueAt(0.5, 1.0)  # Brillance maximale au milieu
+        self.glow_animation.setEndValue(0.8)
+        self.glow_animation.setLoopCount(-1)  # Animation infinie
+        self.glow_animation.start()
+
+    def set_background_gif(self, gif_path):
+        """Ajoute un GIF animé comme fond d'écran pour l'écran numérique."""
+        self.background_movie = QMovie(gif_path)
+        self.setMovie(self.background_movie)
+        self.background_movie.start()
+
+    def add_pulsing_border_animation(self):
+        """Ajoute une animation de bordure pulsante autour de l'écran."""
+        self.border_animation = QPropertyAnimation(self, b"styleSheet")
+        self.border_animation.setDuration(1500)  # Durée de l'animation
+        self.border_animation.setLoopCount(-1)  # Animation infinie
+
+        start_style = """
+            QLabel {
+                background-color: rgba(45, 45, 45, 180);
+                color: #00ff88;
+                font-size: 22px;
+                font-weight: bold;
+                border-radius: 15px;
+                padding: 15px;
+                border: 3px solid #00ff88;  /* Bordure verte */
+            }
+        """
+        end_style = """
+            QLabel {
+                background-color: rgba(45, 45, 45, 180);
+                color: #00ff88;
+                font-size: 22px;
+                font-weight: bold;
+                border-radius: 15px;
+                padding: 15px;
+                border: 3px solid #8800ff;  /* Bordure violette */
+            }
+        """
+
+        self.border_animation.setStartValue(start_style)
+        self.border_animation.setEndValue(end_style)
+        self.border_animation.start()
+
+
+
+
 
 
 
@@ -377,13 +717,22 @@ class RemoteControl(QWidget):
         
         return tab_index
 
-    def execute_robot_in_tab(self, robot_name):
+    def execute_robot_in_tab(self, robot_name,message,gif_path):
         """
         Create a new tab to execute a specific robot and display its output,
         after checking the necessary conditions.
         
         :param robot_name: Name of the robot to execute (used for the button and tab).
         """
+        message = message
+        #self.activate_light("Module Chosen")
+        lambda: self.activate_light1(message)
+
+        # Bouton pour changer le GIF d'arrière-plan
+        gif_path = gif_path  # Chemin du GIF sélectionné
+        self.change_background_gif(gif_path)
+
+
         if not hasattr(self, 'tab_widget') or self.tab_widget is None:
             logging.error("tab_widget is not initialized.")
             return
@@ -431,6 +780,11 @@ class RemoteControl(QWidget):
     def toggle_radio(self):
         """Toggles the radio button's state."""
         if self.radio_button.isChecked():
+            lambda: self.activate_light1("feu Marketing  ")
+
+        # Bouton pour changer le GIF d'arrière-plan
+            gif_path = "gifs/on.gif"  # Chemin du GIF sélectionné
+            self.change_background_gif(gif_path)
             self.radio_button.setText("On")
             self.green_led.setStyleSheet("background-color: green; border-radius: 15px;")
             self.yellow_led.setStyleSheet("background-color: gray; border-radius: 15px;")
@@ -481,7 +835,12 @@ class RemoteControl(QWidget):
         self.start_robots_btn.setEnabled(False)
 
         # Afficher l'effet lumineux de démarrage
-        self.activate_light("Starting all robots...")
+        #self.activate_light("Starting all robotss...")
+        lambda: self.activate_light1("Start All robot!")
+
+        # Bouton pour changer le GIF d'arrière-plan
+        gif_path = "gifs/start_all.gif"  # Chemin du GIF sélectionné
+        self.change_background_gif(gif_path)
 
         # Créer et afficher le popup
         dialog = self.create_popup()
@@ -574,7 +933,7 @@ class RemoteControl(QWidget):
         """Simule un effet lumineux rouge sur l'écran."""
         self.screen.setText(message)
         self.screen.setStyleSheet(self.get_light_stylesheet())
-        QTimer.singleShot(1000, self.reset_light)
+        QTimer.singleShot(2000, self.reset_light)
 
     def reset_light(self):
         """Réinitialise l'effet lumineux après 1 seconde."""
@@ -609,6 +968,13 @@ class RemoteControl(QWidget):
 
     def handle_button_click(self):
         """Gestion de clic sur le bouton principal."""
+        lambda: self.activate_light1("Light Activated!")
+
+        # Bouton pour changer le GIF d'arrière-plan
+        gif_path = "gifs/pannel.gif"  # Chemin du GIF sélectionné
+        self.change_background_gif(gif_path)
+
+
         if self.nova360_installed:
             self.open_nova360()
         else:
@@ -1277,6 +1643,11 @@ class RemoteControl(QWidget):
     def toggle_radio1(self):
         if self.radio_button.isChecked():
             self.radio_button.setText("On")
+            lambda: self.activate_light1("feu Marketing  ")
+
+        # Bouton pour changer le GIF d'arrière-plan
+            gif_path = "gifs/off.gif"  # Chemin du GIF sélectionné
+            self.change_background_gif(gif_path)
             self.green_led.setStyleSheet("background-color: green; border-radius: 15px;")
             self.yellow_led.setStyleSheet("background-color: gray; border-radius: 15px;")
             self.red_led.setStyleSheet("background-color: gray; border-radius: 15px;")
@@ -1367,26 +1738,37 @@ class RemoteControl(QWidget):
         if process.returncode != 0:
             output_widget.append(f"Erreur: {process.stderr.read()}")
 
-    def apply_shadow_effect(self, widget):
-        """Applique un effet d'ombre à un widget."""
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(10)
-        shadow.setOffset(2, 2)
-        shadow.setColor(QColor(0, 0, 0, 150))  # Couleur noire semi-transparente
-        widget.setGraphicsEffect(shadow)
-    def get_screen_stylesheet(self):
-        """Renvoie le style CSS pour l'écran numérique."""
-        return """
-            QLabel {
-                background-color: #2d2d2d;
-                color: #00ff00;
-                font-size: 18px;
-                font-weight: bold;
-                border-radius: 10px;
-                padding: 10px;
-                border: 2px solid #555;
-            }
-        """
+    # def apply_shadow_effect(self, widget):
+    #     """Applique un effet d'ombre à un widget."""
+    #     shadow = QGraphicsDropShadowEffect()
+    #     shadow.setBlurRadius(10)
+    #     shadow.setOffset(2, 2)
+    #     shadow.setColor(QColor(0, 0, 0, 150))  # Couleur noire semi-transparente
+    #     widget.setGraphicsEffect(shadow)
+    # def get_screen_stylesheet(self):
+    #     """Renvoie un style CSS plus moderne et professionnel pour l'écran numérique."""
+    #     return """
+    #         QLabel {
+    #             background: qradialgradient(
+    #                 cx: 0.5, cy: 0.5, radius: 0.8,
+    #                 fx: 0.5, fy: 0.5,
+    #                 stop: 0 rgba(45, 45, 45, 255),
+    #                 stop: 1 rgba(20, 20, 20, 255)
+    #             );
+    #             color: #32CD32;  /* Vert néon */
+    #             font-size: 22px;
+    #             font-family: 'Roboto Mono', 'Courier New', monospace;
+    #             font-weight: bold;
+    #             letter-spacing: 1px;  /* Espacement entre les lettres */
+    #             text-shadow: 0 0 8px #32CD32, 0 0 16px #00FF00;  /* Effet lumineux */
+    #             border-radius: 15px;
+    #             padding: 15px;
+    #             border: 2px solid #444;
+    #         }
+    #     """
+
+   
+   
     # def run_executable_in_tab(self, executable_path, output_widget):
     #     """Exécute un programme et redirige sa sortie vers un QTextEdit."""
     #     process = QProcess(self)
@@ -1564,7 +1946,12 @@ class RemoteControl(QWidget):
         self.time_remaining = QTime(0, 5, 0)  # Reset to 5 minutes
         self.timer.start(1000)  # Update every second
         self.timer_label.setText(f"Temps restant: {self.time_remaining.toString('hh:mm:ss')}")
-        self.activate_light("Module Chosen")
+        #self.activate_light("Module Chosen")
+        lambda: self.activate_light1("Stategie Marketing School ")
+
+        # Bouton pour changer le GIF d'arrière-plan
+        gif_path = "gifs/strategie.gif"  # Chemin du GIF sélectionné
+        self.change_background_gif(gif_path)
 
         # Set up a QTimer to open the website after 3 seconds
         QTimer.singleShot(3000, self.open_website)
@@ -1584,10 +1971,10 @@ class RemoteControl(QWidget):
             self.timer_label.setText("Exécution du programme!")
 
 
-    def apply_shadow_effect(self, widget):
-        """Apply shadow effect to widgets."""
-        # Placeholder for your actual shadow effect code
-        pass
+    # def apply_shadow_effect(self, widget):
+    #     """Apply shadow effect to widgets."""
+    #     # Placeholder for your actual shadow effect code
+    #     pass
 
     def get_screen_stylesheet(self):
         """Return stylesheet for the screen."""
@@ -1774,10 +2161,10 @@ class RemoteControl(QWidget):
 
 
 
-    def apply_shadow_effect(self, widget):
-        """Apply shadow effect to widgets."""
-        # Placeholder for your actual shadow effect code
-        pass
+    # def apply_shadow_effect(self, widget):
+    #     """Apply shadow effect to widgets."""
+    #     # Placeholder for your actual shadow effect code
+    #     pass
 
     def get_screen_stylesheet(self):
         """Return stylesheet for the screen."""
@@ -1906,13 +2293,13 @@ class RemoteControl(QWidget):
         self.is_dark_theme = not self.is_dark_theme
         self.setStyleSheet(self.get_app_stylesheet())
 
-    def apply_shadow_effect(self, widget):
-        """Apply a shadow effect to a widget"""
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setColor(QColor(0, 0, 0, 160))
-        shadow.setOffset(0, 4)
-        shadow.setBlurRadius(10)
-        widget.setGraphicsEffect(shadow)
+    # def apply_shadow_effect(self, widget):
+    #     """Apply a shadow effect to a widget"""
+    #     shadow = QGraphicsDropShadowEffect()
+    #     shadow.setColor(QColor(0, 0, 0, 160))
+    #     shadow.setOffset(0, 4)
+    #     shadow.setBlurRadius(10)
+    #     widget.setGraphicsEffect(shadow)
 
     def get_screen_stylesheet(self):
         """Return the style for the screen"""
@@ -1952,6 +2339,7 @@ class RemoteControl(QWidget):
                 padding: 15px;
             }
         """
+  
     def get_button_stylesheet(self):
         return """
             QPushButton {

@@ -1,148 +1,151 @@
+import json
 from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QLabel, QTextEdit, QPushButton, QHBoxLayout, QApplication
+    QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QMessageBox, QProgressBar, QWidget, QApplication
 )
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt
-import sys
+from PyQt5.QtGui import QIcon, QPixmap, QFont
+from PyQt5.QtCore import Qt, QTimer
 
-
-class PromptDialog(QDialog):
+class MyApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(self.tr("Créer un Prompt"))
-        self.setMinimumSize(600, 400)
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #ffffff;
-                border-radius: 15px;
-                border: 2px solid #E4E7EB;
-                padding: 15px;
-                box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-            }
-        """)
-        self.init_ui()
 
-    def init_ui(self):
-        # Layout principal
-        layout = QVBoxLayout()
-        layout.setSpacing(20)
+        self.settings_file = "settings.json"  # Chemin vers le fichier JSON
+        self.load_settings()
 
-        # Titre principal
-        title = QLabel(self.tr("💡 Rédigez un Prompt Unique"))
-        title.setFont(QFont("Arial", 22, QFont.Bold))
-        title.setStyleSheet("""
-            QLabel {
-                color: #2C3E50;
-                margin-bottom: 5px;
-            }
-        """)
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+        duplicate_features = [
+            ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2", self.open_twitter, "twitter_bot"),
+            ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5", self.open_linkedin, "linkedin_bot"),
+            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C", self.open_pinterest, "pinterest_bot"),
+            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00", self.open_snapchat, "snapchat_bot"),
+            ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101", self.open_tiktok, "tiktok_bot"),
+            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500", self.open_reddit, "reddit_bot"),
+            ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000", self.open_youtube, "youtube_bot"),
+        ]
 
-        # Sous-titre subtil
-        subtitle = QLabel(self.tr("Décrivez vos idées avec précision et créativité."))
-        subtitle.setFont(QFont("Arial", 14))
-        subtitle.setStyleSheet("""
-            QLabel {
-                color: #7F8C8D;
-            }
-        """)
-        subtitle.setAlignment(Qt.AlignCenter)
-        layout.addWidget(subtitle)
+        duplicate_layout = QHBoxLayout()
 
-        # Zone de texte pour le prompt
-        self.text_input = QTextEdit(self)
-        self.text_input.setPlaceholderText(self.tr("Commencez à écrire ici..."))
-        self.text_input.setStyleSheet("""
-            QTextEdit {
-                background-color: #F9FAFB;
-                border: 2px solid #E4E7EB;
-                border-radius: 10px;
-                padding: 12px;
-                font-size: 16px;
-                color: #34495E;
-                transition: border-color 0.3s ease;
-            }
-            QTextEdit:focus {
-                border-color: #3498DB;
-            }
-        """)
-        layout.addWidget(self.text_input)
+        self.buttons = {}
+        for text, icon, color, func, setting_key in duplicate_features:
+            button = QPushButton(text)
+            button.setFont(QFont("Arial", 14))
+            button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+            button.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {color};
+                    color: white;
+                    border: 2px solid #CCCCCC;
+                    border-radius: 15px;
+                    padding: 10px;
+                    min-width: 150px;
+                    min-height: 150px;
+                }}
+                QPushButton:hover {{
+                    background-color: {self.lighten_color(color)};
+                    border: 2px solid #AAAAAA;
+                    margin: -2px;
+                }}
+                QPushButton:pressed {{
+                    background-color: {color};
+                    border: 2px solid #888888;
+                    padding: 12px;
+                }}
+            """)
 
-        # Boutons d'action en bas
-        button_layout = QHBoxLayout()
+            # Vérifie si le module est activé ou non
+            button.setEnabled(self.settings.get(setting_key, False))
+            button.clicked.connect(lambda _, f=func, k=setting_key: self.handle_button_click(f, k))
 
-        # Bouton Annuler
-        cancel_button = QPushButton(QIcon("icons/cancel.png"), self.tr("Annuler"))
-        cancel_button.setShortcut("Esc")  # Raccourci pour annuler
-        cancel_button.setStyleSheet("""
-            QPushButton {
-                background-color: #E74C3C;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #C0392B;
-            }
-        """)
-        cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(cancel_button)
+            self.buttons[setting_key] = button
+            duplicate_layout.addWidget(button)
 
-        # Bouton Envoyer
-        self.submit_button = QPushButton(QIcon("icons/send.png"), self.tr("Envoyer"))
-        self.submit_button.setEnabled(False)  # Désactivé par défaut
-        self.submit_button.setShortcut("Ctrl+Return")  # Raccourci pour envoyer
-        self.submit_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3498DB;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 10px 20px;
-                font-size: 14px;
-                box-shadow: 0px 5px 15px rgba(52, 152, 219, 0.4);
-                transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            }
-            QPushButton:hover {
-                background-color: #2980B9;
-                box-shadow: 0px 8px 20px rgba(41, 128, 185, 0.6);
-            }
-            QPushButton:disabled {
-                background-color: #BDC3C7;
-                color: #ECF0F1;
-                box-shadow: none;
-            }
-        """)
-        self.submit_button.clicked.connect(self.submit_prompt)
-        button_layout.addWidget(self.submit_button)
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(duplicate_layout)
+        self.setLayout(main_layout)
 
-        layout.addLayout(button_layout)
+    def load_settings(self):
+        """Charge les paramètres depuis le fichier JSON."""
+        try:
+            with open(self.settings_file, "r") as file:
+                self.settings = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.settings = {}
 
-        # Vérification si la zone de texte est remplie
-        self.text_input.textChanged.connect(self.check_input)
+    def save_settings(self):
+        """Enregistre les paramètres dans le fichier JSON."""
+        with open(self.settings_file, "w") as file:
+            json.dump(self.settings, file, indent=4)
 
-        self.setLayout(layout)
+    def handle_button_click(self, func, setting_key):
+        """Gère le clic sur un bouton."""
+        if self.settings.get(setting_key, False):
+            func()
+        else:
+            self.show_activation_popup(setting_key)
 
-    def check_input(self):
-        """Active le bouton 'Envoyer' seulement si la zone de texte n'est pas vide."""
-        self.submit_button.setEnabled(bool(self.text_input.toPlainText().strip()))
+    def show_activation_popup(self, setting_key):
+        """Affiche un popup pour activer un module."""
+        reply = QMessageBox.question(
+            self, "Activation requise",
+            f"Le module '{setting_key}' est désactivé. Voulez-vous l'activer ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            self.activate_module(setting_key)
 
-    def submit_prompt(self):
-        """Ferme la boîte de dialogue et retourne le texte."""
-        self.accept()
+    def activate_module(self, setting_key):
+        """Active un module avec une barre de progression."""
+        progress_dialog = QProgressBar(self)
+        progress_dialog.setRange(0, 100)
+        progress_dialog.setValue(0)
+        progress_dialog.show()
 
-    def get_prompt(self):
-        """Retourne le texte écrit par l'utilisateur."""
-        return self.text_input.toPlainText().strip()
+        def update_progress():
+            value = progress_dialog.value() + 10
+            if value > 100:
+                progress_dialog.close()
+                self.settings[setting_key] = True
+                self.save_settings()
+                self.buttons[setting_key].setEnabled(True)
+            else:
+                progress_dialog.setValue(value)
+
+        timer = QTimer(self)
+        timer.timeout.connect(update_progress)
+        timer.start(300)
+
+    def lighten_color(self, color):
+        """Éclaircit une couleur en hexadécimal."""
+        r = min(int(color[1:3], 16) + 30, 255)
+        g = min(int(color[3:5], 16) + 30, 255)
+        b = min(int(color[5:], 16) + 30, 255)
+        return f"#{r:02X}{g:02X}{b:02X}"
+
+    # Exemple de fonctions pour les boutons
+    def open_twitter(self):
+        print("Twitter Bot activé")
+
+    def open_linkedin(self):
+        print("LinkedIn Bot activé")
+
+    def open_pinterest(self):
+        print("Pinterest Bot activé")
+
+    def open_snapchat(self):
+        print("Snapchat Bot activé")
+
+    def open_tiktok(self):
+        print("TikTok Bot activé")
+
+    def open_reddit(self):
+        print("Reddit Bot activé")
+
+    def open_youtube(self):
+        print("YouTube Bot activé")
 
 
-# Exemple d'utilisation
 if __name__ == "__main__":
+    import sys
     app = QApplication(sys.argv)
-    dialog = PromptDialog()
-    if dialog.exec_() == QDialog.Accepted:
-        print(dialog.tr("Prompt soumis :"), dialog.get_prompt())
+    window = MyApp()
+    window.show()
     sys.exit(app.exec_())
