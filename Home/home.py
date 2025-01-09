@@ -46,6 +46,7 @@ class HomePage(QMainWindow):
         self.settings_file = "settings.json"  # Chemin vers le fichier JSON
     
         self.load_settings()
+        self.settings = {}
 
         self.translator = QTranslator()
 
@@ -76,63 +77,63 @@ class HomePage(QMainWindow):
 
 
 
-        # Menu en-tête
-        self.menu_bar = QMenuBar(self)
-        self.setMenuBar(self.menu_bar)
+        # # Menu en-tête
+        # self.menu_bar = QMenuBar(self)
+        # self.setMenuBar(self.menu_bar)
 
-        # Ajouter des menus à la barre de menu
-        file_menu = self.menu_bar.addMenu(self.tr("Fichier"))
-        edit_menu = self.menu_bar.addMenu(self.tr("Édition"))
-        view_menu = self.menu_bar.addMenu(self.tr("Vue"))
-        settings_menu = self.menu_bar.addMenu(self.tr("Paramètres"))
-        help_menu = self.menu_bar.addMenu(self.tr("Aide"))
+        # # Ajouter des menus à la barre de menu
+        # file_menu = self.menu_bar.addMenu(self.tr("Fichier"))
+        # edit_menu = self.menu_bar.addMenu(self.tr("Édition"))
+        # view_menu = self.menu_bar.addMenu(self.tr("Vue"))
+        # settings_menu = self.menu_bar.addMenu(self.tr("Paramètres"))
+        # help_menu = self.menu_bar.addMenu(self.tr("Aide"))
 
-        # Créer des actions de menu pour le menu Fichier
-        new_project_action = QAction(self.tr("Nouveau Projet"), self)
-        open_project_action = QAction(self.tr("Ouvrir Projet"), self)
-        save_project_action = QAction(self.tr("Enregistrer le Projet"), self)
-        export_action = QAction(self.tr("Exporter..."), self)
-        exit_action = QAction(self.tr("Quitter"), self)
-        exit_action.triggered.connect(self.close)
+        # # Créer des actions de menu pour le menu Fichier
+        # new_project_action = QAction(self.tr("Nouveau Projet"), self)
+        # open_project_action = QAction(self.tr("Ouvrir Projet"), self)
+        # save_project_action = QAction(self.tr("Enregistrer le Projet"), self)
+        # export_action = QAction(self.tr("Exporter..."), self)
+        # exit_action = QAction(self.tr("Quitter"), self)
+        # exit_action.triggered.connect(self.close)
 
-        file_menu.addAction(new_project_action)
-        file_menu.addAction(open_project_action)
-        file_menu.addAction(save_project_action)
-        file_menu.addSeparator()
-        file_menu.addAction(export_action)
-        file_menu.addSeparator()
-        file_menu.addAction(exit_action)
+        # file_menu.addAction(new_project_action)
+        # file_menu.addAction(open_project_action)
+        # file_menu.addAction(save_project_action)
+        # file_menu.addSeparator()
+        # file_menu.addAction(export_action)
+        # file_menu.addSeparator()
+        # file_menu.addAction(exit_action)
 
-        # Actions de menu pour le menu Édition
-        edit_menu.addAction(self.tr("Copier"))
-        edit_menu.addAction(self.tr("Coller"))
-        edit_menu.addSeparator()
-        edit_menu.addAction(self.tr("Supprimer"))
-        edit_menu.addSeparator()
-        edit_menu.addAction(self.tr("Préférences"))
+        # # Actions de menu pour le menu Édition
+        # edit_menu.addAction(self.tr("Copier"))
+        # edit_menu.addAction(self.tr("Coller"))
+        # edit_menu.addSeparator()
+        # edit_menu.addAction(self.tr("Supprimer"))
+        # edit_menu.addSeparator()
+        # edit_menu.addAction(self.tr("Préférences"))
 
-        # Actions de menu pour le menu Vue
-        view_menu.addAction(self.tr("Aperçu"))
-        view_menu.addAction(self.tr("Vue Grille"))
-        view_menu.addAction(self.tr("Vue Liste"))
+        # # Actions de menu pour le menu Vue
+        # view_menu.addAction(self.tr("Aperçu"))
+        # view_menu.addAction(self.tr("Vue Grille"))
+        # view_menu.addAction(self.tr("Vue Liste"))
 
-        # Actions de menu pour le menu Paramètres
-        theme_action = QAction(self.tr("Changer de thème"), self)
-        theme_action.triggered.connect(self.change_theme)
-        language_action = QAction(self.tr("Changer de langue"), self)
-        language_action.triggered.connect(self.show_about)
+        # # Actions de menu pour le menu Paramètres
+        # theme_action = QAction(self.tr("Changer de thème"), self)
+        # theme_action.triggered.connect(self.change_theme)
+        # language_action = QAction(self.tr("Changer de langue"), self)
+        # language_action.triggered.connect(self.show_about)
 
-        settings_menu.addAction(theme_action)
-        settings_menu.addAction(language_action)
+        # settings_menu.addAction(theme_action)
+        # settings_menu.addAction(language_action)
 
-        # Actions de menu pour le menu Aide
-        help_action = QAction(self.tr("Aide en ligne"), self)
-        help_action.triggered.connect(self.open_help)
-        about_action = QAction(self.tr("À propos de nova360.turknovatech.com"), self)
-        about_action.triggered.connect(self.show_about)
+        # # Actions de menu pour le menu Aide
+        # help_action = QAction(self.tr("Aide en ligne"), self)
+        # help_action.triggered.connect(self.open_help)
+        # about_action = QAction(self.tr("À propos de nova360.turknovatech.com"), self)
+        # about_action.triggered.connect(self.show_about)
 
-        help_menu.addAction(help_action)
-        help_menu.addAction(about_action)
+        # help_menu.addAction(help_action)
+        # help_menu.addAction(about_action)
 
         # Layout pour l'en-tête
         header_layout = QHBoxLayout()
@@ -466,10 +467,10 @@ class HomePage(QMainWindow):
                 }}
             """)
 
-            if self.is_feature_enabled(key):
+            if self.is_feature_enabled(setting_key):
                 button.clicked.connect(func)
             else:
-                button.clicked.connect(lambda _, k=key: self.prompt_enable_feature(k))
+                button.clicked.connect(lambda _, f=func, k=setting_key: self.prompt_enable_feature(k))
 
             button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
 
@@ -612,7 +613,7 @@ class HomePage(QMainWindow):
         self.show()
 # Fonction pour ouvrir Facebook Robot
 
-    def load_settings(self):
+    def load_settings1(self):
         try:
             with open(self.settings_file, "r") as file:
                 return json.load(file)
@@ -624,7 +625,24 @@ class HomePage(QMainWindow):
             json.dump(self.settings, file, indent=4)
 
     def is_feature_enabled(self, feature_key):
-        return self.settings.get(feature_key, False)
+        """
+        Vérifie si une fonctionnalité est activée en fonction de la clé fournie.
+
+        Args:
+            feature_key (str): La clé correspondant à la fonctionnalité dans les paramètres.
+
+        Returns:
+            bool: True si la fonctionnalité est activée, False sinon.
+        """
+        if not isinstance(feature_key, str):
+            raise ValueError("feature_key doit être une chaîne de caractères.")
+
+        if not hasattr(self, 'settings') or not isinstance(self.settings, dict):
+            raise AttributeError("L'attribut 'settings' doit être un dictionnaire défini dans l'objet.")
+
+        # Retourne la valeur ou False si la clé n'existe pas
+        return bool(self.settings.get(feature_key, False))
+
 
     def enable_feature(self, feature_key):
         self.settings[feature_key] = True
@@ -633,7 +651,7 @@ class HomePage(QMainWindow):
 
     def handle_button_click(self, feature_key, func):
         """Gère le clic sur un bouton."""
-        if self.feature_manager.is_feature_enabled(feature_key):
+        if self.is_feature_enabled(feature_key):
             # La fonctionnalité est activée, exécute la fonction
             func()
         else:
@@ -649,9 +667,9 @@ class HomePage(QMainWindow):
             QMessageBox.Yes | QMessageBox.No
         )
         if reply == QMessageBox.Yes:
-            self.activate_feature(feature_key)
+            self.activate_feature()
 
-    def activate_feature(self, feature_key):
+    def activate_feature(self):
         """Active une fonctionnalité avec une barre de progression."""
         progress = QProgressBar()
         progress.setMaximum(100)
@@ -659,8 +677,8 @@ class HomePage(QMainWindow):
 
         def complete_activation():
             progress.setValue(100)
-            self.feature_manager.enable_feature(feature_key)
-            QMessageBox.information(None, "Activation réussie", f"Le module '{feature_key}' est maintenant activé.")
+            self.enable_feature("feature_key")
+            QMessageBox.information(None, "Activation réussie", f"Le module '' est maintenant activé.")
             progress.close()
 
         timer = QTimer()

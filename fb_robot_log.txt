@@ -1,0 +1,17 @@
+2025-01-09 02:33:12,899 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.
+2025-01-09 02:33:23,391 - WARNING - Cannot execute Multi FB. Required folder conditions are not met.
+2025-01-09 02:33:26,684 - INFO - Determining the path for WA +.
+2025-01-09 02:33:26,686 - DEBUG - Detected Windows OS.
+2025-01-09 02:33:26,687 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa.exe
+2025-01-09 02:33:26,688 - ERROR - Executable not found: None
+2025-01-09 02:33:40,063 - INFO - Determining the path for WA CRM.
+2025-01-09 02:33:40,064 - DEBUG - Detected Windows OS.
+2025-01-09 02:33:40,065 - WARNING - Executable not found: C:\Users\cheic\AppData\Roaming\saadiya\resources\tools\wa_crm.exe
+2025-01-09 02:33:40,072 - ERROR - Executable not found: None
+2025-01-09 02:34:20,644 - WARNING - Cannot execute Blog. Required folder conditions are not met.
+2025-01-09 02:34:22,391 - WARNING - Cannot execute YTB. Required folder conditions are not met.
+2025-01-09 02:34:23,864 - WARNING - Cannot execute PIN. Required folder conditions are not met.
+2025-01-09 02:34:25,328 - WARNING - Cannot execute X. Required folder conditions are not met.
+2025-01-09 02:36:54,075 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.
+2025-01-09 15:12:31,667 - WARNING - Cannot execute Multi FB. Required folder conditions are not met.
+2025-01-09 15:12:34,267 - WARNING - Cannot execute FB Robot. Required folder conditions are not met.

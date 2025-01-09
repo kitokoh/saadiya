@@ -1,23 +1,6 @@
 {
-    "bots": {
-        "twitter_bot": false,
-        "linkedin_bot": false,
-        "pinterest_bot": false,
-        "snapchat_bot": false,
-        "tiktok_bot": false,
-        "reddit_bot": false,
-        "youtube_bot": false,
-        "facebook_bot": true,
-        "whatsapp_bot": false,
-        "blogging_bot": false,
-        "instagram_bot": false,
-        "telegram_bot": false,
-        "branding_bot": false,
-        "emailing_bot": false
-    },
-    "modules": {
-        "Facebook": ["Group Share", "Auto Comment"]
-    },
+    "bots": {},
+    "modules": {},
     "info": {
         "name": "",
         "email": "",

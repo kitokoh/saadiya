@@ -6,8 +6,19 @@ from PyQt5.QtWidgets import (
     QLineEdit, QPushButton, QTabWidget, QTabBar, QFrame, QLabel, QWidget,
     QSplitter, QStackedWidget
 )
+
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
+                             QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, 
+                             QLabel, QHeaderView, QAbstractItemView, QComboBox, 
+                             QDialog, QDialogButtonBox, QFormLayout, QMenu, QMessageBox)
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
+from Home.giris import SplitScreenView
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from login import Nova360ProApp
+from Home.login import Nova360ProApp
+from Home.parametre import Nova360Ultimate
+from upgrade import SpecialOfferWindow
+from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
 
 class Browser(QMainWindow):
     def __init__(self):
@@ -70,7 +81,13 @@ class Browser(QMainWindow):
         self.main_layout.addWidget(self.central_container, stretch=1)
 
         # Ajouter un premier onglet avec une page web
-        self.add_new_tab(QUrl("https://www.nova360.turknovatech.com"), "Leopard", "new_tab_icon.ico")
+        self.add_new_tab(QUrl("https://www.nova360.turknovatech.com"), "Nova360", "new_tab_icon.ico")
+    def open_instance(self):
+       # self.setCentralWidget(InstanceTable(self))
+       pass
+    def open_about_window(self):
+        about_dialog = AboutDialog(self)
+        about_dialog.exec_()
 
     def find_tab_by_name(self, name):
         for i in range(self.tab_widget.count()):
@@ -78,7 +95,7 @@ class Browser(QMainWindow):
                 return i  # Renvoie l'index si trouvé
         return -1  # Aucun onglet trouvé
 
-    def open_accueil_window(self):
+    def open_accueil_window1(self):
         tab_name = "Accueil"  # Nom de l'onglet
         existing_tab_index = self.find_tab_by_name(tab_name)
         
@@ -90,94 +107,122 @@ class Browser(QMainWindow):
             accueil_widget = QLabel("Accueil - Contenu ici")  # Remplacez par le widget réel
             self.add_new_tab(accueil_widget, tab_name, "accueil_icon.ico")
 
-    def create_side_menu(self):
-        # Panneau latéral
-        self.side_menu = QFrame()
-        self.side_menu.setFixedWidth(150)
-        self.side_menu.setStyleSheet("""
-            QFrame {
-                background-color: qlineargradient(
-                    spread:pad, x1:0, y1:0, x2:1, y2:1, 
-                    stop:0 #2C2C2C, stop:1 #1E1E1E);
-                border-right: 1px solid #444;
+
+
+    def open_update_window(self):
+        QMessageBox.information(self, "Upgrade", "Mettez à niveau votre plan.")
+
+    def open_certif_window(self):
+        QMessageBox.information(self, "Nova360 - Certif", "Certification pour Nova360.")
+    def open_telecommande_window1(self):
+        """
+        Ouvre la fenêtre Télécommande avec une interface de base.
+        """
+        telecommande_window = QDialog(self)
+        telecommande_window.setWindowTitle("Télécommande")
+        telecommande_window.setFixedSize(400, 300)
+        telecommande_window.setStyleSheet("""
+            QDialog {
+                background-color: #1E1E2F;
+                color: #FFFFFF;
+                border-radius: 10px;
             }
         """)
 
         # Layout principal
-        self.side_menu_layout = QVBoxLayout(self.side_menu)
-        self.side_menu_layout.setContentsMargins(0, 0, 0, 0)
-        self.side_menu_layout.setSpacing(10)
+        layout = QVBoxLayout(telecommande_window)
 
-        # Bouton pour masquer/afficher le menu
-        self.toggle_button = QPushButton("⇔")
-        self.toggle_button.setFixedSize(30, 30)
-        self.toggle_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3A3A3A;
-                color: #FFFFFF;
-                border: none;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #555555;
-            }
-        """)
-        self.toggle_button.clicked.connect(self.toggle_side_menu)
+        # Label principal
+        title_label = QLabel("Télécommande - Contrôle central")
+        title_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        layout.addWidget(title_label, alignment=Qt.AlignCenter)
 
-        # Ajout du bouton au menu et en dehors pour qu'il reste toujours visible
-        self.side_menu_layout.addWidget(self.toggle_button, alignment=Qt.AlignRight)
-
-        # Ajouter des options avec icônes
-        menu_items = [
-            ("🏠", "Accueil", self.open_accueil_window),
-            ("🔍", "Rechercher", self.open_search_window),
-            ("⚙️", "Paramètres", self.open_settings_window),
-            ("❓", "Aide", self.open_help_window),
+        # Boutons de contrôle
+        buttons_layout = QVBoxLayout()
+        buttons = [
+            ("Open Panel", self.open_panel_action),
+            ("Start Robots", self.start_robots_action),
+            ("Choice Module", self.choice_module_action),
         ]
 
-        for icon, text, action in menu_items:
-            button = QPushButton(f"{icon}  {text}")
+        for text, action in buttons:
+            button = QPushButton(text)
             button.setFixedHeight(40)
             button.setStyleSheet("""
                 QPushButton {
-                    background-color: #2C2C2C;
+                    background-color: #2C2C3D;
                     color: #FFFFFF;
-                    border: none;
-                    text-align: left;
-                    padding-left: 10px;
+                    border: 1px solid #3D3D4E;
+                    border-radius: 10px;
+                    font-size: 14px;
                 }
                 QPushButton:hover {
-                    background-color: #3A3A3A;
+                    background-color: #3A3A4E;
                 }
             """)
             button.clicked.connect(action)
-            self.side_menu_layout.addWidget(button)
+            buttons_layout.addWidget(button)
 
-        # Ajout d'un séparateur
-        separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
-        separator.setFrameShadow(QFrame.Sunken)
-        separator.setStyleSheet("color: #444;")
-        self.side_menu_layout.addWidget(separator)
+        layout.addLayout(buttons_layout)
+        telecommande_window.setLayout(layout)
 
-        # Espacer les options restantes
-        self.side_menu_layout.addStretch()
+        # Afficher la fenêtre
+        telecommande_window.exec_()
 
-    # # Méthodes pour ouvrir les fenêtres
-    # def open_accueil_window(self):
-    #     self.accueil_window = Nova360ProApp()
-    #     self.accueil_window.show()
+    def open_panel_action(self):
+        """
+        Action associée au bouton 'Open Panel'.
+        """
+        QMessageBox.information(self, "Action", "Open Panel action triggered.")
+    def start_robots_action(self):
+        """
+        Action associée au bouton 'Start Robots'.
+        """
+        QMessageBox.information(self, "Action", "Start Robots action triggered.")
+    def choice_module_action(self):
+        """
+        Action associée au bouton 'Choice Module'.
+        """
+        QMessageBox.information(self, "Action", "Choice Module action triggered.")
+
+    def open_uninstall_window(self):
+        """
+        Ouvre la fenêtre de désinstallation.
+        """
+        QMessageBox.warning(self, "Tools - Uninstall", "Uninstall tool triggered.")
+    def open_instances_window(self):
+        """
+        Ouvre la fenêtre 'Instances'.
+        """
+        QMessageBox.information(self, "Instances", "Gestion des instances.")
+    def switch_language(self):
+        """
+        Permet de basculer entre différentes langues.
+        """
+        QMessageBox.information(self, "Langue", "Change language feature triggered.")
+    def open_upgrade_window(self):
+        """
+        Ouvre la fenêtre 'Upgrade'.
+        """
+        QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+
+    # Ajoutez les méthodes pour les boutons
+    def minimize_window(self):
+        self.showMinimized()
+
+    def maximize_window(self):
+        if self.isMaximized():
+            self.showNormal()
+        else:
+            self.showMaximized()
+
+    def close_window(self):
+        self.close()
 
 
 
 
 
-    def toggle_side_menu(self):
-        # Animation fluide pour afficher/masquer le menu
-        new_width = 30 if self.side_menu.width() > 100 else 150
-        self.side_menu.setFixedWidth(new_width)
-        # Met à jour la position du bouton si nécessaire
-        self.toggle_button.setText("⇔" if new_width == 150 else "⇐")
 
 
 
@@ -221,8 +266,8 @@ class Browser(QMainWindow):
         self.new_tab_button.clicked.connect(self.open_new_tab)
         search_bar_layout.addWidget(self.new_tab_button)
         def open_google_tab(self):
-            url = QUrl("https://www.google.com")
-            self.add_new_tab(url, "Google", "google_icon.ico")
+            url = QUrl("https://www.nova360.turknovatech.com")
+            self.add_new_tab(url, "Nova360", "google_icon.ico")
 
     def add_new_tab(self, content, label, icon_path="default_icon.ico"):
         # Vérifiez si un onglet avec ce nom existe déjà
@@ -236,8 +281,20 @@ class Browser(QMainWindow):
         if isinstance(content, QUrl):  # Si le contenu est une URL
             browser = QWebEngineView()
             browser.setUrl(content)
+            browser.setStyleSheet("""
+                QWebEngineView {
+                    background-color: white;
+                    color: black;
+                }
+            """)  # Applique un fond blanc et un texte noir
             widget_to_add = browser
         elif isinstance(content, QWidget):  # Si le contenu est un widget personnalisé
+            content.setStyleSheet("""
+                QWidget {
+                    background-color: white;
+                    color: black;
+                }
+            """)  # Applique un fond blanc et un texte noir
             widget_to_add = content
         else:
             raise TypeError(f"Type non supporté pour 'content': {type(content)}")
@@ -251,6 +308,25 @@ class Browser(QMainWindow):
         # Connectez les signaux si nécessaire
         if isinstance(content, QUrl):  # Seulement pour les QWebEngineView
             widget_to_add.urlChanged.connect(self.update_url)
+
+        # Ajout d'un style général pour l'onglet
+        self.tab_widget.setStyleSheet("""
+            QTabWidget::pane {
+                background: white;
+            }
+            QTabWidget::tab-bar {
+                background: lightgray;
+            }
+            QTabBar::tab {
+                background: lightgray;
+                color: black;
+                padding: 5px;
+            }
+            QTabBar::tab:selected {
+                background: white;
+                color: black;
+            }
+        """)
 
     def add_new_tab1(self, url, label, icon_path="default_icon.ico"):
         browser = QWebEngineView()
@@ -295,7 +371,7 @@ class Browser(QMainWindow):
     def navigate_home(self):
         current_browser = self.tab_widget.currentWidget()
         if isinstance(current_browser, QWebEngineView):
-            current_browser.setUrl(QUrl("https://www.google.com"))
+            current_browser.setUrl(QUrl("https://www.nova360.turknovatech.com"))
 
     def update_search_bar_visibility(self, index):
         current_widget = self.tab_widget.widget(index)
@@ -352,7 +428,7 @@ class Browser(QMainWindow):
         }
         """
     def open_new_tab(self,tab_name="Dashboard", icon_path="icons/dashboard_icon.ico"):
-        self.add_new_tab(QUrl("https://www.google.com"), "Google", "new_tab_icon.ico")
+        self.add_new_tab(QUrl("https://www.nova360.turknovatech.com"), "Nova360", "new_tab_icon.ico")
 
 
     def create_top_bar(self, layout):
@@ -391,7 +467,7 @@ class Browser(QMainWindow):
         self.minimize_button.clicked.connect(self.showMinimized)
         self.maximize_button.clicked.connect(self.toggle_maximized)
         self.close_button.clicked.connect(self.close)
-        self.new_tab_button.clicked.connect(lambda: self.add_new_tab(QUrl("https://www.google.com"), "Nouvel onglet"))
+        self.new_tab_button.clicked.connect(lambda: self.add_new_tab(QUrl("https://www.nova360.turknovatech.com"), "Nova360"))
 
 
     def toggle_maximized(self):
@@ -405,14 +481,9 @@ class Browser(QMainWindow):
         self.tab_widget.setTabText(index, label)
         self.tab_widget.setCurrentIndex(index)
 
-    def open_accueil_window1(self):
-        """Ouvre un onglet avec le contenu de la classe 'AccueilWidget'."""
 
-            # Créer une instance de Nova360Pro et transmettre self comme main_app
-        self.nova360pro = Nova360ProApp(main_app=self)
-        self.add_custom_tab(self.nova360pro, "Nova360", "nova_icon.ico")
     def open_accueil_window(self):
-        tab_name = "Nova360"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+        tab_name = "Accueil"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
 
         # Vérifiez si un onglet avec ce nom existe déjà
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -428,6 +499,23 @@ class Browser(QMainWindow):
         # Ajoutez l'instance existante au nouvel onglet
         self.add_custom_tab(self.nova360pro, tab_name, "nova_icon.ico")
 
+
+    def open_telecommande_window (self):
+        tab_name = "Telecomande"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'telecommande') or self.telecommande is None:
+            self.telecommande = SplitScreenView(main_app=self)  # Créez une seule fois l'instance
+
+        # Ajoutez l'instance existante au nouvel onglet
+        self.add_custom_tab(self.telecommande, tab_name, "nova_icon.ico")
 
 
     # def add_custom_tab(self, widget, title, icon_path=None):
@@ -461,13 +549,248 @@ class Browser(QMainWindow):
 
     def open_settings_window(self):
         """Ouvre un onglet avec le contenu de la classe 'SettingsWidget'."""
-        widget = SettingsWidget()
-        self.add_custom_tab(widget, "Paramètres", "settings_icon.ico")
+ 
+        tab_name = "Settings"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'settings') or self.settings is None:
+            self.settings = Nova360Ultimate(main_app=self)  # Créez une seule fois l'instance
+
+        # Ajoutez l'instance existante au nouvel onglet
+        self.add_custom_tab(self.settings, tab_name, "nova_icon.ico")
+
 
     def open_help_window(self):
         """Ouvre un onglet avec le contenu de la classe 'HelpWidget'."""
         widget = HelpWidget()
         self.add_custom_tab(widget, "Aide", "help_icon.ico")
+    def open_remote_window(self):
+        """Ouvre un onglet avec le contenu de la classe 'HelpWidget'."""
+        widget = HelpWidget()
+        self.add_custom_tab(widget, "Aide", "help_icon.ico")
+    def open_upgrade_window(self):
+        tab_name = "Upgrade"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'upgrades') or self.upgrades is None:
+            self.upgrades = SpecialOfferWindow(main_app=self)  # Créez une seule fois l'instance
+
+        # Ajoutez l'instance existante au nouvel onglet
+        self.add_custom_tab(self.upgrades, tab_name, "nova_icon.ico")
+    def create_side_menu(self):
+        """
+        Crée un menu latéral avec des boutons de contrôle en haut,
+        une barre de séparation, et un menu rétractable/extensible.
+        """
+        # Panneau latéral
+        self.side_menu = QFrame()
+        self.side_menu.setFixedWidth(60)  # Par défaut, menu réduit
+        self.side_menu.setStyleSheet("""
+            QFrame {
+                background-color: #21252B;  /* Couleur sombre professionnelle */
+                border-right: 1px solid #3C4048;
+            }
+        """)
+
+        # Layout principal
+        self.side_menu_layout = QVBoxLayout(self.side_menu)
+        self.side_menu_layout.setContentsMargins(0, 0, 0, 0)
+        self.side_menu_layout.setSpacing(0)
+
+        # --- Ligne supérieure : Boutons de contrôle ---
+        self.control_buttons_layout = QHBoxLayout()
+        self.control_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        self.control_buttons_layout.setSpacing(3)  # Espacement réduit entre les boutons
+
+        # Bouton de réduction
+        self.minimize_button = QPushButton("-")
+        self.minimize_button.setFixedSize(20, 20)
+        self.minimize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2C2F36;
+                color: #FFFFFF;
+                border: none;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #3A3D46;
+            }
+        """)
+        self.minimize_button.clicked.connect(self.minimize_window)
+        self.control_buttons_layout.addWidget(self.minimize_button)
+
+        # Bouton d'agrandissement
+        self.maximize_button = QPushButton("□")
+        self.maximize_button.setFixedSize(20, 20)
+        self.maximize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2C2F36;
+                color: #FFFFFF;
+                border: none;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #3A3D46;
+            }
+        """)
+        self.maximize_button.clicked.connect(self.maximize_window)
+        self.control_buttons_layout.addWidget(self.maximize_button)
+
+        # Bouton de fermeture
+        self.close_button = QPushButton("X")
+        self.close_button.setFixedSize(20, 20)
+        self.close_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF4444;
+                color: #FFFFFF;
+                border: none;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #FF2222;
+            }
+        """)
+        self.close_button.clicked.connect(self.close_window)
+        self.control_buttons_layout.addWidget(self.close_button)
+
+        # Ajouter la ligne supérieure au layout principal
+        self.side_menu_layout.addLayout(self.control_buttons_layout)
+
+        # --- Bouton de bascule ---
+        self.toggle_button = QPushButton("⇔")
+        self.toggle_button.setFixedHeight(50)
+        self.toggle_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2E323A;
+                color: #FFFFFF;
+                border: none;
+                font-size: 16px;
+                padding: 0;
+            }
+            QPushButton:hover {
+                background-color: #3A3E47;
+            }
+        """)
+        self.toggle_button.clicked.connect(self.toggle_side_menu)
+        self.side_menu_layout.addWidget(self.toggle_button)
+
+        # --- Liste des éléments du menu principal ---
+        menu_items = [
+            ("🏠", "Accueil", self.open_accueil_window, []),
+            ("📡", "Télécommande", self.open_telecommande_window, []),
+            ("⚙️", "Paramètres", self.open_settings_window, []),
+            ("🌌", "Tools", None, [
+                ("ℹ️", "About", self.open_about_window),
+                ("📜", "Certif", self.open_certificate),
+            ]),
+            # ("🛠️", "Tools", None, [
+            #     ("❌", "Uninstall", self.open_uninstall_window),
+            #     ("🔄", "Update", self.open_update_window),
+            # ]),
+            ("📁", "Instances", self.open_instances_window, []),
+            ("🌍", "Langue", self.switch_language, []),
+            ("⬆️", "Upgrade", self.open_upgrade_window, []),
+        ]
+
+        self.menu_buttons = []  # Stocker les boutons principaux
+        self.sub_menus = {}  # Associer chaque bouton principal à ses sous-menus
+
+        # Génération des boutons principaux et sous-menus
+        for icon, text, action, sub_items in menu_items:
+            # Créer le bouton principal
+            button = QPushButton(f"  {icon}   {text}")
+            button.setFixedHeight(50)
+            button.setStyleSheet("""
+                QPushButton {
+                    background-color: transparent;
+                    color: #FFFFFF;
+                    border: none;
+                    font-size: 16px;
+                    text-align: left;
+                    padding-left: 15px;
+                }
+                QPushButton:hover {
+                    background-color: #2E323A;
+                }
+            """)
+            if action:
+                button.clicked.connect(action)
+            self.side_menu_layout.addWidget(button)
+            self.menu_buttons.append((button, icon, text))
+
+            # Ajouter les sous-menus
+            if sub_items:
+                sub_menu = []
+                for sub_icon, sub_text, sub_action in sub_items:
+                    sub_button = QPushButton(f"     {sub_icon}   {sub_text}")
+                    sub_button.setFixedHeight(40)
+                    sub_button.setStyleSheet("""
+                        QPushButton {
+                            background-color: #2A2E36;
+                            color: #FFFFFF;
+                            border: none;
+                            font-size: 14px;
+                            text-align: left;
+                            padding-left: 25px;
+                        }
+                        QPushButton:hover {
+                            background-color: #33373E;
+                        }
+                    """)
+                    sub_button.setVisible(False)  # Cacher les sous-menus par défaut
+                    sub_button.clicked.connect(sub_action)
+                    self.side_menu_layout.addWidget(sub_button)
+                    sub_menu.append(sub_button)
+
+                self.sub_menus[button] = sub_menu
+                button.clicked.connect(lambda _, b=button: self.toggle_sub_menu(b))
+
+        # Ajouter le panneau au layout principal
+        self.layout().addWidget(self.side_menu)
+        
+    def toggle_side_menu(self):
+        """
+        Réduit ou élargit le menu latéral.
+        """
+        if self.side_menu.width() == 60:  # Mode réduit
+            self.side_menu.setFixedWidth(200)
+            for button, icon, text in self.menu_buttons:
+                button.setText(f"  {icon}   {text}")
+            for sub_buttons in self.sub_menus.values():
+                for sub_button in sub_buttons:
+                    sub_button.setFixedWidth(200)
+        else:  # Mode élargi
+            self.side_menu.setFixedWidth(60)
+            for button, icon, text in self.menu_buttons:
+                button.setText(f"  {icon}")
+            for sub_buttons in self.sub_menus.values():
+                for sub_button in sub_buttons:
+                    sub_button.setFixedWidth(60)
+
+    def toggle_sub_menu(self, button):
+        """
+        Affiche ou masque les sous-menus associés au bouton principal.
+        """
+        sub_buttons = self.sub_menus.get(button, [])
+        for sub_button in sub_buttons:
+            sub_button.setVisible(not sub_button.isVisible())
+    def open_certificate(self):
+        certificate_dialog = CertificateDialog(self)
+        certificate_dialog.exec_()
 
 
 class AccueilWidget(QWidget):
@@ -510,6 +833,124 @@ class HelpWidget(QWidget):
         self.setLayout(layout)
 
 
+class AboutDialog(QDialog):
+    """Boîte de dialogue générique pour 'À propos' de Nova360 AI."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Initialiser et charger les traductions
+        # self.translator_manager = TranslatorManager()
+        # self.translator_manager.load_translations()
+
+        # Configuration de la fenêtre
+        self.setWindowTitle(self.tr("À propos de Nova360 AI"))
+        layout = QVBoxLayout()
+
+        # Contenu principal
+        label = QLabel(self.tr(
+            """
+            <div style='background-color:#F5F7FA; padding:15px; border-radius:10px;'>
+                <h1 style='color:#1A5276; font-size:24px; font-weight:bold; text-align:center;'>
+                    Welcome to Nova360 AI
+                </h1>
+
+                <p style='font-size:16px; color:#333333; text-align:center;'>
+                    <strong>Your All-in-One AI-Powered Automation Solution</strong>
+                </p><br>
+
+                <div style='padding: 10px; border-left: 4px solid #1A5276;'>
+                    <p style='font-size:14px; color:#5D6D7E; line-height:1.6; margin:0 20px;'>
+                        Nova360 AI is the ultimate tool for businesses, brands, and creators looking to simplify and scale their online presence.<br>
+                        Harnessing advanced AI, Nova360 AI automates social media, content creation, engagement, and growth strategies.<br>
+                        Focus on what matters most while Nova360 AI handles the execution.
+                    </p>
+                </div><br>
+
+                <h3 style='color:#1A5276; font-size:18px; margin-top:20px; text-align:center;'>Core Features</h3><br>
+
+                <ul style='font-size:14px; color:#4A4A4A; padding-left: 40px;'>
+                    <li style='margin-bottom:10px;'><strong>🌐 Smart Scheduling:</strong> Plan and post across multiple platforms for maximum efficiency.</li><br>
+                    <li style='margin-bottom:10px;'><strong>🤖 AI-Driven Engagement:</strong> Automate replies, comments, and audience interactions seamlessly.</li><br>
+                    <li><strong>📂 Integrated Management:</strong> Organize media, campaigns, and teams with ease.</li>
+                </ul><br>
+
+                <p style='font-size:14px; color:#5D6D7E; line-height:1.6; text-align:center;'>
+                    Join a growing community of professionals who trust Nova360 AI to optimize their automation journey.<br>
+                    Save time, grow faster, and achieve more with AI at your fingertips.
+                </p><br>
+
+                <p style='font-size:11px; color:#888888; text-align:center; margin-top:20px;'>
+                    © 2024 Leopard AI | 
+                    <a href='https://www.nova360pro.com' style='color:#1A5276; text-decoration:none;'>www.nova360pro.com</a>
+                </p>
+            </div>
+            """
+        ))
+        layout.addWidget(label)
+
+        # Bouton de fermeture
+        close_button = QPushButton(self.tr("Fermer"))
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+
+        # Appliquer la mise en page
+        self.setLayout(layout)
+
+        # Animation pour une transition fluide
+        self.animation = QPropertyAnimation(self, b"windowOpacity")
+        self.animation.setDuration(300)
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
+        self.animation.start()
+class CertificateDialog(QDialog):
+    """Boîte de dialogue pour 'Certificat' (adaptée à Leopard AI)."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Certificat"))
+        layout = QVBoxLayout()
+
+        # Label avec le contenu adapté à Leopard AI
+        label = QLabel(self.tr(
+                "<div style='background-color:#FAF3E0; padding:15px; border-radius:8px;'>"
+                "<h2 style='color:#D35400; font-size:20px; text-align:center;'>Expiration de Votre Licence</h2>"
+                
+                "<p style='font-size:14px; color:#4A4A4A; line-height:1.6;'>"
+                "Votre licence est actuellement valide jusqu'au <strong style='color:#D35400;'>31 décembre 202x</strong>.<br>"
+                "Pour continuer à profiter de toutes les fonctionnalités premium de <strong>Leopard AI</strong>, veuillez penser à renouveler votre licence avant cette date.<br>"
+                "</p><br>"
+                
+                "<div style='padding: 10px; border-left: 4px solid #D35400; margin: 10px 0;'>"
+                "<p style='font-size:13px; color:#7F8C8D; margin:0 20px;'>"
+                "Après cette date, votre accès aux fonctionnalités premium sera restreint. Vous pourrez toujours accéder à votre compte mais avec des fonctionnalités limitées jusqu'au renouvellement de votre licence."
+                "</p>"
+                "</div><br>"
+                
+                "<h3 style='color:#D35400; font-size:16px;'>En Cas de Problème</h3>"
+                
+                "<ul style='font-size:13px; color:#4A4A4A; padding-left: 40px;'>"
+                "<li style='margin-bottom:10px;'>Si votre instance ne fonctionne plus, vérifiez la connexion Internet et assurez-vous que la licence est active.</li><br>"
+                "<li>Contactez notre support technique si vous rencontrez des difficultés supplémentaires.</li>"
+                "</ul><br>"
+                
+                "<p style='font-size:12px; color:gray; text-align:center;'>"
+                "Pour toute assistance, veuillez visiter <a href='https://support.leopardai.com' style='color:#D35400; text-decoration:none;'>notre centre de support</a>."
+                "</p>"
+                "</div>"
+            ))
+        layout.addWidget(label)
+
+        # Bouton de fermeture
+        close_button = QPushButton(self.tr("Fermer"))
+        close_button.clicked.connect(self.close)
+        layout.addWidget(close_button)
+        self.setLayout(layout)
+
+        # Animation pour rendre l'ouverture plus fluide
+        self.animation = QPropertyAnimation(self, b"windowOpacity")
+        self.animation.setDuration(300)
+        self.animation.setStartValue(0.0)
+        self.animation.setEndValue(1.0)
+        self.animation.start()
 
 
 if __name__ == "__main__":

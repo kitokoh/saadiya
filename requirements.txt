@@ -17,5 +17,14 @@ cryptography
 PyQtWebEngine # pyqtwebengine==5.15.4
 psutil
 requests
+pandas
+google-auth 
+google-auth-oauthlib 
+google-api-python-client
+
+openpyxl 
+xlrd3
+
+PyQtWebEngine
 
 

@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
 
 from ModulesUI.whasapping.media_manager import MediaTable
-from ModulesUI.whasapping.group_manager import GroupTable
+from ModulesUI.whasapping.group_manager import ContactTable
 from ModulesUI.whasapping.instances_table import InstanceTable
 #from fb_robot_install import FbRobot
 from ModulesUI.whasapping.wp_robot_install import WpRobot
@@ -342,7 +342,7 @@ class WhatsMainWindow(QMainWindow):
         self.setCentralWidget(WpRobot())
 
     def open_contacts(self):
-        self.setCentralWidget(GroupTable(self))
+        self.setCentralWidget(ContactTable(self))
 
     def open_about(self):
         about_dialog = AboutDialog(self)

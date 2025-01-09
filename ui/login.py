@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import pyqtSignal
-from home import HomePage
+from Home.home import HomePage
 from .carousel import CarouselWidget  # Assurez-vous que CarouselWidget est importé
 from .register import RegisterModule
 from translation import TranslatorManager  # Importer le gestionnaire de traductions

@@ -16,3 +16,7 @@ faire tout pour que la version suivant soit sur windows playstore
 travailler encore plus la securite de la solution 
 
 
+tout syncroniser avec google contact et  google drive 
+
+faire de sorte que le pyqt soit en .dmg en .linux et .web 
+

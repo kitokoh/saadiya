@@ -6,7 +6,7 @@ from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
 from ui.header import HeaderSection
 from ui.footer import FooterSection
 from ui.login import LoginModule
-from home import HomePage  # Assurez-vous d'importer le module d'accueil
+from Home.home import HomePage  # Assurez-vous d'importer le module d'accueil
 from translation import TranslatorManager
 from imports import *
 from datetime import datetime, timedelta

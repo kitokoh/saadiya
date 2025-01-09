@@ -32,11 +32,12 @@ def check_if_paid():
     return False
 
 class SpecialOfferWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self,main_app=None):
         super().__init__()
         self.setWindowTitle("Offre Spéciale")
         self.setGeometry(200, 200, 500, 400)
         self.setStyleSheet("background-color: #f0f0f0;")
+        self.main_app = main_app  # Stocke une référence à MainApp
 
         # Design principal
         central_widget = QWidget()
