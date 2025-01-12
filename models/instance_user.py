@@ -1,6 +1,7 @@
+from database import Base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base
+
 
 class InstanceUser(Base):
     __tablename__ = 'instance_users'

@@ -1,29 +1,29 @@
-import os
 import json
-
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QTabWidget, QPushButton, QFrame, QGridLayout
-)
+import os
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtChart import (
     QChart, QChartView, QBarSet, QBarSeries, QBarCategoryAxis, QValueAxis,
     QPieSeries, QLineSeries
 )
-from PyQt5.QtGui import QFont, QColor, QPainter
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtCore import Qt, QTranslator, QLocale
-
 from PyQt5.QtCore import QPropertyAnimation, QRect, Qt
-from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-from PyQt5.QtWidgets import QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor, QPainter
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QTabWidget, QPushButton, QFrame, QGridLayout
+)
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QGridLayout, QPushButton, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+
+from statistique.activiteprogramme import Activite
+from ui.footer import FooterSection  # Import du footer
 from ui.header import HeaderSection  # Import du header
 from ui.howToUse import VideoAndDownloadWidget
-from ui.footer import FooterSection  # Import du footer
 from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
-from statistique.activiteprogramme import Activite
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class Dashboard(QMainWindow):

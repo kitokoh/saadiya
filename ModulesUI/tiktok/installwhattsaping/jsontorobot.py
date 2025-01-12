@@ -1,9 +1,10 @@
-import os
-import sys
-import shutil
 import ctypes
+import os
+import shutil
+import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QMessageBox, QLabel, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Classes HeaderSection et FooterSection à ajouter à votre application pour la cohérence avec le design fourni.

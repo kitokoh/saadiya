@@ -1,15 +1,16 @@
-import sys
 import os
 import subprocess
+import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QComboBox,
     QMessageBox, QProgressBar, QHBoxLayout, QFormLayout, QPushButton, QTimeEdit, QCheckBox, QScrollArea
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
-from ui.header import HeaderSection
-from ui.footer import FooterSection
+
 from imports import *
+from ui.footer import FooterSection
+from ui.header import HeaderSection
 
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 

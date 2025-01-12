@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
-from google.cloud import translate
 from google.api_core.exceptions import GoogleAPICallError, InvalidArgument
+from google.cloud import translate
 
 # Assurez-vous que la variable d'environnement GOOGLE_APPLICATION_CREDENTIALS est définie
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:\\Users\\ibrahim\\Downloads\\ozcanweb\\credantial.json"

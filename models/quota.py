@@ -28,6 +28,7 @@
 #         db.refresh(quota)
 #     return quota
 
+from database import Base
 # def delete_quota(db, quota_id):
 #     quota = db.query(Quota).filter(Quota.id == quota_id).first()
 #     if quota:
@@ -35,7 +36,7 @@
 #         db.commit()
 # models/quota.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class Quota(Base):
     __tablename__ = "quotas"

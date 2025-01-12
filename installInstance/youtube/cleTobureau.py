@@ -91,11 +91,12 @@
 #     sys.exit(app.exec_())
 
 
+import getpass
 # if __name__ == "__main__":
 #     main()
 import os
 import shutil
-import getpass
+
 
 def copy_file():
     """Copier le fichier cle.exe du répertoire courant vers le Bureau de l'utilisateur."""

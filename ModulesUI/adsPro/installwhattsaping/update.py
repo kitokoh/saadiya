@@ -1,9 +1,10 @@
-import sys
 import os
 import subprocess
+import sys
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QTranslator, QLocale
+from PyQt5.QtWidgets import QMessageBox
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class UpdateApp(QtWidgets.QWidget):

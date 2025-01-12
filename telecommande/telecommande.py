@@ -1,26 +1,24 @@
+import json
+import logging
+import os
+import platform
+import requests
+import subprocess
+import sys
+import webbrowser
+import win32con
+import win32gui
+from PyQt5.QtCore import QPropertyAnimation
+from PyQt5.QtCore import QPropertyAnimation, pyqtProperty
+from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import Qt, QTimer, QTime, QDateTime, QProcess, QSize
+from PyQt5.QtGui import QFont, QIcon, QColor, QPixmap
+from PyQt5.QtGui import QMovie, QColor
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QSplitter, QTabWidget, QHBoxLayout,
     QPushButton, QLabel, QSizePolicy, QGraphicsDropShadowEffect, QDesktopWidget,
     QMainWindow, QTextEdit, QMessageBox, QDialog
 )
-
-from PyQt5.QtGui import QMovie, QColor
-
-from PyQt5.QtGui import QFont, QIcon, QColor, QPixmap
-from PyQt5.QtCore import Qt, QTimer, QTime, QDateTime, QProcess, QSize
-import subprocess
-import platform
-import logging
-import requests
-import os
-import sys
-import json
-import webbrowser
-import win32gui
-import win32con
-from PyQt5.QtCore import QPropertyAnimation
-from PyQt5.QtCore import QSettings
-from PyQt5.QtCore import QPropertyAnimation, pyqtProperty
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
 
 try:
@@ -28,14 +26,14 @@ try:
 except ImportError:
     gw = None  # Pour gérer Windows uniquement
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("fb_robot_log.txt"),  # Log file
-        logging.StreamHandler()  # Console output
-    ]
-)
+# logging.basicConfig(
+#     level=logging.DEBUG,
+#     format='%(asctime)s - %(levelname)s - %(message)s',
+#     handlers=[
+#         logging.FileHandler("fb_robot_log.txt"),  # Log file
+#         logging.StreamHandler()  # Console output
+#     ]
+# )
 
 from PyQt5.QtWidgets import QLabel, QGraphicsDropShadowEffect
 from PyQt5.QtCore import QPropertyAnimation, Qt

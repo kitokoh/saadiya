@@ -1,7 +1,8 @@
 # audit_log_controller.py
 from fastapi import APIRouter, HTTPException
-from models.audit_log import AuditLog
 from typing import List
+
+from models.audit_log import AuditLog
 
 router = APIRouter()
 

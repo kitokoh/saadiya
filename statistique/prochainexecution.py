@@ -1,7 +1,8 @@
 import os
 import platform
-import subprocess
 import re
+import subprocess
+
 
 class ScheduledTaskChecker:
     def __init__(self, program_name):

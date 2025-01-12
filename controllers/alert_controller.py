@@ -1,7 +1,8 @@
 # alert_controller.py
 from fastapi import APIRouter, HTTPException
-from models.alert import Alert
 from typing import List
+
+from models.alert import Alert
 
 router = APIRouter()
 

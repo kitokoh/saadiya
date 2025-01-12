@@ -128,8 +128,9 @@ import os
 import random
 import subprocess
 import sys
-from datetime import datetime
 import time
+from datetime import datetime
+
 
 class LicenseGenerator:
     def __init__(self):

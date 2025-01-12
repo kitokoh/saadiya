@@ -1,7 +1,8 @@
 # message_controller.py
 from fastapi import APIRouter, HTTPException
-from models.message import Message
 from typing import List
+
+from models.message import Message
 
 router = APIRouter()
 

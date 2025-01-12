@@ -1,5 +1,5 @@
-import requests
 import json
+import requests
 
 # Configuration des API
 API_KEYS = {

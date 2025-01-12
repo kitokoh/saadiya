@@ -1,26 +1,27 @@
-import os
 import json
-from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, 
-                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView,QMenu, 
+import os
+from PyQt5.QtCore import Qt, QTimer, QLocale
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
+from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton,
+                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView, QMenu,
                              QAbstractItemView, QLineEdit, QHBoxLayout, QDialog, QDialogButtonBox,
-                                 QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QApplication, QCheckBox, 
+                             QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QApplication, QCheckBox,
 
                              QStackedWidget, QTableWidgetSelectionRange, QComboBox)
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, QTimer, QLocale
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
 
-from ui.header import HeaderSection  
-from ui.footer import FooterSection  
-from ui.secondry_menu import SecondaryMenu  
-from update_media_dialog import UpdateMediaDialog
 from aiModel.dialogPromp import PromptDialog
+from imports import *
+from installFBrobotPy import updatejson
 from installFBrobotPy.sendatajson import FileTransferApp
 from installFBrobotPy.sendatajson2 import FileTransferApp2
 from installFBrobotPy.sendatajson3 import FileTransferApp3
-from installFBrobotPy import updatejson
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
+from ui.footer import FooterSection
+from ui.header import HeaderSection
+from ui.secondry_menu import SecondaryMenu
+from update_media_dialog import UpdateMediaDialog
+
 
 class PreviewDialog(QDialog):
     def __init__(self, media_path, description, parent=None):
@@ -120,7 +121,7 @@ class AddMedia(QWidget):
         # Initialiser le traducteur
         self.translator = QTranslator()
         self.init_language()  # Initialisation de la langue après la création des actions
-        self.user_choice = 'media2'
+        self.user_choice = 'media1'
 
         #self.setWindowTitle(self.tr("Ajouter Média"))
         #self.setGeometry(100, 100, 400, 300)
@@ -1044,7 +1045,7 @@ class MainWindow(QMainWindow):
 class UpdateRobotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(self.tr("Choisissez une action"))
+        self.setWindowTitle(self.tr("Choose an Action"))
         self.setFixedSize(500, 350)
         self.choice = None
         self.remember = False
@@ -1073,65 +1074,66 @@ class UpdateRobotDialog(QDialog):
             }
             QLabel {
                 color: #2C3E50;
+                font-size: 14px;
             }
             QCheckBox {
                 color: #7F8C8D;
                 font-size: 14px;
             }
         """)
-        self.translator = QTranslator()
-        self.init_language()  # Initialisation de la langue après la création des actions
 
+        self.translator = QTranslator()
+        self.init_language()  # Initialize language settings
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout()
         layout.setSpacing(20)
-        self.setWindowIcon(QIcon('resources/icons/robot-256.png'))  # Icône de la fenêtre
+        self.setWindowIcon(QIcon('resources/icons/robot-256.png'))  # Set dialog icon
 
-        # Titre
-        title = QLabel(self.tr("Mise à jour de votre Robot"))
+        # Title
+        title = QLabel(self.tr("Update Your Robot"))
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px;")
         layout.addWidget(title)
 
-        # Sous-titre
+        # Subtitle
         subtitle = QLabel(self.tr(
-            "Veuillez choisir l'une des options ci-dessous pour mettre à jour votre robot. "
-            "Vous pouvez aussi mémoriser votre choix pour ne plus être invité à le refaire."
+            "Please choose one of the options below to update your robot. "
+            "You can also save your choice to avoid being prompted again."
         ))
         subtitle.setAlignment(Qt.AlignCenter)
         subtitle.setWordWrap(True)
-        subtitle.setStyleSheet("font-size: 14px; color: #7F8C8D;")
+        subtitle.setStyleSheet("font-size:8px; color: #7F8C8D;")
         layout.addWidget(subtitle)
 
-        # Boutons d'options avec descriptions
+        # Option buttons with descriptions
         button_layout = QVBoxLayout()
-        button_layout.setSpacing(20)
+        button_layout.setSpacing(9)
 
-        # Option 1 : Mise à jour du Texte
-        text_button = QPushButton(self.tr("Mise à jour Texte uniquement"))
+        # Option 1: Text Update Only
+        text_button = QPushButton(self.tr("Text Update Only"))
         text_button.setStyleSheet("background-color: #28A745;")
         text_button.clicked.connect(lambda: self.select_choice("text"))
         button_layout.addWidget(text_button)
 
         text_desc = QLabel(self.tr(
-            "Cette option met à jour uniquement le texte associé au robot. "
-            "Les autres paramètres resteront inchangés."
+            "This option updates only the text associated with your robot. "
+            "Other parameters will remain unchanged."
         ))
         text_desc.setWordWrap(True)
         text_desc.setStyleSheet("font-size: 13px; color: #7F8C8D;")
         button_layout.addWidget(text_desc)
 
-        # Option 2 : Mise à jour Complète
-        robot_button = QPushButton(self.tr("Mise à jour Complète du Robot"))
+        # Option 2: Complete Robot Update
+        robot_button = QPushButton(self.tr("Complete Robot Update"))
         robot_button.setStyleSheet("background-color: #FD7E14;")
         robot_button.clicked.connect(lambda: self.select_choice("robot"))
         button_layout.addWidget(robot_button)
 
         robot_desc = QLabel(self.tr(
-            "Cette option effectue une mise à jour complète du robot, incluant "
-            "les textes et les autres paramètres associés."
+            "This option performs a full update of your robot, including text "
+            "and all associated parameters."
         ))
         robot_desc.setWordWrap(True)
         robot_desc.setStyleSheet("font-size: 13px; color: #7F8C8D;")
@@ -1139,71 +1141,55 @@ class UpdateRobotDialog(QDialog):
 
         layout.addLayout(button_layout)
 
-        # Checkbox pour mémoriser le choix
-        self.remember_checkbox = QCheckBox(self.tr("Se souvenir de mon choix pour les prochaines fois"))
+        # Checkbox to remember the choice
+        self.remember_checkbox = QCheckBox(self.tr("Remember my choice for future updates"))
         layout.addWidget(self.remember_checkbox, alignment=Qt.AlignCenter)
 
         self.setLayout(layout)
 
     def select_choice(self, choice):
-        """Enregistre le choix de l'utilisateur et ferme la boîte de dialogue."""
+        """Record the user's choice and close the dialog."""
         self.choice = choice
         self.remember = self.remember_checkbox.isChecked()
         self.accept()
 
     def get_choice(self):
-        """Retourne le choix et si on doit s'en souvenir."""
+        """Return the selected choice and whether it should be remembered."""
         return self.choice, self.remember
+
     def switch_language(self, language):
-        """Permet de changer la langue."""
-        if language == "en":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','en_US','modules','media_manager_translated.qm'))
-        elif language == "fr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','fr_FR','modules','media_manager_translated.qm'))
-        elif language == "tr":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','tr_TR','modules','media_manager_translated.qm'))
-        elif language == "ar":
-            self.translator.load(os.path.join(user_data_dir, 'resources', 'lang','ar_SA','modules','media_manager_translated.qm'))
-
-        # Installer le traducteur pour appliquer la nouvelle langue
-        QApplication.instance().installTranslator(self.translator)
-
-        # Sauvegarder le choix de l'utilisateur
-        self.save_language_choice(language)
-
-        # Réappliquer la traduction sur tous les éléments visibles de l'interface
-        self.retranslateUi()
+        """Switch the application's language."""
+        language_path = os.path.join(user_data_dir, 'resources', 'lang', language, 'modules', 'media_manager_translated.qm')
+        if os.path.exists(language_path):
+            self.translator.load(language_path)
+            QApplication.instance().installTranslator(self.translator)
+            self.save_language_choice(language)
+            self.retranslate_ui()
+        else:
+            QMessageBox.warning(self, "Language Error", f"Language file for '{language}' not found.")
 
     def save_language_choice(self, language):
-        """Sauvegarde le choix de langue de l'utilisateur dans un fichier JSON."""
+        """Save the user's language preference to a JSON file."""
         preferences = {'language': language}
-        with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'w') as f:
+        settings_path = os.path.join(user_data_dir, 'resources', 'settings.json')
+        with open(settings_path, 'w') as f:
             json.dump(preferences, f)
 
-    def retranslateUi(self):
-        """Recharge les textes traduits dans l'interface."""
-        #self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
-#        self.label.setText(self.tr("Description :"))
-        pass
+    def retranslate_ui(self):
+        """Retranslate the interface when the language is switched."""
+        self.setWindowTitle(self.tr("Choose an Action"))
+        # Retranslate other text if needed.
 
     def init_language(self):
-        """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""
-        if os.path.exists(os.path.join(user_data_dir, 'resources', 'settings.json')):
-            with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'r') as f:
+        """Initialize the default language based on system or user preference."""
+        settings_path = os.path.join(user_data_dir, 'resources', 'settings.json')
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f:
                 preferences = json.load(f)
-                selected_language = preferences.get('language', 'en')  # Par défaut à l'anglais si non trouvé
+                selected_language = preferences.get('language', 'en')
         else:
-            # Obtenir le code de langue du système
             system_locale = QLocale.system().name()[:2]
-
-            # Dictionnaire pour mapper les codes de langue aux traductions
-            language_map = {
-                'en': 'en',
-                'fr': 'fr',
-                'tr': 'tr',
-                'ar': 'ar',
-            }
-
+            language_map = {'en': 'en', 'fr': 'fr', 'tr': 'tr', 'ar': 'ar'}
             selected_language = language_map.get(system_locale, 'en')
 
         self.switch_language(selected_language)

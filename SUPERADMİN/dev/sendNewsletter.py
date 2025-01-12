@@ -1,5 +1,5 @@
-import requests
 import json
+import requests
 
 API_KEY = 'your_mailchimp_api_key'
 LIST_ID = 'your_mailchimp_list_id'

@@ -1,21 +1,20 @@
+import hashlib  # Pour le hachage des mots de passe
 import json
+import os
 import re
-from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QHBoxLayout,QComboBox
-)
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtGui import QFont, QPixmap, QIcon
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QHBoxLayout, QComboBox
+)
+
 from mail.mail_in_to_in import Mailer1  # Importer la classe Mailer1
 from mail.mail_in_to_out import Mailer2  # Importer la classe Mailer1
-
-import hashlib  # Pour le hachage des mots de passe
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-import os
-from PyQt5.QtGui import QFont, QPixmap, QIcon
-
-
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from PyQt5.QtCore import Qt, QTranslator, QLocale
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout,QDialog, QWidget
 import os

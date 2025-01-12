@@ -1,6 +1,7 @@
-import sys
 import subprocess
+import sys
 from PyQt5 import QtWidgets, QtCore
+
 
 class MultiLangApp(QtWidgets.QWidget):
     def __init__(self):

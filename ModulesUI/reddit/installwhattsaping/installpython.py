@@ -1,7 +1,8 @@
 import os
-import subprocess
 import platform
+import subprocess
 import sys
+
 
 def is_python_installed():
     """Vérifie si Python est installé."""

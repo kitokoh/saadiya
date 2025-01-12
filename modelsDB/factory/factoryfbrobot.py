@@ -1,6 +1,6 @@
 import random
-from faker import Faker
 from database.databasefbrobot import FbRobotDatabase
+from faker import Faker
 
 fake = Faker()
 

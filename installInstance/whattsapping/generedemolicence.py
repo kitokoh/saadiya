@@ -122,9 +122,10 @@
 # if __name__ == "__main__":
 #     main()
 
+import datetime
 import os
 import sys
-import datetime
+
 
 class LicenceGenerator:
     def __init__(self):

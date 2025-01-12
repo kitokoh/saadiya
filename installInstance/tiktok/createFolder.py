@@ -120,8 +120,9 @@
 #     main()
 import os
 import sys
-from datetime import datetime
 import time
+from datetime import datetime
+
 
 class LogWorker:
     def __init__(self):

@@ -1,37 +1,35 @@
-import os
 import json
-
+import os
 import subprocess
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, QMessageBox, QMenu, QComboBox, QStatusBar
-from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, \
+    QMessageBox, QMenu, QComboBox, QStatusBar
+
+from ModulesUI.pinterest.installwhattsaping.invisibleQT import InvisibleInstance
+from ModulesUI.pinterest.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.pinterest.installwhattsaping.majenvqt import MajEnv
+from ModulesUI.pinterest.installwhattsaping.supprimBon import DeleteBon
+from ModulesUI.pinterest.installwhattsaping.updateInstanceQt import UpdateInstance
+# from fb_robot_install import FbRobot
+from ModulesUI.pinterest.wp_robot_install import WpRobot
+from ModulesUI.tiktok.group_manager import GroupTable
+from ModulesUI.tiktok.instances_table import InstanceTable
+from ModulesUI.tiktok.media_manager import MediaTable
+from imports import *
+from installFBrobotPy.demarrageAuto import InstallerApp
+from statistique.stat import Dashboard
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
 
 # from media_manager import MediaTable
 # from group_manager import GroupTable
 # from instances_table import InstanceTable
 # from fb_robot_install import FbRobot
-
-from ModulesUI.tiktok.media_manager import MediaTable
-from ModulesUI.tiktok.group_manager import GroupTable
-from ModulesUI.tiktok.instances_table import InstanceTable
-#from fb_robot_install import FbRobot
-from ModulesUI.pinterest.wp_robot_install import WpRobot
-from statistique.stat import Dashboard
-
-from installFBrobotPy.demarrageAuto import InstallerApp
-#from ModulesUI.pinterest.installwhattsaping.majenvqt import AppEnv 
-#from ModulesUI.pinterest.installwhattsaping.updatejson import InstallerApp
-#from ModulesUI.pinterest.installwhattsaping.installGithub import InstallerApp
-#from ModulesUI.pinterest.installwhattsaping.installpython import InstallerApp
-
-from ModulesUI.pinterest.installwhattsaping.invisibleQT import InvisibleInstance
-from ModulesUI.pinterest.installwhattsaping.majenvqt import MajEnv
-from ModulesUI.pinterest.installwhattsaping.jsontorobot import JsonToRobot
-from ModulesUI.pinterest.installwhattsaping.supprimBon import DeleteBon
-from ModulesUI.pinterest.installwhattsaping.updateInstanceQt import UpdateInstance
-
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
+# from ModulesUI.pinterest.installwhattsaping.majenvqt import AppEnv
+# from ModulesUI.pinterest.installwhattsaping.updatejson import InstallerApp
+# from ModulesUI.pinterest.installwhattsaping.installGithub import InstallerApp
+# from ModulesUI.pinterest.installwhattsaping.installpython import InstallerApp
 class AboutDialog(QDialog):
     """Boîte de dialogue pour 'À propos'."""
     def __init__(self, parent=None):

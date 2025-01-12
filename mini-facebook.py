@@ -1,15 +1,17 @@
-import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget,QComboBox
-from PyQt5.QtGui import QIcon
+import sys
 from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
-from ui.header import HeaderSection
-from ui.footer import FooterSection
-from ui.login import LoginModule
-from main_fb_robot import FaceMainWindow  # Assurez-vous d'importer le module d'accueil
-from translation import TranslatorManager
-from imports import *
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QComboBox
 from datetime import datetime, timedelta
+
+from imports import *
+from lang.facebook.main_fb_robot import FaceMainWindow  # Assurez-vous d'importer le module d'accueil
+from translation import TranslatorManager
+from ui.footer import FooterSection
+from ui.header import HeaderSection
+from ui.login import LoginModule
+
 
 class FbMini(QMainWindow):
     def __init__(self):

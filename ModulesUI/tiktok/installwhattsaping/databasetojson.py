@@ -1,7 +1,8 @@
-import os
 import json
 import mysql.connector
+import os
 from mysql.connector import Error
+
 
 def fetch_media_data():
     """Récupère les descriptions et les chemins des médias à partir de la base de données."""

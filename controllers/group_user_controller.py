@@ -1,7 +1,8 @@
 # group_user_controller.py
 from fastapi import APIRouter, HTTPException
-from models.group_user import GroupUser
 from typing import List
+
+from models.group_user import GroupUser
 
 router = APIRouter()
 

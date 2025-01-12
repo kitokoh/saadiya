@@ -1,9 +1,6 @@
 pyinstaller
 pyqt5
 pyqt5-sip
-pillow==9.2.0  # Si tu utilises Pillow pour la gestion des images
-jsonschema==4.16.0  # Pour la gestion de fichiers JSON (si nécessaire)
-fastapi
 uvicorn
 sqlalchemy
 databases
@@ -26,5 +23,11 @@ openpyxl
 xlrd3
 
 PyQtWebEngine
-
-
+pillow  # Si tu utilises Pillow pour la gestion des images
+jsonschema  # Pour la gestion de fichiers JSON (si nécessaire)
+fastapi
+pywin32
+pysqlite3
+psycopg2
+sip
+psycopg2-binary

@@ -1,9 +1,10 @@
-import os
 import ctypes
 import json
-from PyQt5.QtWidgets import QApplication, QMessageBox, QProgressDialog
+import os
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMessageBox, QProgressDialog
 from datetime import datetime
+
 
 class FileTransferApp2:
     def __init__(self):

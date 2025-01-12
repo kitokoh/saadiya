@@ -1,38 +1,36 @@
-import os
 import json
-
+import os
 import subprocess
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, QMessageBox, QMenu, QComboBox, QStatusBar
-from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, \
+    QMessageBox, QMenu, QComboBox, QStatusBar
 
-#from media_manager import MediaTable
-#from group_manager import GroupTable
-#from instances_table import InstanceTable
-#from fb_robot_install import FbRobot
-
-from ModulesUI.twitter.media_manager import MediaTable
 from ModulesUI.twitter.group_manager import GroupTable
-from ModulesUI.twitter.instances_table import InstanceTable
-#from fb_robot_install import FbRobot
-from ModulesUI.twitter.wp_robot_install import WpRobot
-from statistique.stat import Dashboard
-from installFBrobotPy.demarrageAuto import InstallerApp
-
-#from ModulesUI.twitter.installwhattsaping.demarrageAuto import InstallerApp
-#from ModulesUI.twitter.installwhattsaping.majenvqt import AppEnv 
-#from ModulesUI.twitter.installwhattsaping.updatejson import InstallerApp
-#from ModulesUI.twitter.installwhattsaping.installGithub import InstallerApp
-#from ModulesUI.twitter.installwhattsaping.installpython import InstallerApp
-
 from ModulesUI.twitter.installwhattsaping.invisibleQT import InvisibleInstance
-from ModulesUI.twitter.installwhattsaping.majenvqt import MajEnv
 from ModulesUI.twitter.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.twitter.installwhattsaping.majenvqt import MajEnv
 from ModulesUI.twitter.installwhattsaping.supprimBon import DeleteBon
 from ModulesUI.twitter.installwhattsaping.updateInstanceQt import UpdateInstance
-
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ModulesUI.twitter.instances_table import InstanceTable
+from ModulesUI.twitter.media_manager import MediaTable
+# from fb_robot_install import FbRobot
+from ModulesUI.twitter.wp_robot_install import WpRobot
 from imports import *
+from installFBrobotPy.demarrageAuto import InstallerApp
+from statistique.stat import Dashboard
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
+
+# from media_manager import MediaTable
+# from group_manager import GroupTable
+# from instances_table import InstanceTable
+# from fb_robot_install import FbRobot
+# from ModulesUI.twitter.installwhattsaping.demarrageAuto import InstallerApp
+# from ModulesUI.twitter.installwhattsaping.majenvqt import AppEnv
+# from ModulesUI.twitter.installwhattsaping.updatejson import InstallerApp
+# from ModulesUI.twitter.installwhattsaping.installGithub import InstallerApp
+# from ModulesUI.twitter.installwhattsaping.installpython import InstallerApp
 class AboutDialog(QDialog):
     """Boîte de dialogue pour 'À propos'."""
     def __init__(self, parent=None):

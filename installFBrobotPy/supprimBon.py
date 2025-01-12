@@ -1,15 +1,16 @@
-import os
-import sys
 import json
-import subprocess
+import os
 import shutil
+import subprocess
+import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 
+from ui.footer import FooterSection  # Assurez-vous que ce fichier existe
 # Importe les sections de l'en-tête et du pied de page
 from ui.header import HeaderSection  # Assurez-vous que ce fichier existe
-from ui.footer import FooterSection  # Assurez-vous que ce fichier existe
+
 _current_folder = os.getcwd()
 #user_data_dir1 = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 

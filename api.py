@@ -1,6 +1,7 @@
 # api.py
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
+
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 
 app = FastAPI()

@@ -233,10 +233,11 @@
 # if __name__ == "__main__":
 #     main()
 import os
-import subprocess
 import random
 import string
+import subprocess
 from datetime import datetime
+
 
 class LicenseGenerator:
     def __init__(self):

@@ -1,8 +1,8 @@
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QPushButton
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QFont
 
 
 class Class1Display(QWidget):

@@ -1,15 +1,17 @@
-import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget,QComboBox
-from PyQt5.QtGui import QIcon
+import sys
 from PyQt5.QtCore import QTranslator, QLocale, QLibraryInfo
-from ui.header import HeaderSection
-from ui.footer import FooterSection
-from ui.login import LoginModule
-from Home.home import HomePage  # Assurez-vous d'importer le module d'accueil
-from translation import TranslatorManager
-from imports import *
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QComboBox
 from datetime import datetime, timedelta
+
+from Home.home import HomePage  # Assurez-vous d'importer le module d'accueil
+from imports import *
+from translation import TranslatorManager
+from ui.footer import FooterSection
+from ui.header import HeaderSection
+from ui.login import LoginModule
+
 
 class Nova360ProApp(QMainWindow):
     def __init__(self, main_app=None):
@@ -21,7 +23,7 @@ class Nova360ProApp(QMainWindow):
 
     def initUI(self):
         # Définir le titre et l'icône
-        self.setWindowTitle(self.tr("Nova360Pro - Connexion"))
+        self.setWindowTitle(self.tr("LeopardoPro - Connexion"))
         self.setGeometry(100, 100, 800, 600)
         # Initialiser et charger les traductions
        # self.translator_manager = TranslatorManager()
@@ -36,7 +38,7 @@ class Nova360ProApp(QMainWindow):
         self.main_layout = QVBoxLayout(self.central_widget)
 
         # Initialisation des modules d'en-tête, de pied de page et de connexion
-        self.header = HeaderSection(self, title=self.tr("Robot Marketing Automation"), app_name="Nova360 AI", slogan=self.tr("Marketing & Management Automation"))
+        self.header = HeaderSection(self, title=self.tr("Robot Marketing Automation"), app_name="Leopardo AI", slogan=self.tr("Marketing & Management Automation"))
         self.footer = FooterSection()  # Pied de page
         self.login_module = LoginModule()  # Module de connexion
 
@@ -116,6 +118,7 @@ class Nova360ProApp(QMainWindow):
                 'fr': 'fr',
                 'tr': 'tr',
                 'ar': 'ar',
+                'pt': 'pt',                
             }
 
             # Vérifier si la langue système est supportée, sinon utiliser l'anglais par défaut

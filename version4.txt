@@ -20,3 +20,20 @@ tout syncroniser avec google contact et  google drive
 
 faire de sorte que le pyqt soit en .dmg en .linux et .web 
 
+pour la prochaine version ou les button seron dynamique la ca serra un nouveua segement dans l application 
+l idee de les rendre par modue don le gar techarge le .exe du module correspondant la egalement doit etre pour la version 4
+
+AUSSİ DANS LA PROCHİNE VERSİON ON POURRA EN CHRİVANT LE TİTRE D UN GROUP TELECHARGE LE MAX DE GROUPES POSSİBLE 
+
+pour la prochaine version ajoute settign et user dans la base de donne reduisssant ainsi l utilisation des json 
+j ajoute egalement les key.key directement dans le code rduissant encore plus 
+ajouter un modules pour lui permettre de guider 
+
+partager un direct 
+partager  en cliquant sur le buton par
+
+
+
+
+DANS LA PROCHAİNE VERSİON ,MEDİA FACEBOOK DOİT ETRE DİRECTEMENT DANS LA MEM BASE DE DONNER AVECC LA TCA BLE CATEGORİE LA TABLE CONACT EGALEMENT SERA DANS LE MEME DB ACEC SON OPTİON CATEGORİE 
+CES CATEGORİE VONT STOCKER LES NOM DES ROBOT CO WABON1 ETC.. ET DONC CEST LA MEME CHOSE Uİ SERO APPELER A GAUCHE ET A DROİT POUR UTİLİSATİON 

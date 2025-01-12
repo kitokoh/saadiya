@@ -21,6 +21,7 @@
 # def read_audit_log(db, log_id):
 #     return db.query(AuditLog).filter(AuditLog.id == log_id).first()
 
+from database import Base
 # def delete_audit_log(db, log_id):
 #     log = db.query(AuditLog).filter(AuditLog.id == log_id).first()
 #     if log:
@@ -28,7 +29,7 @@
 #         db.commit()
 # models/audit_log.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"

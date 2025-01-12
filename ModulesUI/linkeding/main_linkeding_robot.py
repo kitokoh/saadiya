@@ -1,39 +1,37 @@
-import os
 import json
-
+import os
 import subprocess
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, QMessageBox, QMenu, QComboBox, QStatusBar
-from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, \
+    QMessageBox, QMenu, QComboBox, QStatusBar
 
+from ModulesUI.linkeding.group_manager import GroupTable
+from ModulesUI.linkeding.installwhattsaping.invisibleQT import InvisibleInstance
+from ModulesUI.linkeding.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.linkeding.installwhattsaping.majenvqt import MajEnv
+from ModulesUI.linkeding.installwhattsaping.supprimBon import DeleteBon
+from ModulesUI.linkeding.installwhattsaping.updateInstanceQt import UpdateInstance
+from ModulesUI.linkeding.instances_table import InstanceTable
 # from media_manager import MediaTable
 # from group_manager import GroupTable
 # from instances_table import InstanceTable
 # from fb_robot_install import FbRobot
 from ModulesUI.linkeding.media_manager import MediaTable
-from ModulesUI.linkeding.group_manager import GroupTable
-from ModulesUI.linkeding.instances_table import InstanceTable
-#from fb_robot_install import FbRobot
+# from fb_robot_install import FbRobot
 from ModulesUI.linkeding.wp_robot_install import WpRobot
-from statistique.stat import Dashboard
 from checklicence import LicenseChecker
-from statistique.nombredegrup import GroupCounter
-
-
-from installFBrobotPy.demarrageAuto import InstallerApp
-#from ModulesUI.linkeding.installwhattsaping.majenvqt import AppEnv 
-#from ModulesUI.linkeding.installwhattsaping.updatejson import InstallerApp
-#from ModulesUI.linkeding.installwhattsaping.installGithub import InstallerApp
-#from ModulesUI.linkeding.installwhattsaping.installpython import InstallerApp
-
-from ModulesUI.linkeding.installwhattsaping.invisibleQT import InvisibleInstance
-from ModulesUI.linkeding.installwhattsaping.majenvqt import MajEnv
-from ModulesUI.linkeding.installwhattsaping.jsontorobot import JsonToRobot
-from ModulesUI.linkeding.installwhattsaping.supprimBon import DeleteBon
-from ModulesUI.linkeding.installwhattsaping.updateInstanceQt import UpdateInstance
-
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
+from installFBrobotPy.demarrageAuto import InstallerApp
+from statistique.nombredegrup import GroupCounter
+from statistique.stat import Dashboard
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
+
+# from ModulesUI.linkeding.installwhattsaping.majenvqt import AppEnv
+# from ModulesUI.linkeding.installwhattsaping.updatejson import InstallerApp
+# from ModulesUI.linkeding.installwhattsaping.installGithub import InstallerApp
+# from ModulesUI.linkeding.installwhattsaping.installpython import InstallerApp
 class AboutDialog(QDialog):
     """Boîte de dialogue pour 'À propos'."""
     def __init__(self, parent=None):

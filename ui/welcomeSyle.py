@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QLabel, QDialog, QVBoxLayout, QApplication, QPushButton, QProgressBar
-from PyQt5.QtGui import QFont, QMovie, QIcon
-from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEvent
-from PyQt5.QtMultimedia import QSound
+import os
 import sys
-import os 
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation, QEvent
+from PyQt5.QtGui import QFont, QMovie, QIcon
+from PyQt5.QtMultimedia import QSound
+from PyQt5.QtWidgets import QLabel, QDialog, QVBoxLayout, QApplication, QPushButton, QProgressBar
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 import json 
 from PyQt5.QtCore import Qt, QTranslator, QLocale
@@ -11,7 +12,7 @@ from PyQt5.QtCore import Qt, QTranslator, QLocale
 class WelcomeDialog(QDialog):
     def __init__(self, username):
         super().__init__()
-        self.setWindowTitle(self.tr("🎉 Welcome to nova360.ai! 🎉"))
+        self.setWindowTitle(self.tr("🎉 Welcome to Leopardo.ai! 🎉"))
 
         # Configuration principale de la fenêtre
         self.setGeometry(100, 100, 1320, 900)  # Taille de la fenêtre
@@ -46,7 +47,7 @@ class WelcomeDialog(QDialog):
         # Main message and rotating tips
         self.main_text = QLabel(
             f"<p style='font-size:16px;'>"
-            f"{self.tr('Welcome to')} <strong>nova360.ai</strong>, {self.tr('your AI-powered companion for next-level marketing automation.')}"
+            f"{self.tr('Welcome to')} <strong>Leopardo.ai</strong>, {self.tr('your AI-powered companion for next-level marketing automation.')}"
             "<br><br>{self.tr('Get ready to')} <em>automate</em>, <em>connect</em>, and <em>expand</em> your brand effortlessly with cutting-edge technology!</p>", self)
         self.main_text.setAlignment(Qt.AlignCenter)
         self.main_text.setStyleSheet("color: #34495E; font-size: 16px;")
@@ -57,14 +58,14 @@ class WelcomeDialog(QDialog):
         self.tip_label.setStyleSheet("color: #4A4A4A; font-size: 12px; font-style: italic;")
         self.tips = [
             self.tr("💡 Tip: Schedule posts across multiple platforms with one click!"),
-            self.tr("🚀 Feature: Use nova360.ai to engage your audience on autopilot."),
-            self.tr("📈 Did you know? nova360.ai optimizes your marketing strategy with ease!")
+            self.tr("🚀 Feature: Use Leopardo.ai to engage your audience on autopilot."),
+            self.tr("📈 Did you know? Leopardo.ai optimizes your marketing strategy with ease!")
         ]
         self.show_rotating_tips()
 
         # Animated "Get Started" Button with Tooltip and Sound
         self.get_started_button = QPushButton(self.tr("🚀 Get Started"), self)
-        self.get_started_button.setToolTip(self.tr("Click to begin your journey with nova360.ai!"))
+        self.get_started_button.setToolTip(self.tr("Click to begin your journey with Leopardo.ai!"))
         self.get_started_button.setStyleSheet("""
             QPushButton {
                 background-color: #2E86C1; color: white; font-size: 14px;

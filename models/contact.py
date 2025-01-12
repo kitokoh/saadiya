@@ -33,6 +33,7 @@
 #         db.refresh(contact)
 #     return contact
 
+from database import Base
 # def delete_contact(db, contact_id):
 #     contact = db.query(Contact).filter(Contact.id == contact_id).first()
 #     if contact:
@@ -40,7 +41,7 @@
 #         db.commit()
 # models/contact.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class Contact(Base):
     __tablename__ = "contacts"

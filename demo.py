@@ -1,7 +1,6 @@
 # coding:utf-8
 import os
 import sys
-
 from PyQt5.QtCore import Qt, QTranslator
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QApplication
@@ -9,9 +8,8 @@ from qfluentwidgets import FluentTranslator
 
 from school.common.config import cfg
 from school.view.main_window import MainWindow
-#from ui.login import LoginModule
+# from ui.login import LoginModule
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-
 
 # enable dpi scale
 if cfg.get(cfg.dpiScale) == "Auto":

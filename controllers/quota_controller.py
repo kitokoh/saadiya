@@ -1,7 +1,8 @@
 # quota_controller.py
 from fastapi import APIRouter, HTTPException
-from models.quota import Quota
 from typing import List
+
+from models.quota import Quota
 
 router = APIRouter()
 

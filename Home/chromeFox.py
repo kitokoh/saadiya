@@ -1,13 +1,14 @@
-import sys
 import sqlite3
+import sys
+
+import os
 import webbrowser
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QRadioButton,
     QButtonGroup, QDialog, QCheckBox, QFormLayout, QLineEdit, QMessageBox
 )
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt
-
 
 
 class SecureBrowserConnect(QWidget):
@@ -21,7 +22,20 @@ class SecureBrowserConnect(QWidget):
 
     def init_db(self):
         # Initialize SQLite database
-        self.conn = sqlite3.connect("modules.db")
+        roaming_path = os.getenv('APPDATA')
+
+        # Construire le chemin complet vers le fichier modules.db
+        resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+        db_path = os.path.join(resources_folder, 'modules.db')
+
+        # Vérifier si le dossier existe, sinon le créer
+        if not os.path.exists(resources_folder):
+            os.makedirs(resources_folder)
+
+        # Se connecter à la base de données
+        
+        self.conn = sqlite3.connect(db_path)
+
         cursor = self.conn.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS modules (

@@ -1,17 +1,19 @@
-import sys
 import os
 import subprocess
+import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout,
     QProgressBar, QPushButton, QMessageBox, QTextEdit
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
 
+from imports import *
+from ui.footer import FooterSection
 # Importe les sections de l'en-tête et du pied de page
 from ui.header import HeaderSection
-from ui.footer import FooterSection
-from imports import *
+
+
 class UpdateInstance(QWidget):
     def __init__(self):
         super().__init__()

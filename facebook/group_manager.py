@@ -1,16 +1,19 @@
+import csv
 import json
 import os
-import csv
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, 
-                             QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox, 
-                             QMenu, QAction, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
 from PyQt5.QtCore import Qt, QSize, pyqtSignal  # Ajout de pyqtSignal ici
-from ui.header import HeaderSection  # Import du header
-from ui.footer import FooterSection  # Import du footer
-from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
 from PyQt5.QtWidgets import QFileDialog
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton,
+                             QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
+                             QMenu, QAction, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
+
 from imports import *
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ui.footer import FooterSection  # Import du footer
+from ui.header import HeaderSection  # Import du header
+from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
+
+
 class AddGroupDialog(QDialog):
     def __init__(self, parent=None):
                         # Initialiser le traducteur

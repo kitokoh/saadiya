@@ -143,8 +143,9 @@
 # if __name__ == "__main__":
 #     main()
 import os
-import time
 import subprocess
+import time
+
 
 def write_to_log(log_file, message):
     """Écrit les messages dans le fichier log."""

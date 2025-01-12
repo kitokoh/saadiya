@@ -1,6 +1,7 @@
+import datetime
 import os
 import sys
-import datetime
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class LicenceGenerator:

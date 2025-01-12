@@ -1,9 +1,12 @@
+import datetime
 import os
 import re
-import datetime
 import subprocess
+
 from mail.mail_in_in_pj import Mailer3
 from mail.mail_in_to_out import Mailer2
+
+
 class LicenseChecker:
     def __init__(self, license_dir="C:\\bon"):
         self.license_dir = license_dir

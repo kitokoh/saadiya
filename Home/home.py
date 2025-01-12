@@ -1,42 +1,112 @@
-import sys
+import json
 import os
 import subprocess
+import sys
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QVBoxLayout, QMessageBox, QProgressBar
-import json
-from PyQt5.QtWidgets import (
-    QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout, 
-    QHBoxLayout, QWidget, QLineEdit, QScrollArea,QGraphicsDropShadowEffect, QFrame, QMenu, QMenuBar, QMessageBox
-)
-#from PyQt5.QtWidgets import QGraphicsDropShadowEffect
-#from PyQt5.QtGui import QColor
-from PyQt5.QtGui import QMovie
-from PyQt5.QtCore import Qt, QTimer
-
-from PyQt5.QtGui import QFont, QPixmap, QIcon,QColor
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve
-from main_fb_robot import FaceMainWindow  # Importez votre page d'accueil
-from ModulesUI.whasapping.main_wp_robot import WhatsMainWindow  # Importez votre page d'accueil
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont, QPixmap, QIcon, QColor
+# from PyQt5.QtWidgets import QGraphicsDropShadowEffect
+# from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QMovie
+from PyQt5.QtWidgets import (
+    QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout,
+    QHBoxLayout, QWidget, QLineEdit, QScrollArea, QGraphicsDropShadowEffect, QFrame, QMenu, QMenuBar, QMessageBox
+)
+from PyQt5.QtWidgets import QPushButton, QMenu, QAction, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 
-from ModulesUI.emailing.main_mail_robot import MailMainWindow  # Importez votre page d'accueil
-from ModulesUI.adsPro.main_ads_robot import AdsMainWindow  # Importez votre page d'accueil
+from PyQt5.QtWidgets import QPushButton, QHBoxLayout, QVBoxLayout, QMessageBox, QProgressBar
+from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtCore import QSize
 from ModulesUI.AutoBlog.main_blog_robot import BlogMainWindow  # Importez votre page d'accueil
+from ModulesUI.adsPro.main_ads_robot import AdsMainWindow  # Importez votre page d'accueil
 from ModulesUI.branding.main_brand_robot import BrandMainWindow  # Importez votre page d'accueil
 from ModulesUI.chatBot.main_chatbot_robot import ChatBotMainWindow  # Importez votre page d'accueil
+from ModulesUI.emailing.main_mail_robot import MailMainWindow  # Importez votre page d'accueil
 from ModulesUI.insta.main_insta_robot import InstaMainWindow  # Importez votre page d'accueil
 from ModulesUI.linkeding.main_linkeding_robot import LinkedingMainWindow  # Importez votre page d'accueil
-#from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
+# from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
 from ModulesUI.reddit.main_reddit_robot import RedditMainWindow  # Importez votre page d'accueil
 from ModulesUI.tiktok.main_tok_robot import TokMainWindow  # Importez votre page d'accueil
 from ModulesUI.twitter.main_x_robot import XMainWindow  # Importez votre page d'accueil
+from ModulesUI.whasapping.main_wp_robot import WhatsMainWindow  # Importez votre page d'accueil
 from ModulesUI.youtube.main_ytb_robot import YtbMainWindow  # Importez votre page d'accueil
-#from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
+from facebook.main_fb_robot import FaceMainWindow  # Importez votre page d'accueil
+# from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
 #pour changer la destinationet developper en local c  ext ici que ca se passe
 #  
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 from ui.clientsBrand import Nosclient
 from imports import *
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QProgressDialog, QLabel, QApplication
+class PremiumButtonWidget(QWidget):
+    def __init__(self, text, icon, color, func, key, parent=None):
+        super().__init__(parent)
+        self.button = QPushButton(text)
+        self.button.setFont(QFont("Arial", 14))
+        self.button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
+        self.button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {color};
+                color: white;
+                border: 2px solid #CCCCCC;
+                border-radius: 15px;
+                padding: 10px;
+                min-width: 150px;
+                min-height: 150px;
+            }}
+            QPushButton:hover {{
+                background-color: {self.lighten_color(color)};
+                border: 2px solid #AAAAAA;
+                margin: -2px;
+            }}
+            QPushButton:pressed {{
+                background-color: {color};
+                border: 2px solid #888888;
+                padding: 12px;
+            }}
+        """)
+
+        # Ajouter l'icône "Premium"
+        self.premium_icon = QLabel(self)
+        self.premium_icon.setPixmap(QPixmap("resources/icons/premium-icon.png").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.premium_icon.setAlignment(Qt.AlignTop | Qt.AlignRight)
+        self.premium_icon.setStyleSheet("background-color: transparent;")
+
+        # Layout pour le widget personnalisé
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.button)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        # Connecter le bouton à sa fonction
+        if self.is_feature_enabled(key):
+            self.button.clicked.connect(func)
+        else:
+            self.button.clicked.connect(lambda _, k=key: self.prompt_enable_feature(k))
+
+    def lighten_color(self, color):
+        # Fonction pour éclaircir la couleur (identique à celle que vous utilisez)
+        return QColor(color).lighter(120).name()
+
+    def resizeEvent(self, event):
+        # Mettre à jour la position de l'icône "Premium" lorsque le widget est redimensionné
+        self.premium_icon.move(self.width() - 30, 5)
+        super().resizeEvent(event)
+class LoaderThread(QThread):
+    finished = pyqtSignal(object)  # Signal pour émettre l'instance de LeopardoProApp
+
+    def __init__(self, main_app):
+        super().__init__()
+        self.main_app = main_app
+
+    def run(self):
+        # Instancier LeopardoProApp en arrière-plan
+        app_instance = FaceMainWindow() 
+        self.finished.emit(app_instance)  # Émettre l'instance une fois terminée
 class HomePage(QMainWindow):
     def __init__(self,main_app=None):
         super().__init__()
@@ -73,7 +143,7 @@ class HomePage(QMainWindow):
 
 
         # Layout principal en vertical
-        main_layout = QVBoxLayout(central_widget)
+        self.main_layout = QVBoxLayout(central_widget)
 
 
 
@@ -129,7 +199,7 @@ class HomePage(QMainWindow):
         # # Actions de menu pour le menu Aide
         # help_action = QAction(self.tr("Aide en ligne"), self)
         # help_action.triggered.connect(self.open_help)
-        # about_action = QAction(self.tr("À propos de nova360.turknovatech.com"), self)
+        # about_action = QAction(self.tr("À propos de Leopardo.turknovatech.com"), self)
         # about_action.triggered.connect(self.show_about)
 
         # help_menu.addAction(help_action)
@@ -179,7 +249,7 @@ class HomePage(QMainWindow):
 
         # Nom de l'application et slogan
         app_info_layout = QVBoxLayout()
-        app_name_label = QLabel("Nova360 AI")
+        app_name_label = QLabel("Leopardo AI")
         app_name_label.setFont(QFont("Arial", 24, QFont.Bold))
         app_name_label.setAlignment(Qt.AlignCenter)
         app_name_label.setStyleSheet("color: #2E7D32;")
@@ -237,10 +307,10 @@ class HomePage(QMainWindow):
         header_layout.addWidget(toggle_button)
 
         # Ajouter l'en-tête au layout principal
-        main_layout.addWidget(header_frame)
+        self.main_layout.addWidget(header_frame)
 
         # Espacement avant les boutons
-        main_layout.addSpacing(20)
+        self.main_layout.addSpacing(20)
 
         # Menu latéral rétractable
         self.side_menu = QWidget(self)
@@ -340,25 +410,29 @@ class HomePage(QMainWindow):
                 # Layout pour les icônes et boutons du milieu
             middle_layout = QHBoxLayout()
  # Ajouter une image de fond au format .webp
-
-        # Liste des fonctionnalités avec leurs icônes et couleur
         features = [
             ("FB Robot Pro", "resources/icons/facebook-icon-png-770-Windows.ico", "#E91E63", self.open_facebook, "facebook_bot"),
             ("WhatsApping", "resources/icons/whatsapp-512.png", "#4CAF50", self.open_whatsapp, "whatsapp_bot"),
             ("Blogging", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico", "#4CAF50", self.open_blogging, "blogging_bot"),
             ("Insta Pro", "resources/icons/instagram-icon-956-Windows.ico", "#4CAF50", self.open_instagram, "instagram_bot"),
-            ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro, "telegram_bot"),
-            ("Branding", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding, "branding_bot"),
-            ("Emailing", "resources/icons/pink-message-icon-12045-Windows.ico", "#4CAF50", self.open_Emailing, "emailing_bot"),
+            ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro1, "telegram_bot"),
+            ("Branding", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding1, "branding_bot"),
+            ("Emailing", "resources/icons/pink-message-icon-12045-Windows.ico", "#4CAF50", self.open_Emailing1, "emailing_bot"),
         ]
 
    # Boutons des fonctionnalités
 
-        # Ajouter des boutons avec animation et icônes dynamiques
+        feature_layout = QHBoxLayout()
+
+
         for text, icon, color, func, key in features:
+            # Conteneur principal pour chaque bouton
+
+
+            # Bouton principal
             button = QPushButton(text)
-            button.setFont(QFont("Arial", 14))  # Taille de police réduite
-            button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))  # Icônes plus petites
+            button.setFont(QFont("Arial", 14))
+            button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
             button.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {color};
@@ -371,77 +445,161 @@ class HomePage(QMainWindow):
                 }}
                 QPushButton:hover {{
                     background-color: {self.lighten_color(color)};
-                    border: 2px solid #AAAAAA; /* Ajoute un effet de surbrillance */
-                    padding: 8px; /* Simule une légère contraction pour donner un effet visuel */
+                    border: 2px solid #AAAAAA;
+                    padding: 8px;
                 }}
                 QPushButton:pressed {{
                     background-color: {color};
-                    border: 2px solid #888888; /* Accentue l'effet d'appui */
+                    border: 2px solid #888888;
                 }}
             """)
+
+            # Badge Premium
+            if key in ["blogging_bot", "instagram_bot","telegram_bot","emailing_bot"]:
+                # Création du badge premium
+                premium_label = QLabel("Premium")
+                premium_label.setFont(QFont("Arial", 6, QFont.Bold))  # Police légèrement plus grande
+                premium_label.setStyleSheet("""
+                    QLabel {
+                        color: white;
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #ffd700, stop:0.6 #ffb700, stop:1 #d4af37);
+                        border-radius: 12px;
+                        padding: 6px 12px;
+                        border: 2px solid rgba(255, 223, 0, 0.9);
+                        transition: all 0.3s ease-in-out;
+                    }
+                    QLabel:hover {
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #ffdf00, stop:0.6 #ffd000, stop:1 #b58f2f);
+                        transform: scale(1.05);
+                    }
+                """)
+                premium_label.setAlignment(Qt.AlignCenter)
+                premium_label.setFixedSize(80, 30)  # Taille ajustée pour un effet plus distinct
+
+                # Positionnement du badge
+                premium_label.move(15, 15)
+                premium_label.setParent(button)
+
+                # Ombre dynamique pour le badge
+                badge_shadow = QGraphicsDropShadowEffect()
+                badge_shadow.setBlurRadius(25)
+                badge_shadow.setColor(QColor(255, 223, 0, 150))  # Ombre dorée
+                badge_shadow.setOffset(3, 3)
+                premium_label.setGraphicsEffect(badge_shadow)
+           
+            #badge vert Actif
+            if key in ["facebook_bot","whatsapp_bot"]:
+                # Création du badge premium
+                premium_label = QLabel("actif")
+                premium_label.setFont(QFont("Arial", 6, QFont.Bold))  # Police légèrement plus grande
+                premium_label.setStyleSheet("""
+                    QLabel {
+                        color: white;
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #00ff00, stop:0.6 #00cc00, stop:1 #009900);
+                        border-radius: 12px;
+                        padding: 6px 12px;
+                        border: 2px solid rgba(0, 255, 0, 0.9);
+                        transition: all 0.3s ease-in-out;
+                    }
+                    QLabel:hover {
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #00ff00, stop:0.6 #00cc00, stop:1 #009900);
+                        transform: scale(1.05);
+                    }
+                """)
+                premium_label.setAlignment(Qt.AlignCenter)
+                premium_label.setFixedSize(80, 30)  # Taille ajustée pour un effet plus distinct
+
+                # Positionnement du badge
+                premium_label.move(15, 15)
+                premium_label.setParent(button)
+
+                # Ombre dynamique pour le badge
+                badge_shadow = QGraphicsDropShadowEffect()
+                badge_shadow.setBlurRadius(25)
+                badge_shadow.setColor(QColor(0, 255, 0, 150))  # Ombre verte
+                badge_shadow.setOffset(3, 3)
+                premium_label.setGraphicsEffect(badge_shadow)
+            # Badge bleu entreprise
+            if key in ["branding_bot"]:
+                # Création du badge premium
+                premium_label = QLabel("Entreprise")
+                premium_label.setFont(QFont("Arial", 6, QFont.Bold))  # Police légèrement plus grande
+                premium_label.setStyleSheet("""
+                    QLabel {
+                        color: white;
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #00bfff, stop:0.6 #007fff, stop:1 #0055ff);
+                        border-radius: 12px;
+                        padding: 6px 12px;
+                        border: 2px solid rgba(0, 191, 255, 0.9);
+                        transition: all 0.3s ease-in-out;
+                    }
+                    QLabel:hover {
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #00bfff, stop:0.6 #007fff, stop:1 #0055ff);
+                        transform: scale(1.05);
+                    }
+                """)
+                premium_label.setAlignment(Qt.AlignCenter)
+                premium_label.setFixedSize(80, 30)  # Taille ajustée pour un effet plus distinct
+
+                # Positionnement du badge
+                premium_label.move(15, 15)
+                premium_label.setParent(button)
+
+                # Ombre dynamique pour le badge
+                badge_shadow = QGraphicsDropShadowEffect()
+                badge_shadow.setBlurRadius(25)
+                badge_shadow.setColor(QColor(0, 191, 255, 150))  # Ombre bleue
+                badge_shadow.setOffset(3, 3)
+                premium_label.setGraphicsEffect(badge_shadow)
+            # Effet d'ombre pour le bouton
+            if key in ["facebook_bot", "whatsapp_bot", "linkedin_bot"]:
+                shadow = QGraphicsDropShadowEffect()
+                shadow.setBlurRadius(50)  # Rayon de flou plus grand
+                shadow.setColor(QColor(255, 36, 0, 200))  # Rouge néon avec opacité
+                shadow.setOffset(5, 10)  # Décalage plus important
+                button.setGraphicsEffect(shadow)
+                
             if self.is_feature_enabled(key):
                 button.clicked.connect(func)
             else:
-                button.clicked.connect(lambda _, k=key: self.prompt_enable_feature(k))
+                button.clicked.connect(lambda _, f=func, k=key: self.prompt_enable_feature(k))
 
             button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
 
-            middle_layout.addWidget(button)
+            # Ajouter le bouton dans le layout
+            feature_layout.addWidget(button)
+        #     feature_layout.addWidget(button)
 
-        main_layout.addLayout(middle_layout)
+            # Connecter les boutons aux fonctions
+          # button.clicked.connect(func if self.is_feature_enabled(key) else lambda _, k=key: self.prompt_enable_feature(k))
 
-        # Duplication des boutons avec modifications
-        # duplicate_features = [
-        #     ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2",self.open_twitter),
-        #     ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5",self.open_linkeding),
-        #     ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C",self.open_pinterest),
-        #     ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00",self.open_snapchat),
-        #     ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101",self.open_tiktok),
-        #     ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500",self.open_reddit),
-        #     ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000",self.open_youtube),
-        # ]
+
+        self.main_layout.addLayout(feature_layout)
+
+
         duplicate_features = [
-            ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2", self.open_twitter, "twitter_bot"),
+            ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2", self.open_twitter1, "twitter_bot"),
             ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5", self.open_linkedin, "linkedin_bot"),
-            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C", self.open_pinterest, "pinterest_bot"),
-            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00", self.open_snapchat, "snapchat_bot"),
-            ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101", self.open_tiktok, "tiktok_bot"),
-            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500", self.open_reddit, "reddit_bot"),
-            ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000", self.open_youtube, "youtube_bot"),
+            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C", self.open_pinterest1, "pinterest_bot"),
+            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00", self.open_snapchat1, "snapchat_bot"),
+            ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101", self.open_tiktok1, "tiktok_bot"),
+            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500", self.open_reddit1, "reddit_bot"),
+            ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000", self.open_youtube1, "youtube_bot"),
         ]
         duplicate_layout = QHBoxLayout()
 
-        # for text, icon, color, func in duplicate_features:
-        #     button = QPushButton(text)
-        #     button.setFont(QFont("Arial", 14))  # Taille de police réduite
-        #     button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))  # Icônes plus petites
-        #     button.setStyleSheet(f"""
-        #         QPushButton {{
-        #             background-color: {color};
-        #             color: white;
-        #             border: 2px solid #CCCCCC;
-        #             border-radius: 15px;
-        #             padding: 10px;
-        #             min-width: 150px;
-        #             min-height: 150px;
-        #         }}
-        #         QPushButton:hover {{
-        #             background-color: {self.lighten_color(color)};
-        #             border: 2px solid #AAAAAA; /* Accentuation de la bordure */
-        #             margin: -2px; /* Simule un effet de zoom sans changer les dimensions */
-        #         }}
-        #         QPushButton:pressed {{
-        #             background-color: {color};
-        #             border: 2px solid #888888; /* Bordure plus sombre */
-        #             padding: 12px; /* Simule un enfoncement visuel */
-        #         }}
-        #     """)
-
-        #     button.clicked.connect(func)  # Connecter chaque bouton à sa fonction respective
-
-        #     duplicate_layout.addWidget(button)
+     
         self.buttons = {}
         for text, icon, color, func, setting_key in duplicate_features:
+            # Conteneur principal pour chaque bouton
+
+
             button = QPushButton(text)
             button.setFont(QFont("Arial", 14))
             button.setIcon(QIcon(QPixmap(icon).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)))
@@ -466,7 +624,88 @@ class HomePage(QMainWindow):
                     padding: 12px;
                 }}
             """)
+            #badge vert Actif
+            if setting_key in ["linkedin_bot"]:
+                # Création du badge premium
+                premium_label = QLabel("Actif")
+                premium_label.setFont(QFont("Arial", 6, QFont.Bold))  # Police légèrement plus grande
+                premium_label.setStyleSheet("""
+                    QLabel {
+                        color: white;
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #00ff00, stop:0.6 #00cc00, stop:1 #009900);
+                        border-radius: 12px;
+                        padding: 6px 12px;
+                        border: 2px solid rgba(0, 255, 0, 0.9);
+                        transition: all 0.3s ease-in-out;
+                    }
+                    QLabel:hover {
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #00ff00, stop:0.6 #00cc00, stop:1 #009900);
+                        transform: scale(1.05);
+                    }
+                """)
+                premium_label.setAlignment(Qt.AlignCenter)
+                premium_label.setFixedSize(80, 30)  # Taille ajustée pour un effet plus distinct
 
+                # Positionnement du badge
+                premium_label.move(15, 15)
+                premium_label.setParent(button)
+
+                # Ombre dynamique pour le badge
+                badge_shadow = QGraphicsDropShadowEffect()
+                badge_shadow.setBlurRadius(25)
+                badge_shadow.setColor(QColor(0, 255, 0, 150))  # Ombre verte
+                badge_shadow.setOffset(3, 3)
+                premium_label.setGraphicsEffect(badge_shadow)
+           
+            # Badge Premium
+            if setting_key in ["blogging_bot", "instagram_bot","twitter_bot","pinterest_bot","snapchat_bot","tiktok_bot","reddit_bot","youtube_bot"]:
+                # Création du badge premium
+                premium_label = QLabel("Premium")
+                premium_label.setFont(QFont("Arial", 6, QFont.Bold))  # Police légèrement plus grande
+                premium_label.setStyleSheet("""
+                    QLabel {
+                        color: white;
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #ffd700, stop:0.6 #ffb700, stop:1 #d4af37);
+                        border-radius: 12px;
+                        padding: 6px 12px;
+                        border: 2px solid rgba(255, 223, 0, 0.9);
+                        transition: all 0.3s ease-in-out;
+                    }
+                    QLabel:hover {
+                        background: qradialgradient(cx:0.5, cy:0.5, radius:1.5, fx:0.5, fy:0.5, 
+                                                    stop:0 #ffdf00, stop:0.6 #ffd000, stop:1 #b58f2f);
+                        transform: scale(1.05);
+                    }
+                """)
+                premium_label.setAlignment(Qt.AlignCenter)
+                premium_label.setFixedSize(80, 30)  # Taille ajustée pour un effet plus distinct
+
+                # Positionnement du badge
+                premium_label.move(15, 15)
+                premium_label.setParent(button)
+
+                # Ombre dynamique pour le badge
+                badge_shadow = QGraphicsDropShadowEffect()
+                badge_shadow.setBlurRadius(25)
+                badge_shadow.setColor(QColor(255, 223, 0, 150))  # Ombre dorée
+                badge_shadow.setOffset(3, 3)
+                premium_label.setGraphicsEffect(badge_shadow)
+           
+   # Ajouter un icône "Premium" aux boutons spécifiques
+            if setting_key in ["blogging_bot", "instagram_bot", "twitter_bot"]:
+                self.add_premium_icon(button)
+
+
+
+            if setting_key in ["facebook_bot", "whatsapp_bot", "linkedin_bot"]:
+                shadow = QGraphicsDropShadowEffect()
+                shadow.setBlurRadius(30)
+                shadow.setColor(QColor(0, 212, 255))  # Neon blue
+                shadow.setOffset(0, 5)
+                button.setGraphicsEffect(shadow)
             if self.is_feature_enabled(setting_key):
                 button.clicked.connect(func)
             else:
@@ -476,28 +715,40 @@ class HomePage(QMainWindow):
 
         #     middle_layout.addWidget(button)
 
-        # main_layout.addLayout(middle_layout)
+        # self.main_layout.addLayout(middle_layout)
 
 
 
         #     # Vérifie si le module est activé ou non
         #     button.setEnabled(self.settings.get(setting_key, False))
         #     button.clicked.connect(lambda _, f=func, k=setting_key: self.handle_button_click(f, k))
+            # Ajouter le bouton dans le layout
 
         #     self.buttons[setting_key] = button
             duplicate_layout.addWidget(button)
 
-        main_layout.addLayout(duplicate_layout)
+        self.main_layout.addLayout(duplicate_layout)
 
         # Ajouter un titre "Gestion Auto"
         gestion_auto_label = QLabel(self.tr("Autres Solutions"))
         gestion_auto_label.setFont(QFont("Arial", 20, QFont.Bold))
         gestion_auto_label.setAlignment(Qt.AlignCenter)
         gestion_auto_label.setStyleSheet("color: #2E7D32;")
-        main_layout.addWidget(gestion_auto_label)
-
+        self.main_layout.addWidget(gestion_auto_label)
+        # self.setup_bottom_buttons()
         # Section des boutons du bas
         bottom_layout = QHBoxLayout()
+
+        # Dictionnaire des icônes pour chaque bouton
+        bottom_buttons_icons = {
+            "Swipes & Messages": "resources/icons/message-icon.png",
+            "Crypto Trade": "resources/icons/crypto-icon.png",
+            "Contact 360": "resources/icons/contact-icon.png",
+            "List Business Contacts": "resources/icons/business-icon.png",
+            "SAV": "resources/icons/sav-icon.png",
+            "ERP": "resources/icons/erp-icon.png",
+            "CRM360": "resources/icons/crm-icon.png"
+        }
 
         bottom_buttons = [
             ("Swipes & Messages", "#4CAF50"),
@@ -511,43 +762,63 @@ class HomePage(QMainWindow):
 
         for text, color in bottom_buttons:
             button = QPushButton(text)
-            button.setFont(QFont("Arial", 14))
+            button.setFont(QFont("Arial", 14, QFont.Bold))  # Police en gras
+            button.setIcon(QIcon(bottom_buttons_icons[text]))  # Ajouter l'icône
+            button.setIconSize(QSize(32, 32))  # Taille de l'icône
+
+            # Style avec dégradé, ombre et effets de survol
             button.setStyleSheet(f"""
                 QPushButton {{
-                    background-color: {color};
+                    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                    stop:0 {self.lighten_color(color)}, stop:1 {color});
                     color: white;
                     padding: 20px;
                     border-radius: 15px;
                     border: 2px solid #CCCCCC;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-align: left;
+                    padding-left: 50px;  # Espace pour l'icône
+                    transition: all 0.3s ease;
                 }}
                 QPushButton:hover {{
-                    background-color: {self.lighten_color(color)};
-                    margin: -2px; /* Simule un effet de zoom */
-                    border: 2px solid #AAAAAA; /* Bordure accentuée */
+                    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                    stop:0 {self.lighten_colr(color, 1.2)}, stop:1 {self.lighten_color(color)});
+                    border: 2px solid #AAAAAA;
+                    transform: scale(1.05);
                 }}
                 QPushButton:pressed {{
-                    background-color: {color};
-                    border: 2px solid #888888; /* Bordure plus sombre */
-                    padding: 22px; /* Simule un effet d'enfoncement */
+                    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                    stop:0 {color}, stop:1 {self.lighten_colr(color, 0.8)});
+                    border: 2px solid #888888;
+                    transform: scale(0.95);
                 }}
             """)
 
-            button.clicked.connect(lambda _, btn=text: self.show_message(btn))  
+            # Ajouter une ombre
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(15)
+            shadow.setColor(QColor(0, 0, 0, 100))  # Ombre noire avec transparence
+            shadow.setOffset(3, 3)
+            button.setGraphicsEffect(shadow)
+
+            # Connecter le bouton à sa fonction
+            button.clicked.connect(lambda _, btn=text: self.show_message1(btn))
             bottom_layout.addWidget(button)
 
-        main_layout.addLayout(bottom_layout)
+        self.main_layout.addLayout(bottom_layout)
 
 
 
         # Bouton pour ouvrir un nouvel onglet
         open_tab_button = QPushButton("Ouvrir un nouvel onglet")
         open_tab_button.clicked.connect(self.open_new_tab)
-       # main_layout.addWidget(open_tab_button)
+       # self.main_layout.addWidget(open_tab_button)
        # client_layout = QHBoxLayout()
        # self.clients=Nosclient()
 
         #client_layout.addWidget(self.clients)
-        #main_layout.addLayout(client_layout)
+        #self.main_layout.addLayout(client_layout)
 
         # Créer un pied de page modernisé
         footer_layout = QHBoxLayout()
@@ -565,13 +836,14 @@ class HomePage(QMainWindow):
         footer_frame.setLayout(footer_layout)
 
         # Texte du footer
-        footer_text = QLabel("Politique de confidentialité | © 2024 Nova360 Pro - Tous droits réservés")
+        footer_text = QLabel(self.tr("Privacy Policy | © 2025 Leopardo AI"))
         footer_text.setFont(QFont("Arial", 10))
         footer_text.setAlignment(Qt.AlignCenter)
         footer_text.setStyleSheet("color: white;")
 
+
         # Boutons dans le footer
-        privacy_button = QPushButton("Politique de confidentialité")
+        privacy_button = QPushButton(self.tr("Privacy Policy"))  # Traduction en anglais
         privacy_button.setFont(QFont("Arial", 10))
         privacy_button.setStyleSheet("""
             QPushButton {
@@ -581,12 +853,12 @@ class HomePage(QMainWindow):
                 text-decoration: underline;
             }
             QPushButton:hover {
-                color: #81C784;
+                color: #81C784;  /* Vert clair au survol */
             }
         """)
-        privacy_button.clicked.connect(lambda: self.open_link("https://www.turknovatech.com/privacy"))
+        privacy_button.clicked.connect(lambda: self.open_link("https://www.leopard.com/privacy"))  # Lien mis à jour
 
-        terms_button = QPushButton("Termes et Conditions")
+        terms_button = QPushButton(self.tr("Terms and Conditions"))  # Traduction en anglais
         terms_button.setFont(QFont("Arial", 10))
         terms_button.setStyleSheet("""
             QPushButton {
@@ -596,22 +868,121 @@ class HomePage(QMainWindow):
                 text-decoration: underline;
             }
             QPushButton:hover {
-                color: #81C784;
+                color: #81C784;  /* Vert clair au survol */
             }
         """)
-        terms_button.clicked.connect(lambda: self.open_link("https://www.turknovatech.com/terms"))
+        terms_button.clicked.connect(lambda: self.open_link("https://www.leopard.com/terms"))  # Lien mis à jour
 
         footer_layout.addWidget(privacy_button)
         footer_layout.addWidget(footer_text)
         footer_layout.addWidget(terms_button)
 
-        main_layout.addWidget(footer_frame)
+        self.main_layout.addWidget(footer_frame)
 
         # Ajouter le layout principal au widget central
-        central_widget.setLayout(main_layout)
+        central_widget.setLayout(self.main_layout)
 
         self.show()
-# Fonction pour ouvrir Facebook Robot
+
+
+
+
+    def lighten_colr(self, color, factor=1.2):
+        """
+        Éclaircit une couleur en fonction d'un facteur.
+        :param color: La couleur à éclaircir (au format hexadécimal ou QColor).
+        :param factor: Le facteur d'éclaircissement (par défaut 1.2).
+        :return: La couleur éclaircie au format hexadécimal.
+        """
+        if isinstance(color, str):
+            color = QColor(color)
+        elif isinstance(color, QColor):
+            pass
+        else:
+            raise ValueError("La couleur doit être une chaîne hexadécimale ou un objet QColor.")
+
+        # Éclaircir la couleur en fonction du facteur
+        lighter_color = color.lighter(int(100 * factor))
+        return lighter_color.name()
+
+    def setup_bottom_buttons(self):
+        # Section des boutons du bas
+        bottom_layout = QHBoxLayout()
+
+        # Dictionnaire des icônes pour chaque bouton
+        bottom_buttons_icons = {
+            "Swipes & Messages": "resources/icons/message-icon.png",
+            "Crypto Trade": "resources/icons/crypto-icon.png",
+            "Contact 360": "resources/icons/contact-icon.png",
+            "List Business Contacts": "resources/icons/business-icon.png",
+            "SAV": "resources/icons/sav-icon.png",
+            "ERP": "resources/icons/erp-icon.png",
+            "CRM360": "resources/icons/crm-icon.png"
+        }
+
+        bottom_buttons = [
+            ("Swipes & Messages", "#4CAF50"),
+            ("Crypto Trade", "#4CAF50"),
+            ("Contact 360", "#4CAF50"),
+            ("List Business Contacts", "#4CAF50"),
+            ("SAV", "#E91E63"),
+            ("ERP", "#4CAF50"),
+            ("CRM360", "#E91E63")
+        ]
+
+        for text, color in bottom_buttons:
+            button = QPushButton(text)
+            button.setFont(QFont("Arial", 14, QFont.Bold))  # Police en gras
+            button.setIcon(QIcon(bottom_buttons_icons[text]))  # Ajouter l'icône
+            button.setIconSize(QSize(32, 32))  # Taille de l'icône
+
+            # Style avec dégradé, ombre et effets de survol
+            button.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                      stop:0 {self.lighten_colr(color)}, stop:1 {color});
+                    color: white;
+                    padding: 20px;
+                    border-radius: 15px;
+                    border: 2px solid #CCCCCC;
+                    font-size: 14px;
+                    font-weight: bold;
+                    text-align: left;
+                    padding-left: 50px;  # Espace pour l'icône
+                    transition: all 0.3s ease;
+                }}
+                QPushButton:hover {{
+                    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                      stop:0 {self.lighten_colr(color, 1.5)}, stop:1 {self.lighten_colr(color, 1.2)});
+                    border: 2px solid #AAAAAA;
+                    transform: scale(1.05);
+                }}
+                QPushButton:pressed {{
+                    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                                      stop:0 {color}, stop:1 {self.lighten_colr(color, 0.8)});
+                    border: 2px solid #888888;
+                    transform: scale(0.95);
+                }}
+            """)
+
+            # Ajouter une ombre
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(15)
+            shadow.setColor(QColor(0, 0, 0, 100))  # Ombre noire avec transparence
+            shadow.setOffset(3, 3)
+            button.setGraphicsEffect(shadow)
+
+            # Connecter le bouton à sa fonction
+            button.clicked.connect(lambda _, btn=text: self.show_message1(btn))
+            bottom_layout.addWidget(button)
+
+        self.main_layout.addLayout(bottom_layout)
+    def add_premium_icon(self,button):
+        premium_icon = QLabel(button)
+        premium_icon.setPixmap(QPixmap("resources/icons/fb_robot.ico").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        premium_icon.setAlignment(Qt.AlignTop | Qt.AlignRight)
+        premium_icon.setGeometry(button.width() - 30, 5, 24, 24)  # Position en haut à droite
+        premium_icon.setStyleSheet("background-color: transparent;")
 
     def load_settings1(self):
         try:
@@ -660,14 +1031,14 @@ class HomePage(QMainWindow):
 
     def prompt_enable_feature(self, feature_key):
         """Affiche un popup pour activer une fonctionnalité."""
-        reply = QMessageBox.question(
-            None,
-            "Activation nécessaire",
-            f"Le module '{feature_key}' n'est pas activé. Souhaitez-vous l'activer ?",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        if reply == QMessageBox.Yes:
-            self.activate_feature()
+        # reply = QMessageBox.question(
+        #     None,
+        #     "Activation nécessaire",
+        #     f"Le module '{feature_key}' n'est pas activé. Souhaitez-vous l'activer ?",
+        #     QMessageBox.Yes | QMessageBox.No
+        # )
+        # if reply == QMessageBox.Yes:
+        self.activate_feature()
 
     def activate_feature(self):
         """Active une fonctionnalité avec une barre de progression."""
@@ -744,24 +1115,6 @@ class HomePage(QMainWindow):
 
     #     # Ajouter le nouvel onglet avec le titre et l'icône fournis
     #     self.main_app.add_custom_tab(new_widget, tab_name, icon_path)
-
-    def open_accueil_window(self):
-        tab_name = "Nova360"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
-
-        # Vérifiez si un onglet avec ce nom existe déjà
-        existing_tab_index = self.find_tab_by_name(tab_name)
-        if existing_tab_index != -1:
-            # Si l'onglet existe déjà, sélectionnez-le
-            self.tab_widget.setCurrentIndex(existing_tab_index)
-            return
-
-        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
-        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
-            self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
-
-        # Ajoutez l'instance existante au nouvel onglet
-        self.add_custom_tab(self.nova360pro, tab_name, "nova_icon.ico")
-
 
 
 
@@ -956,6 +1309,46 @@ class HomePage(QMainWindow):
 
         # subprocess.Popen([sys.executable, "main_fb_robot.py"])
 
+
+    def open_facebook1(self):
+        tab_name = "fb"
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Show loading message
+        loading_label = QLabel("Chargement en cours...")
+        loading_label.setAlignment(Qt.AlignCenter)
+        self.main_app.add_custom_tab(loading_label, tab_name, "accueil_icon.ico")
+
+        # Show progress dialog
+        progress_dialog = QProgressDialog("Chargement en cours...", "Annuler", 0, 0, self)
+        progress_dialog.setCancelButton(None)
+        progress_dialog.setWindowTitle("Chargement")
+        progress_dialog.setWindowModality(Qt.ApplicationModal)
+        progress_dialog.show()
+
+        # Start loading thread
+        self.loader_thread = LoaderThread(main_app=self)
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+            # self.nova360pro = FaceMainWindow()  # Créez une seule fois l'instance
+            pass
+
+        self.nova360pro = FaceMainWindow()  # Créez une seule fois l'instance
+
+        self.loader_thread.finished.connect(lambda app: self.update_tab_content(tab_name, self.nova360pro, progress_dialog))
+        self.loader_thread.start()
+
+    def update_tab_content(self, tab_name, app_instance, dialog):
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.main_app.tab_widget.removeTab(existing_tab_index)
+            self.main_app.add_custom_tab(app_instance, tab_name, "accueil_icon.ico")
+            self.nova360pro = app_instance  # Set the instance here
+        dialog.close()
+
     # Fonction pour ouvrir WhatsApping
     def open_whatsapp(self):
         #subprocess.Popen([sys.executable, "whatsapp.py"])
@@ -984,6 +1377,13 @@ class HomePage(QMainWindow):
 
     # Fonction pour ouvrir Blogging
     def open_blogging(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
+    def open_blogging1(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
 
@@ -1005,7 +1405,7 @@ class HomePage(QMainWindow):
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
     # Fonction pour ouvrir Insta Pro
-    def open_instagram(self):
+    def open_instagram1(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
 
@@ -1026,6 +1426,16 @@ class HomePage(QMainWindow):
            self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+  
+    # Fonction pour ouvrir Blogging
+    def open_instagram(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
+  
     def open_youtube(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1047,6 +1457,14 @@ class HomePage(QMainWindow):
             self.face_main = YtbMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+    # Fonction pour ouvrir Blogging
+    def open_youtube1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_twitter(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1068,6 +1486,14 @@ class HomePage(QMainWindow):
             self.face_main = XMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+    # Fonction pour ouvrir Blogging
+    def open_twitter1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_tiktok(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1090,6 +1516,14 @@ class HomePage(QMainWindow):
             self.face_main = TokMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+    # Fonction pour ouvrir Blogging
+    def open_tiktok1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_snapchat(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1112,6 +1546,14 @@ class HomePage(QMainWindow):
             self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+    # Fonction pour ouvrir Blogging
+    def open_snapchat1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_reddit(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1133,6 +1575,15 @@ class HomePage(QMainWindow):
             self.face_main = RedditMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+    # Fonction pour ouvrir Blogging
+    def open_reddit1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
+
     def open_pinterest(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1154,6 +1605,15 @@ class HomePage(QMainWindow):
             self.face_main = InstaMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+
+    # Fonction pour ouvrir Blogging
+    def open_pinterest1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_linkedin(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1176,6 +1636,16 @@ class HomePage(QMainWindow):
             self.face_main = LinkedingMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+
+    # Fonction pour ouvrir Blogging
+    def open_ssogging(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
+
     def open_Emailing(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1197,6 +1667,15 @@ class HomePage(QMainWindow):
             self.face_main = MailMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+
+    # Fonction pour ouvrir Blogging
+    def open_Emailing1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_chatbot(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1219,6 +1698,15 @@ class HomePage(QMainWindow):
            self.face_main = ChatBotMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
+
+    # Fonction pour ouvrir Blogging
+    def open_chatbot1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_branding(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1241,7 +1729,15 @@ class HomePage(QMainWindow):
             self.face_main = BrandMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
-  
+
+    # Fonction pour ouvrir Blogging
+    def open_branding1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
     def open_adsPro(self):
   #subprocess.Popen([sys.executable, "whatsapp.py"])
 
@@ -1265,7 +1761,15 @@ class HomePage(QMainWindow):
             self.face_main = AdsMainWindow()  # Remplacez ceci par votre classe de page d'accueil
 
         self.open_new_tab(tab_name,"cool.ico",self.face_main)
-      
+
+    # Fonction pour ouvrir Blogging
+    def open_adsPro1(self):
+        """
+        Open the 'Upgrade' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
+
 
     def lighten_color(self, color):
         # Fonction pour éclaircir une couleur
@@ -1293,6 +1797,12 @@ class HomePage(QMainWindow):
         # Afficher un message lorsque l'un des boutons est cliqué
         self.open_new_tab(button_text,"cool.ico")
         QMessageBox.information(self, "Info", f"Vous avez cliqué sur {button_text}!")
+    def show_message1(self, button_text):
+        """
+        Open the 'Ads Pro Bot' window.
+        """
+        # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
+        self.main_app.add_new_tab(QUrl("https://script.google.com/macros/s/AKfycbzjBEtoeGcosEFv7yULAxa4RdPdTWUb7Tovtlr6Ym4EkDdttIYz2SU1s5HUHmqSaIDk1Q/exec"), self.tr("Upgrade"), "resources/icons/tok.ico")
 
     def open_link(self, url):
         # Ouvrir un lien dans le navigateur par défaut

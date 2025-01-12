@@ -1,8 +1,8 @@
-import sys
 import json
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QVBoxLayout, QWidget
+import sys
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QMessageBox, QVBoxLayout, QWidget
 
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 config_file = os.path.join(user_data_dir, "resources", "settings.json")

@@ -1,5 +1,6 @@
-import os
 import ctypes
+import os
+
 
 class IconHider:
     def __init__(self):

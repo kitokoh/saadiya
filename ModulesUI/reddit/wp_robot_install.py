@@ -1,40 +1,39 @@
-import sys
-import os
-import sqlite3
 import ctypes
-import subprocess
 import json
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QHBoxLayout, QFrame
-
+import os
+import smtplib
+import sqlite3
+import subprocess
+import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QTextEdit,
-                             QHBoxLayout, QMessageBox, QDialog, QComboBox, QProgressBar)
 from PyQt5.QtCore import Qt, pyqtSignal, QThread
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtMultimedia import QSound
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
-from cryptography.fernet import Fernet
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QHBoxLayout, QFrame
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QTextEdit,
+                             QHBoxLayout, QMessageBox, QDialog, QComboBox, QProgressBar)
+from cryptography.fernet import Fernet
 from cryptography.fernet import Fernet
 from datetime import datetime
-from ui.header import HeaderSection  # Import du header
-from ui.footer import FooterSection  # Import du footer
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
+from imports import *
+from installFBrobotPy import affiheMessage, mailSucces, secureChrome
+from installFBrobotPy import cleTobureau, demarrageAuto, sendLog, invisibleinstance
 # Importation des modules de scripts
 from installFBrobotPy import createFolder, system, dossiers, copieMediaDemo, majenv, geninfo
 from installFBrobotPy import generedemolicence, updatejson, Visibleinstance, verificateur
-from installFBrobotPy import cleTobureau, demarrageAuto, sendLog, invisibleinstance
-from installFBrobotPy import affiheMessage, mailSucces, secureChrome
-
 from installFBrobotPy.demarrageAuto import InstallerApp
+from facebook.media_manager import MediaTable
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
-from media_manager import MediaTable
+from ui.footer import FooterSection  # Import du footer
+from ui.header import HeaderSection  # Import du header
 
-#pour changer la destinationet developper en local c  ext ici que ca se passe 
+
+# pour changer la destinationet developper en local c  ext ici que ca se passe
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
 

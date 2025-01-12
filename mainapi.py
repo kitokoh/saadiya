@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from models.base import SessionLocal, engine
+from models.base import init_db
 from models.user import User  # Importez le modèle User
 from models.user import create_user, read_user, update_user, delete_user  # Importez vos fonctions CRUD
-from models.base import init_db
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 
 init_db()  # Crée les tables

@@ -1,36 +1,35 @@
-import os
 import json
-
+import os
 import subprocess
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, QMessageBox, QMenu, QComboBox, QStatusBar
-from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, \
+    QMessageBox, QMenu, QComboBox, QStatusBar
 
+from ModulesUI.tiktok.group_manager import GroupTable
+from ModulesUI.tiktok.installwhattsaping.invisibleQT import InvisibleInstance
+from ModulesUI.tiktok.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.tiktok.installwhattsaping.majenvqt import MajEnv
+from ModulesUI.tiktok.installwhattsaping.supprimBon import DeleteBon
+from ModulesUI.tiktok.installwhattsaping.updateInstanceQt import UpdateInstance
+from ModulesUI.tiktok.instances_table import InstanceTable
 # from media_manager import MediaTable
 # from group_manager import GroupTable
 # from instances_table import InstanceTable
 # from fb_robot_install import FbRobot
 from ModulesUI.tiktok.media_manager import MediaTable
-from ModulesUI.tiktok.group_manager import GroupTable
-from ModulesUI.tiktok.instances_table import InstanceTable
-#from fb_robot_install import FbRobot
+# from fb_robot_install import FbRobot
 from ModulesUI.tiktok.wp_robot_install import WpRobot
-from statistique.stat import Dashboard
-
-from installFBrobotPy.demarrageAuto import InstallerApp
-#from ModulesUI.tiktok.installwhattsaping.majenvqt import AppEnv 
-#from ModulesUI.tiktok.installwhattsaping.updatejson import InstallerApp
-#from ModulesUI.tiktok.installwhattsaping.installGithub import InstallerApp
-#from ModulesUI.tiktok.installwhattsaping.installpython import InstallerApp
-
-from ModulesUI.tiktok.installwhattsaping.invisibleQT import InvisibleInstance
-from ModulesUI.tiktok.installwhattsaping.majenvqt import MajEnv
-from ModulesUI.tiktok.installwhattsaping.jsontorobot import JsonToRobot
-from ModulesUI.tiktok.installwhattsaping.supprimBon import DeleteBon
-from ModulesUI.tiktok.installwhattsaping.updateInstanceQt import UpdateInstance
-
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
+from installFBrobotPy.demarrageAuto import InstallerApp
+from statistique.stat import Dashboard
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
+
+# from ModulesUI.tiktok.installwhattsaping.majenvqt import AppEnv
+# from ModulesUI.tiktok.installwhattsaping.updatejson import InstallerApp
+# from ModulesUI.tiktok.installwhattsaping.installGithub import InstallerApp
+# from ModulesUI.tiktok.installwhattsaping.installpython import InstallerApp
 class AboutDialog(QDialog):
     """Boîte de dialogue pour 'À propos'."""
     def __init__(self, parent=None):

@@ -22,6 +22,7 @@
 # def read_group_user(db, group_user_id):
 #     return db.query(GroupUser).filter(GroupUser.id == group_user_id).first()
 
+from database import Base
 # def delete_group_user(db, group_user_id):
 #     group_user = db.query(GroupUser).filter(GroupUser.id == group_user_id).first()
 #     if group_user:
@@ -29,7 +30,7 @@
 #         db.commit()
 # models/group_user.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class GroupUser(Base):
     __tablename__ = "group_users"

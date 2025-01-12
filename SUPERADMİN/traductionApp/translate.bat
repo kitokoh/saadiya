@@ -6,11 +6,11 @@ REM l'environnement virtuel est activé avant de continuer.
 REM =======================================================
 
 REM Définir le répertoire cible
-set target_dir=C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang
+set target_dir=D:\nova360\lang
 cd %target_dir%
 
 REM Activer l'environnement virtuel
-call C:\Users\ibrahim\Downloads\Robot_Labo_Pro\lang\env\Scripts\activate
+call D:\nova360\lang\.venv\Scripts\activate
 
 echo Environnement virtuel activé...
 echo Démarrage de la traduction vers différentes langues...
@@ -19,7 +19,7 @@ echo.
 REM -------------------------------------------------------
 REM Créer un tableau avec les langues et sous-dossiers le dossier statistique est directement compiler dans les uix 
 set languages=tr_TR ar_SA en_US pt_BR fr_Fr
-set ui_subdirs=ui modules adsPro blogpro brandingpro chatBotpro emailingpro  instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+set ui_subdirs=ui modules adsPro blogpro brandingpro chatBotpro emailingpro  instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro  Home  facebook telecommande
 
 REM Boucle sur les langues pour créer les répertoires
 for %%L in (%languages%) do (
@@ -33,7 +33,7 @@ for %%L in (%languages%) do (
 
 
 set languagests=tr_TR ar_SA en_US pt_BR fr_Fr
-set ui_subdirsts=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+set ui_subdirsts=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro Home  facebook telecommande
 
 
 REM Boucle sur les langues pour créer les répertoires
@@ -47,7 +47,7 @@ for %%L in (%languagests%) do (
 )
 
 set langtstranslated=tr_TR ar_SA en_US pt_BR fr_Fr
-set ui_subdirststranslated=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+set ui_subdirststranslated=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro Home  facebook telecommande
 
 
 REM Boucle sur les langues pour créer les répertoires
@@ -61,7 +61,7 @@ for %%L in (%langtstranslated%) do (
 )
 
 set langtstranslatedtoHuman=tr_TR ar_SA en_US pt_BR fr_Fr
-set ui_subdirststranslatedtohuman=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro
+set ui_subdirststranslatedtohuman=ui modules adsPro blogpro brandingpro chatBotpro emailingpro instagrampro linkedingpro pinterestpro redditpro snapchatpro tiktokpro twitterpro whatssappro youtubepro Home  facebook telecommande
 
 
 REM Boucle sur les langues pour créer les répertoires

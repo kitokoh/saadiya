@@ -1,6 +1,7 @@
 # models/admin.py
-from sqlalchemy import Column, Integer, String
 from database import Base
+from sqlalchemy import Column, Integer, String
+
 
 class Admin(Base):
     __tablename__ = "admins"

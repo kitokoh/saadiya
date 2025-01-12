@@ -1,5 +1,5 @@
-import requests
 import json
+import requests
 
 # Configuration de l'API Trustpilot
 API_KEY = 'your_trustpilot_api_key'

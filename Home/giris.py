@@ -1,12 +1,13 @@
 # Imports
+import os
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QPushButton
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QFont
-from telecommande.telecommande import RemoteControl
+
 from Home.chromeFox import SecureBrowserConnect
-import os
+from Home.telecommande import RemoteControl
 
 # Constants for Styling
 LABEL_FONT = QFont("Arial", 14)

@@ -1,27 +1,29 @@
-import os
 import base64
-import json
 import csv
+import json
+import logging
+import os
+import re
 import sqlite3
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton,
-                             QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
-                             QMenu, QAction, QMessageBox, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QFileDialog
-from translation import TranslatorManager
-from PyQt5.QtGui import QFont, QIcon
-from ui.header import HeaderSection  
-from ui.footer import FooterSection 
-from PyQt5.QtWidgets import QPushButton, QMenu, QAction, QGraphicsDropShadowEffect
 from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QDialog, QFormLayout, QLineEdit, QComboBox, QPushButton, QMessageBox, QLabel, QVBoxLayout, QHBoxLayout, QFrame
 )
-from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtCore import Qt
-import re
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QPushButton, QMenu, QAction, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton,
+                             QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
+                             QMenu, QAction, QMessageBox, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
 from datetime import datetime
-import logging
+
+from translation import TranslatorManager
+from ui.footer import FooterSection
+from ui.header import HeaderSection
+
 logging.basicConfig(level=logging.ERROR)
 
 import sqlite3
@@ -387,8 +389,9 @@ class ContactDialog(QDialog):
                 ''', (name, phone, email, category, description, note, self.contact['id']))
             self.conn.commit()
         self.accept()
-
-db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
+roaming_folder = os.environ['APPDATA']
+db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+#db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
 
 # Create database connection and table
 conn = create_connection(db_path)
@@ -397,13 +400,14 @@ create_table(conn)
 class ContactTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
-
+        #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
+        roaming_folder = os.environ['APPDATA']
+        db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
         self.conn = create_connection(db_path)
         create_table(self.conn)
         layout = QVBoxLayout(self)
         # Add the header
-        header = HeaderSection(self, title=self.tr("Contact Management"), app_name=self.tr("Nova360 AI"), slogan=self.tr("AI Marketing & Management Auto"))
+        header = HeaderSection(self, title=self.tr("Contact Management"), app_name=self.tr("Leopardo AI"), slogan=self.tr("AI Marketing & Management Auto"))
         layout.addWidget(header)
         self.contacts = self.load_contacts()
         self.items_per_page = 10
@@ -466,8 +470,10 @@ class ContactTable(QWidget):
         add_contact_button.clicked.connect(self.open_add_contact_dialog)
         top_layout.addWidget(add_contact_button)
 
-        db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
-        output_folder = get_output_folder()
+        #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
+        roaming_folder = os.environ['APPDATA']
+        self.db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+        self.output_folder = get_output_folder()
 
         add_send_button = QPushButton(self.tr("🚀 Send to Robot"), self)
         add_send_button.setStyleSheet("""
@@ -908,12 +914,16 @@ class ContactTable(QWidget):
         if file_name:
             try:
                 fieldnames = ['name', 'phone_number', 'email', 'category', 'description', 'note']
-                with open(file_name, 'w', newline='') as f:
+                # Ouvrir le fichier avec l'encodage UTF-8
+                with open(file_name, 'w', newline='', encoding='utf-8') as f:
                     writer = csv.DictWriter(f, fieldnames=fieldnames)
                     writer.writeheader()
                     writer.writerows({k: contact[k] for k in fieldnames} for contact in self.contacts)
+                print("Contacts exported successfully!")
             except Exception as e:
                 print(f"Error exporting contacts: {e}")
+
+
 
     def open_add_contact_dialog(self):
         dialog = ContactDialog(mode='add', conn=self.conn, parent=self)
@@ -1073,8 +1083,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # Database path
-    db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
-
+    #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
+    roaming_folder = os.environ['APPDATA']
+    db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
     # Create database connection and table
     conn = create_connection(db_path)
     create_table(conn)

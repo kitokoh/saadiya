@@ -1,6 +1,7 @@
-import requests
 import json
 import os
+import requests
+
 
 class AutoUpdater:
     def __init__(self, current_version):

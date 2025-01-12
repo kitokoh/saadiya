@@ -1,11 +1,11 @@
 # coding:utf-8
 from PyQt5.QtCore import Qt, QUrl
-
 from qfluentwidgets import (PushButton, Dialog, MessageBox, ColorDialog, TeachingTip, TeachingTipTailPosition,
                             InfoBarIcon, Flyout, FlyoutView, TeachingTipView, FlyoutAnimationType, SubtitleLabel,
                             LineEdit, MessageBoxBase)
-from ..common.translator import Translator
+
 from .gallery_interface import GalleryInterface
+from ..common.translator import Translator
 
 
 class DialogInterface(GalleryInterface):

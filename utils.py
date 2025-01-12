@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 
 def load_json_data(json_file):
     """

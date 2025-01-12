@@ -1,16 +1,17 @@
-import sys
 import json
+import sys
+import sqlite3
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont, QMovie
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QPushButton,
     QWidget, QScrollArea, QMessageBox, QComboBox, QGraphicsOpacityEffect
 )
-from PyQt5.QtGui import QFont, QColor, QMovie
-from PyQt5.QtCore import Qt, QTimer
 
 class Nova360Ultimate(QMainWindow):
-    def __init__(self,main_app=None):
+    def __init__(self, main_app=None):
         super().__init__()
-        self.setWindowTitle("Nova360 - Expérience Ultime")
+        self.setWindowTitle("Leopardo - Expérience Ultime")
         self.setGeometry(100, 100, 1200, 800)
         self.main_app = main_app  # Stocke une référence à MainApp
 
@@ -32,23 +33,41 @@ class Nova360Ultimate(QMainWindow):
             # Ajouter d'autres plateformes ici...
         }
 
+        # Database connection
+        self.conn = sqlite3.connect('nova360.db')
+        self.cursor = self.conn.cursor()
+        self.create_tables()
+
         self.setup_ui()
+
+    def create_tables(self):
+        """Crée les tables si elles n'existen pas déjà."""
+        try:
+            self.cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT,
+                    email TEXT,
+                    role TEXT,
+                    bots TEXT,
+                    modules TEXT
+                )
+            ''')
+            self.conn.commit()
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Erreur", f"Une erreur est survenue lors de la création de la table : {e}")
 
     def setup_ui(self):
         """Configuration de l'interface principale avec animations et engagement utilisateur."""
         main_layout = QVBoxLayout()
 
         # Titre principal avec animation de transparence
-        self.title_label = QLabel("\u2728 Bienvenue sur Nova360 \u2728")
+        self.title_label = QLabel("\u2728 Bienvenue sur Leopardo \u2728")
         self.title_label.setFont(QFont("Arial", 24, QFont.Bold))
         self.title_label.setAlignment(Qt.AlignCenter)
         self.title_label.setStyleSheet("color: #007bff;")
         main_layout.addWidget(self.title_label)
-        
         self.add_fade_animation(self.title_label, 2000)
-
-
-
 
         # Description motivante
         description = QLabel("\"Automatisez votre marketing comme jamais auparavant !\"")
@@ -137,15 +156,29 @@ class Nova360Ultimate(QMainWindow):
             QMessageBox.information(self, "Module ajouté", f"\"{module}\" ajouté avec succès à {platform} !")
 
     def finalize_setup(self):
-        """Finaliser la configuration et enregistrer les données JSON."""
+        """Finaliser la configuration et enregistrer les données dans la base de données SQLite."""
         try:
-            with open("settings.json", "w") as file:
-                json.dump(self.user_data, file, indent=4)
+            # Sérialiser les données des bots et des modules
+            bots_json = json.dumps(self.user_data["bots"])
+            modules_json = json.dumps(self.user_data["modules"])
+
+            # Insérer les données dans la base de données
+            self.cursor.execute('''
+                INSERT INTO users (name, email, role, bots, modules)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                self.user_data["info"]["name"],
+                self.user_data["info"]["email"],
+                self.user_data["info"]["role"],
+                bots_json,
+                modules_json
+            ))
+            self.conn.commit()
             QMessageBox.information(
                 self, "Succès", "\U0001F389 Vos paramètres ont été enregistrés avec succès !\U0001F389"
             )
             self.close()
-        except Exception as e:
+        except sqlite3.Error as e:
             QMessageBox.critical(self, "Erreur", f"Une erreur est survenue : {e}")
 
     def add_fade_animation(self, widget, duration):

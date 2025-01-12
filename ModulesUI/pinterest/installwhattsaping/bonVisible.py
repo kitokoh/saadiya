@@ -1,11 +1,12 @@
-import sys
-import os
 import ctypes
+import os
+import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QMessageBox
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+
 
 class FolderVisibilityApp(QWidget):
     def __init__(self):

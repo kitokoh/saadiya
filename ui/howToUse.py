@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QFrame, QWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QLineEdit, QPushButton, QHBoxLayout, QFrame, QWidget
+
 
 class VideoAndDownloadWidget(QWidget):
     def __init__(self, video_links=None, download_links=None):

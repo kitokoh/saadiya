@@ -1,42 +1,43 @@
-import sys
-import os
-import sqlite3
 import ctypes
-import subprocess
 import json
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QHBoxLayout, QFrame
-
+import os
+import smtplib
+import sqlite3
+import subprocess
+import sys
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QTextEdit,
-                             QHBoxLayout, QMessageBox, QDialog, QComboBox, QProgressBar)
 from PyQt5.QtCore import Qt, pyqtSignal, QThread
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtMultimedia import QSound
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
-from cryptography.fernet import Fernet
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QHBoxLayout, QFrame
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QTextEdit,
+                             QHBoxLayout, QMessageBox, QDialog, QComboBox, QProgressBar)
+from cryptography.fernet import Fernet
 from cryptography.fernet import Fernet
 from datetime import datetime
-from ui.header import HeaderSection  # Import du header
-from ui.footer import FooterSection  # Import du footer
-from mail.mail_in_to_out import Mailer2
-from mail.mail_in_to_in import Mailer1
-#from mail.mail_in_in_pj import Mailer3
-#from licenceYonetimi.sendproforma import ProformaGenerator
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+from imports import *
+from installFBrobotPy import affiheMessage, mailSucces, secureChrome
+from installFBrobotPy import cleTobureau, demarrageAuto, sendLog, invisibleinstance
+# from mail.mail_in_in_pj import Mailer3
+# from licenceYonetimi.sendproforma import ProformaGenerator
 # Importation des modules de scripts
 from installFBrobotPy import createFolder, system, dossiers, copieMediaDemo, majenv, geninfo
 from installFBrobotPy import generedemolicence, updatejson, Visibleinstance, verificateur
-from installFBrobotPy import cleTobureau, demarrageAuto, sendLog, invisibleinstance
-from installFBrobotPy import affiheMessage, mailSucces, secureChrome
-
 from installFBrobotPy.demarrageAuto import InstallerApp
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
-#from media_manager import MediaTable
+# from media_manager import MediaTable
 from licenceYonetimi.validatelicens import LicenseValidator
+from mail.mail_in_to_in import Mailer1
+from mail.mail_in_to_out import Mailer2
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ui.footer import FooterSection  # Import du footer
+from ui.header import HeaderSection  # Import du header
+
+
 #from licenceYonetimi.sendproforma import ProformaGenerator
 #pour changer la destinationet developper en local c  ext ici que ca se passe 
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")

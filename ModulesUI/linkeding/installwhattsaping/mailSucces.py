@@ -58,14 +58,15 @@
 # if __name__ == "__main__":
 #     main()  # Appelle la fonction main si le script est exécuté directement
 import json
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
-from cryptography.fernet import Fernet
 import logging
 import os
+import smtplib
+from cryptography.fernet import Fernet
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Configuration du fichier de log

@@ -1,13 +1,15 @@
-import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QStackedWidget, QPushButton, QGraphicsOpacityEffect, QHBoxLayout, QFrame, QApplication
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import QTimer, Qt, QPropertyAnimation, QThread, pyqtSignal, QTranslator, QLocale
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
-import os
-
 import json
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+import os
+import sys
+from PyQt5.QtCore import QTimer, Qt, QPropertyAnimation, QThread, pyqtSignal, QTranslator, QLocale
 from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QStackedWidget, QPushButton, QGraphicsOpacityEffect, \
+    QHBoxLayout, QFrame, QApplication
+
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Classe pour charger des images de manière asynchrone

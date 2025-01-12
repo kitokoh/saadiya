@@ -1,7 +1,8 @@
-import sqlite3
 import os
-from datetime import datetime
 import random
+import sqlite3
+from datetime import datetime
+
 
 class FbRobotDatabase:
     def __init__(self, db_name='nova360.db'):

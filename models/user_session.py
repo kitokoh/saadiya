@@ -21,6 +21,7 @@
 # def read_user_session(db, session_id):
 #     return db.query(UserSession).filter(UserSession.id == session_id).first()
 
+from database import Base
 # def delete_user_session(db, session_id):
 #     user_session = db.query(UserSession).filter(UserSession.id == session_id).first()
 #     if user_session:
@@ -28,7 +29,7 @@
 #         db.commit()
 # models/user_session.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class UserSession(Base):
     __tablename__ = "user_sessions"

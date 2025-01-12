@@ -1,10 +1,11 @@
 import os
 import sys
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QMessageBox, QPushButton, QLabel, QVBoxLayout, QWidget
 )
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import Qt
+
 
 def check_if_paid():
     # Dossiers à vérifier

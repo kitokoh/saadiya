@@ -1,28 +1,26 @@
 # imports.py
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
+import json
+import logging
+import os
+import platform
+import shutil
+import smtplib
+import subprocess
+import sys
 from PyQt5.QtCore import Qt, QTranslator, QLocale
 from PyQt5.QtGui import QIcon
-import sys
-import json
-import os  
-import shutil
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
-
-import smtplib
-import logging
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
 from cryptography.fernet import Fernet
-import subprocess
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-
-from statistique.stat import Dashboard
 from checklicence import LicenseChecker
 from statistique.nombredegrup import GroupCounter
+from statistique.stat import Dashboard
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
 
-import platform
 
 def get_user_data_dir():
     os_name = platform.system()  # Detect the operating system

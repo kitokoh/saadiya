@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QHBoxLayout, QFrame
 
 from licenceYonetimi.validatelicens import LicenseValidator
+
+
 def get_serial_number():
     """Essaie de récupérer le numéro de série via différentes méthodes."""
     try:

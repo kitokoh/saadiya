@@ -1,6 +1,7 @@
 # main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from controllers import user_controller, role_controller, admin_controller, contact_controller, message_controller
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 

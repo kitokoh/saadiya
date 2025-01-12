@@ -1,7 +1,8 @@
 # media_controller.py
 from fastapi import APIRouter, HTTPException
-from models.media import Media
 from typing import List
+
+from models.media import Media
 
 router = APIRouter()
 

@@ -1,9 +1,10 @@
-import os
 import json
+import os
 import random
-import string
 import re
+import string
 from datetime import datetime
+
 
 class LicenseValidator:
     def __init__(self):

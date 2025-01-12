@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Boolean
 from database import Base
+from sqlalchemy import Column, Integer, String, Boolean
+
 
 class Alert(Base):
     __tablename__ = 'alerts'

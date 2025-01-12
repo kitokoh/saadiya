@@ -1,18 +1,20 @@
-import os
 import json
-from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, 
-                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView, 
+import os
+from PyQt5.QtCore import Qt, QTimer, QLocale
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton,
+                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView,
                              QAbstractItemView, QLineEdit, QHBoxLayout, QDialog, QDialogButtonBox,
                              QStackedWidget, QTableWidgetSelectionRange)
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, QTimer,QLocale
-from ui.header import HeaderSection  # Import du header
-from ui.footer import FooterSection  # Import du footer
-from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
-#from group_manager import GroupTable
 
+from lang.facebook.add_media import AddMedia
+from ui.footer import FooterSection  # Import du footer
+from ui.header import HeaderSection  # Import du header
+from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
 from update_media_dialog import UpdateMediaDialog
-from add_media import AddMedia
+
+
+# from group_manager import GroupTable
 class MediaTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)

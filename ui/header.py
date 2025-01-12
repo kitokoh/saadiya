@@ -1,17 +1,19 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QWidget
-from PyQt5.QtGui import QFont, QPixmap, QIcon
-from PyQt5.QtCore import Qt, pyqtSignal,QRect
-from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve
-from PyQt5.QtWidgets import (
-    QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout, 
-    QHBoxLayout, QWidget, QLineEdit, QScrollArea, QFrame, QMenu, QMenuBar, QMessageBox
-)
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+import json
 # from imports import *
 import os
-import json
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve
 from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtCore import Qt, pyqtSignal, QRect
+from PyQt5.QtGui import QFont, QPixmap, QIcon
+from PyQt5.QtWidgets import (
+    QApplication, QAction, QMainWindow, QLabel, QPushButton, QVBoxLayout,
+    QHBoxLayout, QWidget, QLineEdit, QScrollArea, QFrame, QMenu, QMenuBar, QMessageBox
+)
+from PyQt5.QtWidgets import QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QFrame, QPushButton, QWidget
+
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class ImageLoader:
@@ -28,7 +30,7 @@ class HeaderSection(QFrame):
     # Signal émis lorsque le bouton de menu est cliqué
     menu_toggled = pyqtSignal()
 
-    def __init__(self, parent=None, title="AI Marketing Automation", app_name="Nova360 AI", slogan="AI Marketing & Management Auto"):
+    def __init__(self, parent=None, title="AI Marketing Automation", app_name="Leopardo AI", slogan="AI Marketing & Management Auto"):
         # Initialiser le traducteur
         self.translator = QTranslator()
         self.init_language()  # Initialisation de la langue après la création des actions
@@ -274,7 +276,7 @@ class HeaderSection(QFrame):
         elif action == "Aide":
             QMessageBox.information(self, self.tr("Aide"),  "Ouvrir l'aide...")
         elif action == "À propos":
-            QMessageBox.information(self, self.tr("À propos"),  "AI FB ROBOT PRO v1.0\n© 2024 Nova360 Pro")
+            QMessageBox.information(self, self.tr("À propos"),  "AI FB ROBOT PRO v1.0\n© 2024 Leopardo Pro")
         elif action == "Quitter":
             self.close()
 
@@ -331,7 +333,7 @@ class TestWindow(QWidget):
     def __init__(self):
         super().__init__()
         # Passer des valeurs personnalisées pour le titre, le nom de l'application et le slogan
-        self.header_section = HeaderSection(self, title="AI Marketing Automation", app_name="Nova360 AI", slogan="AI Marketing & Management Auto")
+        self.header_section = HeaderSection(self, title="AI Marketing Automation", app_name="Leopardo AI", slogan="AI Marketing & Management Auto")
         self.setup_ui()
 
     def setup_ui(self):

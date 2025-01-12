@@ -1,9 +1,10 @@
 # content/content.py
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QFrame, QMessageBox
 )
-from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtCore import Qt
+
 
 class ContentWidget(QWidget):
     def __init__(self):

@@ -1,7 +1,8 @@
-import os
-import subprocess
-import platform
 import ctypes
+import os
+import platform
+import subprocess
+
 
 def is_git_installed():
     """Vérifie si Git est installé."""

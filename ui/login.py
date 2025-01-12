@@ -1,22 +1,24 @@
+import hashlib  # Pour le hachage des mots de passe
 import json
 import os
-import hashlib  # Pour le hachage des mots de passe
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QHBoxLayout, QFrame
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import pyqtSignal
+from datetime import datetime, timedelta
+
 from Home.home import HomePage
-from .carousel import CarouselWidget  # Assurez-vous que CarouselWidget est importé
-from .register import RegisterModule
+from mail.mail_in_to_in import Mailer1
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from ui.welcomeSyle import WelcomeDialog
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from PyQt5.QtCore import Qt, QTranslator, QLocale
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QVBoxLayout, QWidget
-from datetime import datetime, timedelta
-from mail.mail_in_to_in import Mailer1
+from .carousel import CarouselWidget  # Assurez-vous que CarouselWidget est importé
+from .register import RegisterModule
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Durée maximale de la session en minutes
@@ -56,7 +58,7 @@ class LoginModule(QWidget):
         form_layout = QVBoxLayout(form_frame)
 
         # Titre du formulaire
-        title_label = QLabel(self.tr("Connexion à Nova360 AI"))
+        title_label = QLabel(self.tr("Connexion à Leopardo AI"))
         title_label.setFont(QFont("Roboto", 24, QFont.Bold))  # Police moderne et taille de police plus grande
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("""
@@ -75,7 +77,7 @@ class LoginModule(QWidget):
         form_layout = QVBoxLayout(form_frame)
 
         # Titre du formulaire
-        title_label = QLabel(self.tr("Connexion à Nova360 AI"))
+        title_label = QLabel(self.tr("Connexion  Leopardo AI"))
         title_label.setFont(QFont("Roboto", 26, QFont.Bold))  # Police moderne et imposante
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("""
@@ -399,7 +401,7 @@ class LoginModule(QWidget):
             mailer.send_email(email_type="mail1")
             QMessageBox.information(
                 self,
-                self.tr("🎉 Bienvenue chez Nova360.ai!"),
+                self.tr("🎉 Bienvenue chez Leopardo.ai!"),
                 self.tr(
                     "<div style='background-color:#F0F8FF; padding:20px; border-radius:10px;'>"
                     "<h1 style='color:#2E86C1; font-size:24px; text-align:center;'>Bienvenue, {}</h1>"
@@ -409,7 +411,7 @@ class LoginModule(QWidget):
                     
                     "<div style='padding: 10px; border-left: 5px solid #2E86C1; margin: 10px 0;'>"
                     "<p style='font-size:14px; color:#555555; line-height:1.6;'>"
-                    "Vous avez désormais accès à Nova360.ai, la solution ultime pour automatiser et optimiser vos stratégies marketing.<br>"
+                    "Vous avez désormais accès à Leopardo.ai, la solution ultime pour automatiser et optimiser vos stratégies marketing.<br>"
                     "Programmez vos campagnes, définissez vos objectifs, et laissez nos robots intelligents s'occuper du reste."
                     "</p>"
                     "</div><br>"
@@ -422,12 +424,12 @@ class LoginModule(QWidget):
                     "</ul><br>"
                     
                     "<p style='font-size:14px; color:#555555; text-align:center;'>"
-                    "Prêt à révolutionner votre marketing? Commencez dès maintenant et laissez Nova360.ai propulser votre marque vers de nouveaux sommets!"
+                    "Prêt à révolutionner votre marketing? Commencez dès maintenant et laissez Leopardo.ai propulser votre marque vers de nouveaux sommets!"
                     "</p><br>"
                     
                     "<p style='font-size:12px; color:#888888; text-align:center;'>"
-                    "© 2024 Nova360 Pro | "
-                    "<a href='https://www.nova360pro.com' style='color:#2E86C1; text-decoration:none;'>www.nova360pro.com</a>"
+                    "© 2024 Leopardo Pro | "
+                    "<a href='https://www.Leopardopro.com' style='color:#2E86C1; text-decoration:none;'>www.Leopardopro.com</a>"
                     "</p>"
                     "</div>"
                 ).format(username)
@@ -467,7 +469,7 @@ class LoginModule(QWidget):
 
                     QMessageBox.information(
                         self,
-                        self.tr("🎉 Bienvenue chez Nova360.ai!"),
+                        self.tr("🎉 Bienvenue chez Leopardo.ai!"),
                         self.tr(
                             "<div style='background-color:#F0F8FF; padding:20px; border-radius:10px;'>"
                             "<h1 style='color:#2E86C1; font-size:24px; text-align:center;'>Bienvenue, {}</h1>"
@@ -477,7 +479,7 @@ class LoginModule(QWidget):
                             
                             "<div style='padding: 10px; border-left: 5px solid #2E86C1; margin: 10px 0;'>"
                             "<p style='font-size:14px; color:#555555; line-height:1.6;'>"
-                            "Vous avez désormais accès à Nova360.ai, la solution ultime pour automatiser et optimiser vos stratégies marketing.<br>"
+                            "Vous avez désormais accès à Leopardo.ai, la solution ultime pour automatiser et optimiser vos stratégies marketing.<br>"
                             "Programmez vos campagnes, définissez vos objectifs, et laissez nos robots intelligents s'occuper du reste."
                             "</p>"
                             "</div><br>"
@@ -490,12 +492,12 @@ class LoginModule(QWidget):
                             "</ul><br>"
                             
                             "<p style='font-size:14px; color:#555555; text-align:center;'>"
-                            "Prêt à révolutionner votre marketing? Commencez dès maintenant et laissez Nova360.ai propulser votre marque vers de nouveaux sommets!"
+                            "Prêt à révolutionner votre marketing? Commencez dès maintenant et laissez Leopardo.ai propulser votre marque vers de nouveaux sommets!"
                             "</p><br>"
                             
                             "<p style='font-size:12px; color:#888888; text-align:center;'>"
-                            "© 2024 Nova360 Pro | "
-                            "<a href='https://www.nova360pro.com' style='color:#2E86C1; text-decoration:none;'>www.nova360pro.com</a>"
+                            "© 2024 Leopardo Pro | "
+                            "<a href='https://www.Leopardopro.com' style='color:#2E86C1; text-decoration:none;'>www.Leopardopro.com</a>"
                             "</p>"
                             "</div>"
                         ).format(username)

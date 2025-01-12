@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import (QListWidgetItem, QFrame, QTreeWidgetItem, QHBoxLayo
 from qfluentwidgets import TreeWidget, TableWidget, ListWidget, HorizontalFlipView
 
 from .gallery_interface import GalleryInterface
-from ..common.translator import Translator
 from ..common.style_sheet import StyleSheet
+from ..common.translator import Translator
 
 
 class ViewInterface(GalleryInterface):

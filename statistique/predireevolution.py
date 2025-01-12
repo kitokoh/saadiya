@@ -1,7 +1,8 @@
+import matplotlib.pyplot as plt
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
 
 class LogAnalyzer:
     def __init__(self, log_directory):

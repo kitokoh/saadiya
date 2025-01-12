@@ -1,7 +1,8 @@
 # user_session_controller.py
 from fastapi import APIRouter, HTTPException
-from models.user_session import UserSession
 from typing import List
+
+from models.user_session import UserSession
 
 router = APIRouter()
 

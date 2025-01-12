@@ -1,52 +1,51 @@
-import os
 import json
-from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, 
-                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView,QMenu, 
-                             QAbstractItemView, QLineEdit, QHBoxLayout, QDialog, QDialogButtonBox,
-                             QStackedWidget, QTableWidgetSelectionRange, QComboBox)
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, QTimer, QLocale
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
-
-from ui.header import HeaderSection  
-from ui.footer import FooterSection  
-from ui.secondry_menu import SecondaryMenu  
-from update_media_dialog import UpdateMediaDialog
-from installFBrobotPy.sendatajson import FileTransferApp
-from installFBrobotPy.sendatajson2 import FileTransferApp2
-from installFBrobotPy.sendatajson3 import FileTransferApp3
-from installFBrobotPy import updatejson
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
-from imports import *
-
-from PyQt5.QtWidgets import QGridLayout
+import json
+import os
+import os
+# Function to retrieve data from the database and save JSON
+import os
+import shutil
+import sqlite3
+import sqlite3
+import sqlite3
+import sqlite3
+import sqlite3
 import time
-
-import sqlite3
-import sqlite3
-
-
 from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer, QLocale
 from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QTextEdit, QFileDialog, QMessageBox, QApplication
 )
-import os
-import shutil
-import sqlite3
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget
-from datetime import datetime
-
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton,
+                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView, QMenu,
+                             QAbstractItemView, QLineEdit, QHBoxLayout, QDialog, QDialogButtonBox,
+                             QStackedWidget, QTableWidgetSelectionRange, QComboBox)
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QComboBox, QPushButton, QTableWidget,
-                             QAbstractItemView, QHeaderView, QLabel, QMessageBox, QDialog, QFormLayout, QDialogButtonBox)
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
-import sqlite3
-# Function to retrieve data from the database and save JSON
+                             QAbstractItemView, QHeaderView, QLabel, QMessageBox, QDialog, QFormLayout,
+                             QDialogButtonBox)
+from datetime import datetime
 import os
-import json
 import sqlite3
+import logging
+
+from imports import *
+from installFBrobotPy import updatejson
+from installFBrobotPy.sendatajson import FileTransferApp
+from installFBrobotPy.sendatajson2 import FileTransferApp2
+from installFBrobotPy.sendatajson3 import FileTransferApp3
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ui.footer import FooterSection
+from ui.header import HeaderSection
+from ui.secondry_menu import SecondaryMenu
+from update_media_dialog import UpdateMediaDialog
 
 stylesheet = """
 QWidget {
@@ -121,7 +120,21 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
 """
 
 def create_media_table():
-    conn = sqlite3.connect('media.db')
+
+    roaming_path = os.getenv('APPDATA')
+
+    # Construire le chemin complet vers le fichier modules.db
+    resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+    db_path = os.path.join(resources_folder, 'media.db')
+
+    # Vérifier si le dossier existe, sinon le créer
+    if not os.path.exists(resources_folder):
+        os.makedirs(resources_folder)
+
+    # Se connecter à la base de données
+    
+    conn = sqlite3.connect(db_path)    
+    #conn = sqlite3.connect('media.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS media (
@@ -382,7 +395,27 @@ class AddMedia(QDialog):
         dest_path = os.path.join(dest_dir, media_name)
         shutil.copy(media_path, dest_path)
 
-        conn = sqlite3.connect('media.db')
+
+        roaming_path = os.getenv('APPDATA')
+
+        # Construire le chemin complet vers le fichier modules.db
+        resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+        db_path = os.path.join(resources_folder, 'media.db')
+
+        # Vérifier si le dossier existe, sinon le créer
+        if not os.path.exists(resources_folder):
+            os.makedirs(resources_folder)
+
+        # Se connecter à la base de données
+        
+        conn = sqlite3.connect(db_path)
+
+
+       # conn = sqlite3.connect('media.db')
+
+        
+
+
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO media (name, description, path, category, type, hashtags, contact)
@@ -410,7 +443,21 @@ class AddMedia(QDialog):
         dest_path = os.path.join(dest_dir, media_name)
         shutil.copy(media_path, dest_path)
 
-        conn = sqlite3.connect('media.db')
+        roaming_path = os.getenv('APPDATA')
+
+        # Construire le chemin complet vers le fichier modules.db
+        resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+        db_path = os.path.join(resources_folder, 'media.db')
+
+        # Vérifier si le dossier existe, sinon le créer
+        if not os.path.exists(resources_folder):
+            os.makedirs(resources_folder)
+
+        # Se connecter à la base de données
+        
+        conn = sqlite3.connect(db_path)
+
+        #conn = sqlite3.connect('media.db')
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO media (name, description, path, category)
@@ -681,7 +728,7 @@ class MediaTable(QWidget):
 
 
  # Add the header
-        header = HeaderSection(self, title=self.tr("Media Management"), app_name=self.tr("Nova360 AI"), slogan=self.tr("AI Marketing & Management Auto"))
+        header = HeaderSection(self, title=self.tr("Media Management"), app_name=self.tr("Leopardo AI"), slogan=self.tr("AI Marketing & Management Auto"))
         layout.addWidget(header)
         # Barre de recherche et boutons
         search_add_layout = QHBoxLayout()
@@ -823,6 +870,9 @@ class MediaTable(QWidget):
 
         layout = QVBoxLayout()
 
+
+        header = HeaderSection(self, title=self.tr("Media Management"), app_name=self.tr("Leopardo AI"), slogan=self.tr("AI Marketing & Management Auto"))
+        layout.addWidget(header)
         # Barre de recherche et boutons
         search_add_layout = QHBoxLayout()
         self.search_bar = QLineEdit()
@@ -894,6 +944,9 @@ class MediaTable(QWidget):
         pagination_layout.addWidget(self.next_button)
         layout.addLayout(pagination_layout)
 
+
+        footer = FooterSection(self)
+        layout.addWidget(footer)
         self.setLayout(layout)
 
     def create_robot_menu(self):
@@ -980,7 +1033,20 @@ class MediaTable(QWidget):
     def generate_and_save_json(self):
         try:
             print("Connecting to the database...")
-            conn = sqlite3.connect('media.db')
+            roaming_path = os.getenv('APPDATA')
+
+            # Construire le chemin complet vers le fichier modules.db
+            resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+            db_path = os.path.join(resources_folder, 'media.db')
+
+            # Vérifier si le dossier existe, sinon le créer
+            if not os.path.exists(resources_folder):
+                os.makedirs(resources_folder)
+
+            # Se connecter à la base de données
+            
+            conn = sqlite3.connect(db_path)
+            #conn = sqlite3.connect('media.db')
             cursor = conn.cursor()
             print("Fetching media data from the database...")
             cursor.execute("SELECT name, category, type, description, path FROM media")
@@ -1062,13 +1128,83 @@ class MediaTable(QWidget):
         dialog = AddMedia(self)
         if dialog.exec_():
             self.load_media_from_db()
+    # def load_media_from_db(self):
+
+    #     roaming_path = os.getenv('APPDATA')
+
+    #     # Construire le chemin complet vers le fichier modules.db
+    #     resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+    #     db_path = os.path.join(resources_folder, 'media.db')
+
+    #     # Vérifier si le dossier existe, sinon le créer
+    #     if not os.path.exists(resources_folder):
+    #         os.makedirs(resources_folder)
+
+    #     # Se connecter à la base de données
+        
+    #     conn = sqlite3.connect(db_path)
+    #     #conn = sqlite3.connect('media.db')
+    #     cursor = conn.cursor()
+    #     cursor.execute("SELECT name, category, type, description, path FROM media")
+    #     self.media_data = cursor.fetchall()
+    #     conn.close()
+    #     self.apply_filters()
+
+
+    logging.basicConfig(level=logging.ERROR)
+
     def load_media_from_db(self):
-        conn = sqlite3.connect('media.db')
-        cursor = conn.cursor()
-        cursor.execute("SELECT name, category, type, description, path FROM media")
-        self.media_data = cursor.fetchall()
-        conn.close()
-        self.apply_filters()
+        roaming_path = os.getenv('APPDATA')
+        resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+        db_path = os.path.join(resources_folder, 'media.db')
+
+        print("Database path:", db_path)
+
+        # Ensure the resources folder exists
+        try:
+            if not os.path.exists(resources_folder):
+                os.makedirs(resources_folder)
+        except OSError as e:
+            logging.error("Error creating directory: %s", e)
+            return
+
+        # Connect to the database
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            # Check if the 'media' table exists
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='media'")
+            table_exists = cursor.fetchone()
+
+            if not table_exists:
+                # Create the 'media' table
+                cursor.execute('''
+                    CREATE TABLE media (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        category TEXT,
+                        type TEXT,
+                        description TEXT,
+                        path TEXT NOT NULL
+                    )
+                ''')
+                conn.commit()
+                print("Media table created.")
+
+            # Fetch data from the 'media' table
+            cursor.execute("SELECT name, category, type, description, path FROM media")
+            self.media_data = cursor.fetchall()
+            conn.close()
+            self.apply_filters()
+
+        except sqlite3.Error as e:
+            logging.error("Database error: %s", e)
+        except Exception as e:
+            logging.error("General error: %s", e)
+
+            
+
 
     def apply_filters(self):
         filter_type = self.filter_by.currentText()
@@ -1134,7 +1270,21 @@ class MediaTable(QWidget):
         dialog = EditMediaDialog(media_data, self)
         if dialog.exec_():
             updated_data = dialog.get_updated_data()
-            conn = sqlite3.connect('media.db')
+            roaming_path = os.getenv('APPDATA')
+
+            # Construire le chemin complet vers le fichier modules.db
+            resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+            db_path = os.path.join(resources_folder, 'media.db')
+
+            # Vérifier si le dossier existe, sinon le créer
+            if not os.path.exists(resources_folder):
+                os.makedirs(resources_folder)
+
+            # Se connecter à la base de données
+            
+            conn = sqlite3.connect(db_path)
+                        
+            #conn = sqlite3.connect('media.db')
             cursor = conn.cursor()
             cursor.execute("""
                 UPDATE media
@@ -1148,7 +1298,21 @@ class MediaTable(QWidget):
     def delete_media(self, media_data):
         reply = QMessageBox.question(self, "Confirm Delete", f"Are you sure you want to delete '{media_data[0]}'?", QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            conn = sqlite3.connect('media.db')
+            roaming_path = os.getenv('APPDATA')
+
+            # Construire le chemin complet vers le fichier modules.db
+            resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
+            db_path = os.path.join(resources_folder, 'media.db')
+
+            # Vérifier si le dossier existe, sinon le créer
+            if not os.path.exists(resources_folder):
+                os.makedirs(resources_folder)
+
+            # Se connecter à la base de données
+            
+            conn = sqlite3.connect(db_path)
+            
+            #conn = sqlite3.connect('media.db')
             cursor = conn.cursor()
             cursor.execute("DELETE FROM media WHERE name = ?", (media_data[0],))
             conn.commit()

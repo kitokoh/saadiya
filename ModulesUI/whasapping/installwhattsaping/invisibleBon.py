@@ -48,11 +48,12 @@
 #     ex = FolderVisibilityApp()
 #     ex.show()
 
+import os
 #     sys.exit(app.exec_())
 import sys
-import os
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
 from PyQt5.QtCore import QTranslator
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
+
 
 class FolderVisibilityApp(QWidget):
     def __init__(self):

@@ -1,9 +1,10 @@
-import sys
 import os
 import subprocess
+import sys
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QTranslator, QLocale
+from PyQt5.QtWidgets import QMessageBox
+
 
 class UpdateApp(QtWidgets.QWidget):
     def __init__(self):

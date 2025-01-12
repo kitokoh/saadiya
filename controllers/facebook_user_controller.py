@@ -1,7 +1,8 @@
 # facebook_user_controller.py
 from fastapi import APIRouter, HTTPException
-from models.facebook_user import FacebookUser
 from typing import List
+
+from models.facebook_user import FacebookUser
 
 router = APIRouter()
 

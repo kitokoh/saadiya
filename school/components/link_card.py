@@ -2,8 +2,8 @@
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QPixmap, QDesktopServices
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget, QHBoxLayout
-
 from qfluentwidgets import IconWidget, FluentIcon, TextWrap, SingleDirectionScrollArea
+
 from ..common.style_sheet import StyleSheet
 
 

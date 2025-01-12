@@ -1,7 +1,8 @@
 # contact_controller.py
 from fastapi import APIRouter, HTTPException
-from models.contact import Contact
 from typing import List
+
+from models.contact import Contact
 
 router = APIRouter()
 

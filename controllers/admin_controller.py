@@ -1,7 +1,8 @@
 # admin_controller.py
 from fastapi import APIRouter, HTTPException
-from models.admin import Admin
 from typing import List
+
+from models.admin import Admin
 
 router = APIRouter()
 

@@ -2,10 +2,10 @@
 from PyQt5.QtCore import QPoint, Qt, QStandardPaths
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QAction, QWidget, QLabel, QVBoxLayout, QFileDialog, QActionGroup
+from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import (RoundMenu, PushButton, Action, CommandBar, Action, TransparentDropDownPushButton,
                             setFont, CommandBarView, Flyout, ImageLabel, FlyoutAnimationType, CheckableMenu,
                             MenuIndicatorType, AvatarWidget, isDarkTheme, BodyLabel, CaptionLabel, HyperlinkButton)
-from qfluentwidgets import FluentIcon as FIF
 
 from .gallery_interface import GalleryInterface
 from ..common.translator import Translator

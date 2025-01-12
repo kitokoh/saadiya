@@ -1,10 +1,11 @@
 import sys
 import time
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QMessageBox, QProgressBar, QTimer
 )
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QIcon
+
 
 # Thread pour simuler les actions du script
 class TaskThread(QThread):

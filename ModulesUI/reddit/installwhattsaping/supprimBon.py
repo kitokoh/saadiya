@@ -1,12 +1,13 @@
 import os
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 
+from ui.footer import FooterSection  # Assurez-vous que ce fichier existe
 # Importe les sections de l'en-tête et du pied de page
 from ui.header import HeaderSection  # Assurez-vous que ce fichier existe
-from ui.footer import FooterSection  # Assurez-vous que ce fichier existe
+
 
 class DeleteBon(QtWidgets.QMainWindow):
     def __init__(self):

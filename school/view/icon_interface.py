@@ -1,16 +1,15 @@
 # coding:utf-8
-from typing import List
-
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QLabel, QWidget, QHBoxLayout
 from qfluentwidgets import (FluentIcon, IconWidget, FlowLayout, isDarkTheme,
                             Theme, applyThemeColor, SmoothScrollArea, SearchLineEdit, StrongBodyLabel,
                             BodyLabel)
+from typing import List
 
 from .gallery_interface import GalleryInterface
-from ..common.translator import Translator
 from ..common.config import cfg
 from ..common.style_sheet import StyleSheet
+from ..common.translator import Translator
 from ..common.trie import Trie
 
 

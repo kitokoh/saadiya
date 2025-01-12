@@ -231,16 +231,17 @@
 #     generator = LicenseGenerator()
 #     generator.generate_license()
 
+import logging
 # if __name__ == "__main__":
 #     main()  # Appelle la fonction main si le script est exécuté directement
 import os
 import smtplib
-import logging
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from cryptography.fernet import Fernet
 import subprocess
+from cryptography.fernet import Fernet
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 # Configuration du logger

@@ -21,6 +21,7 @@
 # def read_email_session(db, session_id):
 #     return db.query(EmailSession).filter(EmailSession.id == session_id).first()
 
+from database import Base
 # def delete_email_session(db, session_id):
 #     email_session = db.query(EmailSession).filter(EmailSession.id == session_id).first()
 #     if email_session:
@@ -28,7 +29,7 @@
 #         db.commit()
 # models/email_session.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class EmailSession(Base):
     __tablename__ = "email_sessions"

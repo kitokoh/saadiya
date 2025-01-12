@@ -57,10 +57,11 @@
 
 #     sys.exit(app.exec_())
 
+import ctypes
 # if __name__ == "__main__":
 #     main()
 import os
-import ctypes
+
 
 def hide_folder():
     """Vérifie si le dossier existe et le cache."""

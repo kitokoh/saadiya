@@ -1,7 +1,7 @@
-import os
-import json
-import getpass
 import ctypes
+import getpass
+import json
+import os
 
 
 def unlock_file(file_path):

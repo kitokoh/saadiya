@@ -1,8 +1,9 @@
-import sys
-import requests
 import os
+import requests
 import subprocess
+import sys
 from PyQt5.QtWidgets import QApplication, QMessageBox
+
 
 class UpdateManager:
     def __init__(self, current_version, update_url):

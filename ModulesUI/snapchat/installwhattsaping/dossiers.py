@@ -115,8 +115,9 @@
 # if __name__ == "__main__":
 #     main()
     
-import os
 import json
+import os
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class RobotApp:

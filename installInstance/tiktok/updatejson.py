@@ -1,6 +1,7 @@
-import os
-import json
 import getpass
+import json
+import os
+
 
 def update_image_paths(base_path):
     """Parcourt les dossiers dans le répertoire de base et met à jour les chemins d'images."""

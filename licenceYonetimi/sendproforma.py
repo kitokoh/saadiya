@@ -1,12 +1,12 @@
-import os
 import json
-from reportlab.lib.pagesizes import A4
+import os
+import sys
+from PyQt5.QtWidgets import QApplication, QMessageBox
+from datetime import datetime
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
-from datetime import datetime
-from PyQt5.QtWidgets import QApplication, QMessageBox
-import sys
 
 # Définition des répertoires
 user_data_dir1 = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")

@@ -1,7 +1,8 @@
 # user_role_controller.py
 from fastapi import APIRouter, HTTPException
-from models.user_role import UserRole
 from typing import List
+
+from models.user_role import UserRole
 
 router = APIRouter()
 

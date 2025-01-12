@@ -3,9 +3,12 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QAction, QWidget, QVBoxLayout, QButtonGroup
 from qfluentwidgets import (Action, DropDownPushButton, DropDownToolButton, PushButton, ToolButton, PrimaryPushButton,
                             HyperlinkButton, ComboBox, RadioButton, CheckBox, Slider, SwitchButton, EditableComboBox,
-                            ToggleButton, RoundMenu, FluentIcon, SplitPushButton, SplitToolButton, PrimarySplitToolButton,
-                            PrimarySplitPushButton, PrimaryDropDownPushButton, PrimaryToolButton, PrimaryDropDownToolButton,
-                            ToggleToolButton, TransparentDropDownPushButton, TransparentPushButton, TransparentToggleToolButton,
+                            ToggleButton, RoundMenu, FluentIcon, SplitPushButton, SplitToolButton,
+                            PrimarySplitToolButton,
+                            PrimarySplitPushButton, PrimaryDropDownPushButton, PrimaryToolButton,
+                            PrimaryDropDownToolButton,
+                            ToggleToolButton, TransparentDropDownPushButton, TransparentPushButton,
+                            TransparentToggleToolButton,
                             TransparentTogglePushButton, TransparentDropDownToolButton, TransparentToolButton,
                             PillPushButton, PillToolButton)
 

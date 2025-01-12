@@ -120,8 +120,9 @@
 #     main()
 import os
 import sys
-from datetime import datetime
 import time
+from datetime import datetime
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 class LogWorker:

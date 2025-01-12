@@ -1,12 +1,13 @@
-import sys
 import os
 import subprocess
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QComboBox, 
-    QMessageBox, QProgressBar, QHBoxLayout, QFormLayout,QPushButton, QTimeEdit
-)
+import sys
 from PyQt5.QtCore import Qt, QTime
 from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QLabel, QVBoxLayout, QComboBox,
+    QMessageBox, QProgressBar, QHBoxLayout, QFormLayout, QPushButton, QTimeEdit
+)
+
 
 class InstallerApp(QWidget):
     def __init__(self):

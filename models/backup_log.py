@@ -20,6 +20,7 @@
 # def read_backup_log(db, backup_id):
 #     return db.query(BackupLog).filter(BackupLog.id == backup_id).first()
 
+from database import Base
 # def delete_backup_log(db, backup_id):
 #     backup_log = db.query(BackupLog).filter(BackupLog.id == backup_id).first()
 #     if backup_log:
@@ -27,7 +28,7 @@
 #         db.commit()
 # models/backup_log.py
 from sqlalchemy import Column, Integer, String
-from database import Base
+
 
 class BackupLog(Base):
     __tablename__ = "backup_logs"

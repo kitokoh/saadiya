@@ -1,7 +1,8 @@
 # instance_user_controller.py
 from fastapi import APIRouter, HTTPException
-from models.instance_user import InstanceUser
 from typing import List
+
+from models.instance_user import InstanceUser
 
 router = APIRouter()
 

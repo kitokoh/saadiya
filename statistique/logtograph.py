@@ -1,7 +1,8 @@
-import re
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+import re
 from datetime import datetime
+
 
 class LogAnalyzer:
     def __init__(self, log_file):

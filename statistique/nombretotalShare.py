@@ -1,5 +1,6 @@
-import requests
 import os
+import requests
+
 
 class LogLineCounter:
     def __init__(self, url):

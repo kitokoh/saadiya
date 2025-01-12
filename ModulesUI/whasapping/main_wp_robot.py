@@ -1,31 +1,32 @@
-import os
 import json
-
+import os
 import subprocess
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, QMessageBox, QMenu, QComboBox, QStatusBar
-from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QTranslator, QLocale, QLibraryInfo, QPropertyAnimation
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWidget, QDialog, QLabel, QPushButton, \
+    QMessageBox, QMenu, QComboBox, QStatusBar
+from PyQt5.QtCore import Qt, QTimer
 
-from ModulesUI.whasapping.media_manager import MediaTable
 from ModulesUI.whasapping.group_manager import ContactTable
-from ModulesUI.whasapping.instances_table import InstanceTable
-#from fb_robot_install import FbRobot
-from ModulesUI.whasapping.wp_robot_install import WpRobot
-from statistique.stat import Dashboard
-from installFBrobotPy.demarrageAuto import InstallerApp
-#from ModulesUI.whasapping.installwhattsaping..majenvqt import AppEnv 
-#from ModulesUI.whasapping.installwhattsaping..updatejson import InstallerApp
-#from ModulesUI.whasapping.installwhattsaping..installGithub import InstallerApp
-#from ModulesUI.whasapping.installwhattsaping..installpython import InstallerApp
-
 from ModulesUI.whasapping.installwhattsaping.invisibleQT import InvisibleInstance
-from ModulesUI.whasapping.installwhattsaping.majenvqt import MajEnv
 from ModulesUI.whasapping.installwhattsaping.jsontorobot import JsonToRobot
+from ModulesUI.whasapping.installwhattsaping.majenvqt import MajEnv
 from ModulesUI.whasapping.installwhattsaping.supprimBon import DeleteBon
 from ModulesUI.whasapping.installwhattsaping.updateInstanceQt import UpdateInstance
-
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ModulesUI.whasapping.instances_table import InstanceTable
+from ModulesUI.whasapping.media_manager import MediaTable
+# from fb_robot_install import FbRobot
+from ModulesUI.whasapping.wp_robot_install import WpRobot
 from imports import *
+from installFBrobotPy.demarrageAuto import InstallerApp
+from statistique.stat import Dashboard
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
+
+# from ModulesUI.whasapping.installwhattsaping..majenvqt import AppEnv
+# from ModulesUI.whasapping.installwhattsaping..updatejson import InstallerApp
+# from ModulesUI.whasapping.installwhattsaping..installGithub import InstallerApp
+# from ModulesUI.whasapping.installwhattsaping..installpython import InstallerApp
 class AboutDialog(QDialog):
     """Boîte de dialogue pour 'À propos'."""
     def __init__(self, parent=None):
@@ -135,8 +136,32 @@ class CertificateDialog(QDialog):
         self.animation.setEndValue(1.0)
         self.animation.start()
 
+class LoadingScreen(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        self.setModal(True)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #2c3e50;
+                border-radius: 10px;
+            }
+            QLabel {
+                color: white;
+                font-size: 16px;
+            }
+        """)
+
+        layout = QVBoxLayout()
+        self.label = QLabel("Loading in progress, please wait...")
+
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+        self.resize(300, 100)
+
+
 class WhatsMainWindow(QMainWindow):
-    def __init__(self):
+    def __iniiit__(self):
         super().__init__()
         self.setWindowTitle(self.tr('AI WP ROBOT Pro'))
         
@@ -266,6 +291,278 @@ class WhatsMainWindow(QMainWindow):
         print(license_checker.is_license_valid())
         self.instance_table = Dashboard(title="AI WA ROBOT PRO", subtitle="Analytics Overview", validiter=license_checker.is_license_valid(),Nombregroupes=self.Nombregroup, totalshare="Nombre total" ,nexttimeshare="none")
         layout.addWidget(self.instance_table)
+   
+
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle(self.tr('AI WP ROBOT Pro'))
+        self.setGeometry(100, 210, 900, 600)
+        self.setWindowIcon(QIcon('resources/icons/whatsapp-512.png'))  # Icône de la fenêtre
+
+        # Configuration de la barre de menus
+        menubar_font = QFont("Arial", 10, QFont.Bold)
+        menubar = self.menuBar()
+        menubar.setFont(menubar_font)
+
+        # Configuration de la barre de menus avec style personnalisé pour Médias et Contacts
+        menubar.setStyleSheet("""
+            QMenuBar {
+                background-color: #1E1E2F;  /* Couleur de fond sombre */
+                color: #ECEFF4;            /* Couleur du texte */
+                padding: 5px;
+            }
+            QMenuBar::item {
+                padding: 8px 25px;
+                background-color: transparent;
+            }
+            QMenuBar::item:selected {
+                background-color: #4C566A;  /* Couleur de fond au survol */
+            }
+            QMenu {
+                background-color: #3B4252;  /* Couleur de fond du menu */
+                color: #ECEFF4;             /* Couleur du texte */
+                padding: 10px;
+                border: 1px solid #4C566A;  /* Bordure du menu */
+            }
+            QMenu::item:selected {
+                background-color: #4C566A;  /* Couleur de fond au survol */
+            }
+
+            /* Style personnalisé pour Médias */
+            QMenuBar::item#media_action {
+                background-color: #1E90FF;  /* Bleu vif */
+                color: #FFFFFF;             /* Texte blanc */
+                border-radius: 5px;         /* Coins arrondis */
+                padding: 8px 25px;
+            }
+            QMenuBar::item#media_action:selected {
+                background-color: #00BFFF;  /* Bleu plus clair au survol */
+            }
+
+            /* Style personnalisé pour Contacts */
+            QMenuBar::item#contacts_action {
+                background-color: #32CD32;  /* Vert vif */
+                color: #FFFFFF;             /* Texte blanc */
+                border-radius: 5px;         /* Coins arrondis */
+                padding: 8px 25px;
+            }
+            QMenuBar::item#contacts_action:selected {
+                background-color: #00FF7F;  /* Vert plus clair au survol */
+            }
+        """)
+
+        # Menu "Médias" avec style personnalisé
+        self.media_action = QAction(QIcon("resources/icons/media.png"), self.tr('Médias'), self)
+        self.media_action.setToolTip(self.tr('Afficher la liste des médias'))
+        self.media_action.triggered.connect(self.open_media)
+        self.media_action.setObjectName("media_action")  # Identifiant pour le style CSS
+        menubar.addAction(self.media_action)
+
+        # Menu "Contacts" avec style personnalisé
+        self.contacts_action = QAction(QIcon("resources/icons/contacts.png"), self.tr('Contacts'), self)
+        self.contacts_action.setToolTip(self.tr('Afficher la liste des contacts'))
+        self.contacts_action.triggered.connect(self.open_contacts)
+        self.contacts_action.setObjectName("contacts_action")  # Identifiant pour le style CSS
+        menubar.addAction(self.contacts_action)
+
+
+
+
+        # Menu "Tools" (regroupe "Certif", "About" et d'autres outils)
+        self.tools_menu = menubar.addMenu(QIcon("resources/icons/tools.png"), self.tr('Tools'))
+        
+        # Sous-menu "Certif"
+        self.certificate_action = QAction(QIcon("resources/icons/certificate.png"), self.tr('Certif'), self)
+        self.certificate_action.setToolTip(self.tr('Informations sur votre certificat'))
+        self.certificate_action.triggered.connect(self.open_certificate)
+        self.tools_menu.addAction(self.certificate_action)
+
+        # Sous-menu "About"
+        self.about_action = QAction(QIcon("resources/icons/about.png"), self.tr('About'), self)
+        self.about_action.setToolTip(self.tr('Informations sur l\'application'))
+        self.about_action.triggered.connect(self.open_about)
+        self.tools_menu.addAction(self.about_action)
+
+        # Séparateur
+        self.tools_menu.addSeparator()
+
+        # Sous-menu "Heure de démarrage"
+        self.scheduling_action = QAction(QIcon("resources/icons/schedule.png"), self.tr('Heure de démarrage'), self)
+        self.scheduling_action.setToolTip(self.tr('Planifier des tâches'))
+        self.scheduling_action.triggered.connect(self.show_start_time)
+        self.tools_menu.addAction(self.scheduling_action)
+
+        # Sous-menu "Uninstall Instances"
+        self.uninstall_action = QAction(QIcon("resources/icons/uninstall.png"), self.tr('Uninstall Instances'), self)
+        self.uninstall_action.setToolTip(self.tr('Désinstaller des instances'))
+        self.uninstall_action.triggered.connect(self.uninstall_instances)
+        self.tools_menu.addAction(self.uninstall_action)
+
+        # Sous-menu "Invisible Instances"
+        self.invisible_action = QAction(QIcon("resources/icons/invisible.png"), self.tr('Invisible Instances'), self)
+        self.invisible_action.setToolTip(self.tr('Afficher les instances invisibles'))
+        self.invisible_action.triggered.connect(self.show_invisible_instances)
+        self.tools_menu.addAction(self.invisible_action)
+
+        # Sous-menu "Environement"
+        self.environment_action = QAction(QIcon("resources/icons/environment.png"), self.tr('Environement'), self)
+        self.environment_action.setToolTip(self.tr('Mettre à jour l\'environnement'))
+        self.environment_action.triggered.connect(self.update_env)
+        self.tools_menu.addAction(self.environment_action)
+
+        # Sous-menu "Text to Robot"
+        self.text_to_robot_action = QAction(QIcon("resources/icons/text.png"), self.tr('Text to Robot'), self)
+        self.text_to_robot_action.setToolTip(self.tr('Mettre à jour le texte du robot'))
+        self.text_to_robot_action.triggered.connect(self.update_text)
+        self.tools_menu.addAction(self.text_to_robot_action)
+
+        # Sous-menu "Delete Instance"
+        self.delete_instance_action = QAction(QIcon("resources/icons/delete.png"), self.tr('Delete Instance'), self)
+        self.delete_instance_action.setToolTip(self.tr('Supprimer une instance'))
+        self.delete_instance_action.triggered.connect(self.delete_instance)
+        self.tools_menu.addAction(self.delete_instance_action)
+
+        # Sous-menu "Update Instance"
+        self.update_instance_action = QAction(QIcon("resources/icons/update.png"), self.tr('Update Instance'), self)
+        self.update_instance_action.setToolTip(self.tr('Mettre à jour l\'instance'))
+        self.update_instance_action.triggered.connect(self.update_instance)
+        self.tools_menu.addAction(self.update_instance_action)
+        # Menu "Insight" (anciennement "Instance")
+        self.insight_action = QAction(QIcon("resources/icons/insight.png"), self.tr('Insight'), self)
+        self.insight_action.setToolTip(self.tr('Afficher les insights'))
+        self.insight_action.triggered.connect(self.open_dashboard)
+        menubar.addAction(self.insight_action)
+
+        # Menu "Paramètres"
+        self.settings_menu = menubar.addMenu(QIcon("resources/icons/settings.png"), self.tr('Theme'))
+        
+        # Option "Mode sombre"
+        self.dark_mode_action = QAction(QIcon("resources/icons/dark_mode.png"), self.tr('Activer le mode sombre'), self, checkable=True)
+        self.dark_mode_action.setToolTip(self.tr('Basculer vers le mode sombre'))
+        self.dark_mode_action.triggered.connect(self.toggle_dark_mode)
+        self.settings_menu.addAction(self.dark_mode_action)
+
+        # Option "Personnaliser le thème"
+        self.theme_action = QAction(QIcon("resources/icons/theme.png"), self.tr('Personnaliser le thème'), self)
+        self.theme_action.setToolTip(self.tr('Changer les couleurs du thème'))
+        self.theme_action.triggered.connect(self.customize_theme)
+        self.settings_menu.addAction(self.theme_action)
+
+        # Barre d'état
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+
+        # Widget central
+        central_widget = QWidget(self)
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+
+        # Exemple de contenu central (à adapter)
+        license_checker = LicenseChecker(license_dir="C:\\wabon")
+        file_path = 'C:\\wabon\\robot1\\data.json'
+        group_counter = GroupCounter(file_path)
+        self.Nombregroup = group_counter.count_groups()
+
+        # self.instance_table = Dashboard(
+        #     title="AI WA ROBOT PRO",
+        #     subtitle="Analytics Overview",
+        #     validiter=license_checker.is_license_valid(),
+        #     Nombregroupes=self.Nombregroup,
+        #     totalshare="Nombre total",
+        #     nexttimeshare="none"
+        # )
+        # layout.addWidget(self.instance_table)
+        self.contacts = ContactTable(self)
+        layout.addWidget(self.contacts)
+    # # Méthodes pour les actions du menu
+    def open_dashboard(self):
+        # Afficher un écran de chargement
+        loading_screen = LoadingScreen(self)
+        loading_screen.show()
+
+        # license_checker = LicenseChecker(license_dir="C:\\wabon")
+        # file_path = 'C:\\wabon\\robot1\\data.json'
+        # group_counter = GroupCounter(file_path)
+        # Nombregroup = group_counter.count_groups()
+        # dash = Dashboard(
+        #     title="AI FB ROBOT PRO",
+        #     subtitle="Analytics Overview",
+        #     validiter=license_checker.is_license_valid(),
+        #     Nombregroupes=Nombregroup,
+        #     totalshare="Nombre total",
+        #     nexttimeshare="none"
+        # )
+        # self.setCentralWidget(dash)
+        # Simuler un chargement avec QTimer
+        QTimer.singleShot(1, lambda: self.finish_loading(loading_screen))
+
+    def finish_loading(self, loading_screen):
+        # Fermer l'écran de chargement
+    
+
+        # Continuer avec le chargement du tableau de bord
+        license_checker = LicenseChecker(license_dir="C:\\wabon")
+        file_path = 'C:\\wabon\\robot1\\data.json'
+        group_counter = GroupCounter(file_path)
+        Nombregroup = group_counter.count_groups()
+
+        dash = Dashboard(
+            title="wa+ CRM",
+            subtitle="Analytics Overview",
+            validiter=license_checker.is_license_valid(),
+            Nombregroupes=Nombregroup,
+            totalshare=" total",
+            nexttimeshare="none"
+        )
+        self.setCentralWidget(dash)
+        loading_screen.close()
+  
+  
+    def open_insight(self):
+        QMessageBox.information(self, "Insight", "Fonctionnalité Insight")
+
+    # def open_media(self):
+    #     QMessageBox.information(self, "Médias", "Fonctionnalité Médias")
+
+    # def open_contacts(self):
+    #     QMessageBox.information(self, "Contacts", "Fonctionnalité Contacts")
+
+    # def open_certificate(self):
+    #     QMessageBox.information(self, "Certif", "Fonctionnalité Certif")
+
+    # def open_about(self):
+    #     QMessageBox.information(self, "About", "Fonctionnalité About")
+
+    # def show_start_time(self):
+    #     QMessageBox.information(self, "Heure de démarrage", "Fonctionnalité Heure de démarrage")
+
+    # def uninstall_instances(self):
+    #     QMessageBox.information(self, "Uninstall Instances", "Fonctionnalité Uninstall Instances")
+
+    # def show_invisible_instances(self):
+    #     QMessageBox.information(self, "Invisible Instances", "Fonctionnalité Invisible Instances")
+
+    # def update_env(self):
+    #     QMessageBox.information(self, "Environement", "Fonctionnalité Environement")
+
+    # def update_text(self):
+    #     QMessageBox.information(self, "Text to Robot", "Fonctionnalité Text to Robot")
+
+    # def delete_instance(self):
+    #     QMessageBox.information(self, "Delete Instance", "Fonctionnalité Delete Instance")
+
+    # def update_instance(self):
+    #     QMessageBox.information(self, "Update Instance", "Fonctionnalité Update Instance")
+
+    # def toggle_dark_mode(self):
+    #     QMessageBox.information(self, "Mode sombre", "Mode sombre activé/désactivé")
+
+    # def customize_theme(self):
+    #     QMessageBox.information(self, "Personnaliser le thème", "Fonctionnalité Personnaliser le thème")
+
+
+
     def switch_language(self, language):
         """Permet de changer la langue."""
         if language == "en":

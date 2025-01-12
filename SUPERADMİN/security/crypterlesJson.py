@@ -1,5 +1,5 @@
-import os
 import json
+import os
 from cryptography.fernet import Fernet
 
 # Chemin vers le répertoire contenant les fichiers JSON

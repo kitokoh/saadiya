@@ -1,10 +1,10 @@
-import sys
-import os
 import json
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QLabel, QScrollArea, QVBoxLayout, QFrame
+import os
+import sys
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPixmap, QFont, QColor, QPalette
 from PyQt5.QtCore import Qt, QTranslator, QLocale
+from PyQt5.QtGui import QPixmap, QFont, QColor, QPalette
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QLabel, QScrollArea, QVBoxLayout, QFrame
 
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
@@ -126,7 +126,7 @@ class Nosclient(QWidget):
         
         # Footer layout
         footer_layout = QHBoxLayout()
-        footer_label = QLabel(self.tr("© 2024 - Marketing Robot . Next Update 15 November 15 2024"))
+        footer_label = QLabel(self.tr("© 2025 - Marketing Robot . Next Update 15 03 2025"))
         footer_label.setAlignment(Qt.AlignCenter)
         footer_label.setFont(QFont("Helvetica Neue", 11))
         footer_label.setStyleSheet("color: #7f8c8d;")  # Grey

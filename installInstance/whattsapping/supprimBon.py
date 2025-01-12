@@ -1,7 +1,8 @@
 import os
-import sys
 import subprocess
+import sys
 from PyQt5 import QtWidgets, QtCore
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):

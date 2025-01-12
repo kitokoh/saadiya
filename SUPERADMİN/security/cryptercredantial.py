@@ -1,4 +1,5 @@
 from cryptography.fernet import Fernet
+
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 
 # Générer une clé et l'enregistrer dans key.key

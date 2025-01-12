@@ -1,31 +1,30 @@
-import os
 import json
-from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, 
-                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView, 
+import os
+import shutil
+from PyQt5.QtCore import Qt, QTimer, QLocale
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushButton,
+                             QVBoxLayout, QWidget, QLabel, QMessageBox, QHeaderView,
                              QAbstractItemView, QLineEdit, QHBoxLayout, QDialog, QDialogButtonBox,
                              QStackedWidget, QTableWidgetSelectionRange, QComboBox)
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtCore import Qt, QTimer, QLocale
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
-
-from ui.header import HeaderSection  
-from ui.footer import FooterSection  
-from ui.secondry_menu import SecondaryMenu  
-#from update_media_dialog import UpdateMediaDialog
-#from add_media import AddMedia
-from installFBrobotPy import  updatejson
-
-import shutil
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtWidgets import QMenu
-from PyQt5.QtWidgets import QDialog, QLabel, QVBoxLayout
-
 from PyQt5.QtWidgets import QWidget, QFileDialog, QVBoxLayout, QPushButton
-from update_media_dialog import UpdateMediaDialog
-from installFBrobotPy.sendatajson import FileTransferApp
 
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from imports import *
+# from update_media_dialog import UpdateMediaDialog
+# from add_media import AddMedia
+from installFBrobotPy import updatejson
+from installFBrobotPy.sendatajson import FileTransferApp
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ui.footer import FooterSection
+from ui.header import HeaderSection
+from ui.secondry_menu import SecondaryMenu
+from update_media_dialog import UpdateMediaDialog
+
+
 class PreviewDialog(QDialog):
     def __init__(self, media_path, description, parent=None):
                         # Initialiser le traducteur

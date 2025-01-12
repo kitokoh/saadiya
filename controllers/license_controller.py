@@ -1,7 +1,8 @@
 # instance_controller.py
 from fastapi import APIRouter, HTTPException
-from models.instance import Instance
 from typing import List
+
+from models.instance import Instance
 
 router = APIRouter()
 

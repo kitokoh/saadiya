@@ -1,7 +1,8 @@
 # email_session_controller.py
 from fastapi import APIRouter, HTTPException
-from models.email_session import EmailSession
 from typing import List
+
+from models.email_session import EmailSession
 
 router = APIRouter()
 

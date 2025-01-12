@@ -1,10 +1,11 @@
-import sys
 import json
+import sys
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QFormLayout, QLineEdit, 
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QFormLayout, QLineEdit,
     QCheckBox, QComboBox, QTabWidget, QPushButton, QGroupBox, QHBoxLayout, QLabel, QFileDialog
 )
-from PyQt5.QtCore import Qt
+
 
 class ConfigWindow(QMainWindow):
     def __init__(self, config_path="data.json"):

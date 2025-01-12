@@ -1,8 +1,8 @@
 import os
-import subprocess
 import platform
-import socket
 import psutil
+import socket
+import subprocess
 from PyQt5 import QtWidgets, QtCore
 
 

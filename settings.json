@@ -1,5 +1,9 @@
 {
-    "bots": {},
+    "bots": {
+        "Instagram": [
+            "Auto Post"
+        ]
+    },
     "modules": {},
     "info": {
         "name": "",

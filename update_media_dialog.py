@@ -1,12 +1,15 @@
+import re
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap, QFont, QPalette, QColor
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit,
     QFileDialog, QFrame, QMessageBox
 )
-from PyQt5.QtGui import QPixmap, QFont, QPalette, QColor
-from PyQt5.QtCore import Qt
-import re
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
 from imports import *
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+
+
 class UpdateMediaDialog(QDialog):
     def __init__(self, media, parent=None):
 

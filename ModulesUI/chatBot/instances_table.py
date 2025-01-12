@@ -1,15 +1,17 @@
-import sqlite3
 import csv
+import sqlite3
+import subprocess  # Pour exécuter le script externe
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton,
                              QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
                              QMenu, QAction, QDialog, QFormLayout, QDialogButtonBox, QMessageBox)
-from PyQt5.QtCore import Qt  
+
 from group_manager import GroupTable
+from ui.footer import FooterSection
 # Import du header, footer et menu secondaire
-from ui.header import HeaderSection  
-from ui.footer import FooterSection  
-from ui.secondry_menu import SecondaryMenu  
-import subprocess  # Pour exécuter le script externe
+from ui.header import HeaderSection
+from ui.secondry_menu import SecondaryMenu
+
 
 class EditInstanceDialog(QDialog):
     def __init__(self, instance, parent=None):
