@@ -496,7 +496,7 @@ class RemoteControl(QWidget):
         # Initialisation de l'écran principal
         self.screen = AnimatedScreen("Ready to Contro2222l", self)
         # Définir un GIF en arrière-plan
-        self.screen.set_background_gif("gifs/1.gif")  # Par exemple : 'assets/animated-bg.gif'
+        self.screen.set_background_gif("resources/gifs/1.gif")  # Par exemple : 'assets/animated-bg.gif'
         self.screen.get_screen_stylesheet()
 
         # Ajout d'une animation de bordure pulsante
@@ -509,7 +509,7 @@ class RemoteControl(QWidget):
         lambda: self.activate_light1("Stategie Marketing School ")
 
         # Bouton pour changer le GIF d'arrière-plan
-        gif_path = "gifs/1.gif"  # Chemin du GIF sélectionné
+        gif_path = "resources/gifs/1.gif"  # Chemin du GIF sélectionné
         self.change_background_gif(gif_path)
         # Central area: circular buttons and small buttons
         central_layout = QHBoxLayout()
@@ -522,20 +522,20 @@ class RemoteControl(QWidget):
         left_buttons = QVBoxLayout()
 
         button_actions = {
-            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","gifs/fb_robot.gif"),
-            "Multi FB": lambda: self.execute_robot_in_tab("Multi FB","Robot satarting","gifs/multi_fb.gif"),
-            "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","gifs/wa.gif"),
-            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","gifs/wa_crm.gif"),
-            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","gifs/fb_comment.gif"),
-            "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","gifs/insta.gif"),
+            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","resources/gifs/fb_robot.gif"),
+            "Multi FB": lambda: self.execute_robot_in_tab("Multi FB","Robot satarting","resources/gifs/multi_fb.gif"),
+            "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","resources/gifs/wa.gif"),
+            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","resources/gifs/wa_crm.gif"),
+            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","resources/gifs/fb_comment.gif"),
+            "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","resources/gifs/insta.gif"),
 
         }
         self.button_states = {
             "FB Robot": False  # True signifie que le bouton est activé
             
         }
-        for name, icon in [("FB Robot", "icons/fb_robot.ico"), ("Multi FB", "icons/multi_fb.ico"),
-                        ("WA +", "icons/wa.png"), ("WA CRM", "icons/wa_crm.png"),("FB Comment", "icons/fb_comment.png"),("Insta", "icons/insta.ico")]:
+        for name, icon in [("FB Robot", "resources/icons/fb_robot.ico"), ("Multi FB", "resources/icons/multi_fb.ico"),
+                        ("WA +", "resources/icons/wa.png"), ("WA CRM", "resources/icons/wa_crm.png"),("FB Comment", "resources/icons/fb_comment.png"),("Insta", "resources/icons/insta.ico")]:
             btn = self.create_small_button(name, icon)
             self.apply_shadow_effect(btn)
             left_buttons.addWidget(btn)
@@ -547,9 +547,9 @@ class RemoteControl(QWidget):
         self.button_text = "Panel" if self.nova360_installed else "Installing..."
         # Circular buttons in the center
         circle_buttons_layout = QVBoxLayout()
-        self.open_panel_btn = self.create_circular_button2(self.button_text , "icons/openpanel.png")
-        self.start_robots_btn = self.create_circular_button2("Start All", "icons/pannel.png")
-        self.choice_module_btn = self.create_circular_button2("Strategie", "icons/school.png")
+        self.open_panel_btn = self.create_circular_button2(self.button_text , "resources/icons/openpanel.png")
+        self.start_robots_btn = self.create_circular_button2("Start All", "resources/icons/pannel.png")
+        self.choice_module_btn = self.create_circular_button2("Strategie", "resources/icons/school.png")
 
 
 
@@ -558,28 +558,28 @@ class RemoteControl(QWidget):
 
 
         button_actions2 = {
-            "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","gifs/in_job.gif"),
-            "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","gifs/blog.gif"),
-            "YTB": lambda: self.execute_robot_in_tab("YTB","Robot satarting","gifs/ytb.gif"),
-            "PIN": lambda: self.execute_robot_in_tab("PIN","Robot satarting","gifs/pin.gif"),
-            "X": lambda: self.execute_robot_in_tab("X","Robot satarting","gifs/x.gif"),
-            "TOK": lambda: self.execute_robot_in_tab("TOK","Robot satarting","gifs/tok.gif"),
+            "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","resources/gifs/in_job.gif"),
+            "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","resources/gifs/blog.gif"),
+            "YTB": lambda: self.execute_robot_in_tab("YTB","Robot satarting","resources/gifs/ytb.gif"),
+            "PIN": lambda: self.execute_robot_in_tab("PIN","Robot satarting","resources/gifs/pin.gif"),
+            "X": lambda: self.execute_robot_in_tab("X","Robot satarting","resources/gifs/x.gif"),
+            "TOK": lambda: self.execute_robot_in_tab("TOK","Robot satarting","resources/gifs/tok.gif"),
 
         }
 
         #pour le buttons executle all 
         self.button_actionss = {
-            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","gifs/fb_robot.gif"),
-            "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","gifs/1.gif"),
-            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","gifs/1.gif"),
-            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","gifs/1.gif"),
-            "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","gifs/1.gif"),
-            "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","gifs/1.gif"),
-            "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","gifs/1.gif"),
-            "YTB": lambda: self.execute_robot_in_tab("YTB","Robot satarting","gifs/1.gif"),
-            "PIN": lambda: self.execute_robot_in_tab("PIN","Robot satarting","gifs/1.gif"),
-            "X": lambda: self.execute_robot_in_tab("X","Robot satarting","gifs/1.gif"),
-            "TOK": lambda: self.execute_robot_in_tab("TOK","Robot satarting","gifs/1.gif"),
+            "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","resources/gifs/fb_robot.gif"),
+            "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","resources/gifs/1.gif"),
+            "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","resources/gifs/1.gif"),
+            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","resources/gifs/1.gif"),
+            "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","resources/gifs/1.gif"),
+            "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","resources/gifs/1.gif"),
+            "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","resources/gifs/1.gif"),
+            "YTB": lambda: self.execute_robot_in_tab("YTB","Robot satarting","resources/gifs/1.gif"),
+            "PIN": lambda: self.execute_robot_in_tab("PIN","Robot satarting","resources/gifs/1.gif"),
+            "X": lambda: self.execute_robot_in_tab("X","Robot satarting","resources/gifs/1.gif"),
+            "TOK": lambda: self.execute_robot_in_tab("TOK","Robot satarting","resources/gifs/1.gif"),
         }
         for btn in [self.open_panel_btn, self.start_robots_btn, self.choice_module_btn]:
             self.apply_shadow_effect(btn)
@@ -587,9 +587,9 @@ class RemoteControl(QWidget):
 
         # Small buttons on the right
         right_buttons = QVBoxLayout()
-        for name, icon in [("IN Job", "icons/in_job.ico"), ("Blog", "icons/blog.png"),
-                        ("YTB", "icons/ytb.ico"), ("PIN", "icons/pin.png"),("X", "icons/x.png"),
-                        ("TOK", "icons/tok.ico")]:
+        for name, icon in [("IN Job", "resources/icons/in_job.ico"), ("Blog", "resources/icons/blog.png"),
+                        ("YTB", "resources/icons/ytb.ico"), ("PIN", "resources/icons/pin.png"),("X", "resources/icons/x.png"),
+                        ("TOK", "resources/icons/tok.ico")]:
             btn = self.create_small_button(name, icon)
             self.apply_shadow_effect(btn)
             right_buttons.addWidget(btn)
@@ -639,14 +639,14 @@ class RemoteControl(QWidget):
 
       #   self.start_robots_btn.clicked.connect(lambda: self.activate_light("Robots Started"))
 # Intégration avec le bouton Start All
-        #self.start_robots_btn = self.create_circular_button2("Start All", "icons/pannel.png")
+        #self.start_robots_btn = self.create_circular_button2("Start All", "resources/icons/pannel.png")
         self.start_robots_btn.clicked.connect(self.handle_start_all_robots)
 
 
         self.choice_module_btn.clicked.connect(self.start_countdown)
         # Buttons to trigger the execution of external programs
-        self.fb_robot_btn = self.create_small_button("FB Robot", "icons/fb.ico")
-        self.pin_btn = self.create_small_button("Pin", "icons/pin.ico")
+        self.fb_robot_btn = self.create_small_button("FB Robot", "resources/icons/fb.ico")
+        self.pin_btn = self.create_small_button("Pin", "resources/icons/pin.ico")
         self.fb_robot_btn.clicked.connect(self.run_fb_robot)
         self.pin_btn.clicked.connect(self.run_pin)
 
@@ -944,7 +944,7 @@ class RemoteControl(QWidget):
             lambda: self.activate_light1("feu Marketing  ")
 
         # Bouton pour changer le GIF d'arrière-plan
-            gif_path = "gifs/on.gif"  # Chemin du GIF sélectionné
+            gif_path = "resources/gifs/on.gif"  # Chemin du GIF sélectionné
             self.change_background_gif(gif_path)
             self.radio_button.setText("On")
             self.green_led.setStyleSheet("background-color: green; border-radius: 15px;")
@@ -1000,7 +1000,7 @@ class RemoteControl(QWidget):
         lambda: self.activate_light1("Start All robot!")
 
         # Bouton pour changer le GIF d'arrière-plan
-        gif_path = "gifs/start_all.gif"  # Chemin du GIF sélectionné
+        gif_path = "resources/gifs/start_all.gif"  # Chemin du GIF sélectionné
         self.change_background_gif(gif_path)
 
         # Créer et afficher le popup
@@ -1039,7 +1039,7 @@ class RemoteControl(QWidget):
         """Crée un popup moderne pour demander confirmation."""
         dialog = QDialog(self)
         dialog.setWindowTitle("Confirmation")
-        dialog.setWindowIcon(QIcon("icons/confirmation.ico"))
+        dialog.setWindowIcon(QIcon("resources/icons/confirmation.ico"))
         dialog.setFixedSize(400, 200)
         dialog.setStyleSheet("""
             QDialog {
@@ -1132,7 +1132,7 @@ class RemoteControl(QWidget):
         lambda: self.activate_light1("Light Activated!")
 
         # Bouton pour changer le GIF d'arrière-plan
-        gif_path = "gifs/pannel.gif"  # Chemin du GIF sélectionné
+        gif_path = "resources/gifs/pannel.gif"  # Chemin du GIF sélectionné
         self.change_background_gif(gif_path)
 
 
@@ -1807,7 +1807,7 @@ class RemoteControl(QWidget):
             lambda: self.activate_light1("feu Marketing  ")
 
         # Bouton pour changer le GIF d'arrière-plan
-            gif_path = "gifs/off.gif"  # Chemin du GIF sélectionné
+            gif_path = "resources/gifs/off.gif"  # Chemin du GIF sélectionné
             self.change_background_gif(gif_path)
             self.green_led.setStyleSheet("background-color: green; border-radius: 15px;")
             self.yellow_led.setStyleSheet("background-color: gray; border-radius: 15px;")
@@ -2111,7 +2111,7 @@ class RemoteControl(QWidget):
         lambda: self.activate_light1("Stategie Marketing School ")
 
         # Bouton pour changer le GIF d'arrière-plan
-        gif_path = "gifs/strategie.gif"  # Chemin du GIF sélectionné
+        gif_path = "resources/gifs/strategie.gif"  # Chemin du GIF sélectionné
         self.change_background_gif(gif_path)
 
         # Set up a QTimer to open the website after 3 seconds
@@ -2486,7 +2486,7 @@ class RemoteControl(QWidget):
             QLabel {
 
                             background-color: #4CAF50;
-                background-image: url('images/back.webp');
+                background-image: url('resources/images/back.webp');
                 background-position: center;
                 background-repeat: no-repeat;
 

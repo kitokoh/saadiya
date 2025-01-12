@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import sqlite3
 from PyQt5.QtCore import Qt, QTimer
@@ -32,9 +33,19 @@ class Nova360Ultimate(QMainWindow):
             "Instagram": ["Auto Post", "Story Scheduler", "Hashtag Analyzer"],
             # Ajouter d'autres plateformes ici...
         }
+        roaming_path = os.path.join(os.getenv('APPDATA'), "saadiya", "resources")
+
+        # Créer le dossier si nécessaire
+        os.makedirs(roaming_path, exist_ok=True)
+
+        # Construire le chemin complet pour la base de données
+        db_path = os.path.join(roaming_path, "nova360.db")
+
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(db_path)
+
 
         # Database connection
-        self.conn = sqlite3.connect('nova360.db')
         self.cursor = self.conn.cursor()
         self.create_tables()
 

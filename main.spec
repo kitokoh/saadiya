@@ -24,7 +24,7 @@ a = Analysis(
         ('resources/data/*.json', 'resources/data'),
         ('resources/images/*', 'resources/images'),
         ('resources/videos/*', 'resources/videos'),
-        ('D:\\nova360\\Installations\\lesClesNova360\\icons\\exeCle\\*', 'resources/tools'),
+        ('D:/nova360/Installations/lesClesNova360/icons/exeCle/*', 'resources/tools'),
         ('resources/sounds/*', 'resources/sounds'),
         ('resources/gifs/*', 'resources/gifs'),
 

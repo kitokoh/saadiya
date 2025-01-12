@@ -301,6 +301,13 @@ class FaceMainWindow(QMainWindow):
         self.insight_action.setToolTip(self.tr('Afficher les insights'))
         self.insight_action.triggered.connect(self.open_dashboard)
         menubar.addAction(self.insight_action)
+
+
+        # Menu "Insight" (anciennement "Home")
+        self.Instances_action = QAction(QIcon("resources/icons/insight.png"), self.tr('Instance'), self)
+        self.Instances_action.setToolTip(self.tr('Afficher les insights'))
+        self.Instances_action.triggered.connect(self.open_install)
+        menubar.addAction(self.Instances_action)
         # Menu "Paramètres"
         self.settings_menu = menubar.addMenu(QIcon("resources/icons/settings.png"), self.tr('Theme'))
         

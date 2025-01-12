@@ -434,6 +434,11 @@ class WhatsMainWindow(QMainWindow):
         self.insight_action.triggered.connect(self.open_dashboard)
         menubar.addAction(self.insight_action)
 
+        # Menu "Insight" (anciennement "Home")
+        self.Instances_action = QAction(QIcon("resources/icons/insight.png"), self.tr('Instance'), self)
+        self.Instances_action.setToolTip(self.tr('Afficher les insights'))
+        self.Instances_action.triggered.connect(self.open_install)
+        menubar.addAction(self.Instances_action)
         # Menu "Paramètres"
         self.settings_menu = menubar.addMenu(QIcon("resources/icons/settings.png"), self.tr('Theme'))
         
@@ -676,9 +681,14 @@ class WhatsMainWindow(QMainWindow):
 
         if reply == QMessageBox.Yes:
             # Chemin vers le fichier uninstall.exe
-            uninstall_exe_path = os.path.join("resources", "tools", "uninstall.exe")
+            # Obtenir le chemin vers le dossier Roaming\Saadiya
+            roaming_path = os.getenv("APPDATA")  # Variable d'environnement pour %APPDATA%
+            saadiya_path = os.path.join(roaming_path, "Saadiya", "resources", "tools")
 
-            # Vérifier si le fichier uninstall.exe existe
+            # Construire le chemin complet vers le fichier uninswa.exe
+            uninstall_exe_path = os.path.join(saadiya_path, "uninswa.exe")
+
+                        # Vérifier si le fichier uninstall.exe existe
             if os.path.exists(uninstall_exe_path):
                 try:
                     # Exécuter uninstall.exe

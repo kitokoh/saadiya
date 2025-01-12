@@ -33,7 +33,8 @@ partager un direct
 partager  en cliquant sur le buton par
 
 
-
+dans la version 4 les button de la telecommande seront tous les liste deroulante ou ca se projet sur l ecran le but sera de faire de sorte que 
+si on on multi robot sa sort directement labas 
 
 DANS LA PROCHAİNE VERSİON ,MEDİA FACEBOOK DOİT ETRE DİRECTEMENT DANS LA MEM BASE DE DONNER AVECC LA TCA BLE CATEGORİE LA TABLE CONACT EGALEMENT SERA DANS LE MEME DB ACEC SON OPTİON CATEGORİE 
 CES CATEGORİE VONT STOCKER LES NOM DES ROBOT CO WABON1 ETC.. ET DONC CEST LA MEME CHOSE Uİ SERO APPELER A GAUCHE ET A DROİT POUR UTİLİSATİON 
