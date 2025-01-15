@@ -1112,7 +1112,7 @@ class WpRobot(QtWidgets.QWidget):
             (self.tr('Envoi du mail de succès...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping','mailSucces.py')),
             (self.tr('Rendre invisible bon...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleinstance.py')),
             (self.tr('Secure chorme to connect d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'secureChrome.py')),
-            (self.tr('Secure total de dossier d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleDesktop.py'))
+            # (self.tr('Secure total de dossier d\'installation...'), os.path.join(user_data_dir, 'ModulesUI','whasapping','installwhattsaping', 'invisibleDesktop.py'))
  
         ]
 

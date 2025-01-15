@@ -1645,11 +1645,9 @@ class RemoteControl(QWidget):
 
     #     process.finished.connect(on_process_finished)
 
-
-    def can_execute_program(self ,program_name):
+    def can_execute_program(self,program_name):
         """
         Vérifie si un programme peut être exécuté en fonction de l'existence de dossiers spécifiques.
-
         :param program_name: Nom du programme à exécuter (par exemple, "fb robot" ou "wa").
         :return: Booléen indiquant si le programme peut être exécuté.
         """
@@ -1669,7 +1667,6 @@ class RemoteControl(QWidget):
             "pin": os.path.join("pinbon", "robot1"),
             "x": os.path.join("xbon", "robot1"),
             "tok": os.path.join("tokbon", "robot1"),
-
         }
 
         # Récupérer le chemin requis pour le programme demandé
@@ -1682,7 +1679,7 @@ class RemoteControl(QWidget):
 
         # Déterminer le chemin de base en fonction du système d'exploitation
         if platform.system() == "Windows":
-            base_path = os.getenv("SystemDrive", "C:\\")  # Par défaut, "C:\\" pour Windows
+            base_path = os.getenv("SystemDrive", "C:\\")+ "\\"  # Par défaut, "C:\\" pour Windows
             print(f"Système d'exploitation détecté : Windows, base_path = {base_path}")
         else:
             base_path = os.path.expanduser("~")  # Dossier "bon" dans le HOME pour Linux/Mac

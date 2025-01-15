@@ -32,7 +32,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from statistique.activiteprogramme import Activite
 from PyQt5.QtGui import QFont
-
+from Home.instances import InstanceTable
 # Simulated Nova360ProApp class for demonstration purposes
 class LoaderThreadTelecommande(QThread):
     finished = pyqtSignal(object)  # Signal to emit the SplitScreenView instance
@@ -190,10 +190,25 @@ class Browser(QMainWindow):
         # Add a first tab with a web page
         self.open_accueil_window()
         #self.add_new_tab(QUrl("https://www.nova360.turknovatech.com"), "Nova360", "resources/icons/multi_fb.ico")
-
     def open_instance(self):
-       # self.setCentralWidget(InstanceTable(self))
-       pass
+
+        tab_name = self.tr("Instances")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'Instances') or self.instances is None:
+            self.instances =InstanceTable(self)
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.instances, tab_name, "resources/icons/multi_fb.ico")
+        # self.setCentralWidget(InstanceTable(self))
+
+
 
     def open_about_window(self):
         about_dialog = AboutDialog(self)
@@ -205,46 +220,6 @@ class Browser(QMainWindow):
                 return i  # Return the index if found
         return -1  # No tab found
 
-    def open_accueil_window1(self):
-        tab_name = self.tr("Accueil")  # Tab name
-        existing_tab_index = self.find_tab_by_name(tab_name)
-        
-        if existing_tab_index != -1:
-            # If the tab already exists, select it
-            self.tab_widget.setCurrentIndex(existing_tab_index)
-        else:
-            # Otherwise, create a new tab
-            accueil_widget = QLabel(self.tr("Accueil - Content here"))  # Replace with the actual widget
-            self.add_new_tab(accueil_widget, tab_name, "resources/icons/multi_fb.ico")
-
-    def open_update_window1(self):
-        QMessageBox.information(self, self.tr("Upgrade"), self.tr("Upgrade your plan."))
-
-    def open_accueil_window1(self):
-        tab_name = self.tr("Accueil")
-
-        # Check if the tab already exists
-        existing_tab_index = self.find_tab_by_name(tab_name)
-        if existing_tab_index != -1:
-            self.tab_widget.setCurrentIndex(existing_tab_index)
-            return
-
-        # Show a loading message in the tab
-        loading_label = QLabel(self.tr("Loading... Please wait."))
-        loading_label.setAlignment(Qt.AlignCenter)
-        self.add_custom_tab(loading_label, tab_name, "resources/icons/multi_fb.ico")
-
-        # Create a progress dialog
-        self.progress_dialog = QProgressDialog(self.tr("Loading Nova360Pro..."), self.tr("Cancel"), 0, 0, self)
-        self.progress_dialog.setWindowTitle(self.tr("Loading"))
-        self.progress_dialog.setWindowModality(Qt.ApplicationModal)
-        self.progress_dialog.setCancelButton(None)  # Disable the Cancel button
-        self.progress_dialog.show()
-
-        # Start the loading thread
-        self.loader_thread = LoaderThread(main_app=self)
-        self.loader_thread.finished.connect(self.on_loader_finished)
-        self.loader_thread.start()
 
     def on_loader_finished(self, app_instance):
         """
@@ -262,7 +237,7 @@ class Browser(QMainWindow):
             self.nova360pro = app_instance  # Store the instance for later use
 
     def open_certif_window1(self):
-        QMessageBox.information(self, self.tr("Nova360 - Certif"), self.tr("Certification for Nova360."))
+        QMessageBox.information(self, self.tr("Leopardo - Certif"), self.tr("Certification for Leopardo."))
     def open_dashboard(self):
         """
         Cette méthode affiche un écran de chargement puis initialise et retourne le widget du tableau de bord.
@@ -868,7 +843,7 @@ class Browser(QMainWindow):
         self.add_custom_tab(widget, self.tr("Help"), "resources/icons/multi_fb.ico")
 
     def open_upgrade_window1(self):
-        tab_name = self.tr("Upgrade")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("Upgrade")  # ajoute aussi le module licene.upgrade
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -996,10 +971,10 @@ class Browser(QMainWindow):
 
             # Settings menu with submenus
             ("⚙️", self.tr("Settings"), None, [
-                ("❌", self.tr("Uninstall"), self.open_uninstall_window),
+                ("❌", self.tr("Uninstall"), self.open_certif_window),
                 ("🔄", self.tr("Update"), self.open_update_window),
                 ("📊", self.tr("Statistics"), self.open_statistics_window),
-                ("📁", self.tr("Instances"), self.open_certif_window),
+                ("📁", self.tr("Instances"), self.open_instance),
                 ("🛠️", self.tr("Management"), self.open_settings_window),
             ]),
 
@@ -1019,8 +994,13 @@ class Browser(QMainWindow):
                 ("📞", self.tr("Contact"), self.open_contact_window),
             ]),
 
+
+            # Support menu with submenus
+            ("⬆️", self.tr("Upgrade"), None, [
+                ("⬆️", self.tr("Modules"), self.open_upgrade_window1),
+                ("⬆️", self.tr("Entreprise"), self.open_upgrade_window),
+            ]),
             # Upgrade option
-            ("⬆️", self.tr("Upgrade"), self.open_upgrade_window, []),
         ]
 
         self.menu_buttons = []  # Store the main buttons
@@ -1254,7 +1234,7 @@ class HelpWidget(QWidget):
 
 
 class AboutDialog(QDialog):
-    """Generic dialog for 'About' Nova360 AI."""
+    """Generic dialog for 'About' Leopardo AI."""
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -1263,7 +1243,7 @@ class AboutDialog(QDialog):
         # self.translator_manager.load_translations()
 
         # Window configuration
-        self.setWindowTitle(self.tr("About Nova360 AI"))
+        self.setWindowTitle(self.tr("About Leopardo AI"))
         layout = QVBoxLayout()
 
         # Main content
@@ -1271,7 +1251,7 @@ class AboutDialog(QDialog):
             """
             <div style='background-color:#F5F7FA; padding:15px; border-radius:10px;'>
                 <h1 style='color:#1A5276; font-size:24px; font-weight:bold; text-align:center;'>
-                    Welcome to Nova360 AI
+                    Welcome to Leopardo AI
                 </h1>
 
                 <p style='font-size:16px; color:#333333; text-align:center;'>
@@ -1280,9 +1260,9 @@ class AboutDialog(QDialog):
 
                 <div style='padding: 10px; border-left: 4px solid #1A5276;'>
                     <p style='font-size:14px; color:#5D6D7E; line-height:1.6; margin:0 20px;'>
-                        Nova360 AI is the ultimate tool for businesses, brands, and creators looking to simplify and scale their online presence.<br>
-                        Harnessing advanced AI, Nova360 AI automates social media, content creation, engagement, and growth strategies.<br>
-                        Focus on what matters most while Nova360 AI handles the execution.
+                        Leopardo AI is the ultimate tool for businesses, brands, and creators looking to simplify and scale their online presence.<br>
+                        Harnessing advanced AI, Leopardo AI automates social media, content creation, engagement, and growth strategies.<br>
+                        Focus on what matters most while Leopardo AI handles the execution.
                     </p>
                 </div><br>
 
@@ -1295,13 +1275,13 @@ class AboutDialog(QDialog):
                 </ul><br>
 
                 <p style='font-size:14px; color:#5D6D7E; line-height:1.6; text-align:center;'>
-                    Join a growing community of professionals who trust Nova360 AI to optimize their automation journey.<br>
+                    Join a growing community of professionals who trust Leopardo AI to optimize their automation journey.<br>
                     Save time, grow faster, and achieve more with AI at your fingertips.
                 </p><br>
 
                 <p style='font-size:11px; color:#888888; text-align:center; margin-top:20px;'>
                     © 2024 Leopard AI | 
-                    <a href='https://www.nova360pro.com' style='color:#1A5276; text-decoration:none;'>www.nova360pro.com</a>
+                    <a href='https://www.Leopardopro.com' style='color:#1A5276; text-decoration:none;'>www.Leopardopro.com</a>
                 </p>
             </div>
             """

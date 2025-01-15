@@ -1,11 +1,9 @@
 import os
 import subprocess
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox, QTableWidgetItem, QCheckBox, QDialog
-
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QPushButton, QMenu, QAction, QGraphicsDropShadowEffect
-
+from PyQt5.QtWidgets import (
+    QMessageBox, QTableWidgetItem, QCheckBox, QDialog, QCalendarWidget, QDateEdit, QGraphicsDropShadowEffect
+)
 from PyQt5.QtGui import QColor, QFont
 
 
@@ -13,8 +11,8 @@ class AddActivityDialog(QtWidgets.QDialog):
     def __init__(self, exe_files):
         super().__init__()
         self.setWindowTitle(self.tr("Schedule an Activity"))
-        self.setFixedSize(450, 350)
-        self.setWindowIcon(QtGui.QIcon("resources/icons/schedule.ico"))  # Ajoutez une icône personnalisée si nécessaire
+        self.setFixedSize(500, 450)  # Taille ajustée pour le calendrier
+        self.setWindowIcon(QtGui.QIcon("resources/icons/schedule.ico"))
 
         # Style général
         self.setStyleSheet("""
@@ -27,13 +25,13 @@ class AddActivityDialog(QtWidgets.QDialog):
                 font-size: 14px;
                 color: #2c3e50;
             }
-            QLineEdit, QComboBox, QTimeEdit {
+            QLineEdit, QComboBox, QTimeEdit, QDateEdit {
                 border: 1px solid #bdc3c7;
                 border-radius: 5px;
                 padding: 5px;
                 font-size: 14px;
             }
-            QLineEdit:focus, QComboBox:focus, QTimeEdit:focus {
+            QLineEdit:focus, QComboBox:focus, QTimeEdit:focus, QDateEdit:focus {
                 border: 1px solid #3498db;
             }
             QCheckBox {
@@ -58,6 +56,11 @@ class AddActivityDialog(QtWidgets.QDialog):
             }
             QPushButton:hover {
                 background-color: #2980b9;
+            }
+            QCalendarWidget {
+                background-color: white;
+                border: 1px solid #bdc3c7;
+                border-radius: 5px;
             }
         """)
 
@@ -85,6 +88,16 @@ class AddActivityDialog(QtWidgets.QDialog):
         self.time_input.setDisplayFormat("HH:mm")
         self.time_input.setFont(QtGui.QFont("Arial", 12))
 
+        # Ajouter un QCalendarWidget pour la sélection de date
+        self.calendar = QCalendarWidget()
+        self.calendar.setGridVisible(True)
+        self.calendar.setMinimumDate(QtCore.QDate.currentDate())  # Empêcher la sélection de dates passées
+
+        # Ajouter un QCheckBox pour activer/désactiver la sélection de date spécifique
+        self.specific_date_checkbox = QtWidgets.QCheckBox(self.tr("Schedule on a specific date"))
+        self.specific_date_checkbox.stateChanged.connect(self.toggle_specific_date)
+
+        # Bouton de sauvegarde
         save_button = QtWidgets.QPushButton(self.tr("Save"))
         save_button.clicked.connect(self.accept)
 
@@ -93,31 +106,29 @@ class AddActivityDialog(QtWidgets.QDialog):
         main_layout.setSpacing(10)
         main_layout.setContentsMargins(20, 20, 20, 20)
 
-                # Ajout des widgets
+        # Ajout des widgets
         main_layout.addWidget(self.create_form_group("Program:", self.program_input))
         main_layout.addWidget(self.create_form_group("Name:", self.name_input))
         main_layout.addWidget(self.daily_checkbox)
         main_layout.addWidget(self.days_group)
         main_layout.addWidget(self.create_form_group("Execution Time:", self.time_input))
-
+        main_layout.addWidget(self.specific_date_checkbox)
+        main_layout.addWidget(self.calendar)
         main_layout.addWidget(save_button, alignment=QtCore.Qt.AlignRight)
+
+        # Masquer le calendrier par défaut
+        self.calendar.setVisible(False)
 
         self.setLayout(main_layout)
 
         # Mettre à jour le nom initial
         self.update_name()
 
-    # def create_form_group(self, label_text, widget):
-    #     """Crée une ligne de formulaire avec une étiquette et un widget."""
-    #     form_layout = QtWidgets.QHBoxLayout()
-    #     form_layout.addWidget(QtWidgets.QLabel(label_text))
-    #     form_layout.addWidget(widget)
-    #     return form_layout
     def create_form_group(self, label_text, widget):
-        """Crée une ligne de formulaire avec une étiquette et un widget dans un QWidget."""
+        """Crée une ligne de formulaire avec une étiquette et un widget."""
         container = QtWidgets.QWidget()
         form_layout = QtWidgets.QHBoxLayout(container)
-        form_layout.setContentsMargins(0, 0, 0, 0)  # Enlever les marges internes
+        form_layout.setContentsMargins(0, 0, 0, 0)
         form_layout.addWidget(QtWidgets.QLabel(label_text))
         form_layout.addWidget(widget)
         return container
@@ -126,16 +137,30 @@ class AddActivityDialog(QtWidgets.QDialog):
         """Met à jour le champ du nom basé sur le fichier sélectionné."""
         self.name_input.setText(self.program_input.currentText())
 
+    def toggle_specific_date(self, state):
+        """Afficher ou masquer le calendrier en fonction de l'état de la checkbox."""
+        self.calendar.setVisible(state == QtCore.Qt.Checked)
+
     def get_activity_data(self):
-        """Retourne les données saisies par l'utilisateur."""
+        """Retourne les données saisies par l'utilisateur, y compris la date spécifique si sélectionnée."""
         selected_days = [checkbox.text() for checkbox in self.day_checkboxes if checkbox.isChecked()]
+        
+        if self.specific_date_checkbox.isChecked():
+            # Convertir la date en format MM/JJ/AAAA
+            selected_date = self.calendar.selectedDate()
+            specific_date = selected_date.toString("MM/dd/yyyy")  # Format pour schtasks
+        else:
+            specific_date = None
+
         return (
             self.name_input.text(),
             self.program_input.currentText(),
             self.daily_checkbox.isChecked(),
             selected_days,
-            self.time_input.time().toString("HH:mm")
+            self.time_input.time().toString("HH:mm"),
+            specific_date  # Retourner la date spécifique au bon format
         )
+
 
 class Activite(QtWidgets.QWidget):
     def __init__(self):
@@ -144,12 +169,11 @@ class Activite(QtWidgets.QWidget):
         self.setStyleSheet(self._get_styles())
         self.resize(1000, 700)
 
-        # Main title
+        # Titre principal
         title_label = QtWidgets.QLabel(self.tr("Scheduled Activities"))
         title_label.setAlignment(QtCore.Qt.AlignCenter)
 
-
-        # Search bar and buttons
+        # Barre de recherche et boutons
         self.search_entry = QtWidgets.QLineEdit()
         self.search_entry.setPlaceholderText(self.tr("Search an activity..."))
 
@@ -158,10 +182,11 @@ class Activite(QtWidgets.QWidget):
 
         add_button = QtWidgets.QPushButton(self.tr("Schedule an Activity"))
         add_button.clicked.connect(self.add_activity)
-        # Add a glowing shadow
+
+        # Ajouter une ombre lumineuse
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(30)
-        shadow.setColor(QColor(0, 212, 255))  # Neon blue
+        shadow.setColor(QColor(0, 212, 255))  # Bleu néon
         shadow.setOffset(0, 5)
         add_button.setGraphicsEffect(shadow)
 
@@ -174,7 +199,7 @@ class Activite(QtWidgets.QWidget):
         refresh_button = QtWidgets.QPushButton(self.tr("Load Activities"))
         refresh_button.clicked.connect(self.load_activities)
 
-        # Layout for the search bar and buttons
+        # Layout pour la barre de recherche et les boutons
         top_bar_layout = QtWidgets.QHBoxLayout()
         top_bar_layout.addWidget(self.search_entry)
         top_bar_layout.addWidget(search_button)
@@ -183,25 +208,25 @@ class Activite(QtWidgets.QWidget):
         top_bar_layout.addWidget(delete_button)
         top_bar_layout.addWidget(refresh_button)
 
-        # Activities table
+        # Tableau des activités
         self.table = QtWidgets.QTableWidget()
-        self.table.setColumnCount(6)
+        self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels([
-            self.tr("Number"), self.tr("Name"), self.tr("Program"), self.tr("Days"), self.tr("Time"), self.tr("Action")
+            self.tr("Number"), self.tr("Name"), self.tr("Program"), self.tr("Days"), self.tr("Time"), self.tr("Date"), self.tr("Action")
         ])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.setSortingEnabled(True)
 
-        # Main layout
+        # Layout principal
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.addWidget(title_label)
         main_layout.addLayout(top_bar_layout)
         main_layout.addWidget(self.table)
         self.setLayout(main_layout)
 
-        # Load scheduled activities on startup
+        # Charger les activités planifiées au démarrage
         QtCore.QTimer.singleShot(100, self.load_activities)
 
     def _get_styles(self):
@@ -244,112 +269,78 @@ class Activite(QtWidgets.QWidget):
         """
 
     def load_activities(self):
-        """
-        Load and display scheduled activities whose program matches
-        an .exe file in the tools folder.
-        """
-        print("Starting load_activities")
-        self.table.setRowCount(0)  # Reset the table
+        """Charge et affiche les activités planifiées."""
+        self.table.setRowCount(0)  # Réinitialiser le tableau
 
         try:
-            # Get the path to the folder containing the .exe files
+            # Chemin du dossier contenant les fichiers .exe
             folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
-            print(f"Tools folder path: {folder_path}")
-
             if not os.path.exists(folder_path):
-                print(f"Error: The folder {folder_path} does not exist.")
                 QMessageBox.critical(self, self.tr("Error"), self.tr(f"The folder {folder_path} does not exist."))
                 return
 
-            # List .exe files in the folder
+            # Lister les fichiers .exe
             exe_files = [f for f in os.listdir(folder_path) if f.endswith(".exe")]
-            print(f".exe files found: {exe_files}")
-
             if not exe_files:
                 QMessageBox.warning(self, self.tr("Warning"), self.tr("No .exe files found in the tools folder."))
-                print("No .exe files found in the tools folder.")
                 return
 
-            # Execute the command to retrieve scheduled tasks
-            print("Executing schtasks command to retrieve scheduled tasks...")
-            try:
-                result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, text=True)
-            except subprocess.CalledProcessError as e:
-                print(f"Error executing schtasks: {e}")
-                QMessageBox.critical(self, self.tr("Error"), self.tr("Failed to execute schtasks command."))
-                return
-
+            # Récupérer les tâches planifiées avec schtasks
+            result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, text=True)
             lines = result.strip().splitlines()
-            print(f"Number of tasks retrieved: {len(lines)}")
 
             if not lines:
-                print("No tasks found.")
                 QMessageBox.information(self, self.tr("Info"), self.tr("No scheduled tasks found."))
                 return
 
-            # Analyze the returned lines
+            # Analyser les tâches
             for i, line in enumerate(lines):
-                print(f"Analyzing task {i + 1}: {line}")
-
-                # Split CSV data into columns
                 parts = [p.strip('"') for p in line.split(",")]
-                print(f"Extracted columns: {parts}")
-
-                # Ensure there are at least 3 columns (name, date/time, status)
                 if len(parts) < 3:
-                    print(f"Task {i + 1} ignored: incorrect format (less than 3 columns).")
                     continue
 
-                # Clean the first column (task name)
-                task_name = parts[0].lstrip("\\").strip()  # Remove the '\\' prefix
-                print(f"Cleaned task name: {task_name}")
-
-                # Add .exe extension for comparison
+                task_name = parts[0].lstrip("\\").strip()
                 task_name_with_extension = f"{task_name}.exe"
-                print(f"Task name with extension: {task_name_with_extension}")
 
-                # Check if the task name with .exe matches an .exe file
                 if task_name_with_extension.lower() in [exe_file.lower() for exe_file in exe_files]:
-                    print(f"Matching task found: {task_name_with_extension}")
-
-                    # Add a new row to the table for this task
                     row_position = self.table.rowCount()
                     self.table.insertRow(row_position)
 
-                    # Add columns to the row (at least the first 3 available columns)
-                    for j, data in enumerate([str(i + 1)] + parts[:3]):  # Number + available columns
-                        print(f"Adding data to table: {data}")
+                    # Ajouter les colonnes
+                    for j, data in enumerate([str(i + 1)] + parts[:3]):
                         self.table.setItem(row_position, j, QTableWidgetItem(data))
 
-                    # Add an action button
+                    # Ajouter un bouton d'action
                     action_button = QtWidgets.QPushButton(self.tr("Action"))
                     action_button.clicked.connect(lambda _, name=parts[0]: self.modify_or_delete_activity(name))
-                    self.table.setCellWidget(row_position, 5, action_button)
-                else:
-                    print(f"Task ignored (does not match an .exe file): {task_name}")
+                    self.table.setCellWidget(row_position, 6, action_button)
 
         except Exception as e:
-            print(f"Unexpected error: {e}")
             QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error loading activities: {e}"))
 
-        print("End of load_activities")
-
     def add_activity(self):
+        """Ajoute une nouvelle activité planifiée."""
         folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
         exe_files = [os.path.splitext(f)[0] for f in os.listdir(folder_path) if f.endswith(".exe")]
 
         dialog = AddActivityDialog(exe_files)
         if dialog.exec_() == QDialog.Accepted:
-            name, program, daily, days, time = dialog.get_activity_data()
+            name, program, daily, days, time, specific_date = dialog.get_activity_data()
             program_path = os.path.join(folder_path, f"{program}.exe")
 
-            schedule_type = "/SC DAILY" if daily else "/SC WEEKLY"
-            days_flag = "" if daily else f" /D {','.join(days)}"
+            if specific_date:
+                # Si une date spécifique est sélectionnée, planifier pour cette date
+                schedule_type = "/SC ONCE"
+                date_flag = f" /SD {specific_date}"  # Utiliser la date au bon format
+            else:
+                # Sinon, utiliser le planning quotidien ou hebdomadaire
+                schedule_type = "/SC DAILY" if daily else "/SC WEEKLY"
+                date_flag = "" if daily else f" /D {','.join(days)}"
 
             try:
                 cmd = (
                     f'schtasks /create /tn "{name}" /tr "{program_path}" '
-                    f'{schedule_type} {days_flag} /st {time} /f'
+                    f'{schedule_type} {date_flag} /st {time} /f'
                 )
                 subprocess.run(cmd, shell=True)
                 QMessageBox.information(self, self.tr("Success"), self.tr("Activity scheduled successfully!"))
@@ -358,12 +349,14 @@ class Activite(QtWidgets.QWidget):
                 QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error scheduling activity: {e}"))
 
     def search_activities(self):
+        """Filtre les activités en fonction de la recherche."""
         query = self.search_entry.text().lower()
         for row in range(self.table.rowCount()):
             match = any(query in (self.table.item(row, col).text().lower() if self.table.item(row, col) else "") for col in range(self.table.columnCount()))
             self.table.setRowHidden(row, not match)
 
     def modify_or_delete_activity(self, name):
+        """Affiche un menu pour modifier ou supprimer une activité."""
         menu = QtWidgets.QMenu()
         modify_action = menu.addAction(self.tr("Modify"))
         delete_action = menu.addAction(self.tr("Delete"))
@@ -375,6 +368,7 @@ class Activite(QtWidgets.QWidget):
             self.delete_activity(name)
 
     def delete_activity(self, name):
+        """Supprime une activité planifiée."""
         try:
             subprocess.run(f'schtasks /delete /tn "{name}" /f', shell=True)
             QMessageBox.information(self, self.tr("Success"), self.tr(f"Activity {name} deleted successfully!"))
@@ -382,10 +376,8 @@ class Activite(QtWidgets.QWidget):
         except Exception as e:
             QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error deleting activity: {e}"))
 
-    def modify_activity(self, name):
-        QMessageBox.information(self, self.tr("Modify"), self.tr(f"Modify activity {name}"))
-
     def pause_selected_activities(self):
+        """Met en pause les activités sélectionnées."""
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
             QMessageBox.warning(self, self.tr("Warning"), self.tr("Please select activities to pause."))
@@ -402,6 +394,7 @@ class Activite(QtWidgets.QWidget):
         self.load_activities()
 
     def delete_selected_activities(self):
+        """Supprime les activités sélectionnées."""
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
             QMessageBox.warning(self, self.tr("Warning"), self.tr("Please select activities to delete."))
@@ -416,23 +409,6 @@ class Activite(QtWidgets.QWidget):
 
         QMessageBox.information(self, self.tr("Success"), self.tr("Selected activities deleted successfully!"))
         self.load_activities()
-
-    def get_exe_files(self):
-        folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
-        exe_files = [f for f in os.listdir(folder_path) if f.endswith(".exe")]
-        return {exe: os.path.splitext(exe)[0].capitalize() for exe in exe_files}
-
-    def show_action_menu(self, row):
-        activity_name = self.table.item(row, 2).text()
-        menu = QtWidgets.QMenu()
-        modify_action = menu.addAction(self.tr("Modify"))
-        delete_action = menu.addAction(self.tr("Delete"))
-
-        action = menu.exec_(QtGui.QCursor.pos())
-        if action == modify_action:
-            self.modify_activity(activity_name)
-        elif action == delete_action:
-            self.delete_activity(activity_name)
 
 
 if __name__ == "__main__":

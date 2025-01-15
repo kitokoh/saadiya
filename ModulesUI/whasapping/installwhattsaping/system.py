@@ -348,20 +348,27 @@
 
 # if __name__ == "__main__":
 #     main()
+
 import os
 import subprocess
+import urllib.request
+import webbrowser
+
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 
 def log(message):
-    print(message)
+    print(f"[INFO] {message}")
+
+def log_error(message):
+    print(f"[ERROR] {message}")
 
 def check_internet_connection():
     try:
-        subprocess.check_call(["ping", "google.com", "-n", "1"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        urllib.request.urlopen("https://www.google.com", timeout=5)
         log("Connexion Internet vérifiée.")
         return True
-    except subprocess.CalledProcessError:
-        log("Aucune connexion Internet. Veuillez vérifier votre connexion.")
+    except Exception:
+        log_error("Aucune connexion Internet. Veuillez vérifier votre connexion.")
         return False
 
 def run_command(command):
@@ -369,42 +376,62 @@ def run_command(command):
         result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode().strip()
         return result
     except subprocess.CalledProcessError as e:
-        log(f"Erreur lors de l'exécution de la commande: {e.output.decode().strip()}")
+        log_error(f"Erreur lors de l'exécution de la commande : {e.output.decode().strip()}")
         return None
+
+def search_and_install_software(software_name):
+    log(f"Recherche de {software_name} pour installation...")
+    try:
+        # Recherche sur le Microsoft Store ou le site officiel via le navigateur
+        search_query = f"{software_name} download site:microsoft.com"
+        webbrowser.open(f"https://www.google.com/search?q={search_query}")
+        log(f"Ouvrez votre navigateur pour télécharger et installer {software_name}.")
+    except Exception as e:
+        log_error(f"Erreur lors de la recherche de {software_name} : {str(e)}")
 
 def install_git():
     if run_command("git --version"):
         log("Git déjà installé.")
     else:
         log("Git non trouvé. Installation...")
-        if os.path.exists("Git-2.42.0-64-bit.exe"):
-            run_command('start /wait "Git-2.42.0-64-bit.exe" /SILENT /VERYSILENT /NORESTART')
-            log("Git installé.")
-        else:
-            log("Installeur Git non trouvé.")
+        git_installer_url = "https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/Git-2.42.0-64-bit.exe"
+        git_installer_path = os.path.join(user_data_dir, "Git-2.42.0-64-bit.exe")
+        
+        if not os.path.exists(git_installer_path):
+            log("Téléchargement de l'installateur Git...")
+            urllib.request.urlretrieve(git_installer_url, git_installer_path)
+            log("Téléchargement terminé.")
+        
+        log("Installation de Git...")
+        run_command(f'start /wait "" "{git_installer_path}" /SILENT /VERYSILENT /NORESTART')
+        log("Git installé avec succès.")
 
 def install_python():
     if run_command("python --version"):
         log("Python déjà installé.")
     else:
         log("Python non trouvé. Installation...")
-        if os.path.exists("python-3.11.5-amd64.exe"):
-            run_command('start /wait "python-3.11.5-amd64.exe" /quiet InstallAllUsers=1 PrependPath=1')
-            log("Python installé.")
-        else:
-            log("Installeur Python non trouvé.")
+        python_installer_url = "https://www.python.org/ftp/python/3.11.5/python-3.11.5-amd64.exe"
+        python_installer_path = os.path.join(user_data_dir, "python-3.11.5-amd64.exe")
+        
+        if not os.path.exists(python_installer_path):
+            log("Téléchargement de l'installateur Python...")
+            urllib.request.urlretrieve(python_installer_url, python_installer_path)
+            log("Téléchargement terminé.")
+        
+        log("Installation de Python...")
+        run_command(f'start /wait "" "{python_installer_path}" /quiet InstallAllUsers=1 PrependPath=1')
+        log("Python installé avec succès.")
 
 def handle_instance_installation():
     instance_number = 1
 
-    # Vérifie les instances existantes
     while os.path.exists(f"C:\\wabon\\robot{instance_number}"):
         instance_number += 1  # Incrémente le numéro d'instance
 
     log(f"Installation de l'instance {instance_number}...")
     install_instance(instance_number)
 
-    # Rendre tous les dossiers invisibles
     hide_directories("C:\\wabon")
 
 def install_instance(instance_number):
@@ -413,14 +440,16 @@ def install_instance(instance_number):
     log(f"Création du dossier pour l'instance {instance_number}...")
 
     log(f"Clonage du dépôt GitHub pour l'instance {instance_number}...")
-    #run_command(f'git clone https://github.com/kitokoh/bondist1.git {folder_path}')
     run_command(f'git clone https://github.com/kitokoh/wabon.git {folder_path}')
 
     log(f"Création de l'environnement virtuel pour robot{instance_number}...")
-    run_command(f"python -m venv {folder_path}\\env{instance_number}")
+    run_command(f"python -m venv {folder_path}\\env1")
 
     log(f"Installation des dépendances pour robot{instance_number}...")
-    run_command(f"{folder_path}\\env{instance_number}\\Scripts\\activate  && pip install setuptools && python setup.py install && pip install alright --upgrade && pip install webdriver_manager && pip install selenium && pip install -r {folder_path}\\requirements.txt")
+    # run_command(
+    #     f"{folder_path}\\env1\\Scripts\\activate && pip install setuptools && "
+    #     f"pip install -r {folder_path}\\requirements.txt && pip install alright selenium webdriver_manager"
+    # )
 
     log(f"Installation terminée pour l'instance {instance_number}.")
 

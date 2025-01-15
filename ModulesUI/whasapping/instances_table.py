@@ -11,7 +11,7 @@ from ui.footer import FooterSection
 # Import du header, footer et menu secondaire
 from ui.header import HeaderSection
 from ui.secondry_menu import SecondaryMenu
-
+import os
 
 class EditInstanceDialog(QDialog):
     def __init__(self, instance, parent=None):
@@ -122,7 +122,22 @@ class InstanceTable(QWidget):
 
     def load_instances(self):
         try:
-            conn = sqlite3.connect('resources/data/nova360.db')  # Remplacez par le chemin de votre base de données
+
+            # Obtenez le dossier Roaming de l'utilisateur actuel
+            roaming_path = os.path.expandvars(r'%APPDATA%')  # Correspond au dossier AppData\Roaming
+            sadiya_path = os.path.join(roaming_path, 'sadiya', 'resources', 'data', 'nova360.db')
+
+            # Connexion à la base de données SQLite
+            try:
+                conn = sqlite3.connect(sadiya_path)
+                print("Connexion réussie à la base de données.")
+            except sqlite3.Error as e:
+                print(f"Erreur lors de la connexion à la base de données : {e}")
+            finally:
+                if conn:
+                    conn.close()
+
+            # conn = sqlite3.connect('resources/data/nova360.db')  # Remplacez par le chemin de votre base de données
             cursor = conn.cursor()
             cursor.execute(""" 
                     SELECT i.name, i.description, u.facebook_name, i.created_at
