@@ -651,7 +651,7 @@ class MediaTable(QWidget):
     def __init__(self, search_filter, parent=None):
         super().__init__(parent)
         self.search_filter = search_filter
-        self.page_size = 10
+        self.page_size = 1000
         self.current_page = 0
         self.media_data = []
         self.filtered_data = []
