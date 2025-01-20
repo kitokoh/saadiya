@@ -1,435 +1,341 @@
+import sqlite3
 import os
-import subprocess
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import (
-    QMessageBox, QTableWidgetItem, QCheckBox, QDialog, QCalendarWidget, QGraphicsDropShadowEffect, QListWidget
-)
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
+from PyQt5.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox, QMenu, QAction, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout
+import csv
+import json
+import os
+from PyQt5.QtCore import Qt, QSize, pyqtSignal  # Ajout de pyqtSignal ici
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton,
+                             QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
+                             QMenu, QAction, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
 
+from imports import *
+from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from ui.footer import FooterSection  # Import du footer
+from ui.header import HeaderSection  # Import du header
+from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
 
-class AddActivityDialog(QtWidgets.QDialog):
-    def __init__(self, exe_files):
-        super().__init__()
-        self.setWindowTitle(self.tr("Schedule an Activity"))
-        self.setFixedSize(500, 500)  # Taille ajustée pour le calendrier
-        self.setWindowIcon(QtGui.QIcon("resources/icons/schedule.ico"))
+# Chemin vers la base de données SQLite
+DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups.db')
 
-        # Style général
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f5f5f5;
-                border-radius: 10px;
-                font-family: Arial, sans-serif;
-            }
-            QLabel {
-                font-size: 14px;
-                color: #2c3e50;
-            }
-            QLineEdit, QComboBox, QTimeEdit, QDateEdit {
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
-                padding: 5px;
-                font-size: 14px;
-            }
-            QLineEdit:focus, QComboBox:focus, QTimeEdit:focus, QDateEdit:focus {
-                border: 1px solid #3498db;
-            }
-            QCheckBox {
-                font-size: 13px;
-                color: #34495e;
-            }
-            QGroupBox {
-                font-size: 14px;
-                font-weight: bold;
-                color: #2980b9;
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
-                margin-top: 10px;
-            }
-            QPushButton {
-                background-color: #3498db;
-                color: white;
-                font-size: 14px;
-                font-weight: bold;
-                border-radius: 5px;
-                padding: 8px 15px;
-            }
-            QPushButton:hover {
-                background-color: #2980b9;
-            }
-            QCalendarWidget {
-                background-color: white;
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
-            }
-            QListWidget {
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
-                padding: 5px;
-            }
-        """)
-
-        # Widgets
-        self.name_input = QtWidgets.QLineEdit()
-        self.name_input.setPlaceholderText(self.tr("Program Name"))
-        self.name_input.setReadOnly(True)
-
-        self.program_input = QtWidgets.QComboBox()
-        self.program_input.addItems(exe_files)
-        self.program_input.currentIndexChanged.connect(self.update_name)
-
-        self.daily_checkbox = QtWidgets.QCheckBox(self.tr("Execute Daily"))
-
-        self.days_group = QtWidgets.QGroupBox(self.tr("Select Specific Days"))
-        self.days_layout = QtWidgets.QHBoxLayout()
-        self.day_checkboxes = []
-        for day in [self.tr("Mon"), self.tr("Tue"), self.tr("Wed"), self.tr("Thu"), self.tr("Fri"), self.tr("Sat"), self.tr("Sun")]:
-            checkbox = QtWidgets.QCheckBox(day)
-            self.day_checkboxes.append(checkbox)
-            self.days_layout.addWidget(checkbox)
-        self.days_group.setLayout(self.days_layout)
-
-        self.time_input = QtWidgets.QTimeEdit()
-        self.time_input.setDisplayFormat("HH:mm")
-        self.time_input.setFont(QtGui.QFont("Arial", 12))
-
-        # Widget pour afficher les dates sélectionnées
-        self.dates_list = QListWidget()
-        self.dates_list.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
-
-        # Bouton pour ajouter une nouvelle date
-        self.add_date_button = QtWidgets.QPushButton(self.tr("Add Date"))
-        self.add_date_button.clicked.connect(self.add_date)
-
-        # Calendrier pour sélectionner une date
-        self.calendar = QCalendarWidget()
-        self.calendar.setGridVisible(True)
-        self.calendar.setMinimumDate(QtCore.QDate.currentDate())
-
-        # Bouton de sauvegarde
-        save_button = QtWidgets.QPushButton(self.tr("Save"))
-        save_button.clicked.connect(self.accept)
-
-        # Layout principal
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setSpacing(10)
-        main_layout.setContentsMargins(20, 20, 20, 20)
-
-        # Ajout des widgets
-        main_layout.addWidget(self.create_form_group("Program:", self.program_input))
-        main_layout.addWidget(self.create_form_group("Name:", self.name_input))
-        main_layout.addWidget(self.daily_checkbox)
-        main_layout.addWidget(self.days_group)
-        main_layout.addWidget(self.create_form_group("Execution Time:", self.time_input))
-        main_layout.addWidget(QtWidgets.QLabel(self.tr("Selected Dates:")))
-        main_layout.addWidget(self.dates_list)
-        main_layout.addWidget(self.add_date_button)
-        main_layout.addWidget(self.calendar)
-        main_layout.addWidget(save_button, alignment=QtCore.Qt.AlignRight)
-
-        # Masquer le calendrier par défaut
-        self.calendar.setVisible(False)
-
-        self.setLayout(main_layout)
-
-        # Mettre à jour le nom initial
-        self.update_name()
-
-    def create_form_group(self, label_text, widget):
-        """Crée une ligne de formulaire avec une étiquette et un widget."""
-        container = QtWidgets.QWidget()
-        form_layout = QtWidgets.QHBoxLayout(container)
-        form_layout.setContentsMargins(0, 0, 0, 0)
-        form_layout.addWidget(QtWidgets.QLabel(label_text))
-        form_layout.addWidget(widget)
-        return container
-
-    def update_name(self):
-        """Met à jour le champ du nom basé sur le fichier sélectionné."""
-        self.name_input.setText(self.program_input.currentText())
-
-    def add_date(self):
-        """Ajoute une date sélectionnée à la liste."""
-        selected_date = self.calendar.selectedDate().toString("MM/dd/yyyy")
-        if selected_date not in [self.dates_list.item(i).text() for i in range(self.dates_list.count())]:
-            self.dates_list.addItem(selected_date)
-
-    def get_activity_data(self):
-        """Retourne les données saisies par l'utilisateur, y compris les dates spécifiques."""
-        selected_days = [checkbox.text() for checkbox in self.day_checkboxes if checkbox.isChecked()]
-        specific_dates = [self.dates_list.item(i).text() for i in range(self.dates_list.count())]
-
-        return (
-            self.name_input.text(),
-            self.program_input.currentText(),
-            self.daily_checkbox.isChecked(),
-            selected_days,
-            self.time_input.time().toString("HH:mm"),
-            specific_dates  # Retourner la liste des dates spécifiques
+def init_db():
+    """Initialise la base de données SQLite."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS groups (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            link TEXT NOT NULL,
+            remarks TEXT,
+            category TEXT,
+            description TEXT
         )
+    ''')
+    conn.commit()
+    conn.close()
 
+def load_groups():
+    """Charge les groupes depuis la base de données SQLite."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM groups')
+    groups = cursor.fetchall()
+    conn.close()
+    return [dict(zip(['id', 'name', 'link', 'remarks', 'category', 'description'], group)) for group in groups]
 
-class Activite(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle(self.tr("Scheduled Activities Manager"))
-        self.setStyleSheet(self._get_styles())
-        self.resize(1000, 700)
+def save_group(group):
+    """Sauvegarde un groupe dans la base de données SQLite."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO groups (name, link, remarks, category, description)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (group['name'], group['link'], group['remarks'], group['category'], group['description']))
+    conn.commit()
+    conn.close()
 
-        # Titre principal
-        title_label = QtWidgets.QLabel(self.tr("Scheduled Activities"))
-        title_label.setAlignment(QtCore.Qt.AlignCenter)
+def update_group(group):
+    """Met à jour un groupe dans la base de données SQLite."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE groups
+        SET name = ?, link = ?, remarks = ?, category = ?, description = ?
+        WHERE id = ?
+    ''', (group['name'], group['link'], group['remarks'], group['category'], group['description'], group['id']))
+    conn.commit()
+    conn.close()
 
-        # Barre de recherche et boutons
-        self.search_entry = QtWidgets.QLineEdit()
-        self.search_entry.setPlaceholderText(self.tr("Search an activity..."))
+def delete_group(group_id):
+    """Supprime un groupe de la base de données SQLite."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM groups WHERE id = ?', (group_id,))
+    conn.commit()
+    conn.close()
 
-        search_button = QtWidgets.QPushButton(self.tr("Search"))
-        search_button.clicked.connect(self.search_activities)
+class AddGroupDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Ajouter un groupe")
+        self.setFixedSize(300, 200)
+        
+        layout = QFormLayout(self)
+        
+        self.name_input = QLineEdit(self)
+        self.link_input = QLineEdit(self)
+        self.remarks_input = QLineEdit(self)
+        self.category_input = QLineEdit(self)
+        self.description_input = QLineEdit(self)
+        
+        layout.addRow("Nom:", self.name_input)
+        layout.addRow("Lien:", self.link_input)
+        layout.addRow("Remarques:", self.remarks_input)
+        layout.addRow("Catégorie:", self.category_input)
+        layout.addRow("Description:", self.description_input)
 
-        add_button = QtWidgets.QPushButton(self.tr("Schedule an Activity"))
-        add_button.clicked.connect(self.add_activity)
+        self.submit_button = QPushButton("Soumettre", self)
+        self.submit_button.clicked.connect(self.add_group)
+        layout.addWidget(self.submit_button)
 
-        # Ajouter une ombre lumineuse
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(30)
-        shadow.setColor(QColor(0, 212, 255))  # Bleu néon
-        shadow.setOffset(0, 5)
-        add_button.setGraphicsEffect(shadow)
+    def add_group(self):
+        new_group = {
+            'name': self.name_input.text(),
+            'link': self.link_input.text(),
+            'remarks': self.remarks_input.text(),
+            'category': self.category_input.text(),
+            'description': self.description_input.text()
+        }
+        save_group(new_group)
+        self.accept()
 
-        pause_button = QtWidgets.QPushButton(self.tr("Pause"))
-        pause_button.clicked.connect(self.pause_selected_activities)
+class GroupTable(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.group_list = load_groups()
+        self.visible_columns = ['Select', 'Name', 'Link', 'Remarks', 'Category', 'Description', 'Actions']
+        self.items_per_page = 25
+        self.current_page = 1
 
-        delete_button = QtWidgets.QPushButton(self.tr("Delete"))
-        delete_button.clicked.connect(self.delete_selected_activities)
+        layout = QVBoxLayout(self)
 
-        refresh_button = QtWidgets.QPushButton(self.tr("Load Activities"))
-        refresh_button.clicked.connect(self.load_activities)
+        # Ajouter le header
+        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
+        layout.addWidget(header)
 
-        # Layout pour la barre de recherche et les boutons
-        top_bar_layout = QtWidgets.QHBoxLayout()
-        top_bar_layout.addWidget(self.search_entry)
-        top_bar_layout.addWidget(search_button)
-        top_bar_layout.addWidget(add_button)
-        top_bar_layout.addWidget(pause_button)
-        top_bar_layout.addWidget(delete_button)
-        top_bar_layout.addWidget(refresh_button)
+        # Disposition en haut pour le titre, la barre de recherche et les boutons
+        top_layout = QHBoxLayout()
 
-        # Tableau des activités
-        self.table = QtWidgets.QTableWidget()
-        self.table.setColumnCount(7)
-        self.table.setHorizontalHeaderLabels([
-            self.tr("Number"), self.tr("Name"), self.tr("Program"), self.tr("Days"), self.tr("Time"), self.tr("Date"), self.tr("Action")
-        ])
-        self.table.horizontalHeader().setStretchLastSection(True)
-        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.table.setSortingEnabled(True)
+        # Menu secondaire
+        self.secondary_menu = SecondaryMenu(self)
+        self.secondary_menu.menu_selected.connect(self.change_content)
+        layout.addWidget(self.secondary_menu)
 
-        # Layout principal
-        main_layout = QtWidgets.QVBoxLayout()
-        main_layout.addWidget(title_label)
-        main_layout.addLayout(top_bar_layout)
-        main_layout.addWidget(self.table)
-        self.setLayout(main_layout)
+        # Titre
+        group_label = QLabel("Liste des groupes:", self)
+        group_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        top_layout.addWidget(group_label)
 
-        # Charger les activités planifiées au démarrage
-        QtCore.QTimer.singleShot(100, self.load_activities)
+        # Barre de recherche
+        self.search_field = QLineEdit(self)
+        self.search_field.setPlaceholderText("Rechercher dans les groupes...")
+        self.search_field.textChanged.connect(self.filter_table)
+        self.search_field.setStyleSheet("padding: 5px; font-size: 14px;")
+        top_layout.addWidget(self.search_field)
 
-    def _get_styles(self):
-        return """
-            QWidget {
-                font-family: Arial;
-                background-color: #f4f4f4;
-            }
-            QLabel {
-                font-size: 20px;
-                font-weight: bold;
-                color: #333;
-            }
-            QLineEdit {
-                border: 1px solid #888;
-                padding: 5px;
-                border-radius: 5px;
-            }
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                padding: 8px;
-                border-radius: 5px;
-                border: none;
-                font-weight: bold;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-            QTableWidget {
-                background-color: white;
-                border: 1px solid #ddd;
-            }
-            QHeaderView::section {
-                background-color: #ddd;
-                font-weight: bold;
-                padding: 4px;
-            }
-        """
+        # Boutons Import, Export, Ajouter Group
+        self.import_button = QPushButton('Import Group', self)
+        self.import_button.setStyleSheet("background-color: #6c757d; color: white; padding: 5px 10px;")
+        self.import_button.clicked.connect(self.import_groups)
+        top_layout.addWidget(self.import_button)
 
-    def load_activities(self):
-        """Charge et affiche les activités planifiées."""
-        self.table.setRowCount(0)  # Réinitialiser le tableau
+        self.export_button = QPushButton('Export', self)
+        self.export_button.setStyleSheet("background-color: #007bff; color: white; padding: 5px 10px;")
+        self.export_button.clicked.connect(self.export_groups)
+        top_layout.addWidget(self.export_button)
 
-        try:
-            # Chemin du dossier contenant les fichiers .exe
-            folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
-            if not os.path.exists(folder_path):
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"The folder {folder_path} does not exist."))
-                return
+        self.add_group_button = QPushButton('+ 1 Group', self)
+        self.add_group_button.setStyleSheet("background-color: #28a745; color: white; padding: 5px 10px;")
+        self.add_group_button.clicked.connect(self.open_add_group_dialog)
+        top_layout.addWidget(self.add_group_button)
 
-            # Lister les fichiers .exe
-            exe_files = [f for f in os.listdir(folder_path) if f.endswith(".exe")]
-            if not exe_files:
-                QMessageBox.warning(self, self.tr("Warning"), self.tr("No .exe files found in the tools folder."))
-                return
+        layout.addLayout(top_layout)
 
-            # Récupérer les tâches planifiées avec schtasks
-            result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, text=True)
-            lines = result.strip().splitlines()
+        # Tableau de groupes
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(len(self.visible_columns))
+        self.table.setHorizontalHeaderLabels(self.visible_columns)
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setStyleSheet(""" 
+            QTableWidget { 
+                font-size: 14px; 
+            } 
+            QHeaderView::section { 
+                background-color: #007BFF; 
+                color: white; 
+                padding: 10px; 
+            } 
+        """)
+        layout.addWidget(self.table)
 
-            if not lines:
-                QMessageBox.information(self, self.tr("Info"), self.tr("No scheduled tasks found."))
-                return
+        # Cases à cocher pour masquer/afficher les colonnes
+        self.checkboxes_layout = QHBoxLayout()
+        for index, col_name in enumerate(self.visible_columns):
+            checkbox = QCheckBox(col_name)
+            checkbox.setChecked(True)
+            checkbox.stateChanged.connect(self.update_visible_columns)
+            self.checkboxes_layout.addWidget(checkbox)
+        layout.addLayout(self.checkboxes_layout)
 
-            # Analyser les tâches
-            for i, line in enumerate(lines):
-                parts = [p.strip('"') for p in line.split(",")]
-                if len(parts) < 3:
-                    continue
+        # Pagination
+        self.pagination_layout = QHBoxLayout()
+        self.prev_button = QPushButton("Précédent")
+        self.prev_button.clicked.connect(self.previous_page)
+        self.next_button = QPushButton("Suivant")
+        self.next_button.clicked.connect(self.next_page)
 
-                task_name = parts[0].lstrip("\\").strip()
-                task_name_with_extension = f"{task_name}.exe"
+        self.pagination_label = QLabel(f"Page {self.current_page}")
+        self.pagination_layout.addWidget(self.prev_button)
+        self.pagination_layout.addWidget(self.pagination_label)
+        self.pagination_layout.addWidget(self.next_button)
+        layout.addLayout(self.pagination_layout)
 
-                if task_name_with_extension.lower() in [exe_file.lower() for exe_file in exe_files]:
-                    row_position = self.table.rowCount()
-                    self.table.insertRow(row_position)
+        # Charger les données dans le tableau
+        self.populate_table()
+        # Ajouter le footer
+        footer = FooterSection(self)
+        layout.addWidget(footer)
 
-                    # Ajouter les colonnes
-                    for j, data in enumerate([str(i + 1)] + parts[:3]):
-                        self.table.setItem(row_position, j, QTableWidgetItem(data))
+    def populate_table(self):
+        self.table.setRowCount(len(self.group_list))
+        self.update_table()
 
-                    # Ajouter un bouton d'action
-                    action_button = QtWidgets.QPushButton(self.tr("Action"))
-                    action_button.clicked.connect(lambda _, name=parts[0]: self.modify_or_delete_activity(name))
-                    self.table.setCellWidget(row_position, 6, action_button)
+    def update_table(self):
+        start_index = (self.current_page - 1) * self.items_per_page
+        end_index = start_index + self.items_per_page
+        visible_groups = self.group_list[start_index:end_index]
 
-        except Exception as e:
-            QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error loading activities: {e}"))
+        self.table.setRowCount(len(visible_groups))
 
-    def add_activity(self):
-        """Ajoute une nouvelle activité planifiée."""
-        folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
-        exe_files = [os.path.splitext(f)[0] for f in os.listdir(folder_path) if f.endswith(".exe")]
+        for row, group in enumerate(visible_groups):
+            checkbox = QCheckBox()
+            self.table.setCellWidget(row, 0, checkbox)
 
-        dialog = AddActivityDialog(exe_files)
+            self.table.setItem(row, 1, QTableWidgetItem(group.get('name', '')))
+            self.table.setItem(row, 2, QTableWidgetItem(group.get('link', '')))
+            self.table.setItem(row, 3, QTableWidgetItem(group.get('remarks', '')))
+            self.table.setItem(row, 4, QTableWidgetItem(group.get('category', '')))
+            self.table.setItem(row, 5, QTableWidgetItem(group.get('description', '')))
+
+            action_button = QPushButton('Actions')
+            action_menu = QMenu(self)
+            edit_action = QAction('Edit', self)
+            delete_action = QAction('Delete', self)
+            edit_action.triggered.connect(lambda _, r=row: self.edit_group(r))
+            delete_action.triggered.connect(lambda _, r=row: self.delete_group(r))
+            action_menu.addAction(edit_action)
+            action_menu.addAction(delete_action)
+            action_button.setMenu(action_menu)
+            self.table.setCellWidget(row, 6, action_button)
+
+        self.pagination_label.setText(f"Page {self.current_page}")
+
+    def import_groups(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, "Importer des groupes", "", "CSV Files (*.csv);;All Files (*)", options=options)
+        if file_name:
+            try:
+                with open(file_name, 'r') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        save_group(row)
+                    self.group_list = load_groups()
+                    self.populate_table()
+            except Exception as e:
+                print(f"Erreur lors de l'importation: {e}")
+
+    def export_groups(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getSaveFileName(self, "Exporter des groupes", "", "CSV Files (*.csv);;All Files (*)", options=options)
+        if file_name:
+            try:
+                with open(file_name, 'w', newline='') as f:
+                    writer = csv.DictWriter(f, fieldnames=self.group_list[0].keys())
+                    writer.writeheader()
+                    writer.writerows(self.group_list)
+                    print("Exportation réussie.")
+            except Exception as e:
+                print(f"Erreur lors de l'exportation: {e}")
+
+    def open_add_group_dialog(self):
+        dialog = AddGroupDialog(self)
         if dialog.exec_() == QDialog.Accepted:
-            name, program, daily, days, time, specific_dates = dialog.get_activity_data()
-            program_path = os.path.join(folder_path, f"{program}.exe")
+            self.group_list = load_groups()
+            self.populate_table()
 
-            if specific_dates:
-                # Si des dates spécifiques sont sélectionnées, planifier pour chaque date
-                for date in specific_dates:
-                    try:
-                        cmd = (
-                            f'schtasks /create /tn "{name}_{date}" /tr "{program_path}" '
-                            f'/SC ONCE /SD {date} /ST {time} /f'
-                        )
-                        subprocess.run(cmd, shell=True)
-                    except Exception as e:
-                        QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error scheduling activity for {date}: {e}"))
-                QMessageBox.information(self, self.tr("Success"), self.tr("Activities scheduled successfully!"))
-                self.load_activities()
-            else:
-                # Sinon, utiliser le planning quotidien ou hebdomadaire
-                schedule_type = "/SC DAILY" if daily else "/SC WEEKLY"
-                date_flag = "" if daily else f" /D {','.join(days)}"
+    def edit_group(self, row):
+        group = self.group_list[row]
+        dialog = AddGroupDialog(self)
+        dialog.name_input.setText(group.get('name', ''))
+        dialog.link_input.setText(group.get('link', ''))
+        dialog.remarks_input.setText(group.get('remarks', ''))
+        dialog.category_input.setText(group.get('category', ''))
+        dialog.description_input.setText(group.get('description', ''))
 
-                try:
-                    cmd = (
-                        f'schtasks /create /tn "{name}" /tr "{program_path}" '
-                        f'{schedule_type} {date_flag} /st {time} /f'
-                    )
-                    subprocess.run(cmd, shell=True)
-                    QMessageBox.information(self, self.tr("Success"), self.tr("Activity scheduled successfully!"))
-                    self.load_activities()
-                except Exception as e:
-                    QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error scheduling activity: {e}"))
+        if dialog.exec_() == QDialog.Accepted:
+            updated_group = {
+                'id': group['id'],
+                'name': dialog.name_input.text(),
+                'link': dialog.link_input.text(),
+                'remarks': dialog.remarks_input.text(),
+                'category': dialog.category_input.text(),
+                'description': dialog.description_input.text()
+            }
+            update_group(updated_group)
+            self.group_list = load_groups()
+            self.populate_table()
 
-    def search_activities(self):
-        """Filtre les activités en fonction de la recherche."""
-        query = self.search_entry.text().lower()
-        for row in range(self.table.rowCount()):
-            match = any(query in (self.table.item(row, col).text().lower() if self.table.item(row, col) else "") for col in range(self.table.columnCount()))
-            self.table.setRowHidden(row, not match)
+    def delete_group(self, row):
+        group = self.group_list[row]
+        delete_group(group['id'])
+        self.group_list = load_groups()
+        self.populate_table()
 
-    def modify_or_delete_activity(self, name):
-        """Affiche un menu pour modifier ou supprimer une activité."""
-        menu = QtWidgets.QMenu()
-        modify_action = menu.addAction(self.tr("Modify"))
-        delete_action = menu.addAction(self.tr("Delete"))
+    def filter_table(self):
+        search_text = self.search_field.text().lower()
+        filtered_groups = [group for group in self.group_list if search_text in group.get('name', '').lower()]
+        self.group_list = filtered_groups
+        self.populate_table()
 
-        action = menu.exec_(QtGui.QCursor.pos())
-        if action == modify_action:
-            QMessageBox.information(self, self.tr("Modify"), self.tr(f"Modify activity {name}"))
-        elif action == delete_action:
-            self.delete_activity(name)
+    def next_page(self):
+        if (self.current_page * self.items_per_page) < len(self.group_list):
+            self.current_page += 1
+            self.populate_table()
 
-    def delete_activity(self, name):
-        """Supprime une activité planifiée."""
-        try:
-            subprocess.run(f'schtasks /delete /tn "{name}" /f', shell=True)
-            QMessageBox.information(self, self.tr("Success"), self.tr(f"Activity {name} deleted successfully!"))
-            self.load_activities()
-        except Exception as e:
-            QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error deleting activity: {e}"))
+    def previous_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.populate_table()
 
-    def pause_selected_activities(self):
-        """Met en pause les activités sélectionnées."""
-        selected_rows = self.table.selectionModel().selectedRows()
-        if not selected_rows:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Please select activities to pause."))
-            return
+    def update_visible_columns(self):
+        checkboxes = self.checkboxes_layout.children()
+        for i, checkbox in enumerate(checkboxes):
+            self.table.setColumnHidden(i, not checkbox.isChecked())
+        for i in range(self.table.columnCount()):
+            self.table.horizontalHeader().setVisible(True)
 
-        for row in selected_rows:
-            activity_name = self.table.item(row.row(), 1).text()
-            try:
-                subprocess.run(f'schtasks /change /tn "{activity_name}" /disable', shell=True)
-            except Exception as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error pausing activity {activity_name}: {e}"))
-
-        QMessageBox.information(self, self.tr("Success"), self.tr("Selected activities paused successfully!"))
-        self.load_activities()
-
-    def delete_selected_activities(self):
-        """Supprime les activités sélectionnées."""
-        selected_rows = self.table.selectionModel().selectedRows()
-        if not selected_rows:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Please select activities to delete."))
-            return
-
-        for row in selected_rows:
-            activity_name = self.table.item(row.row(), 1).text()
-            try:
-                subprocess.run(f'schtasks /delete /tn "{activity_name}" /f', shell=True)
-            except Exception as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error deleting activity {activity_name}: {e}"))
-
-        QMessageBox.information(self, self.tr("Success"), self.tr("Selected activities deleted successfully!"))
-        self.load_activities()
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     import sys
-    app = QtWidgets.QApplication(sys.argv)
-    window = Activite()
+    from PyQt5.QtWidgets import QApplication
+
+    init_db()  # Initialiser la base de données
+    app = QApplication(sys.argv)
+    window = GroupTable()
     window.show()
     sys.exit(app.exec_())

@@ -254,14 +254,7 @@ class GroupTable(QWidget):
     def retranslateUi(self):
         """Recharge les textes traduits dans l'interface."""
         self.setWindowTitle(self.tr('AI FB ROBOT Pro'))
-        # Mettez à jour ici tous les labels, boutons, menus, etc. avec self.tr()
-        # Par exemple, pour les actions du menu :
-        # self.instance_action.setText(self.tr('Instance'))
-        # self.media_action.setText(self.tr('Médias'))
-        # self.group_action.setText(self.tr('Groupes'))
-        # self.about_action.setText(self.tr('About'))
-        # self.certificate_action.setText(self.tr('Certif'))
-        # self.language_menu.setTitle(self.tr('Langue'))
+
 
     def init_language(self):
         """Initialise la langue par défaut à celle du système ou à celle choisie par l'utilisateur."""

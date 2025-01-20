@@ -21,7 +21,7 @@ google-api-python-client
 
 openpyxl 
 xlrd3
-
+mail
 PyQtWebEngine
 pillow  # Si tu utilises Pillow pour la gestion des images
 jsonschema  # Pour la gestion de fichiers JSON (si nécessaire)
