@@ -425,11 +425,7 @@ class Activite(QtWidgets.QWidget):
 
         QMessageBox.information(self, self.tr("Success"), self.tr("Selected activities deleted successfully!"))
         self.load_activities()
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
+6y56    app = QtWidgets.QApplication(sys.argv)
     window = Activite()
     window.show()
     sys.exit(app.exec_())

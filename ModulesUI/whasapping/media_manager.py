@@ -987,7 +987,7 @@ class MediaTable(QWidget):
 
             # Préparer les données JSON
             json_data = []
-            greetings = ["hello", "hi", "bonjour", "salut", "merhaba"]
+            greetings = ["hello", "hi", "bonjour", "salut", "merhaba","merhabalar","sayın"]
 
             for record in selected_data:
                 name, category, type_, description, path = record

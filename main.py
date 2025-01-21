@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 from Home.giris import SplitScreenView
 from Home.login import Nova360ProApp
 from Home.parametre import Nova360Ultimate
-from upgrade import SpecialOfferWindow
+from licenceYonetimi.upgrade import SpecialOfferWindow
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QProgressDialog
 import os

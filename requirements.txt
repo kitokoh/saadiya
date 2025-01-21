@@ -18,15 +18,16 @@ pandas
 google-auth 
 google-auth-oauthlib 
 google-api-python-client
+pywin32
 
 openpyxl 
 xlrd3
 
-PyQtWebEngine
+
 pillow  # Si tu utilises Pillow pour la gestion des images
 jsonschema  # Pour la gestion de fichiers JSON (si nécessaire)
 fastapi
-pywin32
+
 pysqlite3
 psycopg2
 sip
