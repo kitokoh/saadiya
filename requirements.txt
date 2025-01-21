@@ -2,7 +2,6 @@ pyinstaller
 pyqt5
 pyqt5-sip
 uvicorn
-sqlalchemy
 databases
 pydantic
 QtPy 
@@ -22,13 +21,14 @@ pywin32
 
 openpyxl 
 xlrd3
-
-
+reportlab
+fpdf
 pillow  # Si tu utilises Pillow pour la gestion des images
 jsonschema  # Pour la gestion de fichiers JSON (si nécessaire)
 fastapi
 
-pysqlite3
+#pysqlite3
 psycopg2
 sip
 psycopg2-binary
+sqlalchemy
