@@ -49,7 +49,7 @@ envoı photo et des message personaliser
 
 
 
-
+ajouter la possibilite de pourvoir realiser un proforma et l envoyer par mail
 
 
 DANS LA PROCHAİNE VERSİON ,MEDİA FACEBOOK DOİT ETRE DİRECTEMENT DANS LA MEM BASE DE DONNER AVECC LA TCA BLE CATEGORİE LA TABLE CONACT EGALEMENT SERA DANS LE MEME DB ACEC SON OPTİON CATEGORİE 
