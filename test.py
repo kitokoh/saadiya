@@ -11,72 +11,69 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableW
                              QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
                              QMenu, QAction, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
 
-from imports import *
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from ui.footer import FooterSection  # Import du footer
 from ui.header import HeaderSection  # Import du header
 from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe
+class GroupModel:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.init_db()
 
+    def init_db(self):
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS groups (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                link TEXT NOT NULL,
+                remarks TEXT,
+                category TEXT,
+                description TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
+
+    def load_groups(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM groups')
+        groups = cursor.fetchall()
+        conn.close()
+        return [dict(zip(['id', 'name', 'link', 'remarks', 'category', 'description'], group)) for group in groups]
+
+    def save_group(self, group):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO groups (name, link, remarks, category, description)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (group['name'], group['link'], group['remarks'], group['category'], group['description']))
+        conn.commit()
+        conn.close()
+
+    def update_group(self, group):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE groups
+            SET name = ?, link = ?, remarks = ?, category = ?, description = ?
+            WHERE id = ?
+        ''', (group['name'], group['link'], group['remarks'], group['category'], group['description'], group['id']))
+        conn.commit()
+        conn.close()
+
+    def delete_group(self, group_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM groups WHERE id = ?', (group_id,))
+        conn.commit()
+        conn.close()
 # Chemin vers la base de données SQLite
 DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups.db')
 
-def init_db():
-    """Initialise la base de données SQLite."""
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS groups (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            link TEXT NOT NULL,
-            remarks TEXT,
-            category TEXT,
-            description TEXT
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-def load_groups():
-    """Charge les groupes depuis la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM groups')
-    groups = cursor.fetchall()
-    conn.close()
-    return [dict(zip(['id', 'name', 'link', 'remarks', 'category', 'description'], group)) for group in groups]
-
-def save_group(group):
-    """Sauvegarde un groupe dans la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO groups (name, link, remarks, category, description)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (group['name'], group['link'], group['remarks'], group['category'], group['description']))
-    conn.commit()
-    conn.close()
-
-def update_group(group):
-    """Met à jour un groupe dans la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE groups
-        SET name = ?, link = ?, remarks = ?, category = ?, description = ?
-        WHERE id = ?
-    ''', (group['name'], group['link'], group['remarks'], group['category'], group['description'], group['id']))
-    conn.commit()
-    conn.close()
-
-def delete_group(group_id):
-    """Supprime un groupe de la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM groups WHERE id = ?', (group_id,))
-    conn.commit()
-    conn.close()
 
 class AddGroupDialog(QDialog):
     def __init__(self, parent=None):
@@ -114,9 +111,10 @@ class AddGroupDialog(QDialog):
         self.accept()
 
 class GroupTable(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, model, parent=None):
         super().__init__(parent)
-        self.group_list = load_groups()
+        self.model = model
+        self.group_list = self.model.load_groups()
         self.visible_columns = ['Select', 'Name', 'Link', 'Remarks', 'Category', 'Description', 'Actions']
         self.items_per_page = 25
         self.current_page = 1
@@ -254,8 +252,8 @@ class GroupTable(QWidget):
                 with open(file_name, 'r') as f:
                     reader = csv.DictReader(f)
                     for row in reader:
-                        save_group(row)
-                    self.group_list = load_groups()
+                        self.model.save_group(row)
+                    self.group_list = self.model.load_groups()
                     self.populate_table()
             except Exception as e:
                 print(f"Erreur lors de l'importation: {e}")
@@ -276,7 +274,7 @@ class GroupTable(QWidget):
     def open_add_group_dialog(self):
         dialog = AddGroupDialog(self)
         if dialog.exec_() == QDialog.Accepted:
-            self.group_list = load_groups()
+            self.group_list = self.model.load_groups()
             self.populate_table()
 
     def edit_group(self, row):
@@ -297,14 +295,14 @@ class GroupTable(QWidget):
                 'category': dialog.category_input.text(),
                 'description': dialog.description_input.text()
             }
-            update_group(updated_group)
-            self.group_list = load_groups()
+            self.model.update_group(updated_group)
+            self.group_list = self.model.load_groups()
             self.populate_table()
 
     def delete_group(self, row):
         group = self.group_list[row]
-        delete_group(group['id'])
-        self.group_list = load_groups()
+        self.model.delete_group(group['id'])
+        self.group_list = self.model.load_groups()
         self.populate_table()
 
     def filter_table(self):
@@ -334,8 +332,9 @@ if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
 
-    init_db()  # Initialiser la base de données
+    DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups.db')
+    model = GroupModel(DB_PATH)
     app = QApplication(sys.argv)
-    window = GroupTable()
+    window = GroupTable(model)
     window.show()
     sys.exit(app.exec_())
