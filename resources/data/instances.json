@@ -1,0 +1,10 @@
+{
+    "instances": [
+        {
+            "name": "Instance 1 test demo",
+            "description": "Description de l'instance 1",
+            "user": "Utilisateur A",
+            "expire_date": "2024-12-31"
+        }
+    ]
+}

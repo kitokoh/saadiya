@@ -1,0 +1,40 @@
+{
+    "groups": [
+        {
+            "name": "Group Sample 1",
+            "link": "https://www.facebook.com/groups/1373444966327199/",
+            "remarks": "if you want you can put any remark",
+            "category": "if you want You can categorize your group",
+            "description": "you can pu a description here if you want "
+        },
+        {
+            "name": "Group Sample 2",
+            "link": "https://www.facebook.com/groups/1296202460739075/",
+            "remarks": "if you want you can put any remark",
+            "category": "if you want You can categorize your group",
+            "description": "you can pu a description here if you want "
+        },
+        {
+            "name": "Group Sample 3",
+            "link": "https://www.facebook.com/groups/1277094336384327/",
+            "remarks": "if you want you can put any remark",
+            "category": "if you want You can categorize your group",
+            "description": "you can pu a description here if you want "
+        },
+        {
+            "name": "Group Sample 4",
+            "link": "https://www.facebook.com/groups/894209468096846/",
+            "remarks": "if you want you can put any remark",
+            "category": "if you want You can categorize your group",
+            "description": "you can pu a description here if you want "
+        },
+        {
+            "name": "Group smaple 5",
+            "link": "https://www.facebook.com/groups/926078427548912/",
+            "remarks": "if you want you can put any remark",
+            "category": "if you want You can categorize your group",
+            "description": "you can pu a description here if you want "
+        
+        }
+    ]
+}
