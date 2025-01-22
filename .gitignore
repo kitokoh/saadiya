@@ -1,8 +1,8 @@
 # Ignorer les environnements de développement
 /env
-/apiGemini
-/mail
-/resources
+# /apiGemini
+# /mail
+# /resources
 
 
 # Ignorer les répertoires de distribution et de construction
