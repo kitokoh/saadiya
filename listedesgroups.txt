@@ -1,0 +1,3 @@
+https://www.facebook.com/groups/hidrogucpres
+
+xcopy "C:\Users\Administrator\Downloads\AI-FB-Robot\media\media1" "C:\bon\robot1\libs" /E /H /C /I
