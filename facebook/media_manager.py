@@ -311,171 +311,43 @@ class AddMedia(QWidget):
             QMessageBox.information(self, self.tr("Succès"), self.tr("Média ajouté avec succès !"))
 
 
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMenu, QMessageBox, QDialog, QDialogButtonBox, QVBoxLayout, QTextEdit
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtCore import Qt
+import os
+import json
+import cv2  # Pour extraire une frame des vidéos
 
 class MediaTable(QWidget):
     def __init__(self, parent=None):
-        # Initialiser le traducteur
-        self.translator = QTranslator()
-        self.init_language()  # Initialisation de la langue après la création des actions
-
         super().__init__(parent)
-        #self.media_folder = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'media', self.user_choice)
-        self.user_choice = 'media1'
+        self.initUI()
 
-        if self.user_choice:
-            try:
-                self.media_folder = os.path.join(
-                    os.path.expanduser('~'), 
-                    'Downloads', 
-                    'AI-FB-Robot', 
-                    'media', 
-                    self.user_choice
-                )
-                if not os.path.exists(self.media_folder):
-                    os.makedirs(self.media_folder)
-            except Exception as e:
-                print(f"Erreur lors de la création du chemin : {e}")
-
-        else:
-            print("Erreur : Aucun choix utilisateur disponible.")
-
-        def get_media_text(media_choice):
-            # Dictionnaire pour mapper les valeurs
-            media_map = {
-                'media1': 'text1',
-                'media2': 'text2',
-                'media3': 'text3',
-                'media4': 'text4'
+    def initUI(self):
+        self.setWindowTitle('AI Medias Management')
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #f4f4f4;
+                font-family: 'Segoe UI', sans-serif;
             }
-            # Retourner le texte correspondant ou un texte par défaut si la clé n'existe pas
-            return media_map.get(media_choice, 'Texte inconnu')
-
-        self.json_file = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-FB-Robot', 'text',  get_media_text(self.user_choice), 'data.json')
-        self.media_manager = AddMedia(parent=self)
-
-        self.media_list = self.load_media()
-        self.page_size = 10
-        self.current_page = 0
-
-        # UI Setup
-        layout = QVBoxLayout(self)
-
-        # Ajouter le header
-        header = HeaderSection(self, title=self.tr("AI Medias Management"), app_name=self.tr("Nova360 AI"), slogan=self.tr("AI Marketing & Management Auto"))
-        layout.addWidget(header)
-
-        # Ajouter le menu secondaire
-        # self.secondary_menu = SecondaryMenu(self)
-        # self.secondary_menu.menu_selected.connect(self.change_content)
-        # layout.addWidget(self.secondary_menu)
-
-        # Disposition horizontale pour le titre, la recherche et le bouton "Ajouter"
-        top_layout = QHBoxLayout()
-
-        # Label "Liste des media"
-        media_label = QLabel(self.tr("Liste des media:"), self)
-        media_label.setStyleSheet("font-size: 22px; font-weight: bold; color: #003366;")
-        top_layout.addWidget(media_label)
-
-        # Barre de recherche
-        self.search_field = QLineEdit(self)
-        self.search_field.setPlaceholderText(self.tr("Rechercher..."))
-        self.search_field.textChanged.connect(self.filter_table)
-        self.search_field.setStyleSheet("""
-            QLineEdit {
-                padding: 6px;
-                font-size: 14px;
-                border: 1px solid #007BFF;
-                border-radius: 5px;
+            QLabel {
+                font-size: 18px;
+                color: #333;
             }
-        """)
-        top_layout.addWidget(self.search_field)
-
-        # Dropdown pour les instances
-        self.instance_combo = QComboBox(self)
-        self.instance_combo.addItems(self.get_instance_list())
-        #self.instance_combo.currentIndexChanged.connect(self.save_user_choice)
-        self.instance_combo.currentIndexChanged.connect(self.on_instance_changed)
-
-        #self.instance_combo.currentIndexChanged.connect(self.refresh_table)
-        self.instance_combo.setStyleSheet("padding: 5px; font-size: 14px; border-radius: 5px;")
-        top_layout.addWidget(self.instance_combo)
-        
-        # Fonction pour styliser les boutons avec des couleurs spécifiques
-        def style_button(button, color):
-            button.setFixedSize(120, 35)
-            button.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {color};
-                    color: white;
-                    border-radius: 5px;
-                    padding: 5px;
-                    font-weight: bold;
-                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                }}
-                QPushButton:hover {{
-                    background-color: {self.darken_color(color)};
-                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-                }}
-            """)
-
-        # Boutons stylisés
-        self.add_gmini_button = QPushButton(self.tr('AI Description'), self)
-        style_button(self.add_gmini_button, "#007BFF")  # Bleu
-        self.add_gmini_button.clicked.connect(self.add_new_promt)
-        top_layout.addWidget(self.add_gmini_button)
-
-        self.add_media_button = QPushButton(self.tr('Ajouter Media'), self)
-        style_button(self.add_media_button, "#007BFF")  # Bleu
-        self.add_media_button.clicked.connect(self.add_new_media)
-        top_layout.addWidget(self.add_media_button)
-
-        # self.add_text_button = QPushButton(self.tr('Update Text Only Robot'), self)
-        # style_button(self.add_text_button, "#28A745")  # Vert
-        # self.add_text_button.clicked.connect(self.add_json_text)
-        # top_layout.addWidget(self.add_text_button)
-
-        # self.update_json_button = QPushButton(self.tr('update robot'), self)
-        # style_button(self.update_json_button, "#FD7E14")  # Orange
-        # self.update_json_button.clicked.connect(lambda: self.send_json1())
-        # top_layout.addWidget(self.update_json_button)
-        self.remember_choice = None  # Variable pour mémoriser le choix de l'utilisateur
-
-        # Bouton principal
-        self.update_robot_button = QPushButton(self.tr('Update Robot'), self)
-        self.update_robot_button.setStyleSheet("""
             QPushButton {
-                background-color: #FD7E14;
+                background-color: #007BFF;
                 color: white;
-                border: none;
-                border-radius: 8px;
-                padding: 10px 20px;
+                border-radius: 5px;
+                padding: 10px;
                 font-size: 14px;
-                box-shadow: 0px 5px 15px rgba(52, 152, 219, 0.4);
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #28A745;
+                background-color: #0056b3;
             }
-        """)
-        self.update_robot_button.clicked.connect( self.show_update_modal)
-        top_layout.addWidget(self.update_robot_button)
-        #self.update_robot_button.setFixedWidth(150)
-        #self.update_robot_button.move(125, 80)
-
-        layout.addLayout(top_layout)
-
-        # Media Table
-        self.table = QTableWidget(self)
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels([self.tr('Nom'), self.tr('Description'), self.tr('Preview'), self.tr('Action')])
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.table.setStyleSheet(""" 
             QTableWidget {
-                border: 1px solid #007BFF;
+                background-color: white;
+                border: 1px solid #ddd;
                 border-radius: 5px;
                 font-size: 14px;
             }
@@ -490,18 +362,44 @@ class MediaTable(QWidget):
                 padding: 10px;
             }
         """)
-        self.table.setSortingEnabled(True)
+
+        layout = QVBoxLayout(self)
+
+        # Header
+        header = QLabel("AI Medias Management")
+        header.setStyleSheet("font-size: 24px; font-weight: bold; color: #007BFF;")
+        layout.addWidget(header)
+
+        # Search and Add Media
+        top_layout = QHBoxLayout()
+        self.search_field = QLineEdit()
+        self.search_field.setPlaceholderText("Rechercher...")
+        self.search_field.setStyleSheet("padding: 8px; font-size: 14px; border-radius: 5px; border: 1px solid #ddd;")
+        top_layout.addWidget(self.search_field)
+
+        self.add_media_button = QPushButton("Ajouter Media")
+        self.add_media_button.setStyleSheet("background-color: #28a745;")
+        self.add_media_button.clicked.connect(self.add_new_media)
+        top_layout.addWidget(self.add_media_button)
+
+        layout.addLayout(top_layout)
+
+        # Table
+        self.table = QTableWidget()
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(['Nom', 'Description', 'Preview', 'Action'])
+        self.table.setStyleSheet("QTableWidget { border: 1px solid #ddd; }")
         layout.addWidget(self.table)
 
-        # Pagination Buttons
+        # Pagination
         pagination_layout = QHBoxLayout()
-        self.prev_button = QPushButton(self.tr('Précédent'), self)
-        style_button(self.prev_button, "#6c757d")  # Gris
+        self.prev_button = QPushButton("Précédent")
+        self.prev_button.setStyleSheet("background-color: #6c757d;")
         self.prev_button.clicked.connect(self.prev_page)
         pagination_layout.addWidget(self.prev_button)
 
-        self.next_button = QPushButton(self.tr('Suivant'), self)
-        style_button(self.next_button, "#6c757d")  # Gris
+        self.next_button = QPushButton("Suivant")
+        self.next_button.setStyleSheet("background-color: #6c757d;")
         self.next_button.clicked.connect(self.next_page)
         pagination_layout.addWidget(self.next_button)
 
@@ -509,14 +407,107 @@ class MediaTable(QWidget):
 
         self.populate_table()
 
-        # Actualisation automatique
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.refresh_table)
-        self.timer.start(5000)
+    def populate_table(self):
+        # Exemple de données
+        self.media_list = [
+            {'nom': 'image1.jpg', 'description': 'Description 1', 'preview_path': 'path/to/image1.jpg'},
+            {'nom': 'video1.mp4', 'description': 'Description 2', 'preview_path': 'path/to/video1.mp4'}
+        ]
+        self.table.setRowCount(len(self.media_list))
 
-        # Ajouter le footer
-        footer = FooterSection(self)
-        layout.addWidget(footer)
+        for row, media in enumerate(self.media_list):
+            self.table.setItem(row, 0, QTableWidgetItem(media['nom']))
+            self.table.setItem(row, 1, QTableWidgetItem(media['description']))
+
+            # Afficher un thumbnail pour la prévisualisation
+            preview_label = QLabel()
+            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+                pixmap = QPixmap(media['preview_path']).scaled(100, 100, Qt.KeepAspectRatio)
+                preview_label.setPixmap(pixmap)
+            elif media['nom'].endswith('.mp4'):
+                # Extraire une frame de la vidéo pour en faire un thumbnail
+                cap = cv2.VideoCapture(media['preview_path'])
+                ret, frame = cap.read()
+                if ret:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    height, width, channel = frame.shape
+                    bytes_per_line = 3 * width
+                    q_img = QPixmap.fromImage(QImage(frame.data, width, height, bytes_per_line, QImage.Format_RGB888))
+                    preview_label.setPixmap(q_img.scaled(100, 100, Qt.KeepAspectRatio))
+                cap.release()
+            preview_label.setAlignment(Qt.AlignCenter)
+            self.table.setCellWidget(row, 2, preview_label)
+
+            # Bouton "Action" avec un menu déroulant
+            action_button = QPushButton('Action')
+            action_button.setStyleSheet("""
+                QPushButton {
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 8px 12px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    min-width: 80px;
+                }
+                QPushButton:hover {
+                    background-color: #0056b3;
+                }
+                QPushButton:pressed {
+                    background-color: #004080;
+                }
+            """)
+            action_button.setMenu(self.create_action_menu(media))
+            self.table.setCellWidget(row, 3, action_button)
+
+    def create_action_menu(self, media):
+        menu = QMenu()
+        
+        # Option "Éditer"
+        edit_action = menu.addAction(QIcon('resources/icons/edit.png'), 'Éditer')
+        edit_action.triggered.connect(lambda: self.update_media(media))
+        
+        # Option "Supprimer"
+        delete_action = menu.addAction(QIcon('resources/icons/delete.png'), 'Supprimer')
+        delete_action.triggered.connect(lambda: self.delete_media(media))
+        
+        # Option "Aperçu"
+        preview_action = menu.addAction(QIcon('resources/icons/preview.png'), 'Aperçu')
+        preview_action.triggered.connect(lambda: self.show_preview(media['preview_path']))
+        
+        # Option "Détail"
+        detail_action = menu.addAction(QIcon('resources/icons/detail.png'), 'Détail')
+        detail_action.triggered.connect(lambda: self.show_detail(media))
+        
+        return menu
+
+    def delete_media(self, media):
+        # Supprimer le média de la liste et de la table
+        confirm = QMessageBox.question(self, 'Confirmation', f'Êtes-vous sûr de vouloir supprimer {media["nom"]} ?', QMessageBox.Yes | QMessageBox.No)
+        if confirm == QMessageBox.Yes:
+            self.media_list.remove(media)
+            self.populate_table()  # Rafraîchir la table immédiatement
+
+    def show_detail(self, media):
+        # Afficher une boîte de dialogue avec les détails du média
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Détails du Média')
+        layout = QVBoxLayout()
+        
+        detail_text = QTextEdit()
+        detail_text.setText(f"Nom: {media['nom']}\nDescription: {media['description']}\nChemin: {media['preview_path']}")
+        detail_text.setReadOnly(True)
+        layout.addWidget(detail_text)
+        
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok)
+        button_box.accepted.connect(dialog.accept)
+        layout.addWidget(button_box)
+        
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+
     def show_update_modal(self):
         """Affiche le modal pour choisir une action."""
         if self.remember_choice is not None:
@@ -779,7 +770,7 @@ class MediaTable(QWidget):
             """)
             self.table.setCellWidget(row, 3, action_button)
 
-    def create_action_menu(self, media):
+    def create_action_menu1(self, media):
         menu = QMenu()
 
         # Action Edit

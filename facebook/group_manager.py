@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableW
                              QMenu, QAction, QComboBox, QScrollBar, QFrame, QDialog, QFormLayout)
 
 from imports import *
-from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from ui.footer import FooterSection  # Import du footer
 from ui.header import HeaderSection  # Import du header
 from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe

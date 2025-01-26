@@ -38,70 +38,7 @@ from PyQt5.QtWidgets import (
     QComboBox, QScrollBar, QFrame, QDialog, QFormLayout, QMessageBox, QProgressBar
 )
 
-# # Chemin vers la base de données SQLite
-# DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups.db')
 
-# def init_db():
-#     """Initialise la base de données SQLite."""
-#     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         CREATE TABLE IF NOT EXISTS groups (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             name TEXT NOT NULL,
-#             link TEXT NOT NULL,
-#             remarks TEXT,
-#             category TEXT,
-#             description TEXT,
-#             keywords TEXT
-#         )
-#     ''')
-#     # Ajout d'index pour optimiser les recherches
-#     cursor.execute('CREATE INDEX IF NOT EXISTS idx_name ON groups (name)')
-#     cursor.execute('CREATE INDEX IF NOT EXISTS idx_category ON groups (category)')
-#     conn.commit()
-#     conn.close()
-
-# def load_groups():
-#     """Charge les groupes depuis la base de données SQLite."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT * FROM groups')
-#     groups = cursor.fetchall()
-#     conn.close()
-#     return [dict(zip(['id', 'name', 'link', 'remarks', 'category', 'description', 'keywords'], group)) for group in groups]
-
-# def save_group(group):
-#     """Sauvegarde un groupe dans la base de données SQLite."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         INSERT INTO groups (name, link, remarks, category, description, keywords)
-#         VALUES (?, ?, ?, ?, ?, ?)
-#     ''', (group['name'], group['link'], group['remarks'], group['category'], group['description'], group.get('keywords', '')))
-#     conn.commit()
-#     conn.close()
-
-# def update_group(group):
-#     """Met à jour un groupe dans la base de données SQLite."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         UPDATE groups
-#         SET name = ?, link = ?, remarks = ?, category = ?, description = ?, keywords = ?
-#         WHERE id = ?
-#     ''', (group['name'], group['link'], group['remarks'], group['category'], group['description'], group.get('keywords', ''), group['id']))
-#     conn.commit()
-#     conn.close()
-
-# def delete_group(group_id):
-#     """Supprime un groupe de la base de données SQLite."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('DELETE FROM groups WHERE id = ?', (group_id,))
-#     conn.commit()
-#     conn.close()
 
 class LoadGroupsDialog(QDialog):
     def __init__(self, parent=None):
