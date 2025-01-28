@@ -1,0 +1,77 @@
+{
+    "Catégorie 1": {
+        "description": "<h2>Bienvenue dans la Catégorie 1</h2><p>Cette section contient des scripts essentiels pour vos tâches de démarrage et de configuration.</p>",
+        "scripts": [
+            {"name": "Script 1", "path": "byaicreate.bat"},
+            {"name": "Script 2", "path": "techniciens.bat"},
+            {"name": "Script 3", "path": "scripts/script3.bat"},
+            {"name": "Script 4", "path": "scripts/script4.bat"},
+            {"name": "Script 5", "path": "scripts/script5.bat"},
+            {"name": "Script 6", "path": "scripts/script6.bat"},
+            {"name": "Script 7", "path": "scripts/script7.bat"},
+            {"name": "Script 8", "path": "scripts/script8.bat"},
+            {"name": "Script 9", "path": "scripts/script9.bat"},
+            {"name": "Script 10", "path": "scripts/script10.bat"}
+        ]
+    },
+    "Create Content": {
+        "description": "<h2>Catégorie 2</h2><p>Scripts avancés pour automatiser vos processus professionnels. Idéal pour optimiser vos flux de travail.</p>",
+        "scripts": [
+            {"name": "Write blog", "path": "scripts/scriptA.bat"},
+            {"name": "Reel AI", "path": "scripts/scriptB.bat"},
+            {"name": "Photos", "path": "scripts/scriptC.bat"},
+            {"name": "Script D", "path": "scripts/scriptD.bat"},
+            {"name": "Script E", "path": "scripts/scriptE.bat"},
+            {"name": "Script F", "path": "scripts/scriptF.bat"},
+            {"name": "Script G", "path": "scripts/scriptG.bat"},
+            {"name": "Script H", "path": "scripts/scriptH.bat"},
+            {"name": "Script I", "path": "scripts/scriptI.bat"},
+            {"name": "Script J", "path": "scripts/scriptJ.bat"}
+        ]
+    },
+    "Comment & reviews": {
+        "description": "<h2>Catégorie 3</h2><p>Scripts dédiés à la gestion des bases de données. Lancez-les pour effectuer des sauvegardes ou des nettoyages.</p>",
+        "scripts": [
+            {"name": "comment FB", "path": "scripts/dbtask1.bat"},
+            {"name": "comment tok", "path": "scripts/dbtask2.bat"},
+            {"name": "comment ytb", "path": "scripts/dbtask3.bat"},
+            {"name": "comment insta", "path": "scripts/dbtask4.bat"},
+            {"name": "DB Task 5", "path": "scripts/dbtask5.bat"},
+            {"name": "DB Task 6", "path": "scripts/dbtask6.bat"},
+            {"name": "DB Task 7", "path": "scripts/dbtask7.bat"},
+            {"name": "DB Task 8", "path": "scripts/dbtask8.bat"},
+            {"name": "DB Task 9", "path": "scripts/dbtask9.bat"},
+            {"name": "DB Task 10", "path": "scripts/dbtask10.bat"}
+        ]
+    },
+    "Catégorie 4": {
+        "description": "<h2>Catégorie 4</h2><p>Scripts pour la maintenance et l'optimisation du système. Lancez-les régulièrement pour garder vos outils performants.</p>",
+        "scripts": [
+            {"name": "Maintenance 1", "path": "scripts/maintenance1.bat"},
+            {"name": "Maintenance 2", "path": "scripts/maintenance2.bat"},
+            {"name": "Maintenance 3", "path": "scripts/maintenance3.bat"},
+            {"name": "Maintenance 4", "path": "scripts/maintenance4.bat"},
+            {"name": "Maintenance 5", "path": "scripts/maintenance5.bat"},
+            {"name": "Maintenance 6", "path": "scripts/maintenance6.bat"},
+            {"name": "Maintenance 7", "path": "scripts/maintenance7.bat"},
+            {"name": "Maintenance 8", "path": "scripts/maintenance8.bat"},
+            {"name": "Maintenance 9", "path": "scripts/maintenance9.bat"},
+            {"name": "Maintenance 10", "path": "scripts/maintenance10.bat"}
+        ]
+    },
+    "Catégorie 5": {
+        "description": "<h2>Catégorie 5</h2><p>Scripts pour des vérifications et améliorations de sécurité. Garantissez la fiabilité de votre environnement avec ces outils.</p>",
+        "scripts": [
+            {"name": "Security Check 1", "path": "scripts/security1.bat"},
+            {"name": "Security Check 2", "path": "scripts/security2.bat"},
+            {"name": "Security Check 3", "path": "scripts/security3.bat"},
+            {"name": "Security Check 4", "path": "scripts/security4.bat"},
+            {"name": "Security Check 5", "path": "scripts/security5.bat"},
+            {"name": "Security Check 6", "path": "scripts/security6.bat"},
+            {"name": "Security Check 7", "path": "scripts/security7.bat"},
+            {"name": "Security Check 8", "path": "scripts/security8.bat"},
+            {"name": "Security Check 9", "path": "scripts/security9.bat"},
+            {"name": "Security Check 10", "path": "scripts/security10.bat"}
+        ]
+    }
+}

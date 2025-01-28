@@ -1,0 +1,28 @@
+que les groupes soit charger automatiquement 
+que les textes soit charger automatiquement 
+la traduction en turque doit etre completes 
+les compte facebook ca doit fonctionner independament de la langue du user 
+corriger le probleme avec selenium 
+
+les pages pour gerer le whattssaping et linkeding doivent etre fini
+
+### realiser la version mobile rapidement 
+
+une application mobile qui permet de recupere toutes info utiles les stocke dans un sheet ou base de donne et qui 
+permet de programmer les publications l onajoute les imges et ajoute aussi les description utiles a cela 
+
+ajouter les verification sur les mail et consor 
+
+ajouter les lien necessaire pour les tutos 
+rendre whattsapping active et linkeding active 
+
+developper une telecommande virtuelle pour le robot 
+
+
+Pour le site web 
+
+rendre les chose multilang 
+activer les souscriptions 
+ajouter le chatbot au site 
+ajouter les lien et les screenshot au site 
+appretter toutes images utiles et le multilang

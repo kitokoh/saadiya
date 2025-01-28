@@ -1,0 +1,5 @@
+comment faire pour que paddle accepte mon site web 
+
+propose moi une application pyqt qui permet de demarrer facilement mes fichier .bat  l application doit avoir 5 tab et 
+chaque tab contient 10 button bien disigner  donc pour mes 50 .bat je pourrait les calsser et categoriser plus facilement a partir
+d un seul ecrant bien disigner et au complet et surtout bien styliser 
