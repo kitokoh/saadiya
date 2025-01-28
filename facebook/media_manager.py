@@ -18,6 +18,9 @@ from test3 import RobotManagementDialog
 from imports import *
 from test3 import ReseauSocialManagementDialog
 from test3 import MediaTypeManagementDialog
+
+from ui.header import HeaderSection
+from ui.footer import FooterSection
 # Chemin de la base de données
 db_path = os.path.join(user_data_dir, 'groups22.db')
 
@@ -412,9 +415,11 @@ class MediaTable(QWidget):
         """Initialize the user interface."""
         layout = QVBoxLayout(self)
 
-        # Header
-        header = QLabel("📁 AI Media Management", self)
-        header.setStyleSheet("font-size: 24px; font-weight: bold; color: #003366; padding: 10px;")
+        # # Header
+        # header = QLabel("📁 AI Media Management", self)
+        # header.setStyleSheet("font-size: 24px; font-weight: bold; color: #003366; padding: 10px;")
+        # layout.addWidget(header)
+        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
         layout.addWidget(header)
 
         # Top layout for buttons and search bar
@@ -553,11 +558,12 @@ class MediaTable(QWidget):
 
         layout.addLayout(pagination_layout)
 
-        # Footer
-        footer = QLabel("© 2023 AI Media Management", self)
-        footer.setStyleSheet("font-size: 12px; color: #666; padding: 10px;")
+        # # Footer
+        # footer = QLabel("© 2023 AI Media Management", self)
+        # footer.setStyleSheet("font-size: 12px; color: #666; padding: 10px;")
+        # layout.addWidget(footer)
+        footer = FooterSection(self)
         layout.addWidget(footer)
-
         # Populate the table
         self.populate_table()
     def export_media(self):

@@ -1,0 +1,36 @@
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS produits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    description TEXT,
+    categorie_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    deleted_at DATETIME,
+    FOREIGN KEY (categorie_id) REFERENCES categories(id)
+);
+
+CREATE TABLE IF NOT EXISTS prix (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    montant REAL NOT NULL,
+    devise TEXT NOT NULL DEFAULT 'USD',
+    produit_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (produit_id) REFERENCES produits(id)
+);
+
+CREATE TABLE IF NOT EXISTS medias (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chemin TEXT NOT NULL,
+    type TEXT NOT NULL,  -- 'image', 'video', etc.
+    produit_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (produit_id) REFERENCES produits(id)
+);

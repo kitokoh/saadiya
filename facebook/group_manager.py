@@ -21,6 +21,8 @@ from PyQt5.QtWidgets import QComboBox, QLineEdit, QDateTimeEdit, QMessageBox
 from PyQt5.QtCore import QDateTime
 from imports import *
 
+from ui.header import HeaderSection
+from ui.footer import FooterSection
 # def load_categories():
 #     """Charge toutes les catégories depuis la base de données."""
 #     conn = sqlite3.connect(DB_PATH)
@@ -1772,8 +1774,7 @@ class GroupTable(QWidget):
         # Main layout
         layout = QVBoxLayout(self)
 
-        # Header section
-        header = HeaderSection(self, title="FBK GROUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
+        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
         layout.addWidget(header)
 
         # Top layout for buttons, search bar, and dropdowns
@@ -2017,6 +2018,9 @@ class GroupTable(QWidget):
         # Initialization
         self.update_pagination_buttons()
         self.populate_table()
+        # Ajouter le footer
+        footer = FooterSection(self)
+        layout.addWidget(footer)
     def manage_archives(self):
         """Open a dialog to manage archives."""
         # dialog = ManageArchivesDialog(self.media_manager, self.user_choice, self)
@@ -3191,7 +3195,7 @@ def apply_theme(theme_name):
     elif theme_name == "System Default":
         QApplication.setPalette(QApplication.style().standardPalette())
 
-class HeaderSection(QWidget):
+class HeaderSection1(QWidget):
     def __init__(self, parent=None, title="", app_name="", slogan=""):
         super().__init__(parent)
         self.title = title
