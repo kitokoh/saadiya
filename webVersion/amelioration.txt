@@ -1,0 +1,30 @@
+ 
+trouver sur tiktok des espace pour entrepreneur ou je vais m exprimer 
+proposer la licence gratuite de trois mois pour 1000 users
+ mettre en ligne la version specifique pour facebook groupes en dissant auomatiser 
+notre offre beien le definir sacahnt que nous avons 
+
+
+Offres 
+ option 1 : gratuit 
+il ya facebook groups share sans certains options 
+
+option 2 : par mois 
+toutes les fonctionalite  le mois est a 35 tl 
+
+option 3 : par ans 
+150 us 
+option 4 : lifetime
+un arduino connecter contenant tout ce qu il faut 
+
+
+option utiles faire pour que la langue soit convertible et dynamiquement et plus facilement 
+
+
+ajouter la posibilite de creer compte sans renseigner les info de paiement 
+ajouter les outils de debogage pour un compte dedier aux maintenances 
+ajouter le multilangue pour acceler les choses 
+donner la possibilte de pouvoir ajouter des modules 
+
+
+faire de sorte que lon ai toutes les api present dans buffer et dans la solution du francais la en meme temps 
