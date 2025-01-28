@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import (
     QMessageBox, QTableWidgetItem, QCheckBox, QDialog, QCalendarWidget, QDateEdit, QGraphicsDropShadowEffect
 )
 from PyQt5.QtGui import QColor, QFont
+import locale
+locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
 
 class AddActivityDialog(QtWidgets.QDialog):
@@ -286,7 +288,7 @@ class Activite(QtWidgets.QWidget):
                 return
 
             # Récupérer les tâches planifiées avec schtasks
-            result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, text=True)
+            result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, encoding="utf-8", errors="ignore")
             lines = result.strip().splitlines()
 
             if not lines:
