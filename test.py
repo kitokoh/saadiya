@@ -14,10 +14,10 @@ from PyQt5.QtWidgets import QAction
 # Chemin vers le dossier de l'utilisateur (Roaming)
 user_data_dir = os.path.join(os.getenv('APPDATA'), 'saadiya')
 os.makedirs(user_data_dir, exist_ok=True)  # Créer le dossier s'il n'existe pas
-from test3 import RobotManagementDialog
+from test4 import RobotManagementDialog
 from imports import *
-from test3 import ReseauSocialManagementDialog
-from test3 import MediaTypeManagementDialog
+from test4 import ReseauSocialManagementDialog
+from test4 import MediaTypeManagementDialog
 # Chemin de la base de données
 db_path = os.path.join(user_data_dir, 'groups22.db')
 

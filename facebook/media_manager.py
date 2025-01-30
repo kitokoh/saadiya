@@ -14,10 +14,10 @@ from PyQt5.QtWidgets import QAction
 # Chemin vers le dossier de l'utilisateur (Roaming)
 user_data_dir = os.path.join(os.getenv('APPDATA'), 'saadiya')
 os.makedirs(user_data_dir, exist_ok=True)  # Créer le dossier s'il n'existe pas
-from test3 import RobotManagementDialog
+from facebook.group_manager import RobotManagementDialog
 from imports import *
-from test3 import ReseauSocialManagementDialog
-from test3 import MediaTypeManagementDialog
+from facebook.group_manager import ReseauSocialManagementDialog
+from facebook.group_manager import MediaTypeManagementDialog
 
 from ui.header import HeaderSection
 from ui.footer import FooterSection
