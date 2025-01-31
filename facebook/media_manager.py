@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtWidgets import QAction
 # Chemin vers le dossier de l'utilisateur (Roaming)
-user_data_dir = os.path.join(os.getenv('APPDATA'), 'saadiya')
-os.makedirs(user_data_dir, exist_ok=True)  # Créer le dossier s'il n'existe pas
+# user_data_dir = os.path.join(os.getenv('APPDATA'), 'saadiya')
+# os.makedirs(user_data_dir, exist_ok=True)  # Créer le dossier s'il n'existe pas
 from facebook.group_manager import RobotManagementDialog
 from imports import *
 from facebook.group_manager import ReseauSocialManagementDialog
@@ -22,7 +22,7 @@ from facebook.group_manager import MediaTypeManagementDialog
 from ui.header import HeaderSection
 from ui.footer import FooterSection
 # Chemin de la base de données
-db_path = os.path.join(user_data_dir, 'groups22.db')
+# DB_PATH = os.path.join(user_data_dir, 'groups22.db')
 
 # Chemin des médias
 media_folder = os.path.join(user_data_dir, 'media')
@@ -75,13 +75,13 @@ STYLESHEET = """
 
 # Classe pour gérer les médias
 class MediaManager:
-    def __init__(self, db_path):
-        self.db_path = db_path
+    def __init__(self, DB_PATH):
+        self.DB_PATH = DB_PATH
         self.create_database()
 
     def create_database(self):
         """Crée la base de données SQLite avec les tables media, media_type, et category."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         # Table pour les types de médias
@@ -144,7 +144,7 @@ class MediaManager:
 
     def load_media_from_db(self, user_choice):
         """Charge les médias depuis la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -175,7 +175,7 @@ class MediaManager:
     def add_media_to_db(self, media, user_choice):
         """Ajoute un média à la base de données."""
         logging.debug(f"Tentative d'ajout d'un média avec user_choice = {user_choice}")
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         # Récupérer l'id du type de média sélectionné
@@ -205,7 +205,7 @@ class MediaManager:
         
     def update_media_in_db(self, media, user_choice):
         """Met à jour un média dans la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -219,7 +219,7 @@ class MediaManager:
 
     def delete_media_in_db(self, media, user_choice):
         """Marque un média comme supprimé dans la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -233,7 +233,7 @@ class MediaManager:
 
     def load_categories(self):
         """Charge la liste des catégories depuis la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -246,7 +246,7 @@ class MediaManager:
 
     def add_category(self, name, label, description):
         """Ajoute une nouvelle catégorie à la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -258,7 +258,7 @@ class MediaManager:
 
     def delete_category(self, category_id):
         """Supprime une catégorie de la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -270,7 +270,7 @@ class MediaManager:
 
     def load_archives(self, user_choice):
         """Charge les médias archivés depuis la base de données."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -296,7 +296,7 @@ class MediaManager:
 
     def restore_media(self, media_id, user_choice):
         """Restaure un média archivé."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -310,7 +310,7 @@ class MediaManager:
 
     def has_media_in_category(self, category_id):
         """Vérifie si une catégorie contient des médias."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -323,7 +323,7 @@ class MediaManager:
 
     def has_media_in_type(self, type_id):
         """Vérifie si un type contient des médias."""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -387,7 +387,7 @@ class MediaTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.user_choice = self.load_user_choice()  # Load user choice
-        self.media_manager = MediaManager(db_path)
+        self.media_manager = MediaManager(DB_PATH)
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
         self.page_size = 10
         self.current_page = 0
@@ -445,6 +445,8 @@ class MediaTable(QWidget):
                 background-color: #003d80;
             }
         """)
+        
+        
         top_layout.addWidget(self.action_button)
 
         # Settings button with dropdown menu
@@ -872,7 +874,7 @@ class MediaTable(QWidget):
 
     def update_media_description(self, media_id, description):
         """Met à jour la description d'un média dans la base de données."""
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -933,7 +935,7 @@ class MediaTable(QWidget):
     def update_category(self, row, category_name):
         """Met à jour la catégorie d'un média."""
         media = self.media_list[row]
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
         cursor.execute('''
@@ -1020,12 +1022,12 @@ class MediaTable(QWidget):
     def show_update_modal(self):
         """Affiche une boîte de dialogue pour mettre à jour le robot."""
         dialog = UpdateRobotDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
-            choice, remember = dialog.get_choice()
-            if choice == "text":
-                print("Mise à jour du texte uniquement")
-            elif choice == "robot":
-                print("Mise à jour complète du robot")
+        dialog.exec_() 
+            # choice, remember = dialog.get_choice()
+            # if choice == "text":
+            #     print("Mise à jour du texte uniquement")
+            # elif choice == "robot":
+            #     print("Mise à jour complète du robot")
 
     def filter_table(self):
         """Filtre les médias affichés dans le tableau en fonction du texte de recherche."""
@@ -1055,7 +1057,7 @@ class MediaTable(QWidget):
         elif column == 2:  # Colonne "Catégorie"
             media = self.media_list[row]
             new_category = self.table.item(row, column).text()
-            conn = sqlite3.connect(db_path)
+            conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
 
             cursor.execute('''
@@ -1170,73 +1172,523 @@ class UpdateMediaDialog(QDialog):
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QCheckBox, QMessageBox
 from PyQt5.QtGui import QIcon
 
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QPushButton, QCheckBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+
+from PyQt5.QtWidgets import (
+    QDialog, QVBoxLayout, QPushButton, QComboBox, QListWidget, QListWidgetItem, QHBoxLayout, QLabel, QMessageBox
+)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+import sqlite3
+import os
+import sqlite3
+from PyQt5.QtWidgets import QProgressDialog, QMessageBox
+from PyQt5.QtCore import Qt
+from datetime import datetime
+import ctypes
+
+class FileTransferApp:
+    def __init__(self):
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+
+        # Dossier cible pour les données
+        self.target_dir = "C:\\Bon"
+
+    # def start_process(self):
+    #     """Démarre le processus de transfert des données depuis la base de données."""
+    #     if not self.confirm_submission():
+    #         self.show_error("Processus annulé par l'utilisateur.")
+    #         return
+
+    #     if not os.path.exists(self.target_dir):
+    #         os.makedirs(self.target_dir)
+
+    #     # Créer une boîte de dialogue de progression
+    #     progress_dialog = QProgressDialog("Transfert des données en cours...", "Annuler", 0, 100)
+    #     progress_dialog.setWindowTitle("Processus de transfert")
+    #     progress_dialog.setWindowModality(Qt.WindowModal)
+    #     progress_dialog.setMinimumDuration(0)
+    #     progress_dialog.setValue(0)
+
+    #     # Récupérer les données des médias et des groupes depuis la base de données
+    #     media_data = self.get_media_data()
+    #     group_data = self.get_group_data()
+
+    #     if not media_data and not group_data:
+    #         self.show_error("Aucune donnée trouvée dans la base de données.")
+    #         return
+
+    #     # Créer un dossier pour chaque robot
+    #     for idx, (media, groups) in enumerate(zip(media_data, group_data)):
+    #         robot_folder = os.path.join(self.target_dir, f"robot{idx + 1}")
+    #         if not os.path.exists(robot_folder):
+    #             os.makedirs(robot_folder)
+
+    #         # Enregistrer les données dans un fichier JSON
+    #         combined_content = {
+    #             "posts": [{"text": media_item[1], "image": media_item[2]} for media_item in media],
+    #             "groups": [{"link": group_item[1]} for group_item in groups],
+    #         }
+
+    #         target_json_path = os.path.join(robot_folder, "data.json")
+    #         with open(target_json_path, 'w', encoding='utf-8') as json_file:
+    #             import json
+    #             json.dump(combined_content, json_file, ensure_ascii=False, indent=4)
+
+    #         # Cacher le dossier
+    #         self.hide_file(robot_folder)
+
+    #         # Mettre à jour la progression
+    #         progress_dialog.setValue(int((idx + 1) / len(media_data) * 100))
+    #         if progress_dialog.wasCanceled():
+    #             self.show_error("Processus annulé.")
+    #             return
+
+    #     progress_dialog.setValue(100)
+    #     self.show_success("Le processus est terminé avec succès.")
+
+
+    def start_process(self, combined_content):
+        """
+        Démarre le processus de transfert des données vers le robot.
+        
+        Args:
+            combined_content (dict): Données combinées (médias et groupes).
+        """
+        if not os.path.exists(self.target_dir):
+            os.makedirs(self.target_dir)
+
+        # Créer un dossier pour chaque robot
+        robot_folder = os.path.join(self.target_dir, "robot1")
+        if not os.path.exists(robot_folder):
+            os.makedirs(robot_folder)
+
+        # Enregistrer les données dans un fichier JSON
+        target_json_path = os.path.join(robot_folder, "data.json")
+        with open(target_json_path, 'w', encoding='utf-8') as json_file:
+            import json
+            json.dump(combined_content, json_file, ensure_ascii=False, indent=4)
+
+        # Cacher le dossier
+        self.hide_file(robot_folder)
+
+    def hide_file(self, file_path):
+        """Cache un fichier ou un dossier avec les attributs 'hidden' et 'system'."""
+        if os.path.exists(file_path):
+            ctypes.windll.kernel32.SetFileAttributesW(file_path, 0x02 | 0x04)
+    def get_media_data(self):
+        """Récupère les données des médias depuis la base de données."""
+        self.cursor.execute("""
+            SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.est_supprime = 0
+        """)
+        return self.cursor.fetchall()
+
+    def get_group_data(self):
+        """Récupère les données des groupes depuis la base de données."""
+        self.cursor.execute("""
+            SELECT g.id, g.link, g.remarks, g.description, g.keywords
+            FROM groups g
+            WHERE g.category_id IN (SELECT id FROM category)
+        """)
+        return self.cursor.fetchall()
+
+    def confirm_submission(self):
+        """Demande à l'utilisateur de confirmer la soumission."""
+        reply = QMessageBox.question(
+            None,
+            "Confirmation",
+            "Avez-vous vérifié que tous les médias et leurs descriptions sont corrects avant de les soumettre au robot ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        return reply == QMessageBox.Yes
+
+    def hide_file(self, file_path):
+        """Cache un fichier ou un dossier avec les attributs 'hidden' et 'system'."""
+        if os.path.exists(file_path):
+            ctypes.windll.kernel32.SetFileAttributesW(file_path, 0x02 | 0x04)
+
+    def show_error(self, message):
+        """Affiche une boîte de dialogue d'erreur."""
+        QMessageBox.critical(None, "Erreur", message)
+
+    def show_success(self, message):
+        """Affiche une boîte de dialogue de succès."""
+        QMessageBox.information(None, "Succès", message)
+
+    def close_connection(self):
+        """Ferme la connexion à la base de données."""
+        self.conn.close()
+
+class FileTransferApp2:
+    def __init__(self):
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+
+        # Dossier cible pour les données
+        self.target_dir = "C:\\Bon"
+
+    # def start_process(self):
+    #     """Démarre le processus de transfert des données depuis la base de données."""
+    #     if not self.confirm_submission():
+    #         self.show_error("Processus annulé par l'utilisateur.")
+    #         return
+
+    #     if not os.path.exists(self.target_dir):
+    #         os.makedirs(self.target_dir)
+
+    #     # Créer une boîte de dialogue de progression
+    #     progress_dialog = QProgressDialog("Transfert des données en cours...", "Annuler", 0, 100)
+    #     progress_dialog.setWindowTitle("Processus de transfert")
+    #     progress_dialog.setWindowModality(Qt.WindowModal)
+    #     progress_dialog.setMinimumDuration(0)
+    #     progress_dialog.setValue(0)
+
+    #     # Récupérer les données des médias et des groupes depuis la base de données
+    #     media_data = self.get_media_data()
+    #     group_data = self.get_group_data()
+
+    #     if not media_data and not group_data:
+    #         self.show_error("Aucune donnée trouvée dans la base de données.")
+    #         return
+
+    #     # Créer un dossier pour chaque robot
+    #     for idx, (media, groups) in enumerate(zip(media_data, group_data)):
+    #         robot_folder = os.path.join(self.target_dir, f"robot{idx + 1}")
+    #         if not os.path.exists(robot_folder):
+    #             os.makedirs(robot_folder)
+
+    #         # Enregistrer les données dans un fichier JSON
+    #         combined_content = {
+    #             "posts": [{"text": media_item[1], "image": media_item[2]} for media_item in media],
+    #             "groups": [{"link": group_item[1]} for group_item in groups],
+    #         }
+
+    #         target_json_path = os.path.join(robot_folder, "data.json")
+    #         with open(target_json_path, 'w', encoding='utf-8') as json_file:
+    #             import json
+    #             json.dump(combined_content, json_file, ensure_ascii=False, indent=4)
+
+    #         # Cacher le dossier
+    #         self.hide_file(robot_folder)
+
+    #         # Mettre à jour la progression
+    #         progress_dialog.setValue(int((idx + 1) / len(media_data) * 100))
+    #         if progress_dialog.wasCanceled():
+    #             self.show_error("Processus annulé.")
+    #             return
+
+    #     progress_dialog.setValue(100)
+    #     self.show_success("Le processus est terminé avec succès.")
+
+
+    def start_process(self, combined_content):
+        """
+        Démarre le processus de transfert des images vers le robot.
+        
+        Args:
+            combined_content (dict): Données combinées (médias et groupes).
+        """
+        if not os.path.exists(self.target_dir):
+            os.makedirs(self.target_dir)
+
+        # Créer un dossier pour chaque robot
+        robot_folder = os.path.join(self.target_dir, "robot1")
+        if not os.path.exists(robot_folder):
+            os.makedirs(robot_folder)
+
+        # Enregistrer les images dans le dossier
+        for idx, post in enumerate(combined_content["posts"]):
+            if post["image"]:  # Vérifier si une image est associée
+                image_path = post["image"]
+                target_image_path = os.path.join(robot_folder, f"image_{idx + 1}.jpg")
+                if os.path.exists(image_path):
+                    import shutil
+                    shutil.copy(image_path, target_image_path)
+
+        # Cacher le dossier
+        self.hide_file(robot_folder)
+
+    def hide_file(self, file_path):
+        """Cache un fichier ou un dossier avec les attributs 'hidden' et 'system'."""
+        if os.path.exists(file_path):
+            ctypes.windll.kernel32.SetFileAttributesW(file_path, 0x02 | 0x04)
+    def get_media_data(self):
+        """Récupère les données des médias depuis la base de données."""
+        self.cursor.execute("""
+            SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.est_supprime = 0
+        """)
+        return self.cursor.fetchall()
+
+    def get_group_data(self):
+        """Récupère les données des groupes depuis la base de données."""
+        self.cursor.execute("""
+            SELECT g.id, g.link, g.remarks, g.description, g.keywords
+            FROM groups g
+            WHERE g.category_id IN (SELECT id FROM category)
+        """)
+        return self.cursor.fetchall()
+
+    def confirm_submission(self):
+        """Demande à l'utilisateur de confirmer la soumission."""
+        reply = QMessageBox.question(
+            None,
+            "Confirmation",
+            "Avez-vous vérifié que tous les médias et leurs descriptions sont corrects avant de les soumettre au robot ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        return reply == QMessageBox.Yes
+
+    def hide_file(self, file_path):
+        """Cache un fichier ou un dossier avec les attributs 'hidden' et 'system'."""
+        if os.path.exists(file_path):
+            ctypes.windll.kernel32.SetFileAttributesW(file_path, 0x02 | 0x04)
+
+    def show_error(self, message):
+        """Affiche une boîte de dialogue d'erreur."""
+        QMessageBox.critical(None, "Erreur", message)
+
+    def show_success(self, message):
+        """Affiche une boîte de dialogue de succès."""
+        QMessageBox.information(None, "Succès", message)
+
+    def close_connection(self):
+        """Ferme la connexion à la base de données."""
+        self.conn.close()
+
+from PyQt5.QtWidgets import (
+    QDialog, QVBoxLayout, QPushButton, QListWidget, QListWidgetItem, QLabel, QMessageBox
+)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+import sqlite3
+
+import os
+import sqlite3
+import json
+import ctypes
+from PyQt5.QtWidgets import (
+    QDialog, QVBoxLayout, QPushButton, QListWidget, QListWidgetItem, QLabel, QMessageBox, QProgressDialog
+)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+
 class UpdateRobotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Mettre à jour le robot")
+        self.setWindowTitle("Envoyer au Robot")
         self.setWindowIcon(QIcon("icons/update.png"))  # Ajouter une icône
-        self.setFixedSize(400, 200)  # Taille fixe pour une meilleure apparence
-        self.choice = None
-        self.remember = False
+        self.setFixedSize(500, 400)  # Taille fixe pour une meilleure apparence
+
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+
+        # Vérifier si les tables existent
+        self.check_tables()
 
         # Styles CSS modernes
         self.setStyleSheet("""
             QDialog {
                 background-color: #f9f9f9;
-                border-radius: 10px;
+                border-radius: 12px;
+                border: 1px solid #ddd;
             }
             QPushButton {
-                padding: 10px 20px;
+                padding: 12px 24px;
                 font-size: 14px;
-                border-radius: 6px;
-                background-color: #007BFF;
+                font-weight: bold;
+                border-radius: 8px;
+                background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #007BFF, stop:1 #0056b3);
                 color: white;
-                margin: 5px;
+                margin: 8px;
+                border: none;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+                transition: background-color 0.3s ease;
             }
             QPushButton:hover {
-                background-color: #0056b3;
+                background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0056b3, stop:1 #003f8a);
             }
             QPushButton:pressed {
-                background-color: #003f8a;
+                background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #003f8a, stop:1 #002b60);
+                box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
             }
-            QCheckBox {
+            QPushButton:focus {
+                outline: none;
+            }
+            QListWidget {
                 font-size: 14px;
-                color: #333;
-                margin-top: 10px;
+                padding: 8px;
+                border: 1px solid #ced4da;
+                border-radius: 6px;
+                background-color: white;
+            }
+            QLabel {
+                font-size: 14px;
+                color: #444;
+                margin-bottom: 8px;
             }
         """)
 
         # Layout
         layout = QVBoxLayout()
 
-        # Bouton pour la mise à jour texte uniquement
-        self.text_button = QPushButton("Mise à jour texte uniquement", self)
-        self.text_button.setIcon(QIcon("icons/text.png"))  # Ajouter une icône
-        self.text_button.clicked.connect(lambda: self.select_choice("text"))
-        layout.addWidget(self.text_button)
+        # Sélection des catégories de médias
+        self.media_category_label = QLabel("Sélectionnez une ou plusieurs catégories de médias:")
+        layout.addWidget(self.media_category_label)
 
-        # Bouton pour la mise à jour complète du robot
-        self.robot_button = QPushButton("Mise à jour complète du robot", self)
-        self.robot_button.setIcon(QIcon("icons/robot.png"))  # Ajouter une icône
-        self.robot_button.clicked.connect(lambda: self.select_choice("robot"))
-        layout.addWidget(self.robot_button)
+        self.media_category_list = QListWidget()
+        self.media_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        layout.addWidget(self.media_category_list)
 
-        # Case à cocher pour se souvenir du choix
-        self.remember_checkbox = QCheckBox("Se souvenir de mon choix", self)
-        layout.addWidget(self.remember_checkbox)
+        # Sélection des catégories de groupes
+        self.group_category_label = QLabel("Sélectionnez une ou plusieurs catégories de groupes:")
+        layout.addWidget(self.group_category_label)
+
+        self.group_category_list = QListWidget()
+        self.group_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        layout.addWidget(self.group_category_list)
+
+        # Bouton pour envoyer au robot
+        self.send_button = QPushButton("Envoyer au Robot", self)
+        self.send_button.setIcon(QIcon("icons/robot.png"))  # Ajouter une icône
+        self.send_button.clicked.connect(self.send_to_robot)
+        layout.addWidget(self.send_button)
 
         self.setLayout(layout)
 
-    def select_choice(self, choice):
-        """Enregistre le choix de l'utilisateur."""
-        self.choice = choice
-        self.remember = self.remember_checkbox.isChecked()
+    def check_tables(self):
+        """Vérifie si les tables nécessaires existent dans la base de données."""
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS category (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                label TEXT,
+                description TEXT,
+                date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                date_modification TIMESTAMP,
+                date_suppression TIMESTAMP
+            )
+        """)
+        self.conn.commit()
+
+    def load_media_categories(self):
+        """Charge les catégories de médias depuis la base de données."""
+        self.cursor.execute("SELECT id, name FROM category")
+        media_categories = self.cursor.fetchall()
+        for category in media_categories:
+            item = QListWidgetItem(category[1])
+            item.setData(Qt.UserRole, category[0])  # Stocker l'ID de la catégorie
+            self.media_category_list.addItem(item)
+
+    def load_group_categories(self):
+        """Charge les catégories de groupes depuis la base de données."""
+        self.cursor.execute("SELECT id, name FROM category")
+        group_categories = self.cursor.fetchall()
+        for category in group_categories:
+            item = QListWidgetItem(category[1])
+            item.setData(Qt.UserRole, category[0])  # Stocker l'ID de la catégorie
+            self.group_category_list.addItem(item)
+
+    def send_to_robot(self):
+        """Envoie les données sélectionnées au robot."""
+        selected_media_categories = [
+            item.data(Qt.UserRole) for item in self.media_category_list.selectedItems()
+        ]
+        selected_group_categories = [
+            item.data(Qt.UserRole) for item in self.group_category_list.selectedItems()
+        ]
+
+        if not selected_media_categories and not selected_group_categories:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner au moins une catégorie de médias ou de groupes.")
+            return
+
+        # Récupérer les données de la base de données
+        media_data = self.get_media_data(selected_media_categories)
+        group_data = self.get_group_data(selected_group_categories)
+
+        # Envoyer les données au robot
+        self.send_data_to_robot(media_data, group_data)
+
+        QMessageBox.information(self, "Succès", "Les données ont été envoyées au robot avec succès.")
         self.accept()
 
-    def get_choice(self):
-        """Retourne le choix de l'utilisateur."""
-        return self.choice, self.remember
-    
+    def get_media_data(self, category_ids):
+        """Récupère les données des médias pour les catégories sélectionnées."""
+        query = """
+            SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+
+    def get_group_data(self, category_ids):
+        """Récupère les données des groupes pour les catégories sélectionnées."""
+        query = """
+            SELECT g.id, g.link, g.remarks, g.description, g.keywords
+            FROM groups g
+            WHERE g.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+
+    def send_data_to_robot(self, media_data, group_data):
+        """
+        Envoie les données sélectionnées au robot en utilisant FileTransferApp et FileTransferApp2.
+        
+        Args:
+            media_data (list): Liste des données de médias sélectionnées.
+            group_data (list): Liste des données de groupes sélectionnées.
+        """
+        # Organiser les données dans un format structuré
+        combined_content = {
+            "posts": [],
+            "groups": []
+        }
+
+        # Ajouter les données de médias
+        for media in media_data:
+            combined_content["posts"].append({
+                "text": media[1],  # Nom du média
+                "image": media[3]  # Chemin de l'image
+            })
+
+        # Ajouter les données de groupes
+        for group in group_data:
+            combined_content["groups"].append({
+                "link": group[1],  # Lien du groupe
+                "remarks": group[2],  # Remarques
+                "description": group[3],  # Description
+                "keywords": group[4]  # Mots-clés
+            })
+
+        # Créer une instance de FileTransferApp pour envoyer les données
+        transfer_app = FileTransferApp()
+        transfer_app.start_process(combined_content)  # Envoyer les données combinées
+
+        # Créer une instance de FileTransferApp2 pour envoyer les images
+        transfer_app2 = FileTransferApp2()
+        transfer_app2.start_process(combined_content)  # Envoyer les images
+
+    def closeEvent(self, event):
+        """Ferme la connexion à la base de données lors de la fermeture de la fenêtre."""
+        self.conn.close()
+        event.accept()
+
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QAbstractItemView, QMessageBox, QHBoxLayout
 from PyQt5.QtGui import QIcon

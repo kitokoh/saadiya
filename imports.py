@@ -44,7 +44,7 @@ user_data_dir = get_user_data_dir()
 #j utilise ce ligne de code dans mon application  pyqt pour le .exe propose moi le code qui 
 #permet de generer aussi le .dmg et met des condition de maniere a ceque si nous somme face a un os 
 #alors ca utiliste tel lien et si on est en face d un .exe ca utilise ca 
-DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups22.db')
+DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups32.db')
 
 
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")

@@ -446,6 +446,24 @@ class CategoryManagementDialog(QDialog):
 
             # Colonne Actions
             action_button_layout = QHBoxLayout()
+            action_button_layout.setStyleSheet("""
+            QPushButton {
+                padding: 10px 18px;
+                font-size: 14px;
+                font-weight: bold;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+            QPushButton:pressed {
+                background-color: #003d80;
+            }
+        """)
+        
             edit_button = QPushButton("Edit", self)
             edit_button.setIcon(QIcon("icons/edit.png"))  # Ajouter une icône
             edit_button.setStyleSheet("padding: 5px; font-size: 12px; background-color: #FFC107; color: black;")
@@ -936,6 +954,24 @@ def init_db():
             date_suppression TIMESTAMP,
             FOREIGN KEY(reseau_social_id) REFERENCES reseaux_sociaux(id),
             FOREIGN KEY(robot_id) REFERENCES robots(id)
+        )
+    ''')
+
+
+    # Table pour les archives
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS archive (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            robot_id INTEGER,
+            reseau_social_id INTEGER,
+            filename TEXT NOT NULL,
+            content TEXT NOT NULL,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            FOREIGN KEY(robot_id) REFERENCES robots(id),
+            FOREIGN KEY(reseau_social_id) REFERENCES reseaux_sociaux(id)
         )
     ''')
 
@@ -1828,6 +1864,7 @@ class GroupTable(QWidget):
                 background-color: #003d80;
             }
         """)
+        
         top_layout.addWidget(self.action_button)
 
         # Settings button with dropdown menu
@@ -1875,25 +1912,28 @@ class GroupTable(QWidget):
         # #top_layout.addWidget(archive_management_button)
 
       
-        self.robot_management_action = QAction("🤖 " + self.tr("Robot Management"), self)
+        self.robot_management_action = QAction("🔄 " + self.tr("Robot Management"), self)
+        self.update_active_robot = QAction("🤖 " + self.tr("Activate Robot "), self)
 
         # Connect actions
         self.category_management_action.triggered.connect(self.open_category_management_dialog)
         self.social_network_management_action.triggered.connect(self.open_social_network_management_dialog)
         self.media_type_management_action.triggered.connect(self.open_media_type_management_dialog)
         self.robot_management_action.triggered.connect(self.open_robot_management_dialog)
+        self.update_active_robot.triggered.connect(self.open_update_robot_dialog)
 
         # Add actions to the Settings menu
         self.settings_menu.addAction(self.category_management_action)
         self.settings_menu.addAction(self.social_network_management_action)
         self.settings_menu.addAction(self.media_type_management_action)
         self.settings_menu.addAction(self.robot_management_action)
+        self.settings_menu.addAction(self.update_active_robot)
 
         self.settings_button.setMenu(self.settings_menu)
         top_layout.addWidget(self.settings_button)
 
         # Update Robot button
-        self.update_robot_button = QPushButton("🔄 " + self.tr("Update Robot"), self)
+        self.update_robot_button = QPushButton("🤖 " + self.tr("Update Robot"), self)
         self.update_robot_button.clicked.connect(self.open_update_robot_dialog)
         self.update_robot_button.setStyleSheet("""
             QPushButton {
@@ -2032,7 +2072,7 @@ class GroupTable(QWidget):
      pass
     def open_social_network_management_dialog(self):
         pass
-    def table_styles(self):
+    def table_styles2(self):
         """Returns CSS styles for the table."""
         return """
             QTableWidget {
@@ -2100,7 +2140,7 @@ class GroupTable(QWidget):
         button.clicked.connect(callback)
         return button
 
-    def table_styles1(self):
+    def table_styles(self):
         return """
             QTableWidget {
                 font-size: 14px;
@@ -2146,7 +2186,24 @@ class GroupTable(QWidget):
             # Bouton "Actions" avec menu déroulant
             action_button = QPushButton('Actions', self)
             action_menu = QMenu(self)
-
+            action_button.setStyleSheet("""
+                QPushButton {
+                    padding: 10px 18px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                }
+                QPushButton:hover {
+                    background-color: #0056b3;
+                }
+                QPushButton:pressed {
+                    background-color: #003d80;
+                }
+            """)
+            
             show_action = QAction('Show', self)
             edit_action = QAction('Edit', self)
             delete_action = QAction('Delete', self)
