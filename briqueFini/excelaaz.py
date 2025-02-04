@@ -3,15 +3,15 @@ import sqlite3
 import re
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QPushButton, QVBoxLayout, QWidget, QFileDialog,
-    QDialog, QFormLayout, QLineEdit, QMessageBox, QHBoxLayout, QStatusBar, QMenu, QAction, QToolBar, QStyleFactory
+    QDialog, QFormLayout, QLineEdit, QMessageBox, QHBoxLayout, QStatusBar, QMenu, QAction, QToolBar, QStyleFactory,
+    QInputDialog, QHeaderView
 )
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtGui import QColor, QPalette, QIcon
 import pandas as pd
 
-
 # Styles CSS pour l'application
-STYLESHEET = """
+STYLESHEET_DARK = """
     QMainWindow {
         background-color: #2E3440;
     }
@@ -62,6 +62,57 @@ STYLESHEET = """
     }
 """
 
+STYLESHEET_LIGHT = """
+    QMainWindow {
+        background-color: #FFFFFF;
+    }
+    QTableWidget {
+        background-color: #F0F0F0;
+        color: #000000;
+        gridline-color: #C0C0C0;
+        font-size: 14px;
+    }
+    QHeaderView::section {
+        background-color: #E0E0E0;
+        color: #000000;
+        padding: 5px;
+        font-size: 14px;
+    }
+    QPushButton {
+        background-color: #0078D7;
+        color: #FFFFFF;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    QPushButton:hover {
+        background-color: #005FA3;
+    }
+    QPushButton:pressed {
+        background-color: #004578;
+    }
+    QStatusBar {
+        background-color: #E0E0E0;
+        color: #000000;
+        font-size: 14px;
+    }
+    QMenu {
+        background-color: #F0F0F0;
+        color: #000000;
+        border: 1px solid #C0C0C0;
+    }
+    QMenu::item:selected {
+        background-color: #0078D7;
+        color: #FFFFFF;
+    }
+    QLineEdit {
+        background-color: #FFFFFF;
+        color: #000000;
+        border: 1px solid #C0C0C0;
+        padding: 5px;
+        border-radius: 5px;
+    }
+"""
 
 class ContactDialog(QDialog):
     """Fenêtre modale pour gérer les contacts."""
@@ -69,7 +120,6 @@ class ContactDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Gestion des contacts")
         self.setModal(True)
-        self.setStyleSheet(STYLESHEET)
         self.layout = QFormLayout(self)
 
         # Champs de saisie
@@ -115,7 +165,6 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Excel-like Table with SQLite")
         self.setGeometry(100, 100, 1200, 800)
-        self.setStyleSheet(STYLESHEET)
 
         # Thème sombre par défaut
         self.dark_theme = True
@@ -131,34 +180,40 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
 
         # Boutons de la barre d'outils
-        self.add_column_action = QAction("Ajouter une colonne", self)
+        self.add_column_action = QAction(QIcon.fromTheme("list-add"), "Ajouter une colonne", self)
         self.add_column_action.triggered.connect(self.add_column)
         self.toolbar.addAction(self.add_column_action)
 
-        self.remove_column_action = QAction("Supprimer une colonne", self)
+        self.remove_column_action = QAction(QIcon.fromTheme("list-remove"), "Supprimer une colonne", self)
         self.remove_column_action.triggered.connect(self.remove_column)
         self.toolbar.addAction(self.remove_column_action)
 
-        self.clear_data_action = QAction("Effacer toutes les données", self)
+        self.rename_column_action = QAction(QIcon.fromTheme("edit-rename"), "Renommer une colonne", self)
+        self.rename_column_action.triggered.connect(self.rename_column)
+        self.toolbar.addAction(self.rename_column_action)
+
+        self.clear_data_action = QAction(QIcon.fromTheme("edit-clear"), "Effacer toutes les données", self)
         self.clear_data_action.triggered.connect(self.clear_data)
         self.toolbar.addAction(self.clear_data_action)
 
-        self.import_action = QAction("Importer Excel", self)
+        self.import_action = QAction(QIcon.fromTheme("document-open"), "Importer Excel", self)
         self.import_action.triggered.connect(self.import_excel)
         self.toolbar.addAction(self.import_action)
 
-        self.export_action = QAction("Exporter vers Excel", self)
+        self.export_action = QAction(QIcon.fromTheme("document-save"), "Exporter vers Excel", self)
         self.export_action.triggered.connect(self.export_excel)
         self.toolbar.addAction(self.export_action)
 
-        self.toggle_theme_action = QAction("Basculer le thème", self)
+        self.toggle_theme_action = QAction(QIcon.fromTheme("color-management"), "Basculer le thème", self)
         self.toggle_theme_action.triggered.connect(self.toggle_theme)
         self.toolbar.addAction(self.toggle_theme_action)
 
         # Tableau pour afficher les données
         self.table = QTableWidget(self)
         self.table.setColumnCount(3)  # Colonnes initiales : A, B, C
-        self.update_headers()
+        self.table.setHorizontalHeaderLabels(["A", "B", "C"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.horizontalHeader().sectionDoubleClicked.connect(self.rename_column)
         self.layout.addWidget(self.table)
 
         # Barre de statut
@@ -215,7 +270,7 @@ class MainWindow(QMainWindow):
 
     def update_headers(self):
         """Met à jour les en-têtes de colonnes."""
-        headers = [chr(65 + i) for i in range(self.table.columnCount())]
+        headers = [self.table.horizontalHeaderItem(i).text() if self.table.horizontalHeaderItem(i) else chr(65 + i) for i in range(self.table.columnCount())]
         self.table.setHorizontalHeaderLabels(headers)
 
     def add_column(self):
@@ -237,6 +292,17 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage(f"Colonne {chr(64 + current_column_count)} supprimée.")
         else:
             self.status_bar.showMessage("Impossible de supprimer la dernière colonne.")
+
+    def rename_column(self):
+        """Renomme une colonne."""
+        column_index = self.table.currentColumn()
+        if column_index == -1:
+            column_index = self.table.columnCount() - 1
+
+        new_name, ok = QInputDialog.getText(self, "Renommer la colonne", "Nouveau nom de la colonne:", text=self.table.horizontalHeaderItem(column_index).text() if self.table.horizontalHeaderItem(column_index) else chr(65 + column_index))
+        if ok and new_name:
+            self.table.setHorizontalHeaderItem(column_index, QTableWidgetItem(new_name))
+            self.status_bar.showMessage(f"Colonne {chr(65 + column_index)} renommée en {new_name}.")
 
     def clear_data(self):
         """Efface toutes les données du tableau et de la base de données."""
@@ -279,7 +345,7 @@ class MainWindow(QMainWindow):
                     row.append(item.text() if item else "")
                 data.append(row)
 
-            df = pd.DataFrame(data, columns=[chr(65 + i) for i in range(self.table.columnCount())])
+            df = pd.DataFrame(data, columns=[self.table.horizontalHeaderItem(j).text() if self.table.horizontalHeaderItem(j) else chr(65 + j) for j in range(self.table.columnCount())])
             df.to_excel(file_name, index=False)
             self.status_bar.showMessage(f"Fichier Excel enregistré : {file_name}")
 
@@ -305,9 +371,9 @@ class MainWindow(QMainWindow):
     def apply_theme(self):
         """Applique le thème sélectionné."""
         if self.dark_theme:
-            self.setStyleSheet(STYLESHEET)
+            self.setStyleSheet(STYLESHEET_DARK)
         else:
-            self.setStyleSheet("")  # Réinitialise le style au thème par défaut de Qt
+            self.setStyleSheet(STYLESHEET_LIGHT)
 
     def closeEvent(self, event):
         """Sauvegarde les données avant de fermer l'application."""
@@ -323,7 +389,7 @@ class MainWindow(QMainWindow):
         for i in range(self.table.rowCount()):
             row_data = [self.table.item(i, j).text() if self.table.item(i, j) else '' for j in range(self.table.columnCount())]
             cursor.execute(
-                f"INSERT INTO main_data ({', '.join([chr(65 + j) for j in range(self.table.columnCount())])}) VALUES ({', '.join(['?'] * self.table.columnCount())})",
+                f"INSERT INTO main_data ({', '.join([self.table.horizontalHeaderItem(j).text() if self.table.horizontalHeaderItem(j) else chr(65 + j) for j in range(self.table.columnCount())])}) VALUES ({', '.join(['?'] * self.table.columnCount())})",
                 row_data
             )
 
@@ -332,7 +398,7 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())

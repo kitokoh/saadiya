@@ -1033,7 +1033,7 @@ class MediaTable(QWidget):
         """Filtre les médias affichés dans le tableau en fonction du texte de recherche."""
         search_text = self.search_field.text().lower()
         filtered_media = [media for media in self.media_list if search_text in media['nom'].lower() or search_text in media['description'].lower()]
-        self.populate_table(filtered_media)
+        self.populate_table()
 
     def prev_page(self):
         """Navigue vers la page précédente."""

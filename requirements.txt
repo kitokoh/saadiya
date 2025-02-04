@@ -32,3 +32,6 @@ psycopg2
 sip
 psycopg2-binary
 sqlalchemy
+
+
+spacy
