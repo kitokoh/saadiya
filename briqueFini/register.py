@@ -60,6 +60,68 @@ def init_db():
 # Initialiser la base de données au démarrage
 init_db()
 
+import hashlib
+import json
+import os
+import re
+import sqlite3
+from PyQt5.QtCore import Qt, QTranslator, QLocale, QTimer
+from PyQt5.QtGui import QFont, QPixmap, QIcon
+from PyQt5.QtWidgets import (
+    QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QMessageBox, QHBoxLayout, QComboBox, QCheckBox, QDialog, QProgressBar, QApplication
+)
+from mail.mail_in_to_in import Mailer1
+from mail.mail_in_to_out import Mailer2
+from translation import TranslatorManager
+
+# Chemin vers le répertoire de données utilisateur
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+db_path = os.path.join(user_data_dir, 'resources', 'data', 'users.db')
+
+# Créer le répertoire de données si nécessaire
+os.makedirs(os.path.dirname(db_path), exist_ok=True)
+
+# Connexion à la base de données SQLite
+def get_db_connection():
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# Initialisation de la base de données
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Table pour les utilisateurs
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            licence TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Table pour les réseaux sociaux
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reseaux_sociaux (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+# Initialiser la base de données au démarrage
+init_db()
+
 class RegisterModule(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -77,7 +139,7 @@ class RegisterModule(QDialog):
         # Mise en page principale
         self.setWindowTitle(self.tr("Créer un compte"))
         self.setWindowIcon(QIcon('resources/icons/878952-Hornet-Secure.ico'))
-        self.setFixedSize(700, 500)
+        self.setFixedSize(700, 600)  # Taille ajustée pour accueillir plus de contenu
         self.layout = QHBoxLayout(self)
         self.layout.setAlignment(Qt.AlignCenter)
 
@@ -99,27 +161,68 @@ class RegisterModule(QDialog):
         self.username_input = QLineEdit(self)
         self.username_input.setPlaceholderText(self.tr("Nom d'utilisateur"))
         self.username_input.setStyleSheet(self.input_style())
+        self.username_input.textChanged.connect(self.validate_username)
         form_layout.addWidget(self.username_input)
+
+        # Label d'erreur pour le nom d'utilisateur
+        self.username_error_label = QLabel("", self)
+        self.username_error_label.setStyleSheet("color: red; font-size: 12px;")
+        form_layout.addWidget(self.username_error_label)
 
         # Champ de saisie pour le mot de passe
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText(self.tr("Mot de passe"))
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.setStyleSheet(self.input_style())
+        self.password_input.textChanged.connect(self.validate_password)
         form_layout.addWidget(self.password_input)
+
+        # Bouton pour afficher/masquer le mot de passe
+        self.toggle_password_button = QPushButton("👁", self)
+        self.toggle_password_button.setStyleSheet("font-size: 14px; border: none; background: transparent;")
+        self.toggle_password_button.setFixedSize(30, 30)
+        self.toggle_password_button.clicked.connect(self.toggle_password_visibility)
+
+        # Layout pour le champ de mot de passe et le bouton
+        password_layout = QHBoxLayout()
+        password_layout.addWidget(self.password_input)
+        password_layout.addWidget(self.toggle_password_button)
+        form_layout.addLayout(password_layout)
+
+        # Label d'erreur pour le mot de passe
+        self.password_error_label = QLabel("", self)
+        self.password_error_label.setStyleSheet("color: red; font-size: 12px;")
+        form_layout.addWidget(self.password_error_label)
+
+        # Indicateur de force du mot de passe
+        self.password_strength_label = QLabel("", self)
+        self.password_strength_label.setStyleSheet("font-size: 12px;")
+        form_layout.addWidget(self.password_strength_label)
 
         # Champ de confirmation du mot de passe
         self.confirm_password_input = QLineEdit(self)
         self.confirm_password_input.setPlaceholderText(self.tr("Confirmer le mot de passe"))
         self.confirm_password_input.setEchoMode(QLineEdit.Password)
         self.confirm_password_input.setStyleSheet(self.input_style())
+        self.confirm_password_input.textChanged.connect(self.validate_confirm_password)
         form_layout.addWidget(self.confirm_password_input)
+
+        # Label d'erreur pour la confirmation du mot de passe
+        self.confirm_password_error_label = QLabel("", self)
+        self.confirm_password_error_label.setStyleSheet("color: red; font-size: 12px;")
+        form_layout.addWidget(self.confirm_password_error_label)
 
         # Champ de saisie pour l'e-mail
         self.email_input = QLineEdit(self)
         self.email_input.setPlaceholderText(self.tr("Adresse e-mail"))
         self.email_input.setStyleSheet(self.input_style())
+        self.email_input.textChanged.connect(self.validate_email)
         form_layout.addWidget(self.email_input)
+
+        # Label d'erreur pour l'e-mail
+        self.email_error_label = QLabel("", self)
+        self.email_error_label.setStyleSheet("color: red; font-size: 12px;")
+        form_layout.addWidget(self.email_error_label)
 
         # Champ "Licence" avec une liste déroulante
         self.licence_input = QComboBox(self)
@@ -142,15 +245,89 @@ class RegisterModule(QDialog):
         for checkbox in self.social_media_checkboxes.values():
             form_layout.addWidget(checkbox)
 
+        # Case à cocher pour les conditions d'utilisation
+        self.terms_checkbox = QCheckBox(self.tr("I agree to the terms and conditions."), self)
+        form_layout.addWidget(self.terms_checkbox)
+
+        # Lien vers les conditions d'utilisation
+        self.terms_link = QLabel(self.tr('<a href="#">Read terms and conditions</a>'), self)
+        self.terms_link.setOpenExternalLinks(True)
+        self.terms_link.setStyleSheet("color: blue; text-decoration: underline; font-size: 12px;")
+        form_layout.addWidget(self.terms_link)
+
         # Bouton de création de compte
         self.signup_button = QPushButton(self.tr("Créer un compte"), self)
         self.signup_button.setStyleSheet(self.button_style())
         self.signup_button.clicked.connect(self.create_account)
         form_layout.addWidget(self.signup_button)
 
+        # Barre de progression pour le chargement
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setVisible(False)
+        form_layout.addWidget(self.progress_bar)
+
+        # Lien vers la page de connexion
+        self.login_link = QLabel(self.tr('<a href="#">Already have an account? Log in</a>'), self)
+        self.login_link.setOpenExternalLinks(False)
+        self.login_link.setStyleSheet("color: blue; text-decoration: underline; font-size: 12px;")
+        self.login_link.linkActivated.connect(self.open_login_page)
+        form_layout.addWidget(self.login_link)
+
         # Ajouter le layout du formulaire à la mise en page principale
         self.layout.addLayout(form_layout)
 
+    # ... (autres méthodes comme input_style, button_style, validate_email, hash_password, etc.)
+
+    def toggle_password_visibility(self):
+        if self.password_input.echoMode() == QLineEdit.Password:
+            self.password_input.setEchoMode(QLineEdit.Normal)
+            self.toggle_password_button.setText("👁")
+        else:
+            self.password_input.setEchoMode(QLineEdit.Password)
+            self.toggle_password_button.setText("👁")
+
+    def update_password_strength(self):
+        password = self.password_input.text().strip()
+        strength = self.calculate_password_strength(password)
+        self.password_strength_label.setText(f"Password Strength: {strength}")
+        self.password_strength_label.setStyleSheet(f"color: {self.get_strength_color(strength)}; font-size: 12px;")
+
+    def calculate_password_strength(self, password):
+        if len(password) < 6:
+            return "Weak"
+        elif len(password) < 10:
+            return "Medium"
+        else:
+            return "Strong"
+
+    def get_strength_color(self, strength):
+        if strength == "Weak":
+            return "red"
+        elif strength == "Medium":
+            return "orange"
+        else:
+            return "green"
+
+    def open_login_page(self):
+        self.close()  # Fermer la fenêtre d'inscription
+        # Ouvrir la fenêtre de connexion (à implémenter)
+
+    def show_toast(self, message, color="green"):
+        toast = QLabel(message, self)
+        toast.setStyleSheet(f"background-color: {color}; color: white; padding: 10px; border-radius: 5px;")
+        toast.setAlignment(Qt.AlignCenter)
+        toast.setGeometry(50, 50, 200, 50)
+        toast.show()
+
+        # Fermer la notification après 3 secondes
+        QTimer.singleShot(3000, toast.hide)
+
+    # ... (autres méthodes comme create_account, clear_fields, etc.)
+
+
+
+
+    
     def input_style(self):
         return """
             QLineEdit, QComboBox {
@@ -309,5 +486,3 @@ class RegisterModule(QDialog):
 
 
     
-
-#  travaiil la page de register en ajoutant le max des truc utiles 
