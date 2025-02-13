@@ -1,1 +1,2 @@
-ici jajoutelesapplicationderiveeayant lamemestructiure uel appprincipale comme wamuhassebe et consort  
+ici jajoutelesapplicationderiveeayant 
+lamemestructiure uel appprincipale comme wamuhassebe et consort  
