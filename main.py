@@ -861,8 +861,8 @@ class Browser(QMainWindow):
 
 
                                      
-    
-                                        
+        
+                                            
     def create_side_menu(self):
         """
         Create a side menu with control buttons at the top,
@@ -873,30 +873,31 @@ class Browser(QMainWindow):
         self.side_menu.setFixedWidth(60)  # Default, reduced menu width
         self.side_menu.setStyleSheet("""
             QFrame {
-                background-color: #2F343F;  /* Background similar to ChatGPT's menu */
-                border-right: 1px solid #3C4048;
+                background-color: #1E1E1E;  /* Dark background */
+                border-right: 1px solid #333333;
             }
         """)
 
         # Main layout
         self.side_menu_layout = QVBoxLayout(self.side_menu)
         self.side_menu_layout.setContentsMargins(0, 0, 0, 0)
-        self.side_menu_layout.setSpacing(0)
+        self.side_menu_layout.setSpacing(10)
 
         # --- Top row: Control buttons ---
         self.control_buttons_layout = QHBoxLayout()
-        self.control_buttons_layout.setContentsMargins(0, 0, 0, 0)
-        self.control_buttons_layout.setSpacing(3)  # Reduced spacing between buttons
+        self.control_buttons_layout.setContentsMargins(5, 5, 5, 5)
+        self.control_buttons_layout.setSpacing(5)
 
         # Minimize button
-        self.minimize_button = QPushButton("-")
-        self.minimize_button.setFixedSize(20, 20)
+        self.minimize_button = QPushButton("−")
+        self.minimize_button.setFixedSize(24, 24)
         self.minimize_button.setStyleSheet("""
             QPushButton {
                 background-color: #3A3F4B;
                 color: #FFFFFF;
                 border: none;
-                font-size: 14px;
+                font-size: 16px;
+                border-radius: 3px;
             }
             QPushButton:hover {
                 background-color: #4A4F5C;
@@ -907,13 +908,14 @@ class Browser(QMainWindow):
 
         # Maximize button
         self.maximize_button = QPushButton("□")
-        self.maximize_button.setFixedSize(20, 20)
+        self.maximize_button.setFixedSize(24, 24)
         self.maximize_button.setStyleSheet("""
             QPushButton {
                 background-color: #3A3F4B;
                 color: #FFFFFF;
                 border: none;
-                font-size: 14px;
+                font-size: 16px;
+                border-radius: 3px;
             }
             QPushButton:hover {
                 background-color: #4A4F5C;
@@ -923,14 +925,15 @@ class Browser(QMainWindow):
         self.control_buttons_layout.addWidget(self.maximize_button)
 
         # Close button
-        self.close_button = QPushButton("X")
-        self.close_button.setFixedSize(20, 20)
+        self.close_button = QPushButton("×")
+        self.close_button.setFixedSize(24, 24)
         self.close_button.setStyleSheet("""
             QPushButton {
                 background-color: #FF5F57;
                 color: #FFFFFF;
                 border: none;
-                font-size: 14px;
+                font-size: 16px;
+                border-radius: 3px;
             }
             QPushButton:hover {
                 background-color: #FF4343;
@@ -943,15 +946,16 @@ class Browser(QMainWindow):
         self.side_menu_layout.addLayout(self.control_buttons_layout)
 
         # --- Toggle button ---
-        self.toggle_button = QPushButton("⇔")
-        self.toggle_button.setFixedHeight(50)
+        self.toggle_button = QPushButton("⇄")
+        self.toggle_button.setFixedHeight(40)
         self.toggle_button.setStyleSheet("""
             QPushButton {
                 background-color: #3A3F4B;
                 color: #FFFFFF;
                 border: none;
-                font-size: 16px;
+                font-size: 18px;
                 padding: 0;
+                border-radius: 5px;
             }
             QPushButton:hover {
                 background-color: #4A4F5C;
@@ -960,54 +964,55 @@ class Browser(QMainWindow):
         self.toggle_button.clicked.connect(self.toggle_side_menu)
         self.side_menu_layout.addWidget(self.toggle_button)
 
-# --- List of main menu items ---
+        # --- List of main menu items with tooltips ---
         menu_items = [
             # Home menu
-            ("🏠", self.tr("Home"), self.open_accueil_window, []),
+            ("🏠", self.tr("Home"), self.open_accueil_window, self.tr("Go to the Home page"), []),
 
             # Remote control and scheduling
-            ("📡", self.tr("Remote Control"), self.open_telecommande_window, []),
-            ("📅", self.tr("Schedule"), self.open_sheduling_window, []),  # Changed icon to 📅 for "Schedule"
+            ("📡", self.tr("Remote Control"), self.open_telecommande_window, self.tr("Control remotely"), []),
+            ("📅", self.tr("Schedule"), self.open_sheduling_window, self.tr("Schedule tasks"), []),
 
             # Settings menu with submenus
-            ("⚙️", self.tr("Settings"), None, [
-                ("❌", self.tr("Uninstall"), self.open_certif_window),
-                ("🔄", self.tr("Update"), self.open_update_window),
-                ("📊", self.tr("Statistics"), self.open_statistics_window),
-                ("📁", self.tr("Instances"), self.open_instance),
-                ("🛠️", self.tr("Management"), self.open_settings_window),
+            ("⚙️", self.tr("Tools"), None, self.tr("Access settings"), [
+                ("❌", self.tr("Uninstall"), self.open_certif_window, self.tr("Uninstall the application")),
+                ("🔄", self.tr("Update"), self.open_update_window, self.tr("Update the application")),
+                ("📊", self.tr("Statistics"), self.open_statistics_window, self.tr("View statistics")),
+                ("📁", self.tr("Instances"), self.open_instance, self.tr("Manage instances")),
+                ("🛠️", self.tr("Management"), self.open_settings_window, self.tr("Manage settings")),
+                ("🔗", self.tr("Links"), self.open_settings_window, self.tr("Manage useful links")),
+                ("📤", self.tr("Export Data"), self.open_settings_window, self.tr("Export data")),
+                ("📥", self.tr("Import Data"), self.open_settings_window, self.tr("Import data")),
             ]),
 
             # Language selection menu
-            ("🌍", self.tr("Language"), None, [
-                ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr")),
-                ("🇬🇧", self.tr("English"), lambda: self.switch_language("en")),
-                ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar")),
-                ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr")),
-                ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt")),
+            ("🌍", self.tr("Language"), None, self.tr("Select language"), [
+                ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr"), self.tr("Switch to French")),
+                ("🇬🇧", self.tr("English"), lambda: self.switch_language("en"), self.tr("Switch to English")),
+                ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Switch to Arabic")),
+                ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Switch to Turkish")),
+                ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Switch to Portuguese")),
             ]),
 
             # Support menu with submenus
-            ("❓", self.tr("Support"), None, [
-                ("ℹ️", self.tr("About"), self.open_about_window),
-                ("📜", self.tr("Certificates"), self.open_certif_window),
-                ("📞", self.tr("Contact"), self.open_contact_window),
+            ("❓", self.tr("Support"), None, self.tr("Get support"), [
+                ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About the application")),
+                ("📜", self.tr("Certificates"), self.open_certif_window, self.tr("View certificates")),
+                ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact support")),
             ]),
 
-
-            # Support menu with submenus
-            ("⬆️", self.tr("Upgrade"), None, [
-                ("⬆️", self.tr("Modules"), self.open_upgrade_window1),
-                ("⬆️", self.tr("Entreprise"), self.open_upgrade_window),
+            # Upgrade menu with submenus
+            ("⬆️", self.tr("Upgrade"), None, self.tr("Upgrade options"), [
+                ("🔧", self.tr("Modules"), self.open_upgrade_window1, self.tr("Upgrade modules")),
+                ("🏢", self.tr("Enterprise"), self.open_upgrade_window, self.tr("Upgrade to enterprise")),
             ]),
-            # Upgrade option
         ]
 
         self.menu_buttons = []  # Store the main buttons
         self.sub_menus = {}  # Associate each main button with its submenus
 
         # Generate main buttons and submenus
-        for icon, text, action, sub_items in menu_items:
+        for icon, text, action, tooltip, sub_items in menu_items:
             # Create the main button
             button = QPushButton(f"  {icon}   {text}")
             button.setFixedHeight(50)
@@ -1019,11 +1024,13 @@ class Browser(QMainWindow):
                     font-size: 16px;
                     text-align: left;
                     padding-left: 15px;
+                    border-radius: 5px;
                 }
                 QPushButton:hover {
                     background-color: #4A4F5C;
                 }
             """)
+            button.setToolTip(tooltip)  # Set tooltip for the main button
             if action:
                 button.clicked.connect(action)
             self.side_menu_layout.addWidget(button)
@@ -1032,7 +1039,7 @@ class Browser(QMainWindow):
             # Add submenus
             if sub_items:
                 sub_menu = []
-                for sub_icon, sub_text, sub_action in sub_items:
+                for sub_icon, sub_text, sub_action, sub_tooltip in sub_items:
                     sub_button = QPushButton(f"     {sub_icon}   {sub_text}")
                     sub_button.setFixedHeight(40)
                     sub_button.setStyleSheet("""
@@ -1043,11 +1050,13 @@ class Browser(QMainWindow):
                             font-size: 14px;
                             text-align: left;
                             padding-left: 25px;
+                            border-radius: 5px;
                         }
                         QPushButton:hover {
                             background-color: #4A4F5C;
                         }
                     """)
+                    sub_button.setToolTip(sub_tooltip)  # Set tooltip for the submenu button
                     sub_button.setVisible(False)  # Hide submenus by default
                     sub_button.clicked.connect(sub_action)
                     self.side_menu_layout.addWidget(sub_button)
@@ -1058,6 +1067,8 @@ class Browser(QMainWindow):
 
         # Add the panel to the main layout
         self.layout().addWidget(self.side_menu)
+
+
 
 
     def set_language_french(self):
