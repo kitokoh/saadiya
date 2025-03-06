@@ -1,0 +1,3 @@
+nom des dossier 
+
+cpu_monero
