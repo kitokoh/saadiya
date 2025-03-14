@@ -1,0 +1,1 @@
+ici je defini la stragegie qui permet dutiliser les api dans le .exe
