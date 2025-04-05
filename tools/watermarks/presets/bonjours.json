@@ -1,0 +1,17 @@
+{
+    "type": "Texte",
+    "text": "",
+    "image_path": "",
+    "position": "En bas \u00e0 droite",
+    "size": 30,
+    "color": "#ffffff",
+    "effect": "Aucun",
+    "effect_color": "#000000",
+    "opacity": 0.8,
+    "rotation": 0,
+    "font": "Arial",
+    "output_format": "Original",
+    "quality": 90,
+    "compression": 3,
+    "output_folder": "C:\\Users\\cheic/WatermarkedMedia"
+}
