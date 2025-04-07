@@ -145,22 +145,28 @@ class Browser(QMainWindow):
             Qt.white  # Text color
         )
 
-        
     def initUI(self):
         # Main container
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
         # Main layout with a splitter
-        self.main_layout = QVBoxLayout(central_widget)  # Switch to QVBoxLayout to include the top bar
+        self.main_layout = QVBoxLayout(central_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
-
-        # Create the top bar with buttons
-        # self.create_top_bar(self.main_layout)
 
         # Create the main container with a splitter
         self.central_container = QSplitter(Qt.Horizontal)
         self.central_container.setChildrenCollapsible(False)
+        self.central_container.setHandleWidth(10)
+        self.central_container.setStyleSheet("""
+            QSplitter::handle {
+                background: #333333;
+                width: 5px;
+            }
+            QSplitter::handle:hover {
+                background: #444444;
+            }
+        """)
 
         # Create the side menu
         self.create_side_menu()
@@ -184,17 +190,41 @@ class Browser(QMainWindow):
         # Add the search bar
         self.create_search_bar(self.browser_layout)
 
-        # Add the side menu and browser container to the splitter
+        # Add widgets to splitter with drag and drop support
         self.central_container.addWidget(self.side_menu)
         self.central_container.addWidget(self.browser_container)
 
-        # Adjust the initial size
+        # Make the splitter movable and remember position
         self.central_container.setSizes([200, 1000])
         self.main_layout.addWidget(self.central_container, stretch=1)
 
-        # Add a first tab with a web page
+        # Add drag handle for side menu
+        self.menu_drag_handle = QLabel("☰")
+        self.menu_drag_handle.setAlignment(Qt.AlignCenter)
+        self.menu_drag_handle.setStyleSheet("""
+            QLabel {
+                background-color: #3A3F4B;
+                color: white;
+                font-size: 16px;
+                qproperty-alignment: AlignCenter;
+            }
+            QLabel:hover {
+                background-color: #4A4F5C;
+                cursor: move;
+            }
+        """)
+        self.menu_drag_handle.mousePressEvent = self.start_menu_move
+        self.menu_drag_handle.mouseMoveEvent = self.move_menu
+        self.menu_drag_handle.mouseReleaseEvent = self.finish_menu_move
+
+        # Add drag handle to menu
+       # self.side_menu.layout().insertWidget(0, self.menu_drag_handle)
+
+        # Add first tab
         self.open_accueil_window()
-        #self.add_new_tab(QUrl("https://www.nova360.turknovatech.com"), "Nova360", "resources/icons/multi_fb.ico")
+
+
+
     def open_instance(self):
 
         tab_name = self.tr("Instances")  # Tab name (matches the label used in add_custom_tab)
@@ -987,6 +1017,11 @@ class Browser(QMainWindow):
         Create an ultra-modern side menu with accordion behavior
         """
         # Side panel with sleek styling
+    # Initialize user state attributes
+        self.is_user_logged_in = False  # Track login state
+        self.is_enterprise_mode = False  # Track mode
+
+        
         self.side_menu = QFrame()
         self.side_menu.setFixedWidth(200)
         self.side_menu.setStyleSheet("""
@@ -1101,11 +1136,11 @@ class Browser(QMainWindow):
                 ("🗂️", self.tr("Instances"), self.open_instance, self.tr("Manage instances"), []),
                 ("🖥️", self.tr("System"), self.open_settings_window, self.tr("System configuration"), []),
                 ("🌍", self.tr("Language"), None, self.tr("Language settings"), [
-                    ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr"), self.tr("French language"), []),
-                    ("🇬🇧", self.tr("English"), lambda: self.switch_language("en"), self.tr("English language"), []),
-                    ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
-                    ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
-                    ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
+                    ("🗼", self.tr("French"), lambda: self.switch_language("fr"), self.tr("French language"), []),
+                    ("🏰", self.tr("English"), lambda: self.switch_language("en"), self.tr("English language"), []),
+                    ("🕋", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
+                    ("🕌", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
+                    ("🏖️", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
                 ]),
             ]),
 
@@ -1249,45 +1284,49 @@ class Browser(QMainWindow):
         # Add to main layout
         self.layout().addWidget(self.side_menu)
         self.is_menu_expanded = False
+        self.is_user_menu_expanded = False
 
 
-        # --- User Section ---
+        # [...] (le reste de votre code create_side_menu existant jusqu'à la section utilisateur)
+
+        # User Section - Modified to handle dynamic states
         self.user_frame = QFrame()
         self.user_frame.setStyleSheet("""
             QFrame {
-                background-color: #252538;
-                border-top: 1px solid #38384D;
+                background-color: #252525;
+                border-top: 1px solid #333333;
             }
         """)
         self.user_layout = QVBoxLayout(self.user_frame)
-        self.user_layout.setContentsMargins(8, 8, 8, 8)
+        self.user_layout.setContentsMargins(5, 10, 5, 10)
         self.user_layout.setSpacing(8)
 
         # User profile button
-        self.user_button = QPushButton("👤  User Profile")
+        self.user_button = QPushButton("👤 Guest")
         self.user_button.setFixedHeight(40)
         self.user_button.setStyleSheet("""
             QPushButton {
-                background-color: #2A2A4A;
-                color: #FFFFFF;
+                background-color: #3A3F4B;
+                color: white;
                 border: none;
                 font-size: 14px;
                 text-align: left;
-                padding-left: 12px;
+                padding-left: 15px;
                 border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #3A3A5A;
+                background-color: #4A4F5C;
             }
         """)
         self.user_button.clicked.connect(self.toggle_user_menu)
-        
-        # User menu (hidden by default)
+        self.user_layout.addWidget(self.user_button)
+
+        # User menu container
         self.user_menu = QFrame()
         self.user_menu.setVisible(False)
         self.user_menu.setStyleSheet("""
             QFrame {
-                background-color: #252538;
+                background-color: #2A2A2A;
                 border-radius: 5px;
             }
         """)
@@ -1295,431 +1334,283 @@ class Browser(QMainWindow):
         self.user_menu_layout.setContentsMargins(0, 5, 0, 5)
         self.user_menu_layout.setSpacing(3)
 
-        user_menu_items = [
-            ("🔐", "Login", self.user_login),
-            ("🚪", "Logout", self.user_logout),
-            ("🏢", "Enterprise Mode", self.switch_to_enterprise),
-            ("👤", "Personal Mode", self.switch_to_personal),
-            ("⚙️", "Account Settings", self.open_account_settings),
-            ("🛒", "Vision Entreprise", self.open_subscription),
-            ("🛒", "Ges password", self.open_subscription),
-
-            ("👥", "Switch User", self.switch_user)
+        # Initialize user menu buttons
+        self.login_button = QPushButton("🔑 Login")
+        self.logout_button = QPushButton("🚪 Logout")
+        self.enterprise_button = QPushButton("🏢 Enterprise Mode")
+        self.personal_button = QPushButton("👤 Personal Mode")
+        
+        # Configure buttons
+        user_buttons = [
+            (self.login_button, self.user_login),
+            (self.logout_button, self.user_logout),
+            (self.enterprise_button, self.switch_to_enterprise),
+            (self.personal_button, self.switch_to_personal),
         ]
-
-        for icon, text, action in user_menu_items:
-            btn = QPushButton(f"    {icon}  {text}")
-            btn.setFixedHeight(32)
+        
+        for btn, action in user_buttons:
+            btn.setFixedHeight(36)
             btn.setStyleSheet("""
                 QPushButton {
-                    background-color: transparent;
-                    color: #C0C0FF;
+                    background-color: #3A3F4B;
+                    color: white;
                     border: none;
                     font-size: 13px;
                     text-align: left;
-                    padding-left: 12px;
-                    border-radius: 3px;
+                    padding-left: 20px;
+                    border-radius: 4px;
                 }
                 QPushButton:hover {
-                    background-color: #303048;
-                    color: #FFFFFF;
+                    background-color: #4A4F5C;
                 }
             """)
             btn.clicked.connect(action)
-            self.user_menu_layout.addWidget(btn)
+        
+        # Add other buttons
+        self.settings_button = QPushButton("⚙️ Settings")
+        self.switch_button = QPushButton("👥 Switch Account")
+        self.subscription_button = QPushButton("🛒 Subscription")
+        
+        for btn in [self.settings_button, self.switch_button, self.subscription_button]:
+            btn.setFixedHeight(36)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #3A3F4B;
+                    color: white;
+                    border: none;
+                    font-size: 13px;
+                    text-align: left;
+                    padding-left: 20px;
+                    border-radius: 4px;
+                }
+                QPushButton:hover {
+                    background-color: #4A4F5C;
+                }
+            """)
+        
+        self.settings_button.clicked.connect(self.open_user_settings)
+        self.switch_button.clicked.connect(self.switch_account)
+        self.subscription_button.clicked.connect(self.open_subscription)
 
-        self.user_layout.addWidget(self.user_button)
+        # Add buttons to layout
+        self.user_menu_layout.addWidget(self.login_button)
+        self.user_menu_layout.addWidget(self.logout_button)
+        self.user_menu_layout.addWidget(self.enterprise_button)
+        self.user_menu_layout.addWidget(self.personal_button)
+        self.user_menu_layout.addWidget(self.settings_button)
+        self.user_menu_layout.addWidget(self.switch_button)
+        self.user_menu_layout.addWidget(self.subscription_button)
+
         self.user_layout.addWidget(self.user_menu)
         self.side_menu_layout.addWidget(self.user_frame)
 
-        # Version label
-        version_label = QLabel("v3.1.2")
-        version_label.setStyleSheet("""
-            QLabel {
-                color: #606080;
-                font-size: 9px;
-                padding: 5px;
-                text-align: center;
-            }
-        """)
-        self.user_layout.addWidget(version_label)
+        # Update initial visibility
+        self.update_user_buttons()
 
-        # Add to main layout
-        self.layout().addWidget(self.side_menu)
-        self.is_menu_expanded = True
-        self.is_user_menu_expanded = False
-
-     
-    def create_side_menu1(self):
-        """
-        Create an ultra-modern side menu with user section and enhanced UX
-        """
-        # Side panel with sleek styling
-        self.side_menu = QFrame()
-        self.side_menu.setFixedWidth(200)
-        self.side_menu.setStyleSheet("""
-            QFrame {
-                background-color: #1A1A2E;
-                border-right: 1px solid #2E2E3E;
-            }
-        """)
-
-        # Main layout with perfect spacing
-        self.side_menu_layout = QVBoxLayout(self.side_menu)
-        self.side_menu_layout.setContentsMargins(0, 5, 0, 0)
-        self.side_menu_layout.setSpacing(6)
-
-        # --- Window Controls ---
-        self.control_buttons_layout = QHBoxLayout()
-        self.control_buttons_layout.setContentsMargins(8, 8, 8, 15)
-        self.control_buttons_layout.setSpacing(6)
-
-        # Modern control buttons
-        self.close_button = QPushButton("✕")
-        self.close_button.setFixedSize(20, 20)
-        self.close_button.setStyleSheet("""
-            QPushButton {
-                background-color: #FF5C5C;
-                color: white;
-                border-radius: 10px;
-                font-size: 10px;
-            }
-            QPushButton:hover {
-                background-color: #FF7878;
-            }
-        """)
-        self.close_button.clicked.connect(self.close_window)
-
-        self.minimize_button = QPushButton("—")
-        self.minimize_button.setFixedSize(20, 20)
-        self.minimize_button.setStyleSheet("""
-            QPushButton {
-                background-color: #FFBD4C;
-                color: white;
-                border-radius: 10px;
-                font-size: 10px;
-                padding-bottom: 3px;
-            }
-            QPushButton:hover {
-                background-color: #FFD37C;
-            }
-        """)
-        self.minimize_button.clicked.connect(self.minimize_window)
-
-        self.maximize_button = QPushButton("□")
-        self.maximize_button.setFixedSize(20, 20)
-        self.maximize_button.setStyleSheet("""
-            QPushButton {
-                background-color: #00CA56;
-                color: white;
-                border-radius: 10px;
-                font-size: 10px;
-            }
-            QPushButton:hover {
-                background-color: #00E066;
-            }
-        """)
-        self.maximize_button.clicked.connect(self.maximize_window)
-
-        self.control_buttons_layout.addWidget(self.close_button)
-        self.control_buttons_layout.addWidget(self.minimize_button)
-        self.control_buttons_layout.addWidget(self.maximize_button)
-        self.side_menu_layout.addLayout(self.control_buttons_layout)
-
-        # --- Toggle Button ---
-        self.toggle_button = QPushButton("⇄")
-        self.toggle_button.setFixedHeight(32)
-        self.toggle_button.setStyleSheet("""
-            QPushButton {
-                background-color: #2A2A3A;
-                color: #7AA2F7;
-                border: 1px solid #444466;
-                font-size: 16px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #3A3A4A;
-                color: #9DB4FF;
-            }
-        """)
-        self.toggle_button.clicked.connect(self.toggle_side_menu)
-        self.side_menu_layout.addWidget(self.toggle_button)
-
-        # Scroll Area for menu items
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background: transparent;
-            }
-            QScrollBar:vertical {
-                width: 6px;
-                background: #1A1A2E;
-            }
-            QScrollBar::handle:vertical {
-                background: #3A3A5A;
-                min-height: 20px;
-                border-radius: 3px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """)
-
-        # Container for scroll area
-        self.scroll_widget = QWidget()
-        self.scroll_layout = QVBoxLayout(self.scroll_widget)
-        self.scroll_layout.setContentsMargins(0, 0, 6, 0)
-        self.scroll_layout.setSpacing(6)
+    def update_user_buttons(self):
+        """Update button visibility based on user state"""
+        # Login/logout toggle
+        self.login_button.setVisible(not self.is_user_logged_in)
+        self.logout_button.setVisible(self.is_user_logged_in)
         
-        # --- Menu Items ---
-        menu_items = [
-            # Home
-            ("🏠", self.tr("Home"), self.open_accueil_window, self.tr("Main dashboard"), []),
+        # Mode toggle
+        self.enterprise_button.setVisible(self.is_user_logged_in and not self.is_enterprise_mode)
+        self.personal_button.setVisible(self.is_user_logged_in and self.is_enterprise_mode)
+        
+        # Other buttons
+        self.settings_button.setVisible(self.is_user_logged_in)
+        self.switch_button.setVisible(self.is_user_logged_in)
+        self.subscription_button.setVisible(self.is_user_logged_in)
+        
+        # Update user label
+        username = "Admin" if self.is_user_logged_in else "Guest"
+        self.user_button.setText(f"👤 {username}")
 
-            # Tools section
-            ("🧰", self.tr("Tools"), None, self.tr("Document tools"), [
-                ("📡", self.tr("Remote"), self.open_telecommande_window, self.tr("Remote control"), []),
-                ("⏰", self.tr("Scheduler"), self.open_sheduling_window, self.tr("Task scheduling"), []),
-                ("📝", self.tr("Edit PDF"), self.open_editpdf_window, self.tr("Modify PDF documents"), []),
-                ("💧", self.tr("Watermarks"), self.open_watermark_window, self.tr("Add/remove watermarks"), []),
-                ("🎨", self.tr("Remove BG"), self.open_removebg_window, self.tr("Remove Background"), []),
-                ("🔗", self.tr("Links"), self.open_settings_window, self.tr("Manage links"), []),
-            ]),
+    def user_login(self):
+        """Handle user login"""
+        self.is_user_logged_in = True
+        self.update_user_buttons()
+        print("User logged in")
 
-            # Settings section
-            ("⚙️", self.tr("Settings"), None, self.tr("Configuration"), [
-                ("📅", self.tr("Schedule"), self.open_sheduling_window, self.tr("Configure schedules"), []),
-                ("🗂️", self.tr("Instances"), self.open_instance, self.tr("Manage instances"), []),
-                ("🖥️", self.tr("System"), self.open_settings_window, self.tr("System configuration"), []),
-                ("🌍", self.tr("Language"), None, self.tr("Language settings"), [
-                    ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr"), self.tr("French language"), []),
-                    ("🇬🇧", self.tr("English"), lambda: self.switch_language("en"), self.tr("English language"), []),
-                    ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
-                    ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
-                    ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
-                ]),
-            ]),
+    def user_logout(self):
+        """Handle user logout"""
+        self.is_user_logged_in = False
+        self.is_enterprise_mode = False
+        self.update_user_buttons()
+        print("User logged out")
 
-            # Data section
-            ("📊", self.tr("Data"), None, self.tr("Data management"), [
-                ("📈", self.tr("Stats"), self.open_statistics_window, self.tr("View statistics"), []),
-                ("📤", self.tr("Export"), self.open_export_window, self.tr("Export data"), []),
-                ("📥", self.tr("Import"), self.open_import_window, self.tr("Import data"), []),
-                ("📜", self.tr("Archives"), self.open_archives_window, self.tr("View archives"), []),
-            ]),
+    def switch_to_enterprise(self):
+        """Switch to enterprise mode"""
+        self.is_enterprise_mode = True
+        self.update_user_buttons()
+        print("Enterprise mode activated")
 
-            # Support section
-            ("🆘", self.tr("Support"), None, self.tr("Support resources"), [
-                ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About this app"), []),
-                ("📜", self.tr("Licenses"), self.open_certif_window, self.tr("View licenses"), []),
-                ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact us"), []),
-            ]),
+    def switch_to_personal(self):
+        """Switch to personal mode"""
+        self.is_enterprise_mode = False
+        self.update_user_buttons()
+        print("Personal mode activated")
 
-            # Upgrade section
-            ("💎", self.tr("Upgrade"), None, self.tr("Upgrade options"), [
-                ("✨", self.tr("Features"), self.open_upgrade_window1, self.tr("Additional features"), []),
-                ("🏛️", self.tr("Enterprise"), self.open_upgrade_window, self.tr("Enterprise features"), []),
-            ]),
-        ]
+    def toggle_user_menu(self):
+        """Toggle user menu visibility"""
+        self.user_menu.setVisible(not self.user_menu.isVisible())
 
-        self.menu_buttons = []
-        self.sub_menus = {}
-        self.current_open_menu = None
 
-        for icon, text, action, tooltip, sub_items in menu_items:
-            button = QPushButton(f"  {icon}  {text}")
-            button.setFixedHeight(40)
-            button.setStyleSheet("""
-                QPushButton {
-                    background-color: transparent;
-                    color: #D0D0FF;
-                    border: none;
-                    font-size: 14px;
-                    text-align: left;
-                    padding-left: 12px;
-                    border-radius: 5px;
-                    transition: all 0.2s ease;
-                }
-                QPushButton:hover {
-                    background-color: #2A2A4A;
-                    color: #FFFFFF;
-                }
-            """)
-            button.setToolTip(f"<b>{text}</b><br>{tooltip}")
+
+
+
+
+    def create_menu_handler(self, button):
+        """Create a handler that manages the accordion behavior"""
+        def handler():
+            # Close currently open menu if it's not this one
+            if self.current_open_menu and self.current_open_menu != button:
+                for btn in self.sub_menus[self.current_open_menu]:
+                    btn.setVisible(False)
             
-            if action:
-                button.clicked.connect(action)
+            # Toggle current menu
+            for btn in self.sub_menus[button]:
+                btn.setVisible(not btn.isVisible())
+            
+            # Update currently open menu
+            if any(btn.isVisible() for btn in self.sub_menus[button]):
+                self.current_open_menu = button
+            else:
+                self.current_open_menu = None
                 
-            self.scroll_layout.addWidget(button)
-            self.menu_buttons.append((button, icon, text))
+        return handler
 
-            if sub_items:
-                sub_menu = []
-                for sub_icon, sub_text, sub_action, sub_tooltip, nested_sub_items in sub_items:
-                    sub_btn = QPushButton(f"    {sub_icon}  {sub_text}")
-                    sub_btn.setFixedHeight(36)
-                    sub_btn.setStyleSheet("""
-                        QPushButton {
-                            background-color: #252538;
-                            color: #C0C0FF;
-                            border: none;
-                            font-size: 13px;
-                            text-align: left;
-                            padding-left: 24px;
-                            border-radius: 5px;
-                            transition: all 0.2s ease;
-                        }
-                        QPushButton:hover {
-                            background-color: #303048;
-                            color: #FFFFFF;
-                        }
-                    """)
-                    sub_btn.setToolTip(f"<b>{sub_text}</b><br>{sub_tooltip}")
-                    sub_btn.setVisible(False)
-                    
-                    if sub_action:
-                        sub_btn.clicked.connect(sub_action)
-                        
-                    self.scroll_layout.addWidget(sub_btn)
-                    sub_menu.append(sub_btn)
-
-                    if nested_sub_items:
-                        nested_menu = []
-                        for nest_icon, nest_text, nest_action, nest_tooltip, _ in nested_sub_items:
-                            nest_btn = QPushButton(f"      {nest_icon}  {nest_text}")
-                            nest_btn.setFixedHeight(34)
-                            nest_btn.setStyleSheet("""
-                                QPushButton {
-                                    background-color: #202034;
-                                    color: #B0B0FF;
-                                    border: none;
-                                    font-size: 12px;
-                                    text-align: left;
-                                    padding-left: 36px;
-                                    border-radius: 5px;
-                                    transition: all 0.2s ease;
-                                }
-                                QPushButton:hover {
-                                    background-color: #282842;
-                                    color: #FFFFFF;
-                                }
-                            """)
-                            nest_btn.setToolTip(f"<b>{nest_text}</b><br>{nest_tooltip}")
-                            nest_btn.setVisible(False)
-                            
-                            if nest_action:
-                                nest_btn.clicked.connect(nest_action)
-                                
-                            self.scroll_layout.addWidget(nest_btn)
-                            nested_menu.append(nest_btn)
-                        
-                        self.sub_menus[sub_btn] = nested_menu
-                        sub_btn.clicked.connect(lambda _, b=sub_btn: self.toggle_sub_menu(b))
-                
-                self.sub_menus[button] = sub_menu
-                button.clicked.connect(self.create_menu_handler(button))
-
-        self.scroll_area.setWidget(self.scroll_widget)
-        self.side_menu_layout.addWidget(self.scroll_area)
-
-        # --- User Section ---
-        self.user_frame = QFrame()
-        self.user_frame.setStyleSheet("""
-            QFrame {
-                background-color: #252538;
-                border-top: 1px solid #38384D;
-            }
-        """)
-        self.user_layout = QVBoxLayout(self.user_frame)
-        self.user_layout.setContentsMargins(8, 8, 8, 8)
-        self.user_layout.setSpacing(8)
-
-        # User profile button
-        self.user_button = QPushButton("👤  User Profile")
-        self.user_button.setFixedHeight(40)
-        self.user_button.setStyleSheet("""
-            QPushButton {
-                background-color: #2A2A4A;
-                color: #FFFFFF;
-                border: none;
-                font-size: 14px;
-                text-align: left;
-                padding-left: 12px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #3A3A5A;
-            }
-        """)
-        self.user_button.clicked.connect(self.toggle_user_menu)
+    def update_user_buttons(self):
+        """Update button visibility based on user state"""
+        # Login/logout toggle
+        self.login_button.setVisible(not self.is_user_logged_in)
+        self.logout_button.setVisible(self.is_user_logged_in)
         
-        # User menu (hidden by default)
-        self.user_menu = QFrame()
-        self.user_menu.setVisible(False)
-        self.user_menu.setStyleSheet("""
-            QFrame {
-                background-color: #252538;
-                border-radius: 5px;
-            }
-        """)
-        self.user_menu_layout = QVBoxLayout(self.user_menu)
-        self.user_menu_layout.setContentsMargins(0, 5, 0, 5)
-        self.user_menu_layout.setSpacing(3)
+        # Mode toggle
+        self.enterprise_button.setVisible(self.is_user_logged_in and not self.is_enterprise_mode)
+        self.personal_button.setVisible(self.is_user_logged_in and self.is_enterprise_mode)
+        
+        # Other buttons
+        self.settings_button.setVisible(self.is_user_logged_in)
+        self.switch_button.setVisible(self.is_user_logged_in)
+        self.subscription_button.setVisible(self.is_user_logged_in)
+        
+        # Update user label
+        username = "Admin" if self.is_user_logged_in else "Guest"
+        self.user_button.setText(f"👤 {username}")
 
-        user_menu_items = [
-            ("🔐", "Login", self.user_login),
-            ("🚪", "Logout", self.user_logout),
-            ("🏢", "Enterprise Mode", self.switch_to_enterprise),
-            ("👤", "Personal Mode", self.switch_to_personal),
-            ("⚙️", "Account Settings", self.open_account_settings),
-            ("🛒", "Subscription", self.open_subscription),
-            ("👥", "Switch User", self.switch_user)
-        ]
+    def user_login(self):
+        """Handle user login"""
+        self.is_user_logged_in = True
+        self.update_user_buttons()
+        print("User logged in")
 
-        for icon, text, action in user_menu_items:
-            btn = QPushButton(f"    {icon}  {text}")
-            btn.setFixedHeight(32)
+
+
+
+
+
+        """Toggle user menu visibility"""
+        self.user_menu.setVisible(not self.user_menu.isVisible())
+
+
+
+
+
+
+    def update_user_section(self):
+        """Update user section based on login state"""
+        # Clear existing user menu
+        if hasattr(self, 'user_menu'):
+            for i in reversed(range(self.user_menu_layout.count())): 
+                self.user_menu_layout.itemAt(i).widget().setParent(None)
+        
+        # Add appropriate buttons based on state
+        if self.is_user_logged_in:
+            user_actions = [
+                ("🚪", "Logout", self.user_logout),
+                ("🏢", "Enterprise Mode", self.switch_to_enterprise) if not self.is_enterprise_mode else 
+                ("👤", "Personal Mode", self.switch_to_personal),
+                ("⚙️", "Settings", self.open_user_settings),
+                ("👥", "Switch Account", self.switch_account),
+                ("🛒", "Subscription", self.open_subscription)
+            ]
+        else:
+            user_actions = [
+                ("🔑", "Login", self.user_login)
+            ]
+        
+        for icon, text, action in user_actions:
+            btn = QPushButton(f"  {icon}  {text}")
+            btn.setFixedHeight(36)
             btn.setStyleSheet("""
                 QPushButton {
-                    background-color: transparent;
-                    color: #C0C0FF;
+                    background-color: #3A3F4B;
+                    color: white;
                     border: none;
                     font-size: 13px;
                     text-align: left;
-                    padding-left: 12px;
-                    border-radius: 3px;
+                    padding-left: 20px;
+                    border-radius: 4px;
                 }
                 QPushButton:hover {
-                    background-color: #303048;
-                    color: #FFFFFF;
+                    background-color: #4A4F5C;
                 }
             """)
             btn.clicked.connect(action)
             self.user_menu_layout.addWidget(btn)
 
-        self.user_layout.addWidget(self.user_button)
-        self.user_layout.addWidget(self.user_menu)
-        self.side_menu_layout.addWidget(self.user_frame)
+    def start_menu_move(self, event):
+        """Start moving the menu"""
+        self.drag_start_position = event.globalPos()
+        self.original_menu_pos = self.central_container.sizes()[0]
 
-        # Version label
-        version_label = QLabel("v3.1.2")
-        version_label.setStyleSheet("""
-            QLabel {
-                color: #606080;
-                font-size: 9px;
-                padding: 5px;
-                text-align: center;
-            }
-        """)
-        self.user_layout.addWidget(version_label)
+    def move_menu(self, event):
+        """Handle menu movement"""
+        if not hasattr(self, 'drag_start_position'):
+            return
+            
+        delta = event.globalPos() - self.drag_start_position
+        new_width = max(100, min(400, self.original_menu_pos + delta.x()))
+        self.central_container.setSizes([new_width, self.width() - new_width])
 
-        # Add to main layout
-        self.layout().addWidget(self.side_menu)
-        self.is_menu_expanded = True
-        self.is_user_menu_expanded = False
+    def finish_menu_move(self, event):
+        """Finish menu movement"""
+        if hasattr(self, 'drag_start_position'):
+            del self.drag_start_position
+
+    def toggle_menu_position(self):
+        """Toggle menu between left and right"""
+        current_widgets = self.central_container.widgets()
+        if current_widgets[0] == self.side_menu:
+            # Move to right
+            self.central_container.insertWidget(1, self.side_menu)
+        else:
+            # Move to left
+            self.central_container.insertWidget(0, self.side_menu)
+        self.central_container.setSizes([200, self.width() - 200])
+
+
+
+    def user_logout(self):
+        """Handle user logout"""
+        self.is_user_logged_in = False
+        self.update_user_section()
+
+
+
+
+
+
+    def open_user_settings(self):
+        """Switch to personal mode"""
+        pass
+
+
+    def switch_account(self):
+        """Switch to personal mode"""
+        pass
+
 
     def create_menu_handler(self, button):
         """Create a handler that manages the accordion behavior"""
@@ -1751,21 +1642,12 @@ class Browser(QMainWindow):
         self.is_user_menu_expanded = not self.is_user_menu_expanded
         self.user_menu.setVisible(self.is_user_menu_expanded)
 
-    def user_login(self):
-        """Handle user login"""
-        print("Login clicked")
 
-    def user_logout(self):
-        """Handle user logout"""
-        print("Logout clicked")
 
-    def switch_to_enterprise(self):
-        """Switch to enterprise mode"""
-        print("Enterprise mode activated")
 
-    def switch_to_personal(self):
-        """Switch to personal mode"""
-        print("Personal mode activated")
+
+
+
 
     def open_account_settings(self):
         """Open account settings"""
