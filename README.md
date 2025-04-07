@@ -1,10 +1,7 @@
-جمعة مباركة للجميع! 🎉 نتمنى لكم يومًا مليئًا بالنجاح والإنتاجية والأخبار السارة. في هيدروجوش، نحن دائمًا هنا لدعمكم في مشاريعكم الصناعية بحلولنا الهيدروليكية المتطورة. 💪🏭
+ajouter unepage d acceuil qui resemble a celle de leonardo 
+une page oulon peut choisir entre Marketing digital et management digital 
 
-Herkese hayırlı cumalar! 🎉 Bu günün başarı, üretkenlik ve güzel haberlerle dolu olmasını dileriz. Hidrogüç olarak, endüstriyel projelerinizde hidrolik çözümlerimizle her zaman yanınızdayız. 💪🏭
-
-📲 واتساب | 📧 hidrogucpres@gmail.com | 🌐 hidrogucpres.com
-#هيدروجوش #مكابس_هيدروليكية #صناعة #Hidrogüç #PressesHydrauliques #Industrie #HydraulicPress #Industry #HidrolikPres #Sanayi #BonVendredi #جمعة_مباركة #HayırlıCumalar
-
+pip install pytesseract pdf2image pillow pikepdf
 
 
 

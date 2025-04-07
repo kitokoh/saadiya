@@ -730,7 +730,7 @@ class HomePage(QMainWindow):
         self.main_layout.addLayout(duplicate_layout)
 
         # Ajouter un titre "Gestion Auto"
-        gestion_auto_label = QLabel(self.tr("Autres Solutions"))
+        gestion_auto_label = QLabel(self.tr("Autres Solutions : Management"))
         gestion_auto_label.setFont(QFont("Arial", 20, QFont.Bold))
         gestion_auto_label.setAlignment(Qt.AlignCenter)
         gestion_auto_label.setStyleSheet("color: #2E7D32;")

@@ -27,12 +27,17 @@ from PyQt5.QtWidgets import QProgressDialog, QLabel, QApplication
 import sys
 import time
 from imports import *
+from PyQt5.QtWidgets import QScrollArea
+
 from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from statistique.activiteprogramme import Activite
 from PyQt5.QtGui import QFont
 from Home.instances import InstanceTable
+from Home.premierepage import MainWindow1
+from tools.editpdf import PDFEditorApp
+from tools.watermarks.watermark_window import WatermarkApp
 # Simulated Nova360ProApp class for demonstration purposes
 class LoaderThreadTelecommande(QThread):
     finished = pyqtSignal(object)  # Signal to emit the SplitScreenView instance
@@ -671,7 +676,8 @@ class Browser(QMainWindow):
         # Start loading thread
         self.loader_thread = LoaderThread(main_app=self)
         if not hasattr(self, 'nova360pro') or self.nova360pro is None:
-            self.nova360pro = Nova360ProApp(main_app=self)  # Create the instance only once
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Create the instance only once
+            self.nova360pro = MainWindow1(main_app=self)  # Create the instance only once
 
             self.loader_thread.finished.connect(lambda app: self.update_tab_content(tab_name, self.nova360pro, progress_dialog))
         self.loader_thread.start()
@@ -785,11 +791,126 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'sheduling') or self.telecommande is None:
+        if not hasattr(self, 'shedulings') or self.sheduling is None:
             self.sheduling = Activite()  # Create the instance only once
 
         # Add the existing instance to the new tab
         self.add_custom_tab(self.sheduling, tab_name, "resources/icons/multi_fb.ico")
+
+
+
+    def open_editpdf_window(self):
+        tab_name = self.tr("editpdf")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'editpdf') or self.editpdf is None:
+            self.editpdf = PDFEditorApp()  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.editpdf, tab_name, "resources/icons/multi_fb.ico")
+
+
+    def open_removebg_window  (self):
+        tab_name = self.tr("watermarks")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'watermarks') or self.telecommande is None:
+            self.watermarks = WatermarkApp()  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.watermarks, tab_name, "resources/icons/multi_fb.ico")
+
+
+    def open_export_window  (self):
+        tab_name = self.tr("watermarks")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'watermarks') or self.telecommande is None:
+            self.watermarks = WatermarkApp()  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.watermarks, tab_name, "resources/icons/multi_fb.ico")
+
+
+    def open_import_window  (self):
+        tab_name = self.tr("watermarks")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'watermarks') or self.telecommande is None:
+            self.watermarks = WatermarkApp()  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.watermarks, tab_name, "resources/icons/multi_fb.ico")
+
+
+    def open_archives_window  (self):
+        tab_name = self.tr("watermarks")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'watermarks') or self.telecommande is None:
+            self.watermarks = WatermarkApp()  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.watermarks, tab_name, "resources/icons/multi_fb.ico")
+
+
+
+
+
+    def open_watermark_window  (self):
+        tab_name = self.tr("watermarks")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'watermarks') or self.telecommande is None:
+            self.watermarks = WatermarkApp()  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.watermarks, tab_name, "resources/icons/multi_fb.ico")
+
+
+
 
     def add_custom_tab(self, widget, title, icon_path=None):
         """
@@ -860,215 +981,826 @@ class Browser(QMainWindow):
         self.add_custom_tab(self.upgrades, tab_name, "resources/icons/multi_fb.ico")
 
 
-                                     
-        
-                                            
+
     def create_side_menu(self):
         """
-        Create a side menu with control buttons at the top,
-        a separator bar, and a collapsible/expandable menu.
+        Create an ultra-modern side menu with accordion behavior
         """
-        # Side panel
+        # Side panel with sleek styling
         self.side_menu = QFrame()
-        self.side_menu.setFixedWidth(60)  # Default, reduced menu width
+        self.side_menu.setFixedWidth(200)
         self.side_menu.setStyleSheet("""
             QFrame {
-                background-color: #1E1E1E;  /* Dark background */
-                border-right: 1px solid #333333;
+                background-color: #1A1A2E;
+                border-right: 1px solid #2E2E3E;
             }
         """)
 
-        # Main layout
+        # Main layout with perfect spacing
         self.side_menu_layout = QVBoxLayout(self.side_menu)
-        self.side_menu_layout.setContentsMargins(0, 0, 0, 0)
-        self.side_menu_layout.setSpacing(10)
+        self.side_menu_layout.setContentsMargins(0, 5, 0, 10)
+        self.side_menu_layout.setSpacing(6)
 
-        # --- Top row: Control buttons ---
+        # --- Window Controls ---
         self.control_buttons_layout = QHBoxLayout()
-        self.control_buttons_layout.setContentsMargins(5, 5, 5, 5)
-        self.control_buttons_layout.setSpacing(5)
+        self.control_buttons_layout.setContentsMargins(8, 8, 8, 15)
+        self.control_buttons_layout.setSpacing(6)
 
-        # Minimize button
-        self.minimize_button = QPushButton("−")
-        self.minimize_button.setFixedSize(24, 24)
-        self.minimize_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3A3F4B;
-                color: #FFFFFF;
-                border: none;
-                font-size: 16px;
-                border-radius: 3px;
-            }
-            QPushButton:hover {
-                background-color: #4A4F5C;
-            }
-        """)
-        self.minimize_button.clicked.connect(self.minimize_window)
-        self.control_buttons_layout.addWidget(self.minimize_button)
-
-        # Maximize button
-        self.maximize_button = QPushButton("□")
-        self.maximize_button.setFixedSize(24, 24)
-        self.maximize_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3A3F4B;
-                color: #FFFFFF;
-                border: none;
-                font-size: 16px;
-                border-radius: 3px;
-            }
-            QPushButton:hover {
-                background-color: #4A4F5C;
-            }
-        """)
-        self.maximize_button.clicked.connect(self.maximize_window)
-        self.control_buttons_layout.addWidget(self.maximize_button)
-
-        # Close button
-        self.close_button = QPushButton("×")
-        self.close_button.setFixedSize(24, 24)
+        # Control buttons (unchanged)
+        self.close_button = QPushButton("✕")
+        self.close_button.setFixedSize(20, 20)
         self.close_button.setStyleSheet("""
             QPushButton {
-                background-color: #FF5F57;
-                color: #FFFFFF;
-                border: none;
-                font-size: 16px;
-                border-radius: 3px;
+                background-color: #FF5C5C;
+                color: white;
+                border-radius: 10px;
+                font-size: 10px;
             }
             QPushButton:hover {
-                background-color: #FF4343;
+                background-color: #FF7878;
             }
         """)
         self.close_button.clicked.connect(self.close_window)
-        self.control_buttons_layout.addWidget(self.close_button)
 
-        # Add the top row to the main layout
+        self.minimize_button = QPushButton("—")
+        self.minimize_button.setFixedSize(20, 20)
+        self.minimize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FFBD4C;
+                color: white;
+                border-radius: 10px;
+                font-size: 10px;
+                padding-bottom: 3px;
+            }
+            QPushButton:hover {
+                background-color: #FFD37C;
+            }
+        """)
+        self.minimize_button.clicked.connect(self.minimize_window)
+
+        self.maximize_button = QPushButton("□")
+        self.maximize_button.setFixedSize(20, 20)
+        self.maximize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #00CA56;
+                color: white;
+                border-radius: 10px;
+                font-size: 10px;
+            }
+            QPushButton:hover {
+                background-color: #00E066;
+            }
+        """)
+        self.maximize_button.clicked.connect(self.maximize_window)
+
+        self.control_buttons_layout.addWidget(self.close_button)
+        self.control_buttons_layout.addWidget(self.minimize_button)
+        self.control_buttons_layout.addWidget(self.maximize_button)
         self.side_menu_layout.addLayout(self.control_buttons_layout)
 
-        # --- Toggle button ---
+        # --- Toggle Button ---
         self.toggle_button = QPushButton("⇄")
-        self.toggle_button.setFixedHeight(40)
+        self.toggle_button.setFixedHeight(32)
         self.toggle_button.setStyleSheet("""
             QPushButton {
-                background-color: #3A3F4B;
-                color: #FFFFFF;
-                border: none;
-                font-size: 18px;
-                padding: 0;
+                background-color: #2A2A3A;
+                color: #7AA2F7;
+                border: 1px solid #444466;
+                font-size: 16px;
                 border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #4A4F5C;
+                background-color: #3A3A4A;
+                color: #9DB4FF;
             }
         """)
         self.toggle_button.clicked.connect(self.toggle_side_menu)
         self.side_menu_layout.addWidget(self.toggle_button)
 
-        # --- List of main menu items with tooltips ---
+        # --- Menu Items ---
         menu_items = [
-            # Home menu
-            ("🏠", self.tr("Home"), self.open_accueil_window, self.tr("Go to the Home page"), []),
+            # Home
+            ("🏠", self.tr("Home"), self.open_accueil_window, self.tr("Main dashboard"), []),
 
-            # Remote control and scheduling
-            ("📡", self.tr("Remote Control"), self.open_telecommande_window, self.tr("Control remotely"), []),
-            ("📅", self.tr("Schedule"), self.open_sheduling_window, self.tr("Schedule tasks"), []),
+            # Tools section
+            ("🧰", self.tr("Tools"), None, self.tr("Document tools"), [
 
-            # Settings menu with submenus
-            ("⚙️", self.tr("Tools"), None, self.tr("Access settings"), [
-                ("❌", self.tr("Uninstall"), self.open_certif_window, self.tr("Uninstall the application")),
-                ("🔄", self.tr("Update"), self.open_update_window, self.tr("Update the application")),
-                ("📊", self.tr("Statistics"), self.open_statistics_window, self.tr("View statistics")),
-                ("📁", self.tr("Instances"), self.open_instance, self.tr("Manage instances")),
-                ("🛠️", self.tr("Management"), self.open_settings_window, self.tr("Manage settings")),
-                ("🔗", self.tr("Links"), self.open_settings_window, self.tr("Manage useful links")),
-                ("📤", self.tr("Export Data"), self.open_settings_window, self.tr("Export data")),
-                ("📥", self.tr("Import Data"), self.open_settings_window, self.tr("Import data")),
+                ("📡", self.tr("Remote"), self.open_telecommande_window, self.tr("Remote control"), []),
+                ("⏰", self.tr("Scheduler"), self.open_sheduling_window, self.tr("Task scheduling"), []),
+
+                ("📝", self.tr("Edit PDF"), self.open_editpdf_window, self.tr("Modify PDF documents"), []),
+                ("💧", self.tr("Watermarks"), self.open_watermark_window, self.tr("Add/remove watermarks"), []),
+                ("📝", self.tr("Remove BG"), self.open_editpdf_window, self.tr("Remove Background"), []),
+
+                ("🔗", self.tr("Links"), self.open_settings_window, self.tr("Manage links"), []),
             ]),
 
-            # Language selection menu
-            ("🌍", self.tr("Language"), None, self.tr("Select language"), [
-                ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr"), self.tr("Switch to French")),
-                ("🇬🇧", self.tr("English"), lambda: self.switch_language("en"), self.tr("Switch to English")),
-                ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Switch to Arabic")),
-                ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Switch to Turkish")),
-                ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Switch to Portuguese")),
+            # Settings section
+            ("⚙️", self.tr("Settings"), None, self.tr("Configuration"), [
+                ("📅", self.tr("Schedule"), self.open_sheduling_window, self.tr("Configure schedules"), []),
+                ("🗂️", self.tr("Instances"), self.open_instance, self.tr("Manage instances"), []),
+                ("🖥️", self.tr("System"), self.open_settings_window, self.tr("System configuration"), []),
+                ("🌍", self.tr("Language"), None, self.tr("Language settings"), [
+                    ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr"), self.tr("French language"), []),
+                    ("🇬🇧", self.tr("English"), lambda: self.switch_language("en"), self.tr("English language"), []),
+                    ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
+                    ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
+                    ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
+                ]),
             ]),
 
-            # Support menu with submenus
-            ("❓", self.tr("Support"), None, self.tr("Get support"), [
-                ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About the application")),
-                ("📜", self.tr("Certificates"), self.open_certif_window, self.tr("View certificates")),
-                ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact support")),
+            # Data section
+            ("📊", self.tr("Data"), None, self.tr("Data management"), [
+                ("📈", self.tr("Stats"), self.open_statistics_window, self.tr("View statistics"), []),
+                ("📤", self.tr("Export"), self.open_settings_window, self.tr("Export data"), []),
+                ("📥", self.tr("Import"), self.open_settings_window, self.tr("Import data"), []),
+                ("📜", self.tr("Archives"), self.open_settings_window, self.tr("Import data"), []),
+
             ]),
 
-            # Upgrade menu with submenus
-            ("⬆️", self.tr("Upgrade"), None, self.tr("Upgrade options"), [
-                ("🔧", self.tr("Modules"), self.open_upgrade_window1, self.tr("Upgrade modules")),
-                ("🏢", self.tr("Enterprise"), self.open_upgrade_window, self.tr("Upgrade to enterprise")),
+            # Support section
+            ("🆘", self.tr("Support"), None, self.tr("Support resources"), [
+                ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About this app"), []),
+                ("📜", self.tr("Licenses"), self.open_certif_window, self.tr("View licenses"), []),
+                ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact us"), []),
+            ]),
+
+            # Upgrade section
+            ("💎", self.tr("Upgrade"), None, self.tr("Upgrade options"), [
+                ("✨", self.tr("Features"), self.open_upgrade_window1, self.tr("Additional features"), []),
+                ("🏛️", self.tr("Enterprise"), self.open_upgrade_window, self.tr("Enterprise features"), []),
             ]),
         ]
 
-        self.menu_buttons = []  # Store the main buttons
-        self.sub_menus = {}  # Associate each main button with its submenus
+        self.menu_buttons = []
+        self.sub_menus = {}
+        self.current_open_menu = None  # Track currently open menu
 
-        # Generate main buttons and submenus
         for icon, text, action, tooltip, sub_items in menu_items:
-            # Create the main button
-            button = QPushButton(f"  {icon}   {text}")
-            button.setFixedHeight(50)
+            # Main menu button
+            button = QPushButton(f"  {icon}  {text}")
+            button.setFixedHeight(40)
             button.setStyleSheet("""
                 QPushButton {
                     background-color: transparent;
-                    color: #FFFFFF;
+                    color: #D0D0FF;
                     border: none;
-                    font-size: 16px;
+                    font-size: 14px;
                     text-align: left;
-                    padding-left: 15px;
+                    padding-left: 12px;
                     border-radius: 5px;
+                    transition: all 0.2s ease;
                 }
                 QPushButton:hover {
-                    background-color: #4A4F5C;
+                    background-color: #2A2A4A;
+                    color: #FFFFFF;
                 }
             """)
-            button.setToolTip(tooltip)  # Set tooltip for the main button
+            button.setToolTip(f"<b>{text}</b><br>{tooltip}")
+            
             if action:
                 button.clicked.connect(action)
+                
             self.side_menu_layout.addWidget(button)
             self.menu_buttons.append((button, icon, text))
 
-            # Add submenus
+            # Create submenus if they exist
             if sub_items:
                 sub_menu = []
-                for sub_icon, sub_text, sub_action, sub_tooltip in sub_items:
-                    sub_button = QPushButton(f"     {sub_icon}   {sub_text}")
-                    sub_button.setFixedHeight(40)
-                    sub_button.setStyleSheet("""
+                for sub_icon, sub_text, sub_action, sub_tooltip, nested_sub_items in sub_items:
+                    sub_btn = QPushButton(f"    {sub_icon}  {sub_text}")
+                    sub_btn.setFixedHeight(36)
+                    sub_btn.setStyleSheet("""
                         QPushButton {
-                            background-color: #3A3F4B;
-                            color: #FFFFFF;
+                            background-color: #252538;
+                            color: #C0C0FF;
                             border: none;
-                            font-size: 14px;
+                            font-size: 13px;
                             text-align: left;
-                            padding-left: 25px;
+                            padding-left: 24px;
                             border-radius: 5px;
+                            transition: all 0.2s ease;
                         }
                         QPushButton:hover {
-                            background-color: #4A4F5C;
+                            background-color: #303048;
+                            color: #FFFFFF;
                         }
                     """)
-                    sub_button.setToolTip(sub_tooltip)  # Set tooltip for the submenu button
-                    sub_button.setVisible(False)  # Hide submenus by default
-                    sub_button.clicked.connect(sub_action)
-                    self.side_menu_layout.addWidget(sub_button)
-                    sub_menu.append(sub_button)
+                    sub_btn.setToolTip(f"<b>{sub_text}</b><br>{sub_tooltip}")
+                    sub_btn.setVisible(False)
+                    
+                    if sub_action:
+                        sub_btn.clicked.connect(sub_action)
+                        
+                    self.side_menu_layout.addWidget(sub_btn)
+                    sub_menu.append(sub_btn)
 
+                    # Handle nested submenus
+                    if nested_sub_items:
+                        nested_menu = []
+                        for nest_icon, nest_text, nest_action, nest_tooltip, _ in nested_sub_items:
+                            nest_btn = QPushButton(f"      {nest_icon}  {nest_text}")
+                            nest_btn.setFixedHeight(34)
+                            nest_btn.setStyleSheet("""
+                                QPushButton {
+                                    background-color: #202034;
+                                    color: #B0B0FF;
+                                    border: none;
+                                    font-size: 12px;
+                                    text-align: left;
+                                    padding-left: 36px;
+                                    border-radius: 5px;
+                                    transition: all 0.2s ease;
+                                }
+                                QPushButton:hover {
+                                    background-color: #282842;
+                                    color: #FFFFFF;
+                                }
+                            """)
+                            nest_btn.setToolTip(f"<b>{nest_text}</b><br>{nest_tooltip}")
+                            nest_btn.setVisible(False)
+                            
+                            if nest_action:
+                                nest_btn.clicked.connect(nest_action)
+                                
+                            self.side_menu_layout.addWidget(nest_btn)
+                            nested_menu.append(nest_btn)
+                        
+                        self.sub_menus[sub_btn] = nested_menu
+                        sub_btn.clicked.connect(lambda _, b=sub_btn: self.toggle_sub_menu(b))
+                
                 self.sub_menus[button] = sub_menu
-                button.clicked.connect(lambda _, b=button: self.toggle_sub_menu(b))
+                button.clicked.connect(self.create_menu_handler(button))
 
-        # Add the panel to the main layout
+        # Add stretch and version label
+        self.side_menu_layout.addStretch()
+        version_label = QLabel("v3.1.2")
+        version_label.setStyleSheet("""
+            QLabel {
+                color: #606080;
+                font-size: 9px;
+                padding: 5px;
+                text-align: center;
+            }
+        """)
+        #self.side_menu_layout.addWidget(version_label)
+
+        # Add to main layout
         self.layout().addWidget(self.side_menu)
+        self.is_menu_expanded = False
 
 
+        # --- User Section ---
+        self.user_frame = QFrame()
+        self.user_frame.setStyleSheet("""
+            QFrame {
+                background-color: #252538;
+                border-top: 1px solid #38384D;
+            }
+        """)
+        self.user_layout = QVBoxLayout(self.user_frame)
+        self.user_layout.setContentsMargins(8, 8, 8, 8)
+        self.user_layout.setSpacing(8)
+
+        # User profile button
+        self.user_button = QPushButton("👤  User Profile")
+        self.user_button.setFixedHeight(40)
+        self.user_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2A2A4A;
+                color: #FFFFFF;
+                border: none;
+                font-size: 14px;
+                text-align: left;
+                padding-left: 12px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A5A;
+            }
+        """)
+        self.user_button.clicked.connect(self.toggle_user_menu)
+        
+        # User menu (hidden by default)
+        self.user_menu = QFrame()
+        self.user_menu.setVisible(False)
+        self.user_menu.setStyleSheet("""
+            QFrame {
+                background-color: #252538;
+                border-radius: 5px;
+            }
+        """)
+        self.user_menu_layout = QVBoxLayout(self.user_menu)
+        self.user_menu_layout.setContentsMargins(0, 5, 0, 5)
+        self.user_menu_layout.setSpacing(3)
+
+        user_menu_items = [
+            ("🔐", "Login", self.user_login),
+            ("🚪", "Logout", self.user_logout),
+            ("🏢", "Enterprise Mode", self.switch_to_enterprise),
+            ("👤", "Personal Mode", self.switch_to_personal),
+            ("⚙️", "Account Settings", self.open_account_settings),
+            ("🛒", "Subscription", self.open_subscription),
+            ("👥", "Switch User", self.switch_user)
+        ]
+
+        for icon, text, action in user_menu_items:
+            btn = QPushButton(f"    {icon}  {text}")
+            btn.setFixedHeight(32)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: transparent;
+                    color: #C0C0FF;
+                    border: none;
+                    font-size: 13px;
+                    text-align: left;
+                    padding-left: 12px;
+                    border-radius: 3px;
+                }
+                QPushButton:hover {
+                    background-color: #303048;
+                    color: #FFFFFF;
+                }
+            """)
+            btn.clicked.connect(action)
+            self.user_menu_layout.addWidget(btn)
+
+        self.user_layout.addWidget(self.user_button)
+        self.user_layout.addWidget(self.user_menu)
+        self.side_menu_layout.addWidget(self.user_frame)
+
+        # Version label
+        version_label = QLabel("v3.1.2")
+        version_label.setStyleSheet("""
+            QLabel {
+                color: #606080;
+                font-size: 9px;
+                padding: 5px;
+                text-align: center;
+            }
+        """)
+        self.user_layout.addWidget(version_label)
+
+        # Add to main layout
+        self.layout().addWidget(self.side_menu)
+        self.is_menu_expanded = True
+        self.is_user_menu_expanded = False
+
+     
+    def create_side_menu1(self):
+        """
+        Create an ultra-modern side menu with user section and enhanced UX
+        """
+        # Side panel with sleek styling
+        self.side_menu = QFrame()
+        self.side_menu.setFixedWidth(200)
+        self.side_menu.setStyleSheet("""
+            QFrame {
+                background-color: #1A1A2E;
+                border-right: 1px solid #2E2E3E;
+            }
+        """)
+
+        # Main layout with perfect spacing
+        self.side_menu_layout = QVBoxLayout(self.side_menu)
+        self.side_menu_layout.setContentsMargins(0, 5, 0, 0)
+        self.side_menu_layout.setSpacing(6)
+
+        # --- Window Controls ---
+        self.control_buttons_layout = QHBoxLayout()
+        self.control_buttons_layout.setContentsMargins(8, 8, 8, 15)
+        self.control_buttons_layout.setSpacing(6)
+
+        # Modern control buttons
+        self.close_button = QPushButton("✕")
+        self.close_button.setFixedSize(20, 20)
+        self.close_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FF5C5C;
+                color: white;
+                border-radius: 10px;
+                font-size: 10px;
+            }
+            QPushButton:hover {
+                background-color: #FF7878;
+            }
+        """)
+        self.close_button.clicked.connect(self.close_window)
+
+        self.minimize_button = QPushButton("—")
+        self.minimize_button.setFixedSize(20, 20)
+        self.minimize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #FFBD4C;
+                color: white;
+                border-radius: 10px;
+                font-size: 10px;
+                padding-bottom: 3px;
+            }
+            QPushButton:hover {
+                background-color: #FFD37C;
+            }
+        """)
+        self.minimize_button.clicked.connect(self.minimize_window)
+
+        self.maximize_button = QPushButton("□")
+        self.maximize_button.setFixedSize(20, 20)
+        self.maximize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #00CA56;
+                color: white;
+                border-radius: 10px;
+                font-size: 10px;
+            }
+            QPushButton:hover {
+                background-color: #00E066;
+            }
+        """)
+        self.maximize_button.clicked.connect(self.maximize_window)
+
+        self.control_buttons_layout.addWidget(self.close_button)
+        self.control_buttons_layout.addWidget(self.minimize_button)
+        self.control_buttons_layout.addWidget(self.maximize_button)
+        self.side_menu_layout.addLayout(self.control_buttons_layout)
+
+        # --- Toggle Button ---
+        self.toggle_button = QPushButton("⇄")
+        self.toggle_button.setFixedHeight(32)
+        self.toggle_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2A2A3A;
+                color: #7AA2F7;
+                border: 1px solid #444466;
+                font-size: 16px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A4A;
+                color: #9DB4FF;
+            }
+        """)
+        self.toggle_button.clicked.connect(self.toggle_side_menu)
+        self.side_menu_layout.addWidget(self.toggle_button)
+
+        # Scroll Area for menu items
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setStyleSheet("""
+            QScrollArea {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:vertical {
+                width: 6px;
+                background: #1A1A2E;
+            }
+            QScrollBar::handle:vertical {
+                background: #3A3A5A;
+                min-height: 20px;
+                border-radius: 3px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+        """)
+
+        # Container for scroll area
+        self.scroll_widget = QWidget()
+        self.scroll_layout = QVBoxLayout(self.scroll_widget)
+        self.scroll_layout.setContentsMargins(0, 0, 6, 0)
+        self.scroll_layout.setSpacing(6)
+        
+        # --- Menu Items ---
+        menu_items = [
+            # Home
+            ("🏠", self.tr("Home"), self.open_accueil_window, self.tr("Main dashboard"), []),
+
+            # Tools section
+            ("🧰", self.tr("Tools"), None, self.tr("Document tools"), [
+                ("📡", self.tr("Remote"), self.open_telecommande_window, self.tr("Remote control"), []),
+                ("⏰", self.tr("Scheduler"), self.open_sheduling_window, self.tr("Task scheduling"), []),
+                ("📝", self.tr("Edit PDF"), self.open_editpdf_window, self.tr("Modify PDF documents"), []),
+                ("💧", self.tr("Watermarks"), self.open_watermark_window, self.tr("Add/remove watermarks"), []),
+                ("🎨", self.tr("Remove BG"), self.open_removebg_window, self.tr("Remove Background"), []),
+                ("🔗", self.tr("Links"), self.open_settings_window, self.tr("Manage links"), []),
+            ]),
+
+            # Settings section
+            ("⚙️", self.tr("Settings"), None, self.tr("Configuration"), [
+                ("📅", self.tr("Schedule"), self.open_sheduling_window, self.tr("Configure schedules"), []),
+                ("🗂️", self.tr("Instances"), self.open_instance, self.tr("Manage instances"), []),
+                ("🖥️", self.tr("System"), self.open_settings_window, self.tr("System configuration"), []),
+                ("🌍", self.tr("Language"), None, self.tr("Language settings"), [
+                    ("🇫🇷", self.tr("French"), lambda: self.switch_language("fr"), self.tr("French language"), []),
+                    ("🇬🇧", self.tr("English"), lambda: self.switch_language("en"), self.tr("English language"), []),
+                    ("🇦🇪", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
+                    ("🇹🇷", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
+                    ("🇵🇹", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
+                ]),
+            ]),
+
+            # Data section
+            ("📊", self.tr("Data"), None, self.tr("Data management"), [
+                ("📈", self.tr("Stats"), self.open_statistics_window, self.tr("View statistics"), []),
+                ("📤", self.tr("Export"), self.open_export_window, self.tr("Export data"), []),
+                ("📥", self.tr("Import"), self.open_import_window, self.tr("Import data"), []),
+                ("📜", self.tr("Archives"), self.open_archives_window, self.tr("View archives"), []),
+            ]),
+
+            # Support section
+            ("🆘", self.tr("Support"), None, self.tr("Support resources"), [
+                ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About this app"), []),
+                ("📜", self.tr("Licenses"), self.open_certif_window, self.tr("View licenses"), []),
+                ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact us"), []),
+            ]),
+
+            # Upgrade section
+            ("💎", self.tr("Upgrade"), None, self.tr("Upgrade options"), [
+                ("✨", self.tr("Features"), self.open_upgrade_window1, self.tr("Additional features"), []),
+                ("🏛️", self.tr("Enterprise"), self.open_upgrade_window, self.tr("Enterprise features"), []),
+            ]),
+        ]
+
+        self.menu_buttons = []
+        self.sub_menus = {}
+        self.current_open_menu = None
+
+        for icon, text, action, tooltip, sub_items in menu_items:
+            button = QPushButton(f"  {icon}  {text}")
+            button.setFixedHeight(40)
+            button.setStyleSheet("""
+                QPushButton {
+                    background-color: transparent;
+                    color: #D0D0FF;
+                    border: none;
+                    font-size: 14px;
+                    text-align: left;
+                    padding-left: 12px;
+                    border-radius: 5px;
+                    transition: all 0.2s ease;
+                }
+                QPushButton:hover {
+                    background-color: #2A2A4A;
+                    color: #FFFFFF;
+                }
+            """)
+            button.setToolTip(f"<b>{text}</b><br>{tooltip}")
+            
+            if action:
+                button.clicked.connect(action)
+                
+            self.scroll_layout.addWidget(button)
+            self.menu_buttons.append((button, icon, text))
+
+            if sub_items:
+                sub_menu = []
+                for sub_icon, sub_text, sub_action, sub_tooltip, nested_sub_items in sub_items:
+                    sub_btn = QPushButton(f"    {sub_icon}  {sub_text}")
+                    sub_btn.setFixedHeight(36)
+                    sub_btn.setStyleSheet("""
+                        QPushButton {
+                            background-color: #252538;
+                            color: #C0C0FF;
+                            border: none;
+                            font-size: 13px;
+                            text-align: left;
+                            padding-left: 24px;
+                            border-radius: 5px;
+                            transition: all 0.2s ease;
+                        }
+                        QPushButton:hover {
+                            background-color: #303048;
+                            color: #FFFFFF;
+                        }
+                    """)
+                    sub_btn.setToolTip(f"<b>{sub_text}</b><br>{sub_tooltip}")
+                    sub_btn.setVisible(False)
+                    
+                    if sub_action:
+                        sub_btn.clicked.connect(sub_action)
+                        
+                    self.scroll_layout.addWidget(sub_btn)
+                    sub_menu.append(sub_btn)
+
+                    if nested_sub_items:
+                        nested_menu = []
+                        for nest_icon, nest_text, nest_action, nest_tooltip, _ in nested_sub_items:
+                            nest_btn = QPushButton(f"      {nest_icon}  {nest_text}")
+                            nest_btn.setFixedHeight(34)
+                            nest_btn.setStyleSheet("""
+                                QPushButton {
+                                    background-color: #202034;
+                                    color: #B0B0FF;
+                                    border: none;
+                                    font-size: 12px;
+                                    text-align: left;
+                                    padding-left: 36px;
+                                    border-radius: 5px;
+                                    transition: all 0.2s ease;
+                                }
+                                QPushButton:hover {
+                                    background-color: #282842;
+                                    color: #FFFFFF;
+                                }
+                            """)
+                            nest_btn.setToolTip(f"<b>{nest_text}</b><br>{nest_tooltip}")
+                            nest_btn.setVisible(False)
+                            
+                            if nest_action:
+                                nest_btn.clicked.connect(nest_action)
+                                
+                            self.scroll_layout.addWidget(nest_btn)
+                            nested_menu.append(nest_btn)
+                        
+                        self.sub_menus[sub_btn] = nested_menu
+                        sub_btn.clicked.connect(lambda _, b=sub_btn: self.toggle_sub_menu(b))
+                
+                self.sub_menus[button] = sub_menu
+                button.clicked.connect(self.create_menu_handler(button))
+
+        self.scroll_area.setWidget(self.scroll_widget)
+        self.side_menu_layout.addWidget(self.scroll_area)
+
+        # --- User Section ---
+        self.user_frame = QFrame()
+        self.user_frame.setStyleSheet("""
+            QFrame {
+                background-color: #252538;
+                border-top: 1px solid #38384D;
+            }
+        """)
+        self.user_layout = QVBoxLayout(self.user_frame)
+        self.user_layout.setContentsMargins(8, 8, 8, 8)
+        self.user_layout.setSpacing(8)
+
+        # User profile button
+        self.user_button = QPushButton("👤  User Profile")
+        self.user_button.setFixedHeight(40)
+        self.user_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2A2A4A;
+                color: #FFFFFF;
+                border: none;
+                font-size: 14px;
+                text-align: left;
+                padding-left: 12px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #3A3A5A;
+            }
+        """)
+        self.user_button.clicked.connect(self.toggle_user_menu)
+        
+        # User menu (hidden by default)
+        self.user_menu = QFrame()
+        self.user_menu.setVisible(False)
+        self.user_menu.setStyleSheet("""
+            QFrame {
+                background-color: #252538;
+                border-radius: 5px;
+            }
+        """)
+        self.user_menu_layout = QVBoxLayout(self.user_menu)
+        self.user_menu_layout.setContentsMargins(0, 5, 0, 5)
+        self.user_menu_layout.setSpacing(3)
+
+        user_menu_items = [
+            ("🔐", "Login", self.user_login),
+            ("🚪", "Logout", self.user_logout),
+            ("🏢", "Enterprise Mode", self.switch_to_enterprise),
+            ("👤", "Personal Mode", self.switch_to_personal),
+            ("⚙️", "Account Settings", self.open_account_settings),
+            ("🛒", "Subscription", self.open_subscription),
+            ("👥", "Switch User", self.switch_user)
+        ]
+
+        for icon, text, action in user_menu_items:
+            btn = QPushButton(f"    {icon}  {text}")
+            btn.setFixedHeight(32)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: transparent;
+                    color: #C0C0FF;
+                    border: none;
+                    font-size: 13px;
+                    text-align: left;
+                    padding-left: 12px;
+                    border-radius: 3px;
+                }
+                QPushButton:hover {
+                    background-color: #303048;
+                    color: #FFFFFF;
+                }
+            """)
+            btn.clicked.connect(action)
+            self.user_menu_layout.addWidget(btn)
+
+        self.user_layout.addWidget(self.user_button)
+        self.user_layout.addWidget(self.user_menu)
+        self.side_menu_layout.addWidget(self.user_frame)
+
+        # Version label
+        version_label = QLabel("v3.1.2")
+        version_label.setStyleSheet("""
+            QLabel {
+                color: #606080;
+                font-size: 9px;
+                padding: 5px;
+                text-align: center;
+            }
+        """)
+        self.user_layout.addWidget(version_label)
+
+        # Add to main layout
+        self.layout().addWidget(self.side_menu)
+        self.is_menu_expanded = True
+        self.is_user_menu_expanded = False
+
+    def create_menu_handler(self, button):
+        """Create a handler that manages the accordion behavior"""
+        def handler():
+            # Close currently open menu if it's not this one
+            if self.current_open_menu and self.current_open_menu != button:
+                for btn in self.sub_menus[self.current_open_menu]:
+                    btn.setVisible(False)
+            
+            # Toggle current menu
+            for btn in self.sub_menus[button]:
+                btn.setVisible(not btn.isVisible())
+            
+            # Update currently open menu
+            if any(btn.isVisible() for btn in self.sub_menus[button]):
+                self.current_open_menu = button
+            else:
+                self.current_open_menu = None
+                
+        return handler
+
+    def toggle_sub_menu(self, button):
+        """Toggle submenu visibility for nested menus"""
+        for btn in self.sub_menus[button]:
+            btn.setVisible(not btn.isVisible())
+
+    def toggle_user_menu(self):
+        """Toggle the user menu visibility"""
+        self.is_user_menu_expanded = not self.is_user_menu_expanded
+        self.user_menu.setVisible(self.is_user_menu_expanded)
+
+    def user_login(self):
+        """Handle user login"""
+        print("Login clicked")
+
+    def user_logout(self):
+        """Handle user logout"""
+        print("Logout clicked")
+
+    def switch_to_enterprise(self):
+        """Switch to enterprise mode"""
+        print("Enterprise mode activated")
+
+    def switch_to_personal(self):
+        """Switch to personal mode"""
+        print("Personal mode activated")
+
+    def open_account_settings(self):
+        """Open account settings"""
+        print("Account settings opened")
+
+    def open_subscription(self):
+        """Open subscription page"""
+        print("Subscription page opened")
+
+    def switch_user(self):
+        """Switch user account"""
+        print("Switching user")
+
+
+    def create_menu_handler(self, button):
+        """Create a handler that manages the accordion behavior"""
+        def handler():
+            # Close currently open menu if it's not this one
+            if self.current_open_menu and self.current_open_menu != button:
+                for btn in self.sub_menus[self.current_open_menu]:
+                    btn.setVisible(False)
+            
+            # Toggle current menu
+            for btn in self.sub_menus[button]:
+                btn.setVisible(not btn.isVisible())
+            
+            # Update currently open menu
+            if any(btn.isVisible() for btn in self.sub_menus[button]):
+                self.current_open_menu = button
+            else:
+                self.current_open_menu = None
+                
+        return handler
+
+    def toggle_sub_menu(self, button):
+        """Toggle submenu visibility for nested menus"""
+        for btn in self.sub_menus[button]:
+            btn.setVisible(not btn.isVisible())
 
 
     def set_language_french(self):
