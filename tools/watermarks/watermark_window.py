@@ -10,7 +10,9 @@ from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLa
 from PyQt5.QtCore import Qt, QSize, QThread, pyqtSignal, QPoint, QSettings, QMimeData, QUrl
 from PyQt5.QtGui import (QPixmap, QColor, QImage, QIcon, QFont, QPainter, QPen, 
                         QLinearGradient, QBrush, QDragEnterEvent, QDropEvent)
-from processor import MediaProcessor
+from tools.watermarks.processor import MediaProcessor
+#from processor import MediaProcessor
+
 from functools import partial
 from PyQt5.QtCore import QObject
 

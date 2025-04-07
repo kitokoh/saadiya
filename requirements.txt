@@ -33,5 +33,22 @@ sip
 psycopg2-binary
 sqlalchemy
 
-
+install 
+pytesseract 
+pdf2image 
+ 
+pikepdf
 spacy
+
+
+opencv-python 
+pytesseract  
+pdf2image 
+pdfrw 
+pymupdf
+dlib
+cachetools
+pyparsing
+pandas
+
+face_recognition
