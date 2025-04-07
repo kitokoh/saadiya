@@ -1,0 +1,1 @@
+ici je defini comment l on peu defiinir les different strategie selon le besoin de lutilisateru 

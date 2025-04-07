@@ -526,7 +526,7 @@ class RemoteControl(QWidget):
             "Multi FB": lambda: self.execute_robot_in_tab("Multi FB","Robot satarting","resources/gifs/multi_fb.gif"),
             "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","resources/gifs/wa.gif"),
             "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","resources/gifs/wa_crm.gif"),
-            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","resources/gifs/fb_comment.gif"),
+            "FB Semi-Auto": lambda: self.execute_robot_in_tab("FB Semi-Auto","Robot satarting","resources/gifs/fb_comment.gif"),
             "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","resources/gifs/insta.gif"),
 
         }
@@ -535,7 +535,7 @@ class RemoteControl(QWidget):
             
         }
         for name, icon in [("FB Robot", "resources/icons/fb_robot.ico"), ("Multi FB", "resources/icons/multi_fb.ico"),
-                        ("WA +", "resources/icons/wa.png"), ("WA CRM", "resources/icons/wa_crm.png"),("FB Comment", "resources/icons/fb_comment.png"),("Insta", "resources/icons/insta.ico")]:
+                        ("WA +", "resources/icons/wa.png"), ("WA CRM", "resources/icons/wa_crm.png"),("FB Semi-Auto", "resources/icons/fb_comment.png"),("Insta", "resources/icons/insta.ico")]:
             btn = self.create_small_button(name, icon)
             self.apply_shadow_effect(btn)
             left_buttons.addWidget(btn)
@@ -572,7 +572,7 @@ class RemoteControl(QWidget):
             "FB Robot": lambda: self.execute_robot_in_tab("FB Robot","Robot satarting","resources/gifs/fb_robot.gif"),
             "WA +": lambda: self.execute_robot_in_tab("WA +","Robot satarting","resources/gifs/1.gif"),
             "WA CRM": lambda: self.execute_robot_in_tab("WA CRM","Robot satarting","resources/gifs/1.gif"),
-            "FB Comment": lambda: self.execute_robot_in_tab("FB Comment","Robot satarting","resources/gifs/1.gif"),
+            "FB Semi-Auto": lambda: self.execute_robot_in_tab("FB Semi-Auto","Robot satarting","resources/gifs/1.gif"),
             "Insta": lambda: self.execute_robot_in_tab("Insta","Robot satarting","resources/gifs/1.gif"),
             "IN Job": lambda: self.execute_robot_in_tab("IN Job","Robot satarting","resources/gifs/1.gif"),
             "Blog": lambda: self.execute_robot_in_tab("Blog","Robot satarting","resources/gifs/1.gif"),
@@ -1659,7 +1659,7 @@ class RemoteControl(QWidget):
             "multi fb": os.path.join("bon", "robot1"),
             "wa +": os.path.join("wabon", "robot1"),
             "wa crm": os.path.join("wabon", "robot1"),
-            "fb comment": os.path.join("bon", "robot1"),
+            "fb Semi-Auto": os.path.join("bon", "robot1"),
             "insta": os.path.join("instabon", "robot1"),
             "in job": os.path.join("inbon", "robot1"),
             "blog": os.path.join("blogbon", "robot1"),
@@ -2193,7 +2193,7 @@ class RemoteControl(QWidget):
             "Multi FB": "multi_fb.exe",
             "WA +": "wa.exe",
             "WA CRM": "wa_crm.exe",
-            "FB Comment": "fb_comment.exe",
+            "FB Semi-Auto": "fb_semiauto.exe",
             "Insta": "insta.exe",
             "IN Job": "in_job.exe",
             "Blog": "blog.exe",

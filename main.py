@@ -1115,7 +1115,8 @@ class Browser(QMainWindow):
                 ("📤", self.tr("Export"), self.open_settings_window, self.tr("Export data"), []),
                 ("📥", self.tr("Import"), self.open_settings_window, self.tr("Import data"), []),
                 ("📜", self.tr("Archives"), self.open_settings_window, self.tr("Import data"), []),
-
+                ("📥", self.tr("Prompts"), self.open_settings_window, self.tr("les promptes utiles"), []),
+                ("📜", self.tr("Strategies"), self.open_settings_window, self.tr("les stategies possible"), []),
             ]),
 
             # Support section
@@ -1300,7 +1301,9 @@ class Browser(QMainWindow):
             ("🏢", "Enterprise Mode", self.switch_to_enterprise),
             ("👤", "Personal Mode", self.switch_to_personal),
             ("⚙️", "Account Settings", self.open_account_settings),
-            ("🛒", "Subscription", self.open_subscription),
+            ("🛒", "Vision Entreprise", self.open_subscription),
+            ("🛒", "Ges password", self.open_subscription),
+
             ("👥", "Switch User", self.switch_user)
         ]
 

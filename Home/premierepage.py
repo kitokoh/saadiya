@@ -274,7 +274,7 @@ class PremiumButton(QPushButton):
         self.icon_label = QLabel()
         pixmap = QPixmap(self.icon_path)
         if pixmap.isNull():
-            self.icon_label.setText("📈" if self.text() == "Marketing" else "🧠")
+            self.icon_label.setText("🎯" if self.text() == "Marketing" else "🧠")
             self.icon_label.setStyleSheet("""
                 QLabel {
                     font-size: 80px;
