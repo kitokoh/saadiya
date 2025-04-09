@@ -130,8 +130,13 @@ class DatabaseManager:
         return sqlite3.connect(self.db_name)
 
 class ManagementDashboardPro(QMainWindow):
-    def __init__(self):
-        super().__init__()
+
+
+
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent=parent
         self.db = DatabaseManager()
         self.current_user = None
         
@@ -151,7 +156,9 @@ class ManagementDashboardPro(QMainWindow):
         
         self.init_ui()
         self.load_initial_data()
-        
+    def module_closed(self, module_id):
+        """Nettoyer après la fermeture d'un module"""
+        self.parent.modules[module_id] = None        
     def resource_path(self, relative_path):
         """ Get absolute path to resource, works for dev and for PyInstaller """
         try:
@@ -166,23 +173,24 @@ class ManagementDashboardPro(QMainWindow):
         # Création du widget central et layout principal
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        main_layout = QHBoxLayout(central_widget)
+
+        # On utilise un layout vertical maintenant (topbar au-dessus du contenu principal)
+        main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
-        
-        # Sidebar
-        self.setup_sidebar()
-        main_layout.addWidget(self.sidebar)
-        
+
+        # Topbar (remplace la sidebar)
+        self.setup_topbar()  # Remplace setup_sidebar()
+        main_layout.addWidget(self.topbar)
+
         # Contenu principal
         self.main_content = QStackedWidget()
         self.main_content.setStyleSheet("""
             QStackedWidget {
                 background-color: #ffffff;
-                border-left: 1px solid #e0e0e0;
             }
         """)
-        
+
         # Pages
         self.setup_dashboard_page()
         self.setup_team_page()
@@ -190,16 +198,18 @@ class ManagementDashboardPro(QMainWindow):
         self.setup_tasks_page()
         self.setup_reports_page()
         self.setup_settings_page()
-        
-        main_layout.addWidget(self.main_content, 1)
-        
+
+        # On ajoute le contenu principal en dessous de la topbar
+        main_layout.addWidget(self.main_content)
+
         # Barre de statut
         self.statusBar().showMessage("Prêt")
-        
+
         # Vérifier si l'utilisateur est connecté
         if not self.current_user:
             self.show_login_dialog()
-    
+
+
     def setup_sidebar(self):
         self.sidebar = QFrame()
         self.sidebar.setFixedWidth(250)
@@ -320,7 +330,104 @@ class ManagementDashboardPro(QMainWindow):
         user_layout.addWidget(logout_btn)
         
         sidebar_layout.addWidget(self.user_widget)
-    
+    def setup_topbar(self):
+        self.topbar = QFrame()
+        self.topbar.setFixedHeight(60)  # Hauteur au lieu de largeur
+        self.topbar.setStyleSheet("""
+            QFrame {
+                background-color: #2c3e50;
+                color: white;
+            }
+            QPushButton {
+                background-color: transparent;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                font-size: 14px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #34495e;
+            }
+            QPushButton#selected {
+                background-color: #3498db;
+                font-weight: bold;
+            }
+            QLabel {
+                color: white;
+            }
+        """)
+
+        topbar_layout = QHBoxLayout(self.topbar)
+        topbar_layout.setContentsMargins(10, 10, 10, 10)
+        topbar_layout.setSpacing(20)
+
+        # Logo et titre à gauche
+        logo_icon = QLabel()
+        logo_icon.setPixmap(QIcon(self.resource_path('icons/logo.png')).pixmap(40, 40))
+        logo_text = QLabel("Management Pro")
+        logo_text.setStyleSheet("font-size: 18px; font-weight: bold; color: #3498db;")
+
+        topbar_layout.addWidget(logo_icon)
+        topbar_layout.addWidget(logo_text)
+
+        # Espace entre logo et boutons
+        topbar_layout.addSpacing(30)
+
+        # Boutons de navigation (au milieu)
+        nav_buttons = [
+            ("Tableau de bord", "dashboard.png", 0),
+            ("Équipe", "team.png", 1),
+            ("Projets", "projects.png", 2),
+            ("Tâches", "tasks.png", 3),
+            ("Rapports", "reports.png", 4),
+            ("Paramètres", "settings.png", 5)
+        ]
+
+        self.nav_buttons = []
+        for text, icon, idx in nav_buttons:
+            btn = QPushButton(text)
+            btn.setIcon(QIcon(self.resource_path(f'icons/{icon}')))
+            btn.clicked.connect(lambda _, i=idx: self.change_page(i))
+            self.nav_buttons.append(btn)
+            topbar_layout.addWidget(btn)
+
+        self.nav_buttons[0].setObjectName("selected")
+
+        topbar_layout.addStretch()
+
+        # Infos utilisateur à droite
+        user_icon = QLabel()
+        user_icon.setPixmap(QIcon(self.resource_path('icons/user.png')).pixmap(30, 30))
+
+        self.user_name = QLabel("Invité")
+        self.user_name.setStyleSheet("font-weight: bold;")
+
+        self.user_role = QLabel("Non connecté")
+        self.user_role.setStyleSheet("font-size: 10px; color: #bdc3c7;")
+
+        user_info = QVBoxLayout()
+        user_info.addWidget(self.user_name)
+        user_info.addWidget(self.user_role)
+
+        user_widget = QHBoxLayout()
+        user_widget.addWidget(user_icon)
+        user_widget.addLayout(user_info)
+
+        logout_btn = QPushButton()
+        logout_btn.setIcon(QIcon(self.resource_path('icons/logout.png')))
+        logout_btn.setToolTip("Déconnexion")
+        logout_btn.setFixedSize(30, 30)
+        logout_btn.setStyleSheet("background-color: transparent;")
+        logout_btn.clicked.connect(self.logout)
+
+        user_widget_container = QWidget()
+        user_widget_container.setLayout(user_widget)
+        user_widget_container.setStyleSheet("background-color: transparent;")
+
+        topbar_layout.addWidget(user_widget_container)
+        topbar_layout.addWidget(logout_btn)
+        
     def setup_dashboard_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
