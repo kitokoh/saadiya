@@ -41,6 +41,14 @@ from tools.watermarks.watermark_window import WatermarkApp
 from liens.gestionliens import MainWindowLink
 from promptes.promptes import PromptManager
 # Simulated Nova360ProApp class for demonstration purposes
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtCore import QSize, QPropertyAnimation, Qt
+from PyQt5.QtGui import QIcon, QColor, QLinearGradient, QPainter
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QPushButton
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QCheckBox
+
 class LoaderThreadTelecommande(QThread):
     finished = pyqtSignal(object)  # Signal to emit the SplitScreenView instance
 
@@ -88,6 +96,7 @@ class LoadingScreen(QDialog):
         self.setLayout(layout)
         self.resize(300, 100)
 
+
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -123,7 +132,23 @@ class Browser(QMainWindow):
 
     #     # Ajouter du texte au splash screen
     #     self.splash.showMessage("Chargement en cours...", Qt.AlignBottom | Qt.AlignCenter, Qt.white)
- 
+    # Add menu configuration storage
+        self.menu_config = {
+            'visible_buttons': {
+                'Tools': True,
+                'Settings': True,
+                'Data': True,
+                'Support': True
+            }
+        }
+        
+        # Load saved configuration
+        self.load_menu_config() 
+
+
+
+
+
     def show_splash_screen(self):
         """Affiche un écran de chargement."""
         self.splash_pix = QPixmap("resources/images/splashScreer.png")  # Remplacez par le chemin de votre image
@@ -1161,14 +1186,24 @@ class Browser(QMainWindow):
 
     def create_side_menu(self):
         """
-        Create an ultra-modern side menu with accordion behavior
+        Create an ultra-modern side menu with dynamic button management
         """
-        # Side panel with sleek styling
-    # Initialize user state attributes
-        self.is_user_logged_in = False  # Track login state
-        self.is_enterprise_mode = False  # Track mode
-
+        # Initialize user state attributes
+        self.is_user_logged_in = False
+        self.is_enterprise_mode = False
         
+        # Menu configuration (default values)
+        self.menu_config = {
+            'visible_buttons': {
+                'Tools': False,
+                'Settings': False,
+                'Data': False,
+                'Support': False
+            }
+        }
+        self.load_menu_config()  # Load saved configuration
+
+        # Side panel with sleek styling
         self.side_menu = QFrame()
         self.side_menu.setFixedWidth(200)
         self.side_menu.setStyleSheet("""
@@ -1188,51 +1223,20 @@ class Browser(QMainWindow):
         self.control_buttons_layout.setContentsMargins(8, 8, 8, 15)
         self.control_buttons_layout.setSpacing(6)
 
-        # Control buttons (unchanged)
+        # Control buttons
         self.close_button = QPushButton("✕")
         self.close_button.setFixedSize(20, 20)
-        self.close_button.setStyleSheet("""
-            QPushButton {
-                background-color: #FF5C5C;
-                color: white;
-                border-radius: 10px;
-                font-size: 10px;
-            }
-            QPushButton:hover {
-                background-color: #FF7878;
-            }
-        """)
+        self.close_button.setStyleSheet(self.get_button_style("close"))
         self.close_button.clicked.connect(self.close_window)
 
         self.minimize_button = QPushButton("—")
         self.minimize_button.setFixedSize(20, 20)
-        self.minimize_button.setStyleSheet("""
-            QPushButton {
-                background-color: #FFBD4C;
-                color: white;
-                border-radius: 10px;
-                font-size: 10px;
-                padding-bottom: 3px;
-            }
-            QPushButton:hover {
-                background-color: #FFD37C;
-            }
-        """)
+        self.minimize_button.setStyleSheet(self.get_button_style("minimize"))
         self.minimize_button.clicked.connect(self.minimize_window)
 
         self.maximize_button = QPushButton("□")
         self.maximize_button.setFixedSize(20, 20)
-        self.maximize_button.setStyleSheet("""
-            QPushButton {
-                background-color: #00CA56;
-                color: white;
-                border-radius: 10px;
-                font-size: 10px;
-            }
-            QPushButton:hover {
-                background-color: #00E066;
-            }
-        """)
+        self.maximize_button.setStyleSheet(self.get_button_style("maximize"))
         self.maximize_button.clicked.connect(self.maximize_window)
 
         self.control_buttons_layout.addWidget(self.close_button)
@@ -1261,95 +1265,79 @@ class Browser(QMainWindow):
 
         # --- Menu Items ---
         menu_items = [
-            # Home
-            ("🏠", self.tr("Home"), self.open_accueil_window, self.tr("Main dashboard"), []),
+            # Home (fixed)
+            ("🏠", self.tr("Home"), "home", self.open_accueil_window, self.tr("Main dashboard"), []),
 
-            # Tools section
-            ("🧰", self.tr("Tools"), None, self.tr("Document tools"), [
-
-                ("📡", self.tr("Remote"), self.open_telecommande_window, self.tr("Remote control"), []),
-                ("⏰", self.tr("Scheduler"), self.open_sheduling_window, self.tr("Task scheduling"), []),
-
-                ("📝", self.tr("Edit PDF"), self.open_editpdf_window, self.tr("Modify PDF documents"), []),
-                ("💧", self.tr("Watermarks"), self.open_watermark_window, self.tr("Add/remove watermarks"), []),
-                ("📝", self.tr("Remove BG"), self.open_removebg_window, self.tr("Remove Background"), []),
-
-                ("🔗", self.tr("Links"), self.open_links_window, self.tr("Manage links"), []),
+            # Tools section (dynamic)
+            ("🧰", self.tr("Tools"), "tools", None, self.tr("Document tools"), [
+                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
+                ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
+                ("📝", self.tr("Edit PDF"), "edit_pdf", self.open_editpdf_window, self.tr("Modify PDF documents"), []),
+                ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
+                ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
+                ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
             ]),
 
-            # Settings section
-            ("⚙️", self.tr("Settings"), None, self.tr("Configuration"), [
-                ("📅", self.tr("Schedule"), self.open_sheduling_window, self.tr("Configure schedules"), []),
-                ("🗂️", self.tr("Instances"), self.open_instance, self.tr("Manage instances"), []),
-                ("🖥️", self.tr("System"), self.open_settings_window, self.tr("System configuration"), []),
-                ("🌍", self.tr("Language"), None, self.tr("Language settings"), [
-                    ("🗼", self.tr("French"), lambda: self.switch_language("fr"), self.tr("French language"), []),
-                    ("🏰", self.tr("English"), lambda: self.switch_language("en"), self.tr("English language"), []),
-                    ("🕋", self.tr("Arabic"), lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
-                    ("🕌", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
-                    ("🏖️", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
+            # Settings section (dynamic)
+            ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
+                ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
+                ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
+                ("🖥️", self.tr("System"), "system", self.open_settings_window, self.tr("System configuration"), []),
+                ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
+                    ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
+                    ("🏰", self.tr("English"), "english", lambda: self.switch_language("en"), self.tr("English language"), []),
+                    ("🕋", self.tr("Arabic"), "arabic", lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
+                    ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
+                    ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
                 ]),
-                (
-                    "🌐", 
-                    self.tr("Online Connect"), 
-                    None, 
-                    self.tr("Remote connection settings"), 
-                    [
-                        ("🖥️", self.tr("SSH Connect"), self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
-                        ("📂", self.tr("FTP Server"), self.connect_via_ftp, self.tr("Access files via FTP"), []),
-                        ("🔗", self.tr("API Link"), self.connect_via_api, self.tr("Connect to external APIs"), []),
-                        ("🛰️", self.tr("Remote Desktop"), self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
-                        ("🔒", self.tr("VPN Connect"), self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
-                        ("🧠", self.tr("AI Service"), self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
-                    ]
-                )
-
+                ("🌐", self.tr("Online Connect"), "online_connect", None, self.tr("Remote connection settings"), [
+                    ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
+                    ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
+                    ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
+                    ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
+                    ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
+                    ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
+                ])
             ]),
 
-            # Data section
-            ("📊", self.tr("Data"), None, self.tr("Data management"), [
-                ("📈", self.tr("Stats"), self.open_statistics_window, self.tr("View statistics"), []),
-                ("📤", self.tr("Export"), self.open_exports_window, self.tr("Export data"), []),
-                ("📥", self.tr("Import"), self.open_imports_window, self.tr("Import data"), []),
-
-                ("📝", self.tr("Prompts"), self.open_prompts_window, self.tr("les promptes utiles"), []),
-                ("📜", self.tr("Strategies"), self.open_strategies_window, self.tr("les stategies possible"), []),
-                (
-                    "🗃️",
-                    self.tr("Archive"),
-                    None,
-                    self.tr("Backup and archive options"),
-                    [
-                        ("📁", self.tr("Local ZIP Archive"), self.archive_to_zip, self.tr("Compress and save locally"), []),
-                        ("☁️", self.tr("Google Drive"), self.archive_to_gdrive, self.tr("Upload archive to Google Drive"), []),
-                        ("📦", self.tr("Dropbox"), self.archive_to_dropbox, self.tr("Save archive to Dropbox"), []),
-                        ("🌐", self.tr("FTP Server"), self.archive_to_ftp, self.tr("Upload archive via FTP"), []),
-                        ("🔐", self.tr("SFTP Secure"), self.archive_to_sftp, self.tr("Secure archive via SFTP"), []),
-                        ("🗄️", self.tr("External Disk"), self.archive_to_external_disk, self.tr("Save to external device"), []),
-                        ("🔁", self.tr("Schedule Backup"), self.schedule_backup, self.tr("Plan automatic backups"), []),
-                    ]
-                ),
+            # Data section (dynamic)
+            ("📊", self.tr("Data"), "data", None, self.tr("Data management"), [
+                ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
+                ("📤", self.tr("Export"), "export", self.open_exports_window, self.tr("Export data"), []),
+                ("📥", self.tr("Import"), "import", self.open_imports_window, self.tr("Import data"), []),
+                ("📝", self.tr("Prompts"), "prompts", self.open_prompts_window, self.tr("les promptes utiles"), []),
+                ("📜", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("les stategies possible"), []),
+                ("🗃️", self.tr("Backup"), "backup", None, self.tr("Backup and archive options"), [
+                    ("📁", self.tr("Local ZIP Archive"), "local_zip", self.archive_to_zip, self.tr("Compress and save locally"), []),
+                    ("☁️", self.tr("Google Drive"), "gdrive", self.archive_to_gdrive, self.tr("Upload archive to Google Drive"), []),
+                    ("📦", self.tr("Dropbox"), "dropbox", self.archive_to_dropbox, self.tr("Save archive to Dropbox"), []),
+                    ("🌐", self.tr("FTP Server"), "ftp_backup", self.archive_to_ftp, self.tr("Upload archive via FTP"), []),
+                    ("🔐", self.tr("SFTP Secure"), "sftp", self.archive_to_sftp, self.tr("Secure archive via SFTP"), []),
+                    ("🗄️", self.tr("External Disk"), "external_disk", self.archive_to_external_disk, self.tr("Save to external device"), []),
+                    ("🔁", self.tr("Schedule Backup"), "schedule_backup", self.schedule_backup, self.tr("Plan automatic backups"), []),
+                ]),
             ]),
 
-            # Support section
-            ("🆘", self.tr("Support"), None, self.tr("Support resources"), [
-                ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About this app"), []),
-                ("📜", self.tr("Documents"), self.open_certif_window, self.tr("View licenses"), []),
-                ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact us"), []),
+            # Support section (dynamic)
+            ("🆘", self.tr("Support"), "support", None, self.tr("Support resources"), [
+                ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
+                ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
+                ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
             ]),
 
-            # Upgrade section
-            ("💎", self.tr("Upgrade"), None, self.tr("Upgrade options"), [
-                ("✨", self.tr("Features"), self.open_upgrade_window1, self.tr("Additional features"), []),
-                ("🏛️", self.tr("Enterprise"), self.open_upgrade_window, self.tr("Enterprise features"), []),
+            # Upgrade section (fixed)
+            ("💎", self.tr("Upgrade"), "upgrade", None, self.tr("Upgrade options"), [
+                ("✨", self.tr("Features"), "features", self.open_upgrade_window1, self.tr("Additional features"), []),
+                ("🏛️", self.tr("Enterprise"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
             ]),
         ]
 
         self.menu_buttons = []
         self.sub_menus = {}
-        self.current_open_menu = None  # Track currently open menu
+        self.current_open_menu = None
+        self.menu_button_refs = {}  # For dynamic visibility control
 
-        for icon, text, action, tooltip, sub_items in menu_items:
+        for icon, text, identifier, action, tooltip, sub_items in menu_items:
             # Main menu button
             button = QPushButton(f"  {icon}  {text}")
             button.setFixedHeight(40)
@@ -1376,11 +1364,15 @@ class Browser(QMainWindow):
                 
             self.side_menu_layout.addWidget(button)
             self.menu_buttons.append((button, icon, text))
+            
+            # Store reference for dynamic visibility control (except fixed buttons)
+            if identifier not in ["home", "upgrade"]:
+                self.menu_button_refs[text] = button
 
             # Create submenus if they exist
             if sub_items:
                 sub_menu = []
-                for sub_icon, sub_text, sub_action, sub_tooltip, nested_sub_items in sub_items:
+                for sub_icon, sub_text, sub_id, sub_action, sub_tooltip, nested_sub_items in sub_items:
                     sub_btn = QPushButton(f"    {sub_icon}  {sub_text}")
                     sub_btn.setFixedHeight(36)
                     sub_btn.setStyleSheet("""
@@ -1411,7 +1403,7 @@ class Browser(QMainWindow):
                     # Handle nested submenus
                     if nested_sub_items:
                         nested_menu = []
-                        for nest_icon, nest_text, nest_action, nest_tooltip, _ in nested_sub_items:
+                        for nest_icon, nest_text, nest_id, nest_action, nest_tooltip, _ in nested_sub_items:
                             nest_btn = QPushButton(f"      {nest_icon}  {nest_text}")
                             nest_btn.setFixedHeight(34)
                             nest_btn.setStyleSheet("""
@@ -1445,28 +1437,82 @@ class Browser(QMainWindow):
                 self.sub_menus[button] = sub_menu
                 button.clicked.connect(self.create_menu_handler(button))
 
-        # Add stretch and version label
+        # Add stretch
         self.side_menu_layout.addStretch()
-        version_label = QLabel("v3.1.2")
-        version_label.setStyleSheet("""
-            QLabel {
-                color: #606080;
-                font-size: 9px;
-                padding: 5px;
+
+
+        class ShinyButton(QPushButton):
+            def paintEvent(self, event):
+                painter = QPainter(self)
+                painter.setRenderHint(QPainter.Antialiasing)
+                
+                # Fond avec dégradé
+                gradient = QLinearGradient(0, 0, self.width(), 0)
+                gradient.setColorAt(0, QColor(100, 130, 255))
+                gradient.setColorAt(0.5, QColor(160, 90, 255))
+                gradient.setColorAt(1, QColor(255, 70, 150))
+                
+                painter.setBrush(gradient)
+                painter.setPen(Qt.NoPen)
+                painter.drawRoundedRect(self.rect(), 8, 8)
+                
+                # Texte et icône
+                painter.setPen(QColor(255, 255, 255))
+                painter.drawText(self.rect(), Qt.AlignCenter, self.text())
+
+        # --- Menu Configuration Button ---
+        self.menu_config_button = ShinyButton("⚙️ MENU")
+        self.menu_config_button.setFixedHeight(48)
+        self.menu_config_button.setFixedWidth(180)
+        self.menu_config_button.setIcon(QIcon.fromTheme("preferences-system"))
+        self.menu_config_button.setIconSize(QSize(24, 24))
+        self.menu_config_button.setStyleSheet("""
+            QPushButton {
+                color: white;
+                font-size: 14px;
+                font-weight: bold;
                 text-align: center;
+                padding-left: 10px;
+                border: none;
+                margin: 10px 5px;
             }
         """)
-        #self.side_menu_layout.addWidget(version_label)
 
-        # Add to main layout
-        self.layout().addWidget(self.side_menu)
-        self.is_menu_expanded = False
-        self.is_user_menu_expanded = False
+        # Effet de brillance animée
+        self.glow_animation = QPropertyAnimation(self.menu_config_button, b"iconSize")
+        self.glow_animation.setDuration(1500)
+        self.glow_animation.setLoopCount(-1)  # Infinite loop
+        self.glow_animation.setKeyValueAt(0, QSize(24, 24))
+        self.glow_animation.setKeyValueAt(0.5, QSize(28, 28))
+        self.glow_animation.setKeyValueAt(1, QSize(24, 24))
+        self.glow_animation.start()
 
+        # Ombre portée intense
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(0)
+        shadow.setYOffset(0)
+        shadow.setColor(QColor(100, 130, 255, 150))
+        self.menu_config_button.setGraphicsEffect(shadow)
 
-        # [...] (le reste de votre code create_side_menu existant jusqu'à la section utilisateur)
+        # Animation au survol
+        self.hover_animation = QPropertyAnimation(self.menu_config_button, b"geometry")
+        self.hover_animation.setDuration(200)
 
-        # User Section - Modified to handle dynamic states
+        def animate_hover(enter):
+            if enter:
+                self.hover_animation.setEndValue(self.menu_config_button.geometry().adjusted(-5, -2, 5, 2))
+            else:
+                self.hover_animation.setEndValue(self.menu_config_button.geometry().adjusted(5, 2, -5, -2))
+            self.hover_animation.start()
+
+        self.menu_config_button.enterEvent = lambda e: animate_hover(True)
+        self.menu_config_button.leaveEvent = lambda e: animate_hover(False)
+
+        self.menu_config_button.clicked.connect(self.show_menu_settings_dialog)
+        self.side_menu_layout.addWidget(self.menu_config_button)
+
+        # --- User Section ---
         self.user_frame = QFrame()
         self.user_frame.setStyleSheet("""
             QFrame {
@@ -1511,44 +1557,18 @@ class Browser(QMainWindow):
         self.user_menu_layout.setContentsMargins(0, 5, 0, 5)
         self.user_menu_layout.setSpacing(3)
 
-        # Initialize user menu buttons
+        # User menu buttons
         self.login_button = QPushButton("🔑 Login")
         self.logout_button = QPushButton("🚪 Logout")
         self.enterprise_button = QPushButton("🏢 Enterprise Mode")
         self.personal_button = QPushButton("👤 Personal Mode")
-        
-        # Configure buttons
-        user_buttons = [
-            (self.login_button, self.user_login),
-            (self.logout_button, self.user_logout),
-            (self.enterprise_button, self.switch_to_enterprise),
-            (self.personal_button, self.switch_to_personal),
-        ]
-        
-        for btn, action in user_buttons:
-            btn.setFixedHeight(36)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background-color: #3A3F4B;
-                    color: white;
-                    border: none;
-                    font-size: 13px;
-                    text-align: left;
-                    padding-left: 20px;
-                    border-radius: 4px;
-                }
-                QPushButton:hover {
-                    background-color: #4A4F5C;
-                }
-            """)
-            btn.clicked.connect(action)
-        
-        # Add other buttons
         self.settings_button = QPushButton("⚙️ Settings")
         self.switch_button = QPushButton("👥 Switch Account")
         self.subscription_button = QPushButton("🛒 Subscription")
-        
-        for btn in [self.settings_button, self.switch_button, self.subscription_button]:
+
+        for btn in [self.login_button, self.logout_button, self.enterprise_button, 
+                    self.personal_button, self.settings_button, self.switch_button, 
+                    self.subscription_button]:
             btn.setFixedHeight(36)
             btn.setStyleSheet("""
                 QPushButton {
@@ -1564,7 +1584,12 @@ class Browser(QMainWindow):
                     background-color: #4A4F5C;
                 }
             """)
-        
+
+        # Connect buttons
+        self.login_button.clicked.connect(self.user_login)
+        self.logout_button.clicked.connect(self.user_logout)
+        self.enterprise_button.clicked.connect(self.switch_to_enterprise)
+        self.personal_button.clicked.connect(self.switch_to_personal)
         self.settings_button.clicked.connect(self.open_user_settings)
         self.switch_button.clicked.connect(self.switch_account)
         self.subscription_button.clicked.connect(self.open_subscription)
@@ -1583,6 +1608,129 @@ class Browser(QMainWindow):
 
         # Update initial visibility
         self.update_user_buttons()
+        self.update_menu_visibility()
+
+        # Add to main layout
+        self.layout().addWidget(self.side_menu)
+        self.is_menu_expanded = False
+        self.is_user_menu_expanded = False
+
+    def get_button_style(self, button_type):
+        """Return style sheet for window control buttons"""
+        styles = {
+            "close": """
+                QPushButton {
+                    background-color: #FF5C5C;
+                    color: white;
+                    border-radius: 10px;
+                    font-size: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #FF7878;
+                }
+            """,
+            "minimize": """
+                QPushButton {
+                    background-color: #FFBD4C;
+                    color: white;
+                    border-radius: 10px;
+                    font-size: 10px;
+                    padding-bottom: 3px;
+                }
+                QPushButton:hover {
+                    background-color: #FFD37C;
+                }
+            """,
+            "maximize": """
+                QPushButton {
+                    background-color: #00CA56;
+                    color: white;
+                    border-radius: 10px;
+                    font-size: 10px;
+                }
+                QPushButton:hover {
+                    background-color: #00E066;
+                }
+            """
+        }
+        return styles.get(button_type, "")
+
+    def load_menu_config(self):
+        """Load menu configuration from settings"""
+        try:
+            settings = QSettings()
+            visible_buttons = settings.value("menu/visible_buttons", {})
+            if visible_buttons:
+                self.menu_config['visible_buttons'] = visible_buttons
+        except:
+            pass
+
+    def save_menu_config(self):
+        """Save menu configuration to persistent storage"""
+        try:
+            settings = QSettings()
+            settings.setValue("menu/visible_buttons", self.menu_config['visible_buttons'])
+        except:
+            pass
+
+    def toggle_menu_button(self, button_name, visible=None):
+        """Toggle visibility of a menu button"""
+        if button_name in self.menu_config['visible_buttons']:
+            if visible is None:
+                # Toggle current state
+                self.menu_config['visible_buttons'][button_name] = not self.menu_config['visible_buttons'][button_name]
+            else:
+                # Set specific state
+                self.menu_config['visible_buttons'][button_name] = visible
+            
+            self.save_menu_config()
+            self.update_menu_visibility()
+
+    def update_menu_visibility(self):
+        """Update menu buttons visibility based on configuration"""
+        for button_name, visible in self.menu_config['visible_buttons'].items():
+            if button_name in self.menu_button_refs:
+                button = self.menu_button_refs[button_name]
+                button.setVisible(visible)
+                
+                # Also hide any open submenus if parent is hidden
+                if not visible and button in self.sub_menus:
+                    for sub_btn in self.sub_menus[button]:
+                        sub_btn.setVisible(False)
+
+    def show_menu_settings_dialog(self):
+        """Show dialog to configure menu buttons visibility"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Configure Menu Buttons")
+        dialog.setMinimumWidth(300)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Add checkboxes for each dynamic button
+        checkboxes = {}
+        for button_name in self.menu_config['visible_buttons']:
+            cb = QCheckBox(button_name)
+            cb.setChecked(self.menu_config['visible_buttons'][button_name])
+            checkboxes[button_name] = cb
+            layout.addWidget(cb)
+        
+        # Add save button
+        btn_box = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        btn_box.accepted.connect(dialog.accept)
+        btn_box.rejected.connect(dialog.reject)
+        layout.addWidget(btn_box)
+        
+        if dialog.exec() == QDialog.Accepted:
+            # Update configuration from checkboxes
+            for button_name, cb in checkboxes.items():
+                self.toggle_menu_button(button_name, cb.isChecked())
+        
+        dialog.deleteLater()
+
+        
+    
+  
+
 
     def update_user_buttons(self):
         """Update button visibility based on user state"""
