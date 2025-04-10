@@ -11,7 +11,7 @@ from PyQt5.QtGui import QIcon, QFont, QPalette, QColor, QKeySequence, QPainter, 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QStyledItemDelegate
 from PyQt5.QtCore import pyqtSignal
-
+from imports import DB_PATH_links
 class PasswordEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -86,10 +86,9 @@ class GradientLabel(QLabel):
         painter.drawRect(self.rect())
         painter.setPen(QColor("#ffffff"))
         painter.drawText(self.rect(), Qt.AlignCenter, self.text())
-
 class DatabaseManager:
     def __init__(self):
-        self.conn = sqlite3.connect('liens_utiles.db', check_same_thread=False)
+        self.conn = sqlite3.connect(DB_PATH_links, check_same_thread=False)
         self.create_tables()
         
     def create_tables(self):
@@ -734,67 +733,108 @@ class CategoryWidget(QWidget):
             self.parent.charger_categories()
             self.parent.charger_liens()
 
+
+
 class AddCategoryDialog(QWidget):
     def __init__(self, db, parent=None):
         super().__init__(parent)
         self.db = db
         self.parent = parent
         
-        self.setWindowTitle("Ajouter une catégorie")
+        self.setWindowTitle("➕ Ajouter une catégorie")
         self.setWindowModality(Qt.ApplicationModal)
-        self.setFixedSize(400, 200)
+        self.setFixedSize(420, 240)
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #f9f9f9;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 14px;
+            }
+            QLineEdit, QComboBox {
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                padding: 6px;
+                background-color: #ffffff;
+            }
+            QLabel {
+                font-weight: bold;
+                color: #333;
+            }
+        """)
         
         self.setup_ui()
         
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(25, 25, 25, 25)
+        layout.setSpacing(20)
         
         # Formulaire
         form_layout = QVBoxLayout()
-        form_layout.setSpacing(15)
+        form_layout.setSpacing(12)
         
         # Nom
-        nom_label = QLabel("Nom de la catégorie:")
+        nom_label = QLabel("Nom de la catégorie :")
         self.nom_input = QLineEdit()
+        self.nom_input.setPlaceholderText("Ex : Priorité, Personnel, Projet...")
         
         # Couleur
-        color_label = QLabel("Couleur:")
+        color_label = QLabel("Couleur :")
         self.color_combo = QComboBox()
-        self.color_combo.addItem("Bleu", "#4e73df")
-        self.color_combo.addItem("Rouge", "#e74a3b")
-        self.color_combo.addItem("Vert", "#1cc88a")
-        self.color_combo.addItem("Jaune", "#f6c23e")
-        self.color_combo.addItem("Violet", "#6f42c1")
-        self.color_combo.addItem("Cyan", "#36b9cc")
+        self.color_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.color_combo.addItem("🔵 Bleu", "#4e73df")
+        self.color_combo.addItem("🔴 Rouge", "#e74a3b")
+        self.color_combo.addItem("🟢 Vert", "#1cc88a")
+        self.color_combo.addItem("🟡 Jaune", "#f6c23e")
+        self.color_combo.addItem("🟣 Violet", "#6f42c1")
+        self.color_combo.addItem("🟦 Cyan", "#36b9cc")
         
         form_layout.addWidget(nom_label)
         form_layout.addWidget(self.nom_input)
         form_layout.addWidget(color_label)
         form_layout.addWidget(self.color_combo)
         
-        layout.addLayout(form_layout, 1)
+        layout.addLayout(form_layout)
         
         # Boutons
         btn_layout = QHBoxLayout()
-        btn_layout.setSpacing(10)
-        
-        self.btn_valider = FadeButton("Valider")
-        self.btn_valider.setIcon(QIcon.fromTheme("dialog-ok"))
-        self.btn_valider.setStyleSheet("background-color: #1cc88a; color: white;")
-        self.btn_valider.clicked.connect(self.valider)
+        btn_layout.setSpacing(15)
         
         self.btn_annuler = FadeButton("Annuler")
         self.btn_annuler.setIcon(QIcon.fromTheme("dialog-cancel"))
-        self.btn_annuler.setStyleSheet("background-color: #e74a3b; color: white;")
+        self.btn_annuler.setStyleSheet("""
+            QPushButton {
+                background-color: #e74a3b;
+                color: white;
+                border-radius: 6px;
+                padding: 8px 20px;
+            }
+            QPushButton:hover {
+                background-color: #c0392b;
+            }
+        """)
         self.btn_annuler.clicked.connect(self.close)
+
+        self.btn_valider = FadeButton("Valider")
+        self.btn_valider.setIcon(QIcon.fromTheme("dialog-ok"))
+        self.btn_valider.setStyleSheet("""
+            QPushButton {
+                background-color: #1cc88a;
+                color: white;
+                border-radius: 6px;
+                padding: 8px 20px;
+            }
+            QPushButton:hover {
+                background-color: #17a673;
+            }
+        """)
+        self.btn_valider.clicked.connect(self.valider)
         
         btn_layout.addStretch()
         btn_layout.addWidget(self.btn_annuler)
         btn_layout.addWidget(self.btn_valider)
         
         layout.addLayout(btn_layout)
-        
         self.setLayout(layout)
         
     def valider(self):
@@ -802,7 +842,7 @@ class AddCategoryDialog(QWidget):
         color = self.color_combo.currentData()
         
         if not nom:
-            QMessageBox.warning(self, 'Erreur', 'Veuillez entrer un nom pour la catégorie')
+            QMessageBox.warning(self, "Erreur", "Veuillez entrer un nom pour la catégorie")
             return
             
         success = self.db.ajouter_categorie(nom, color)
@@ -810,7 +850,7 @@ class AddCategoryDialog(QWidget):
             self.parent.charger_categories()
             self.close()
         else:
-            QMessageBox.warning(self, 'Erreur', 'Cette catégorie existe déjà!')
+            QMessageBox.warning(self, "Erreur", "Cette catégorie existe déjà !")
 
 class EditLinkDialog(QWidget):
     def __init__(self, db, lien_id=None, parent=None):
@@ -999,9 +1039,11 @@ class EditLinkDialog(QWidget):
         self.parent.charger_liens()
         self.close()
 
-class MainWindow(QMainWindow):
-    def __init__(self):
+class MainWindowLink(QMainWindow):
+    def __init__(self,main_app=None):
         super().__init__()
+        self.main_app = main_app
+
         self.db = DatabaseManager()
         self.browser = None
         self.auto_save_timer = QTimer()
@@ -1525,6 +1567,6 @@ if __name__ == "__main__":
     font.setPointSize(10)
     app.setFont(font)
     
-    window = MainWindow()
+    window = MainWindowLink()
     window.show()
     sys.exit(app.exec_())

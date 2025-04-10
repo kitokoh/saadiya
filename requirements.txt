@@ -52,3 +52,7 @@ pyparsing
 pandas
 
 face_recognition
+markdown 
+bs4
+pyqtgraph
+matplotlib

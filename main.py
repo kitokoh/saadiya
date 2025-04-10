@@ -38,6 +38,8 @@ from Home.instances import InstanceTable
 from Home.premierepage import MainWindow1
 from tools.editpdf import PDFEditorApp
 from tools.watermarks.watermark_window import WatermarkApp
+from liens.gestionliens import MainWindowLink
+from promptes.promptes import PromptManager
 # Simulated Nova360ProApp class for demonstration purposes
 class LoaderThreadTelecommande(QThread):
     finished = pyqtSignal(object)  # Signal to emit the SplitScreenView instance
@@ -845,9 +847,26 @@ class Browser(QMainWindow):
 
         # Add the existing instance to the new tab
         self.add_custom_tab(self.editpdf, tab_name, "resources/icons/multi_fb.ico")
+    def open_removebg_window(self):
+        tab_name = self.tr("Remove Background")  # Nom de l'onglet affiché
+
+        # Vérifie si l'onglet est déjà ouvert
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Crée un QWebEngineView pour afficher le site
+        web_view = QWebEngineView()
+        web_view.setUrl(QUrl("https://www.remove.bg/"))
+
+        # Ajoute le web_view dans un nouvel onglet
+        self.add_custom_tab(web_view, tab_name, "resources/icons/multi_fb.ico")
 
 
-    def open_removebg_window  (self):
+
+
+    def open_removebg_window2  (self):
         tab_name = self.tr("watermarks")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
@@ -965,6 +984,94 @@ class Browser(QMainWindow):
         widget = SearchWidget()
         self.add_custom_tab(widget, self.tr("Search"), "resources/icons/multi_fb.ico")
 
+    def open_links_window(self):
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("links")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'links') or self.settings is None:
+            self.settings = MainWindowLink(main_app=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.settings, tab_name, "resources/icons/multi_fb.ico")
+    def open_exports_window(self):
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("exports")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'exports') or self.settings is None:
+            self.settings = Nova360Ultimate(main_app=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.settings, tab_name, "resources/icons/multi_fb.ico")
+
+    def open_imports_window(self):
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("imports")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'imports') or self.settings is None:
+            self.settings = Nova360Ultimate(main_app=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.settings, tab_name, "resources/icons/multi_fb.ico")
+    def open_strategies_window(self):
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("strategies")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'strategies') or self.settings is None:
+            self.settings = Nova360Ultimate(main_app=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.settings, tab_name, "resources/icons/multi_fb.ico")
+
+    def open_prompts_window(self):
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("prompts")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'prompts') or self.prompts is None:
+            self.prompts = PromptManager(main_app=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.prompts, tab_name, "resources/icons/multi_fb.ico")
+
     def open_settings_window(self):
         """Open a tab with the content of the 'SettingsWidget' class."""
         tab_name = self.tr("Settings")  # Tab name (matches the label used in add_custom_tab)
@@ -1010,6 +1117,46 @@ class Browser(QMainWindow):
         # Add the existing instance to the new tab
         self.add_custom_tab(self.upgrades, tab_name, "resources/icons/multi_fb.ico")
 
+    def connect_via_ssh(self):
+        print("Connecting via SSH...")
+        # Ajoute ici ton vrai code de connexion
+
+    def connect_via_ftp(self):
+        print("Connecting to FTP server...")
+
+    def connect_via_api(self):
+        print("Connecting to external API...")
+
+    def connect_remote_desktop(self):
+        print("Launching remote desktop session...")
+
+    def connect_via_vpn(self):
+        print("Connecting through VPN...")
+
+    def connect_ai_service(self):
+        print("Connecting to AI service...")
+
+
+    def archive_to_zip(self):
+        print("Archiving locally as ZIP...")
+
+    def archive_to_gdrive(self):
+        print("Uploading to Google Drive...")
+
+    def archive_to_dropbox(self):
+        print("Uploading to Dropbox...")
+
+    def archive_to_ftp(self):
+        print("Uploading via FTP...")
+
+    def archive_to_sftp(self):
+        print("Uploading via secure SFTP...")
+
+    def archive_to_external_disk(self):
+        print("Copying archive to external disk...")
+
+    def schedule_backup(self):
+        print("Opening backup scheduler...")
 
 
     def create_side_menu(self):
@@ -1125,9 +1272,9 @@ class Browser(QMainWindow):
 
                 ("📝", self.tr("Edit PDF"), self.open_editpdf_window, self.tr("Modify PDF documents"), []),
                 ("💧", self.tr("Watermarks"), self.open_watermark_window, self.tr("Add/remove watermarks"), []),
-                ("📝", self.tr("Remove BG"), self.open_editpdf_window, self.tr("Remove Background"), []),
+                ("📝", self.tr("Remove BG"), self.open_removebg_window, self.tr("Remove Background"), []),
 
-                ("🔗", self.tr("Links"), self.open_settings_window, self.tr("Manage links"), []),
+                ("🔗", self.tr("Links"), self.open_links_window, self.tr("Manage links"), []),
             ]),
 
             # Settings section
@@ -1142,22 +1289,52 @@ class Browser(QMainWindow):
                     ("🕌", self.tr("Turkish"), lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
                     ("🏖️", self.tr("Portuguese"), lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
                 ]),
+                (
+                    "🌐", 
+                    self.tr("Online Connect"), 
+                    None, 
+                    self.tr("Remote connection settings"), 
+                    [
+                        ("🖥️", self.tr("SSH Connect"), self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
+                        ("📂", self.tr("FTP Server"), self.connect_via_ftp, self.tr("Access files via FTP"), []),
+                        ("🔗", self.tr("API Link"), self.connect_via_api, self.tr("Connect to external APIs"), []),
+                        ("🛰️", self.tr("Remote Desktop"), self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
+                        ("🔒", self.tr("VPN Connect"), self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
+                        ("🧠", self.tr("AI Service"), self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
+                    ]
+                )
+
             ]),
 
             # Data section
             ("📊", self.tr("Data"), None, self.tr("Data management"), [
                 ("📈", self.tr("Stats"), self.open_statistics_window, self.tr("View statistics"), []),
-                ("📤", self.tr("Export"), self.open_settings_window, self.tr("Export data"), []),
-                ("📥", self.tr("Import"), self.open_settings_window, self.tr("Import data"), []),
-                ("📜", self.tr("Archives"), self.open_settings_window, self.tr("Import data"), []),
-                ("📥", self.tr("Prompts"), self.open_settings_window, self.tr("les promptes utiles"), []),
-                ("📜", self.tr("Strategies"), self.open_settings_window, self.tr("les stategies possible"), []),
+                ("📤", self.tr("Export"), self.open_exports_window, self.tr("Export data"), []),
+                ("📥", self.tr("Import"), self.open_imports_window, self.tr("Import data"), []),
+
+                ("📝", self.tr("Prompts"), self.open_prompts_window, self.tr("les promptes utiles"), []),
+                ("📜", self.tr("Strategies"), self.open_strategies_window, self.tr("les stategies possible"), []),
+                (
+                    "🗃️",
+                    self.tr("Archive"),
+                    None,
+                    self.tr("Backup and archive options"),
+                    [
+                        ("📁", self.tr("Local ZIP Archive"), self.archive_to_zip, self.tr("Compress and save locally"), []),
+                        ("☁️", self.tr("Google Drive"), self.archive_to_gdrive, self.tr("Upload archive to Google Drive"), []),
+                        ("📦", self.tr("Dropbox"), self.archive_to_dropbox, self.tr("Save archive to Dropbox"), []),
+                        ("🌐", self.tr("FTP Server"), self.archive_to_ftp, self.tr("Upload archive via FTP"), []),
+                        ("🔐", self.tr("SFTP Secure"), self.archive_to_sftp, self.tr("Secure archive via SFTP"), []),
+                        ("🗄️", self.tr("External Disk"), self.archive_to_external_disk, self.tr("Save to external device"), []),
+                        ("🔁", self.tr("Schedule Backup"), self.schedule_backup, self.tr("Plan automatic backups"), []),
+                    ]
+                ),
             ]),
 
             # Support section
             ("🆘", self.tr("Support"), None, self.tr("Support resources"), [
                 ("ℹ️", self.tr("About"), self.open_about_window, self.tr("About this app"), []),
-                ("📜", self.tr("Licenses"), self.open_certif_window, self.tr("View licenses"), []),
+                ("📜", self.tr("Documents"), self.open_certif_window, self.tr("View licenses"), []),
                 ("📞", self.tr("Contact"), self.open_contact_window, self.tr("Contact us"), []),
             ]),
 

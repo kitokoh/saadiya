@@ -274,7 +274,7 @@ class PremiumButton(QPushButton):
         self.icon_label = QLabel()
         pixmap = QPixmap(self.icon_path)
         if pixmap.isNull():
-            self.icon_label.setText("🎯" if self.text() == "Marketing" else "🧠")
+            self.icon_label.setText("🎯" if self.text() == "Marketing" else "🧠" if self.text() == "Finance" else "📊")
             self.icon_label.setStyleSheet("""
                 QLabel {
                     font-size: 80px;
@@ -613,9 +613,9 @@ class MainWindow1(QMainWindow):
      #   header_layout.addWidget(self.subtitle)
       #  layout.addWidget(header_container, alignment=Qt.AlignTop)
     
-    def setup_button_container(self, layout):
-        # Conteneur principal avec effet de profondeur         content_overlay.setStyleSheet("background: rgba(10, 20, 40, 0.85);")
 
+    def setup_button_container(self, layout):
+        # Conteneur principal avec effet de profondeur
         button_container = QFrame()
         button_container.setStyleSheet("""
             QFrame {
@@ -624,28 +624,43 @@ class MainWindow1(QMainWindow):
                 border: 1px solid rgba(255, 255, 255, 0.1);
             }
         """)
-        
+
         button_layout = QHBoxLayout(button_container)
         button_layout.setContentsMargins(60, 40, 60, 40)
-        button_layout.setSpacing(100)
-        
-        # Espaceurs intelligents
+        button_layout.setSpacing(50)  # Réduction de l'espacement pour un look plus compact
+
+        # Espaceurs intelligents pour centrer les boutons
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        
-        # Bouton Marketing
+
+        # Bouton Finance
+        self.finance_btn = PremiumButton("Finance", "#33FF57", "finance.png")
+        self.finance_btn.setFixedSize(320, 220)  # Plus grand
+
+        self.finance_btn.clicked.connect(self.open_finance)
+        button_layout.addWidget(self.finance_btn)
+
+        # Bouton Marketing (plus grand et central)
         self.marketing_btn = PremiumButton("Marketing", "#FF416C", "marketing.png")
+        self.marketing_btn.setFixedSize(550, 450)  # Plus grand
         self.marketing_btn.clicked.connect(self.open_marketing)
         button_layout.addWidget(self.marketing_btn)
-        
+
         # Bouton Management
         self.management_btn = PremiumButton("Management", "#4A569D", "management.png")
+        self.management_btn.setFixedSize(320, 220)  # Plus grand
+
         self.management_btn.clicked.connect(self.open_management)
         button_layout.addWidget(self.management_btn)
-        
-        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-        
+
+        button_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+
         layout.addWidget(button_container, 1)
-    
+
+    # Assurez-vous d'avoir une méthode pour gérer le clic sur le bouton Finance
+    def open_finance(self):
+        print("Finance button clicked")
+
+
     def setup_premium_footer(self, layout):
         footer = QFrame()
         footer.setStyleSheet("""
