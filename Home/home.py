@@ -35,7 +35,37 @@ from ModulesUI.youtube.main_ytb_robot import YtbMainWindow  # Importez votre pag
 from facebook.main_fb_robot import FaceMainWindow  # Importez votre page d'accueil
 # from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
+from PyQt5.QtWidgets import QDateEdit
+from PyQt5.QtCore import QDate
+import pyqtgraph as pg
 
+from Home.homeManagement import DatabaseManager
+
+import sys
+import sqlite3
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
+                            QLabel, QPushButton, QStackedWidget, QFrame, QSizePolicy,
+                            QTableWidget, QTableWidgetItem, QComboBox, QDateEdit, QLineEdit,
+                            QProgressBar, QTabWidget, QCheckBox, QMessageBox, QFileDialog,
+                            QInputDialog, QFormLayout, QSpacerItem, QGroupBox)
+from PyQt5.QtCore import Qt, QDate, QTimer
+from PyQt5.QtGui import QFont, QColor, QIcon, QPixmap
+import pyqtgraph as pg
+from datetime import datetime, timedelta
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+import hashlib
+import os
+from PyQt5.QtWidgets import QHeaderView
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QSpinBox
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QDialogButtonBox
+from PyQt5.QtWidgets import QDoubleSpinBox
+from PyQt5.QtWidgets import QDoubleSpinBox
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtCore import QSize
 #pour changer la destinationet developper en local c  ext ici que ca se passe
 #  
 user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
@@ -111,7 +141,7 @@ class HomePage(QMainWindow):
     def __init__(self,main_app=None):
         super().__init__()
         self.main_app = main_app  # Stocke une référence à MainApp
-       
+        self.db = DatabaseManager()       
        #charger les settingss 
         self.settings_file = "settings.json"  # Chemin vers le fichier JSON
     
@@ -307,11 +337,23 @@ class HomePage(QMainWindow):
         header_layout.addWidget(toggle_button)
 
         # Ajouter l'en-tête au layout principal
-        self.main_layout.addWidget(header_frame)
+        #self.main_layout.addWidget(header_frame)
+        # Header
+        header = QWidget()
+        header_layout = QHBoxLayout(header)
+        
+        title = QLabel("Marketing Automation Modules ")
+        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        title.setAlignment(Qt.AlignCenter)
 
+        self.main_layout.addWidget(title)
         # Espacement avant les boutons
         self.main_layout.addSpacing(20)
+# Création du QLabel
 
+# Personnalisation du style
+
+# Alignement du texte au centre
         # Menu latéral rétractable
         self.side_menu = QWidget(self)
         self.side_menu.setGeometry(0, 80, 200, 600)  # Positionné un peu plus haut
@@ -734,7 +776,7 @@ class HomePage(QMainWindow):
         gestion_auto_label.setFont(QFont("Arial", 20, QFont.Bold))
         gestion_auto_label.setAlignment(Qt.AlignCenter)
         gestion_auto_label.setStyleSheet("color: #2E7D32;")
-        self.main_layout.addWidget(gestion_auto_label)
+        #self.main_layout.addWidget(gestion_auto_label)
         # self.setup_bottom_buttons()
         # Section des boutons du bas
         bottom_layout = QHBoxLayout()
@@ -804,7 +846,7 @@ class HomePage(QMainWindow):
 
             # Connecter le bouton à sa fonction
             button.clicked.connect(lambda _, btn=text: self.show_message1(btn))
-            bottom_layout.addWidget(button)
+            #bottom_layout.addWidget(button)
 
         self.main_layout.addLayout(bottom_layout)
 
@@ -877,14 +919,300 @@ class HomePage(QMainWindow):
         footer_layout.addWidget(footer_text)
         footer_layout.addWidget(terms_button)
 
-        self.main_layout.addWidget(footer_frame)
-
+        #self.main_layout.addWidget(footer_frame)
+        self.setup_dashboard_page()
         # Ajouter le layout principal au widget central
         central_widget.setLayout(self.main_layout)
 
         self.show()
 
 
+
+
+    def update_dashboard(self):
+        #self.load_kpis()
+        self.load_activities()
+        self.update_charts()
+        self.statusBar().showMessage("Tableau de bord actualisé", 3000)
+    
+    def update_charts(self):
+        # Performance de l'équipe
+        self.performance_graph.clear()
+        
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, performance FROM team_members WHERE status='active' ORDER BY performance DESC")
+            members = cursor.fetchall()
+            
+            names = [m[0] for m in members]
+            performance = [m[1] for m in members]
+            
+            bg = pg.BarGraphItem(x=range(len(names)), height=performance, width=0.6, brush='#3498db')
+            self.performance_graph.addItem(bg)
+            
+            self.performance_graph.getAxis('bottom').setTicks([[(i, name) for i, name in enumerate(names)]])
+            self.performance_graph.setYRange(0, 100)
+            self.performance_graph.setLabel('left', 'Performance (%)')
+            self.performance_graph.setTitle("Performance du Marketing")
+        
+        # Evoluton de L'objectif
+        self.project_progress_graph.clear()
+        
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, progress FROM projects WHERE status != 'completed' AND status != 'deleted' ORDER BY progress DESC")
+            projects = cursor.fetchall()
+            
+            names = [p[0] for p in projects]
+            progress = [p[1] for p in projects]
+            
+            bg = pg.BarGraphItem(x=range(len(names)), height=progress, width=0.6, brush='#2ecc71')
+            self.project_progress_graph.addItem(bg)
+            
+            self.project_progress_graph.getAxis('bottom').setTicks([[(i, name) for i, name in enumerate(names)]])
+            self.project_progress_graph.setYRange(0, 100)
+            self.project_progress_graph.setLabel('left', 'Progression (%)')
+            self.project_progress_graph.setTitle("Evoluton de L'objectif")
+    def load_activities(self):
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT a.timestamp, u.full_name, a.action, a.details
+                FROM activities a
+                LEFT JOIN users u ON a.user_id = u.id
+                ORDER BY a.timestamp DESC
+                LIMIT 50
+            ''')
+            activities = cursor.fetchall()
+            
+            self.activities_table.setRowCount(len(activities))
+            
+            for row, (timestamp, user, action, details) in enumerate(activities):
+                self.activities_table.setItem(row, 0, QTableWidgetItem(timestamp))
+                self.activities_table.setItem(row, 1, QTableWidgetItem(user if user else "Système"))
+                self.activities_table.setItem(row, 2, QTableWidgetItem(action))
+                self.activities_table.setItem(row, 3, QTableWidgetItem(details if details else ""))
+            
+            self.activities_table.resizeColumnsToContents()
+    def load_kpis(self):
+        # Effacer les anciens KPIs
+        for i in reversed(range(self.kpi_layout.count())):
+            widget = self.kpi_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+        
+        # Charger les KPIs depuis la base de données
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name, value, target, trend, unit FROM kpis")
+            kpis = cursor.fetchall()
+            
+            for name, value, target, trend, unit in kpis:
+                frame = QFrame()
+                frame.setStyleSheet("""
+                    QFrame {
+                        background-color: white;
+                        border-radius: 5px;
+                        padding: 15px;
+                        border: 1px solid #e0e0e0;
+                    }
+                    QLabel {
+                        font-size: 14px;
+                        color: #555555;
+                    }
+                    QLabel#kpi_title {
+                        font-size: 16px;
+                        font-weight: bold;
+                        color: #2c3e50;
+                    }
+                    QLabel#kpi_value {
+                        font-size: 28px;
+                        font-weight: bold;
+                        color: #3498db;
+                    }
+                """)
+                frame.setFixedWidth(220)
+                
+                frame_layout = QVBoxLayout(frame)
+                frame_layout.setSpacing(5)
+                
+                title = QLabel(name.capitalize())
+                title.setObjectName("kpi_title")
+                
+                value_label = QLabel(f"{value}{unit}")
+                value_label.setObjectName("kpi_value")
+                
+                target_label = QLabel(f"Cible: {target}{unit}")
+                
+                trend_icon = QLabel()
+                if trend == "up":
+                    trend_icon.setPixmap(QIcon(self.resource_path('icons/trend_up.png')).pixmap(16, 16))
+                elif trend == "down":
+                    trend_icon.setPixmap(QIcon(self.resource_path('icons/trend_down.png')).pixmap(16, 16))
+                else:
+                    trend_icon.setPixmap(QIcon(self.resource_path('icons/trend_flat.png')).pixmap(16, 16))
+                
+                trend_layout = QHBoxLayout()
+                trend_layout.addWidget(QLabel("Tendance:"))
+                trend_layout.addWidget(trend_icon)
+                trend_layout.addStretch()
+                
+                frame_layout.addWidget(title)
+                frame_layout.addWidget(value_label)
+                frame_layout.addWidget(target_label)
+                frame_layout.addLayout(trend_layout)
+                
+                self.kpi_layout.addWidget(frame)
+            
+            # Si pas de KPIs, en créer des exemples
+            if not kpis:
+                example_kpis = [
+                    ("Productivité", 78, 85, "up", "%"),
+                    ("Qualité", 92, 90, "stable", "%"),
+                    ("Efficacité", 81, 80, "up", "%"),
+                    ("Satisfaction", 88, 85, "down", "%")
+                ]
+                
+                for name, value, target, trend, unit in example_kpis:
+                    cursor.execute('''
+                        INSERT INTO kpis (name, value, target, trend, unit)
+                        VALUES (?, ?, ?, ?, ?)
+                    ''', (name, value, target, trend, unit))
+                
+                conn.commit()
+                # Recharger les KPIs
+                self.load_kpis()
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+            
+        return os.path.join(base_path, relative_path)
+                   
+    def setup_dashboard_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(20)
+        
+        # Header
+        header = QWidget()
+        header_layout = QHBoxLayout(header)
+        
+        title = QLabel("Tableau de Bord ")
+        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #2c3e50;")
+        
+        self.date_picker = QDateEdit(QDate.currentDate())
+        self.date_picker.setCalendarPopup(True)
+        self.date_picker.setStyleSheet("""
+            QDateEdit {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+        """)
+        self.date_picker.dateChanged.connect(self.update_dashboard)
+        
+        refresh_btn = QPushButton("Actualiser")
+        refresh_btn.setIcon(QIcon(self.resource_path('icons/refresh.png')))
+        refresh_btn.setStyleSheet("""
+            QPushButton {
+                padding: 8px 15px;
+                background-color: #3498db;
+                color: white;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
+        refresh_btn.clicked.connect(self.update_dashboard)
+        
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+        header_layout.addWidget(self.date_picker)
+        header_layout.addWidget(refresh_btn)
+        
+        # KPIs
+        self.kpi_widget = QWidget()
+        self.kpi_layout = QHBoxLayout(self.kpi_widget)
+        self.kpi_layout.setSpacing(15)
+        
+        # Graphiques
+        graph_widget = QWidget()
+        graph_layout = QHBoxLayout(graph_widget)
+        graph_layout.setSpacing(15)
+        
+        # Graphique de performance
+        self.performance_graph = pg.PlotWidget()
+        self.performance_graph.setBackground('w')
+        self.performance_graph.setTitle("Performance du Marketing", color='#333333', size='12pt')
+        self.performance_graph.showGrid(x=True, y=True)
+        self.performance_graph.setMinimumHeight(300)
+        
+        # Graphique d'Evoluton de L'objectif
+        self.project_progress_graph = pg.PlotWidget()
+        self.project_progress_graph.setBackground('w')
+        self.project_progress_graph.setTitle("Evoluton de L'objectif", color='#333333', size='12pt')
+        self.project_progress_graph.showGrid(x=True, y=True)
+        self.project_progress_graph.setMinimumHeight(300)
+        
+        graph_layout.addWidget(self.performance_graph, 1)
+        graph_layout.addWidget(self.project_progress_graph, 1)
+        
+        # Dernières activités
+        activities_widget = QGroupBox("Dernières Activités")
+        activities_widget.setStyleSheet("""
+            QGroupBox {
+                font-size: 16px;
+                font-weight: bold;
+                color: #2c3e50;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                margin-top: 20px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 3px;
+            }
+        """)
+        
+        activities_layout = QVBoxLayout(activities_widget)
+        
+        self.activities_table = QTableWidget()
+        self.activities_table.setColumnCount(4)
+        self.activities_table.setHorizontalHeaderLabels(["Date", "Membre", "Action", "Détails"])
+        self.activities_table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border: none;
+            }
+            QHeaderView::section {
+                background-color: #3498db;
+                color: white;
+                padding: 8px;
+                font-weight: bold;
+            }
+        """)
+        self.activities_table.verticalHeader().setVisible(False)
+        self.activities_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.activities_table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.activities_table.setSortingEnabled(True)
+        
+        activities_layout.addWidget(self.activities_table)
+        
+        layout.addWidget(header)
+        layout.addWidget(self.kpi_widget)
+        layout.addWidget(graph_widget)
+        layout.addWidget(activities_widget)
+        
+        #self.main_content.addWidget(page)
+    
+        self.main_layout.addWidget(page)
 
 
     def lighten_colr(self, color, factor=1.2):

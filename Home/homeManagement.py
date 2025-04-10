@@ -21,6 +21,8 @@ from PyQt5.QtWidgets import QTextEdit
 from PyQt5.QtWidgets import QDialogButtonBox
 from PyQt5.QtWidgets import QDoubleSpinBox
 from PyQt5.QtWidgets import QDoubleSpinBox
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtCore import QSize
 
 class DatabaseManager:
     def __init__(self, db_name='management.db'):
@@ -335,21 +337,77 @@ class MainDashboard(QMainWindow):
         user_layout.addWidget(logout_btn)
         
         sidebar_layout.addWidget(self.user_widget)
+
+
+
+    # Fonction pour gérer les notifications
+    def gestion_notification(self):
+        print("Gestion des notifications activée.")
+        # Ajouter ici la logique pour envoyer ou recevoir des notifications
+        # Exemple: Vérifier si de nouvelles notifications existent, ou les envoyer
+        notifications = ["Notification 1", "Notification 2"]
+        for notification in notifications:
+            print(f"Notification : {notification}")
+        return notifications
+
+    # Fonction pour gérer les prospects
+    def gestion_prospects(self):
+        print("Gestion des prospects activée.")
+        # Ajouter ici la logique pour gérer les prospects
+        # Exemple: Ajouter un prospect à une liste
+        prospects = ["Prospect 1", "Prospect 2"]
+        for prospect in prospects:
+            print(f"Prospect : {prospect}")
+        return prospects
+
+    # Fonction pour gérer les documents
+    def gestion_documents(self):
+        print("Gestion des documents activée.")
+        # Ajouter ici la logique pour gérer des documents
+        # Exemple: Télécharger ou supprimer un document
+        documents = ["Document 1", "Document 2"]
+        for document in documents:
+            print(f"Document : {document}")
+        return documents
+
+    # Fonction pour gérer les contacts
+    def gestion_contacts(self):
+        print("Gestion des contacts activée.")
+        # Ajouter ici la logique pour ajouter, modifier ou supprimer des contacts
+        # Exemple: Ajouter un contact
+        contacts = ["Contact 1", "Contact 2"]
+        for contact in contacts:
+            print(f"Contact : {contact}")
+        return contacts
+
+    # Fonction pour gérer le service après-vente (SAV)
+    def gestion_sav(self):
+        print("Gestion du SAV activée.")
+        # Ajouter ici la logique pour gérer le service après-vente
+        # Exemple: Suivre une demande de SAV
+        sav_requests = ["Demande SAV 1", "Demande SAV 2"]
+        for request in sav_requests:
+            print(f"Demande SAV : {request}")
+        return sav_requests
+
+
     def setup_topbar(self):
         self.topbar = QFrame()
-        self.topbar.setFixedHeight(60)  # Hauteur au lieu de largeur
+        self.topbar.setFixedHeight(70)  # Un peu plus haut pour plus d'élégance
         self.topbar.setStyleSheet("""
             QFrame {
                 background-color: #2c3e50;
                 color: white;
+                border-bottom: 1px solid #3498db;
             }
             QPushButton {
                 background-color: transparent;
                 color: white;
-                padding: 10px 20px;
+                padding: 10px 15px;
                 border: none;
                 font-size: 14px;
                 border-radius: 4px;
+                min-width: 80px;
             }
             QPushButton:hover {
                 background-color: #34495e;
@@ -357,83 +415,207 @@ class MainDashboard(QMainWindow):
             QPushButton#selected {
                 background-color: #3498db;
                 font-weight: bold;
+                border-left: 3px solid white;
+            }
+            QPushButton#menu_button {
+                padding-right: 25px;
+                position: relative;
+            }
+            QPushButton#menu_button::after {
+                content: "▼";
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 10px;
             }
             QLabel {
                 color: white;
             }
+            QMenu {
+                background-color: #34495e;
+                color: white;
+                border: 1px solid #3498db;
+                padding: 5px;
+            }
+            QMenu::item {
+                padding: 8px 25px 8px 15px;
+            }
+            QMenu::item:selected {
+                background-color: #3498db;
+            }
+            QMenu::icon {
+                padding-left: 10px;
+            }
         """)
 
         topbar_layout = QHBoxLayout(self.topbar)
-        topbar_layout.setContentsMargins(10, 10, 10, 10)
+        topbar_layout.setContentsMargins(15, 10, 15, 10)
         topbar_layout.setSpacing(20)
 
-        # Logo et titre à gauche
+        # Logo et titre - Côté gauche
+        logo_container = QHBoxLayout()
+        logo_container.setSpacing(10)
+        
         logo_icon = QLabel()
-        logo_icon.setPixmap(QIcon(self.resource_path('icons/logo.png')).pixmap(40, 40))
+        logo_icon.setPixmap(QIcon(self.resource_path('icons/logo.png')).pixmap(45, 45))
+        
         logo_text = QLabel("Management Pro")
-        logo_text.setStyleSheet("font-size: 18px; font-weight: bold; color: #3498db;")
+        logo_text.setStyleSheet("""
+            font-size: 20px; 
+            font-weight: bold; 
+            color: #3498db;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        """)
+        
+        logo_container.addWidget(logo_icon)
+        logo_container.addWidget(logo_text)
+        topbar_layout.addLayout(logo_container)
 
-        topbar_layout.addWidget(logo_icon)
-        topbar_layout.addWidget(logo_text)
+        # Espace central pour les menus
+        topbar_layout.addStretch(1)
 
-        # Espace entre logo et boutons
-        topbar_layout.addSpacing(30)
-
-        # Boutons de navigation (au milieu)
-        nav_buttons = [
-            ("Tableau de bord", "dashboard.png", 0),
-            ("Équipe", "team.png", 1),
-            ("Projets", "projects.png", 2),
-            ("Tâches", "tasks.png", 3),
-            ("Rapports", "reports.png", 4),
-            ("Paramètres", "settings.png", 5)
-        ]
-
+        # Menu principal - Centre
         self.nav_buttons = []
-        for text, icon, idx in nav_buttons:
-            btn = QPushButton(text)
-            btn.setIcon(QIcon(self.resource_path(f'icons/{icon}')))
-            btn.clicked.connect(lambda _, i=idx: self.change_page(i))
-            self.nav_buttons.append(btn)
-            topbar_layout.addWidget(btn)
 
-        self.nav_buttons[0].setObjectName("selected")
+        # Bouton Tableau de bord (seul)
+        dashboard_btn = QPushButton("Tableau de bord")
+        dashboard_btn.setIcon(QIcon(self.resource_path('icons/dashboard.png')))
+        dashboard_btn.clicked.connect(lambda: self.change_page(0))
+        self.nav_buttons.append(dashboard_btn)
+        topbar_layout.addWidget(dashboard_btn)
 
-        topbar_layout.addStretch()
+        # Menu Gestion (Équipe + Paramètres)
+        management_menu = QMenu()
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/team.png')), 
+            "Équipe", 
+            lambda: self.change_page(1)
+        )
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/settings.png')), 
+            "Paramètres", 
+            lambda: self.change_page(5)
+        )
 
-        # Infos utilisateur à droite
-        user_icon = QLabel()
-        user_icon.setPixmap(QIcon(self.resource_path('icons/user.png')).pixmap(30, 30))
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/settings.png')), 
+            "Notifications", 
+            lambda: self.gestion_notification()
+        )
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/settings.png')), 
+            "Client SAV", 
+            lambda: self.gestion_sav()
+        )
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/settings.png')), 
+            "Presopect", 
+            lambda: self.gestion_prospects()
+        )
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/settings.png')), 
+            "Documents", 
+            lambda: self.gestion_documents()
+        )
+        management_menu.addAction(
+            QIcon(self.resource_path('icons/settings.png')), 
+            "Contacts", 
+            lambda: self.gestion_contacts()
+        )
 
-        self.user_name = QLabel("Invité")
-        self.user_name.setStyleSheet("font-weight: bold;")
 
-        self.user_role = QLabel("Non connecté")
-        self.user_role.setStyleSheet("font-size: 10px; color: #bdc3c7;")
+        management_btn = QPushButton("Gestion")
+        management_btn.setIcon(QIcon(self.resource_path('icons/management.png')))
+        management_btn.setMenu(management_menu)
+        management_btn.setObjectName("menu_button")
+        self.nav_buttons.append(management_btn)
+        topbar_layout.addWidget(management_btn)
 
+        # Menu Projets (Projets + Tâches + Rapports)
+        projects_menu = QMenu()
+        projects_menu.addAction(
+            QIcon(self.resource_path('icons/projects.png')), 
+            "Projets", 
+            lambda: self.change_page(2)
+        )
+        projects_menu.addAction(
+            QIcon(self.resource_path('icons/tasks.png')), 
+            "Tâches", 
+            lambda: self.change_page(3)
+        )
+        projects_menu.addAction(
+            QIcon(self.resource_path('icons/reports.png')), 
+            "Rapports", 
+            lambda: self.change_page(4)
+        )
+        
+        projects_btn = QPushButton("Activités")
+        projects_btn.setIcon(QIcon(self.resource_path('icons/activities.png')))
+        projects_btn.setMenu(projects_menu)
+        projects_btn.setObjectName("menu_button")
+        self.nav_buttons.append(projects_btn)
+        topbar_layout.addWidget(projects_btn)
+
+        topbar_layout.addStretch(1)
+
+        # Section utilisateur - Côté droit
+        user_container = QHBoxLayout()
+        user_container.setSpacing(10)
+        
+        # Avatar utilisateur
+        user_avatar = QLabel()
+        user_avatar.setPixmap(QIcon(self.resource_path('icons/user.png')).pixmap(35, 35))
+        user_avatar.setStyleSheet("border-radius: 17px; border: 2px solid #3498db;")
+        
+        # Infos utilisateur
         user_info = QVBoxLayout()
+        user_info.setSpacing(0)
+        
+        self.user_name = QLabel("Invité")
+        self.user_name.setStyleSheet("""
+            font-weight: bold;
+            font-size: 14px;
+        """)
+        
+        self.user_role = QLabel("Non connecté")
+        self.user_role.setStyleSheet("""
+            font-size: 11px; 
+            color: #bdc3c7;
+            font-style: italic;
+        """)
+        
         user_info.addWidget(self.user_name)
         user_info.addWidget(self.user_role)
+        
+        user_container.addWidget(user_avatar)
+        user_container.addLayout(user_info)
 
-        user_widget = QHBoxLayout()
-        user_widget.addWidget(user_icon)
-        user_widget.addLayout(user_info)
-
+        # Bouton déconnexion
         logout_btn = QPushButton()
         logout_btn.setIcon(QIcon(self.resource_path('icons/logout.png')))
+        logout_btn.setIconSize(QSize(20, 20))
         logout_btn.setToolTip("Déconnexion")
-        logout_btn.setFixedSize(30, 30)
-        logout_btn.setStyleSheet("background-color: transparent;")
+        logout_btn.setFixedSize(35, 35)
+        logout_btn.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(231, 76, 60, 0.2);
+                border-radius: 17px;
+            }
+            QPushButton:hover {
+                background-color: rgba(231, 76, 60, 0.8);
+            }
+        """)
         logout_btn.clicked.connect(self.logout)
+        
+        user_container.addWidget(logout_btn)
+        
+        user_widget = QWidget()
+        user_widget.setLayout(user_container)
+        topbar_layout.addWidget(user_widget)
 
-        user_widget_container = QWidget()
-        user_widget_container.setLayout(user_widget)
-        user_widget_container.setStyleSheet("background-color: transparent;")
-
-        topbar_layout.addWidget(user_widget_container)
-        topbar_layout.addWidget(logout_btn)
-
-
+        # Marquer le tableau de bord comme sélectionné par défaut
+        self.nav_buttons[0].setObjectName("selected")
 
 
 
