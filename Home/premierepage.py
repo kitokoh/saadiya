@@ -28,7 +28,7 @@ from PyQt5.QtCore import (Qt, QSize, QPropertyAnimation, QEasingCurve,
                           QParallelAnimationGroup, QSequentialAnimationGroup,
                           QPoint, QTimer, QRectF, QPointF, QTime, QRect)
 
-
+from promptes.promptmarketing import MarketingAIAnalyzer
 
 
 
@@ -460,7 +460,7 @@ class MainWindow1(QMainWindow):
         
         # Boutons avec conteneur premium
         self.setup_button_container(content_layout)
-        
+        self.setup_prompt_container(content_layout)        
         # Footer amélioré
         self.setup_premium_footer(content_layout)
         
@@ -613,6 +613,19 @@ class MainWindow1(QMainWindow):
      #   header_layout.addWidget(self.subtitle)
       #  layout.addWidget(header_container, alignment=Qt.AlignTop)
     
+    def setup_prompt_container(self, layout):
+        # Conteneur principal avec effet de profondeur
+        prompt_container = QFrame()
+        prompt_container.setStyleSheet("""
+            QFrame {
+                background: rgba(20, 40, 80, 0.3);
+                border-radius: 30px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        """)
+        win = MarketingAIAnalyzer()
+        win.show()
+        layout.addWidget(prompt_container, 1)
 
     def setup_button_container(self, layout):
         # Conteneur principal avec effet de profondeur
