@@ -32,7 +32,7 @@ from ModulesUI.tiktok.main_tok_robot import TokMainWindow  # Importez votre page
 from ModulesUI.twitter.main_x_robot import XMainWindow  # Importez votre page d'accueil
 from ModulesUI.whasapping.main_wp_robot import WhatsMainWindow  # Importez votre page d'accueil
 from ModulesUI.youtube.main_ytb_robot import YtbMainWindow  # Importez votre page d'accueil
-from facebook.main_fb_robot import FaceMainWindow  # Importez votre page d'accueil
+from facebooksmodule.main_fb_robot import FaceMainWindow  # Importez votre page d'accueil
 # from Modules.pinterest.main_pin_robot import PinMainWindow  # Importez votre page d'accueil
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from PyQt5.QtWidgets import QDateEdit

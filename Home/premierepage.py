@@ -30,6 +30,7 @@ from PyQt5.QtCore import (Qt, QSize, QPropertyAnimation, QEasingCurve,
 
 from promptes.promptmarketing import MarketingAIAnalyzer
 
+from PyQt5.QtWidgets import QScrollArea, QVBoxLayout, QFrame
 
 
 
@@ -453,7 +454,7 @@ class MainWindow1(QMainWindow):
         content_overlay.setStyleSheet("background: rgba(20, 40, 80, 0.3);")
         content_layout = QVBoxLayout(content_overlay)
         content_layout.setContentsMargins(80, 80, 80, 80)
-        content_layout.setSpacing(50)
+        content_layout.setSpacing(10)
         
         # Header avec effet de lumière
         self.setup_header(content_layout)
@@ -562,7 +563,7 @@ class MainWindow1(QMainWindow):
         header_container = QWidget()
         header_layout = QVBoxLayout(header_container)
         header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(15)
+        header_layout.setSpacing(1)
         header_layout.setAlignment(Qt.AlignCenter)
         
         # Titre principal avec effet néon
@@ -612,24 +613,13 @@ class MainWindow1(QMainWindow):
       #  header_layout.addWidget(self.header)
      #   header_layout.addWidget(self.subtitle)
       #  layout.addWidget(header_container, alignment=Qt.AlignTop)
-    
-    def setup_prompt_container(self, layout):
-        # Conteneur principal avec effet de profondeur
-        prompt_container = QFrame()
-        prompt_container.setStyleSheet("""
-            QFrame {
-                background: rgba(20, 40, 80, 0.3);
-                border-radius: 30px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-            }
-        """)
-        win = MarketingAIAnalyzer()
-        win.show()
-        layout.addWidget(prompt_container, 1)
 
+
+   
     def setup_button_container(self, layout):
-        # Conteneur principal avec effet de profondeur
+        # Conteneur principal avec effet de profondeur (hauteur réduite)
         button_container = QFrame()
+        button_container.setFixedHeight(300)  # Hauteur réduite ici
         button_container.setStyleSheet("""
             QFrame {
                 background: rgba(20, 40, 80, 0.3);
@@ -638,41 +628,103 @@ class MainWindow1(QMainWindow):
             }
         """)
 
+        # Layout horizontal avec centrage des boutons
         button_layout = QHBoxLayout(button_container)
-        button_layout.setContentsMargins(60, 40, 60, 40)
-        button_layout.setSpacing(50)  # Réduction de l'espacement pour un look plus compact
+        button_layout.setContentsMargins(40, 20, 40, 20)  # Marges ajustées
+        button_layout.setSpacing(40)  # Espacement entre les boutons
 
-        # Espaceurs intelligents pour centrer les boutons
+        # Espaceur gauche
         button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         # Bouton Finance
         self.finance_btn = PremiumButton("Finance", "#33FF57", "finance.png")
-        self.finance_btn.setFixedSize(320, 220)  # Plus grand
-
+        self.finance_btn.setFixedSize(320, 170)
         self.finance_btn.clicked.connect(self.open_finance)
         button_layout.addWidget(self.finance_btn)
 
         # Bouton Marketing (plus grand et central)
         self.marketing_btn = PremiumButton("Marketing", "#FF416C", "marketing.png")
-        self.marketing_btn.setFixedSize(550, 450)  # Plus grand
+        self.marketing_btn.setFixedSize(550, 230)
         self.marketing_btn.clicked.connect(self.open_marketing)
         button_layout.addWidget(self.marketing_btn)
 
         # Bouton Management
         self.management_btn = PremiumButton("Management", "#4A569D", "management.png")
-        self.management_btn.setFixedSize(320, 220)  # Plus grand
-
+        self.management_btn.setFixedSize(320, 170)
         self.management_btn.clicked.connect(self.open_management)
         button_layout.addWidget(self.management_btn)
 
-        button_layout.addItem(QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        # Espaceur droit
+        button_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-        layout.addWidget(button_container, 1)
+        # Ajout du container au layout principal
+        layout.addWidget(button_container)
+
 
     # Assurez-vous d'avoir une méthode pour gérer le clic sur le bouton Finance
-    def open_finance(self):
-        print("Finance button clicked")
 
+    def open_finance(self):
+        self.finance_btn.setSelected(True)
+        self.finance_btn.setSelected(False)
+        
+        tab_name = "Finance"
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'Finance') or self.finance is None:
+            from finance.finance import CryptoStrategyApp
+            self.face_main = CryptoStrategyApp(parent=self.main_app)
+
+        self.open_new_tab(tab_name, "cool.ico", self.face_main)
+    
+    def setup_prompt_container(self, layout):
+        # Crée un conteneur principal transparent
+        prompt_container = QFrame()
+        prompt_container.setStyleSheet("""
+            QFrame {
+                background: transparent;
+                border: none;
+            }
+        """)
+
+        # Crée une instance du widget personnalisé
+        analyzer_widget = MarketingAIAnalyzer()
+
+        # Crée une zone de défilement si le contenu déborde
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setStyleSheet("""
+            QScrollArea {
+                background: transparent;
+                border: none;
+            }
+            QScrollBar:vertical {
+                background: rgba(0,0,0,0.1);
+                width: 8px;
+                margin: 4px;
+                border-radius: 4px;
+            }
+            QScrollBar::handle:vertical {
+                background: rgba(255,255,255,0.4);
+                border-radius: 4px;
+            }
+            QScrollBar::add-line, QScrollBar::sub-line {
+                background: none;
+            }
+        """)
+
+        # Ajoute le widget à l'intérieur de la zone scrollable
+        scroll_area.setWidget(analyzer_widget)
+
+        # Layout pour le conteneur transparent
+        container_layout = QVBoxLayout(prompt_container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.addWidget(scroll_area)
+
+        # Ajoute tout dans le layout principal
+        layout.addWidget(prompt_container, 1)
 
     def setup_premium_footer(self, layout):
         footer = QFrame()

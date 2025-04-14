@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, QTableW
                              QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox,
                              QMenu, QAction, QDialog, QFormLayout, QDialogButtonBox, QMessageBox)
 
-from facebook.fb_robot_install import FbRobot
-from facebook.group_manager import GroupTable
+from facebooksmodule.fb_robot_install import FbRobot
+from facebooksmodule.group_manager import GroupTable
 from imports import *
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from ui.footer import FooterSection

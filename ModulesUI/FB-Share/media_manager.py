@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import (QMainWindow, QTableWidget, QTableWidgetItem, QPushB
                              QStackedWidget, QTableWidgetSelectionRange)
 from lang.update_media_dialog import UpdateMediaDialog
 
-from lang.facebook.add_media import AddMedia
-from lang.facebook.group_manager import GroupTable
+from lang.facebooksmodule.add_media import AddMedia
+from lang.facebooksmodule.group_manager import GroupTable
 from ui.footer import FooterSection  # Import du footer
 from ui.header import HeaderSection  # Import du header
 from ui.secondry_menu import SecondaryMenu  # Assurez-vous d'importer votre nouvelle classe

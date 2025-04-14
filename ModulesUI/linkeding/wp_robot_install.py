@@ -27,7 +27,7 @@ from installFBrobotPy import cleTobureau, demarrageAuto, sendLog, invisibleinsta
 from installFBrobotPy import createFolder, system, dossiers, copieMediaDemo, majenv, geninfo
 from installFBrobotPy import generedemolicence, updatejson, Visibleinstance, verificateur
 from installFBrobotPy.demarrageAuto import InstallerApp
-from facebook.media_manager import MediaTable
+from facebooksmodule.media_manager import MediaTable
 from translation import TranslatorManager  # Importer le gestionnaire de traductions
 from ui.footer import FooterSection  # Import du footer
 from ui.header import HeaderSection  # Import du header

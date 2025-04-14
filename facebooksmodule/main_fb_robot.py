@@ -7,12 +7,12 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QVBoxLayout, QWi
     QMessageBox, QMenu, QComboBox, QStatusBar
 
 from checklicence import LicenseChecker
-from facebook.fb_robot_install import FbRobot
-from facebook.group_manager import GroupTable
+from facebooksmodule.fb_robot_install import FbRobot
+from facebooksmodule.group_manager import GroupTable
 from imports import *
 from installFBrobotPy.demarrageAuto import InstallerApp
 from instances_table import InstanceTable
-from facebook.media_manager import MediaTable
+from facebooksmodule.media_manager import MediaTable
 from statistique.nombredegrup import GroupCounter
 from statistique.nombretotalShare import LogLineCounter
 from statistique.prochainexecution import ScheduledTaskChecker

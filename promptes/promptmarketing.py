@@ -11,18 +11,17 @@ import sqlite3
 from sqlite3 import Error
 
 class MarketingAIAnalyzer(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Marketing AI Assistant")
         self.setMinimumSize(800, 600)
         
         # Initialisation de la base de données
         self.init_db()
         
-        # Style de l'application
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #f5f7fa;
+                background-color: transparent;
             }
             QTextEdit {
                 background-color: white;
@@ -53,6 +52,7 @@ class MarketingAIAnalyzer(QMainWindow):
             QLabel {
                 color: #374151;
                 font-size: 14px;
+                background-color: transparent;  # Transparent background for labels
             }
             .header {
                 font-size: 24px;
@@ -85,7 +85,8 @@ class MarketingAIAnalyzer(QMainWindow):
                 border: 1px solid #3b82f6;
             }
         """)
-        
+
+
         # Widget central
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -96,7 +97,7 @@ class MarketingAIAnalyzer(QMainWindow):
         self.main_layout.setSpacing(20)
         
         # En-tête
-        self.header = QLabel("Marketing AI Assistant")
+        self.header = QLabel("What can I do for you?")
         self.header.setAlignment(Qt.AlignCenter)
         self.header.setStyleSheet("""
             font-size: 28px;
@@ -110,7 +111,7 @@ class MarketingAIAnalyzer(QMainWindow):
         self.subheader = QLabel("Obtenez des recommandations marketing basées sur votre prompt")
         self.subheader.setAlignment(Qt.AlignCenter)
         self.subheader.setStyleSheet("font-size: 16px; color: #6b7280;")
-        self.main_layout.addWidget(self.subheader)
+        #self.main_layout.addWidget(self.subheader)
         
         # Zone de prompt
         self.prompt_section = QWidget()
@@ -130,12 +131,12 @@ class MarketingAIAnalyzer(QMainWindow):
         self.analyze_button.setIcon(QIcon.fromTheme("edit-find"))
         self.analyze_button.clicked.connect(self.analyze_prompt)
         
-        self.prompt_layout.addWidget(self.prompt_label)
+       # self.prompt_layout.addWidget(self.prompt_label)
         self.prompt_layout.addWidget(self.prompt_input)
         self.prompt_layout.addWidget(self.analyze_button, alignment=Qt.AlignRight)
         
-        #self.main_layout.addWidget(self.prompt_section)
-        self.setup_prompt_section()        
+        self.main_layout.addWidget(self.prompt_section)
+        #self.setup_prompt_section()        
         # Section d'analyse (initialement cachée)
         self.analysis_section = QWidget()
         self.analysis_section.setStyleSheet(".analysis-section;")
@@ -188,7 +189,7 @@ class MarketingAIAnalyzer(QMainWindow):
         self.footer = QLabel("© 2023 Marketing AI Assistant - Version 1.0")
         self.footer.setAlignment(Qt.AlignCenter)
         self.footer.setStyleSheet("color: #9ca3af; font-size: 12px;")
-        self.main_layout.addWidget(self.footer)
+    #    self.main_layout.addWidget(self.footer)
 
     def keyPressEvent(self, event):
         """Gère les raccourcis clavier"""
@@ -198,100 +199,76 @@ class MarketingAIAnalyzer(QMainWindow):
         super().keyPressEvent(event)
 
 
-
     def setup_prompt_section(self):
-        """Configure la section du prompt avec un style similaire à ChatGPT"""
-        
-        # Conteneur principal
+        # Conteneur principal du prompt
         self.prompt_container = QWidget()
         self.prompt_container.setStyleSheet("""
             QWidget {
-                background-color: white;
+                background-color: #f0f0f0;
                 border-radius: 12px;
-                padding: 0px;
-            }
-        """)
-        
-        # Layout principal
-        self.prompt_layout = QVBoxLayout(self.prompt_container)
-        self.prompt_layout.setContentsMargins(0, 0, 0, 0)
-        self.prompt_layout.setSpacing(0)
-
-        # Champ de texte (entrée de prompt)
-        self.prompt_input = QTextEdit()
-        self.prompt_input.setPlaceholderText("Décrivez votre besoin marketing... (Ex: Comment promouvoir mon nouveau produit sur les réseaux sociaux?)")
-        self.prompt_input.setMinimumHeight(120)
-        self.prompt_input.setMaximumHeight(180)
-        self.prompt_input.setStyleSheet("""
-            QTextEdit {
-                background-color: white;
-                border: none;
-                border-top-left-radius: 12px;
-                border-top-right-radius: 12px;
-                padding: 16px;
-                font-size: 15px;
-                color: #374151;
-            }
-            QTextEdit:focus {
-                background-color: white;
-            }
-        """)
-
-        # Conteneur du bouton (barre inférieure)
-        self.button_container = QWidget()
-        self.button_container.setStyleSheet("""
-            QWidget {
-                background-color: #f9fafb;
-                border-bottom-left-radius: 12px;
-                border-bottom-right-radius: 12px;
-                border-top: 1px solid #e5e7eb;
-            }
-        """)
-        
-        # Layout du bouton
-        self.button_layout = QHBoxLayout(self.button_container)
-        self.button_layout.setContentsMargins(12, 8, 12, 8)
-        self.button_layout.setSpacing(8)
-
-        # Espaceur pour aligner le bouton à droite
-        self.button_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
-        # Bouton d'envoi rond
-        self.analyze_button = QPushButton()
-        self.analyze_button.setIcon(QIcon(":/icons/send.png"))  # Remplacez par votre icône
-        self.analyze_button.setIconSize(QSize(20, 20))
-        self.analyze_button.setFixedSize(36, 36)
-        self.analyze_button.setStyleSheet("""
-            QPushButton {
-                background-color: #4f46e5;
-                border: none;
-                border-radius: 18px;
                 padding: 8px;
             }
-            QPushButton:hover {
-                background-color: #4338ca;
-            }
-            QPushButton:pressed {
-                background-color: #3730a3;
-            }
-            QPushButton:disabled {
-                background-color: #a5b4fc;
+        """)
+
+        container_layout = QVBoxLayout(self.prompt_container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(0)
+
+        # Sous-conteneur pour le champ de prompt + bouton intégré
+        prompt_field_container = QWidget()
+        prompt_field_container.setStyleSheet("""
+            QWidget {
+                background-color: white;
+                border-radius: 12px;
+                border: 1px solid #d1d5db;
             }
         """)
-        self.analyze_button.clicked.connect(self.analyze_prompt)
-        self.analyze_button.setToolTip("Analyser le prompt (Ctrl+Entrée)")
+        prompt_field_layout = QHBoxLayout(prompt_field_container)
+        prompt_field_layout.setContentsMargins(12, 6, 6, 6)
+        prompt_field_layout.setSpacing(0)
 
-        # Ajout du bouton au layout
-        self.button_layout.addWidget(self.analyze_button)
+        # Champ de texte
+        self.prompt_input = QTextEdit()
+        self.prompt_input.setPlaceholderText("Tapez votre message ici…")
+        self.prompt_input.setStyleSheet("""
+            QTextEdit {
+                background-color: transparent;
+                border: none;
+                font-size: 15px;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                color: #111827;
+            }
+            QTextEdit:focus {
+                outline: none;
+            }
+        """)
+        self.prompt_input.setMinimumHeight(80)
+        self.prompt_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
 
-        # Assemblage final du layout principal
-        self.prompt_layout.addWidget(self.prompt_input)
-        self.prompt_layout.addWidget(self.button_container)
-        
-        # Remplacer l'ancienne section prompt dans le layout principal
-        self.main_layout.insertWidget(2, self.prompt_container)  # Position 2 après le header en terme de style
+        # Bouton intégré à droite
+        self.send_button = QPushButton("➤")
+        self.send_button.setCursor(Qt.PointingHandCursor)
+        self.send_button.setStyleSheet("""
+            QPushButton {
+                background-color: #10a37f;
+                color: white;
+                border: none;
+                padding: 10px 14px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #0e8c6b;
+            }
+        """)
 
+        # Ajout au layout horizontal : champ + bouton
+        prompt_field_layout.addWidget(self.prompt_input)
+        prompt_field_layout.addWidget(self.send_button, alignment=Qt.AlignBottom)
 
+        # Ajout au layout principal
+        container_layout.addWidget(prompt_field_container)
 
 
     def create_option(self, text, platform):
