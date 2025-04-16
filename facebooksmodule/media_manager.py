@@ -756,15 +756,41 @@ class MediaTable(QWidget):
         layout.addLayout(top_layout)
 
 
+        # # Media table
+        # self.table = QTableWidget(self)
+        # self.table.setColumnCount(5)
+        # self.table.setHorizontalHeaderLabels(['Name', 'Description', 'Category', 'Preview', 'Action'])
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        # self.table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        # self.table.cellChanged.connect(self.on_cell_changed)
+        # layout.addWidget(self.table)
+
         # Media table
         self.table = QTableWidget(self)
         self.table.setColumnCount(5)
         self.table.setHorizontalHeaderLabels(['Name', 'Description', 'Category', 'Preview', 'Action'])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        # Configuration des résizes des colonnes
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # Nom - s'ajuste au contenu
+        header.setSectionResizeMode(1, QHeaderView.Stretch)          # Description - prend l'espace disponible
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)  # Catégorie - s'ajuste au contenu
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)  # Preview - s'ajuste au contenu
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)  # Action - s'ajuste au contenu
+
+        # Ou si vous préférez des largeurs fixes :
+        # self.table.setColumnWidth(0, 100)   # Nom (largeur fixe)
+        # self.table.setColumnWidth(1, 400)   # Description (plus large)
+        # self.table.setColumnWidth(2, 100)   # Catégorie
+        # self.table.setColumnWidth(3, 150)   # Preview
+        # self.table.setColumnWidth(4, 100)   # Action
+
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
         self.table.cellChanged.connect(self.on_cell_changed)
         layout.addWidget(self.table)
+
 
         # Pagination buttons
         pagination_layout = QHBoxLayout()
