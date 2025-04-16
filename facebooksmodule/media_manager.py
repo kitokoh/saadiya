@@ -18,6 +18,7 @@ from facebooksmodule.group_manager import RobotManagementDialog
 from imports import *
 from facebooksmodule.group_manager import ReseauSocialManagementDialog
 from facebooksmodule.group_manager import MediaTypeManagementDialog
+from PyQt5.QtWidgets import QProgressDialog
 
 from ui.header import HeaderSection
 from ui.footer import FooterSection
@@ -344,34 +345,241 @@ import os
 import json
 import sqlite3
 import shutil
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, QComboBox, 
+                            QDialogButtonBox, QLabel, QFrame)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QPixmap
+import os
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, QComboBox, 
+                            QDialogButtonBox, QLabel, QFrame, QHBoxLayout,
+                            QPushButton, QFileDialog, QSizePolicy)
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QPixmap, QIcon
+
 class AddMediaDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Add Media")
-        self.setFixedSize(400, 300)
+        self.setWindowTitle("Ajouter un média")
+        self.setFixedSize(600, 500)
+        self.media_path = ""
+        
+        # Style CSS moderne
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f5f5;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            QLabel {
+                color: #333;
+                font-size: 14px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            QLineEdit, QComboBox {
+                background-color: white;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+            QLineEdit:focus, QComboBox:focus {
+                border-color: #4d90fe;
+            }
+            QPushButton {
+                background-color: #4d90fe;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                font-size: 14px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #357ae8;
+            }
+            QPushButton#cancelButton, QPushButton#browseButton {
+                background-color: #f1f1f1;
+                color: #333;
+            }
+            QPushButton#cancelButton:hover, QPushButton#browseButton:hover {
+                background-color: #e5e5e5;
+            }
+            .header {
+                font-size: 18px;
+                color: #444;
+                margin-bottom: 20px;
+            }
+            #previewLabel {
+                border: 2px dashed #ccc;
+                border-radius: 4px;
+                background-color: white;
+                qproperty-alignment: AlignCenter;
+                min-height: 150px;
+            }
+            #previewLabel:hover {
+                border-color: #4d90fe;
+            }
+        """)
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(25, 25, 25, 25)
+        layout.setSpacing(15)
 
-        # Name field
+        # En-tête
+        header = QLabel("Ajouter un nouveau média")
+        header.setAlignment(Qt.AlignCenter)
+        header.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+        layout.addWidget(header)
+
+        # Séparateur
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        separator.setStyleSheet("color: #ddd;")
+        layout.addWidget(separator)
+
+        # Nom du média
+        name_label = QLabel("Nom du média:")
+        layout.addWidget(name_label)
+        
         self.name_input = QLineEdit(self)
-        self.name_input.setPlaceholderText("Media Name")
+        self.name_input.setPlaceholderText("Entrez le nom du média")
+        self.name_input.setToolTip("Le nom doit contenir entre 3 et 50 caractères")
         layout.addWidget(self.name_input)
 
-        # Description field
+        # Description
+        description_label = QLabel("Description:")
+        layout.addWidget(description_label)
+        
         self.description_input = QLineEdit(self)
-        self.description_input.setPlaceholderText("Media Description")
+        self.description_input.setPlaceholderText("Entrez une description (optionnel)")
         layout.addWidget(self.description_input)
 
-        # Category field
+        # Catégorie
+        category_label = QLabel("Catégorie:")
+        layout.addWidget(category_label)
+        
         self.category_combo = QComboBox(self)
-        self.category_combo.addItems(["Default", "Category 1", "Category 2"])  # Exemple de catégories
+        self.category_combo.addItems(["Film", "Série", "Documentaire", "Animation", "Autre"])
+        self.category_combo.setCurrentIndex(-1)  # Aucune sélection par défaut
         layout.addWidget(self.category_combo)
 
-        # Buttons
+        # Sélection du fichier média
+        file_label = QLabel("Fichier média:")
+        layout.addWidget(file_label)
+        
+        file_layout = QHBoxLayout()
+        
+        self.file_path_input = QLineEdit(self)
+        self.file_path_input.setReadOnly(True)
+        self.file_path_input.setPlaceholderText("Aucun fichier sélectionné")
+        file_layout.addWidget(self.file_path_input)
+        
+        browse_button = QPushButton("Parcourir...", self)
+        browse_button.setObjectName("browseButton")
+        browse_button.clicked.connect(self.browse_media_file)
+        file_layout.addWidget(browse_button)
+        
+        layout.addLayout(file_layout)
+
+        # Aperçu du média
+        preview_label = QLabel("Aperçu:", self)
+        layout.addWidget(preview_label)
+        
+        self.preview_label = QLabel(self)
+        self.preview_label.setObjectName("previewLabel")
+        self.preview_label.setFixedHeight(200)
+        self.preview_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.preview_label.setText("Aperçu du média apparaîtra ici")
+        self.preview_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.preview_label)
+
+        # Boutons
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        button_box.accepted.connect(self.accept)
+        
+        # Personnalisation des boutons
+        ok_button = button_box.button(QDialogButtonBox.Ok)
+        ok_button.setText("Confirmer")
+        ok_button.setObjectName("confirmButton")
+        
+        cancel_button = button_box.button(QDialogButtonBox.Cancel)
+        cancel_button.setText("Annuler")
+        cancel_button.setObjectName("cancelButton")
+        
+        button_box.accepted.connect(self.validate_inputs)
         button_box.rejected.connect(self.reject)
+        
         layout.addWidget(button_box)
+
+    def browse_media_file(self):
+        """Ouvre un dialogue pour sélectionner un fichier média."""
+        file_dialog = QFileDialog(self)
+        file_dialog.setNameFilter("Fichiers média (*.mp4 *.mov *.avi *.jpg *.png *.jpeg)")
+        file_dialog.setViewMode(QFileDialog.Detail)
+        
+        if file_dialog.exec_():
+            selected_files = file_dialog.selectedFiles()
+            if selected_files:
+                self.media_path = selected_files[0]
+                self.file_path_input.setText(os.path.basename(self.media_path))
+                self.update_preview()
+
+    def update_preview(self):
+        """Met à jour l'aperçu en fonction du type de fichier."""
+        if not self.media_path:
+            return
+            
+        # Vérifie si c'est une image
+        if self.media_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            pixmap = QPixmap(self.media_path)
+            if not pixmap.isNull():
+                # Redimensionne l'image pour qu'elle tienne dans le label
+                pixmap = pixmap.scaled(
+                    self.preview_label.width(), 
+                    self.preview_label.height(),
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation
+                )
+                self.preview_label.setPixmap(pixmap)
+        else:
+            # Pour les vidéos, affiche une icône générique
+            self.preview_label.setPixmap(QIcon.fromTheme("video-x-generic").pixmap(64, 64))
+            self.preview_label.setText(f"Fichier vidéo: {os.path.basename(self.media_path)}")
+
+    def validate_inputs(self):
+        """Valide les entrées avant d'accepter le dialogue."""
+        # Réinitialise les styles
+        self.name_input.setStyleSheet("")
+        self.category_combo.setStyleSheet("")
+        
+        name = self.name_input.text().strip()
+        errors = []
+        
+        if not name:
+            errors.append("Le nom du média est requis")
+            self.name_input.setStyleSheet("border: 1px solid red;")
+            
+        if len(name) < 3 or len(name) > 50:
+            errors.append("Le nom doit contenir entre 3 et 50 caractères")
+            self.name_input.setStyleSheet("border: 1px solid red;")
+            
+        if self.category_combo.currentIndex() == -1:
+            errors.append("Veuillez sélectionner une catégorie")
+            self.category_combo.setStyleSheet("border: 1px solid red;")
+            
+        if not self.media_path:
+            errors.append("Veuillez sélectionner un fichier média")
+            self.file_path_input.setStyleSheet("border: 1px solid red;")
+        else:
+            self.file_path_input.setStyleSheet("")
+            
+        if errors:
+            # Ici vous pourriez afficher les erreurs dans un QMessageBox
+            return
+            
+        # Si tout est valide
+        self.accept()
 
     def get_media_data(self):
         """Return the media data entered by the user."""
@@ -379,9 +587,19 @@ class AddMediaDialog(QDialog):
             'nom': self.name_input.text().strip(),
             'description': self.description_input.text().strip(),
             'categorie': self.category_combo.currentText(),
-            'preview_path': ''  # Vous pouvez ajouter un champ pour le chemin du fichier si nécessaire
+            'media_path': self.media_path,
+            'file_name': os.path.basename(self.media_path) if self.media_path else "",
+            'file_type': os.path.splitext(self.media_path)[1].lower() if self.media_path else "",
+            'preview_path': self.generate_preview() if self.media_path else ""
         }
-    
+
+    def generate_preview(self):
+        """Génère un aperçu à enregistrer dans la base de données."""
+        # Ici vous pourriez:
+        # 1. Pour les images: enregistrer une miniature
+        # 2. Pour les vidéos: extraire une frame ou garder le chemin
+        # Pour l'exemple, nous retournons simplement le chemin
+        return self.media_path
 
 class MediaTable(QWidget):
     def __init__(self, parent=None):
@@ -630,7 +848,7 @@ class MediaTable(QWidget):
         # Add Media action
         add_media_action = QAction("➕ Add Media", self)
         add_media_action.triggered.connect(self.open_add_media_dialog)
-       # menu.addAction(add_media_action)
+        # menu.addAction(add_media_action)
 
         # Export Media action
         export_media_action = QAction("📤 Export Media", self)
@@ -962,15 +1180,19 @@ class MediaTable(QWidget):
             self.media_manager.update_media_in_db(updated_media, self.user_choice)
             self.populate_table()
 
+
     def delete_media(self, media):
-        """Supprime un média après confirmation de l'utilisateur."""
-        confirm = QMessageBox.question(self, 'Confirmation', f"Êtes-vous sûr de vouloir supprimer {media['nom']} ?", QMessageBox.Yes | QMessageBox.No)
-        if confirm == QMessageBox.Yes:
-            # Déplacer le média vers le dossier d'archive
+        progress = QProgressDialog("Suppression en cours...", None, 0, 0, self)
+        progress.setWindowTitle("Veuillez patienter")
+        progress.setCancelButton(None)
+        progress.setWindowModality(Qt.WindowModal)
+        progress.show()
+        QApplication.processEvents()
+
+        try:
             archive_folder = os.path.join(media_folder, f"{self.user_choice}Archive")
             os.makedirs(archive_folder, exist_ok=True)
 
-            # Renommer le fichier dans le dossier d'archive
             archive_files = [f for f in os.listdir(archive_folder) if f.startswith('archive')]
             archive_number = len(archive_files) + 1
             archive_name = f"archive{archive_number}{os.path.splitext(media['nom'])[1]}"
@@ -978,32 +1200,69 @@ class MediaTable(QWidget):
 
             shutil.move(media['preview_path'], archive_path)
 
-            # Supprimer le média de la base de données
             self.media_manager.delete_media_in_db(media, self.user_choice)
-            self.media_list = self.media_manager.load_media_from_db(self.user_choice)
-            self.populate_table()
+            # self.media_list = self.media_manager.load_media_from_db(self.user_choice)
+            # self.populate_table()
+        finally:
+            progress.close()
+
 
     def show_media(self, media):
         """Affiche un aperçu du média."""
         dialog = PreviewDialog(media['preview_path'], media['description'], self)
         dialog.exec_()
 
+
     def delete_selected_media(self):
-        """Supprime les médias sélectionnés."""
-        selected_rows = set(index.row() for index in self.table.selectedIndexes())
-        for row in sorted(selected_rows, reverse=True):
+        """Supprime les médias sélectionnés avec une indication visuelle professionnelle."""
+        selected_rows = sorted(set(index.row() for index in self.table.selectedIndexes()), reverse=True)
+        if not selected_rows:
+            return
+
+        progress = QProgressDialog("Suppression des éléments sélectionnés...", None, 0, len(selected_rows), self)
+        progress.setWindowTitle("Veuillez patienter")
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setCancelButton(None)
+        progress.setMinimumDuration(0)
+        progress.show()
+
+        for i, row in enumerate(selected_rows):
             media = self.media_list[row]
             self.delete_media(media)
+            progress.setValue(i + 1)
+            QApplication.processEvents()
+
+        progress.close()
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
         self.populate_table()
+
     def delete_all_media(self):
-        """Supprime tous les médias."""
+        """Supprime tous les médias avec confirmation et progression professionnelle."""
         confirm = QMessageBox.question(self, 'Confirmation', "Êtes-vous sûr de vouloir supprimer tous les médias ?", QMessageBox.Yes | QMessageBox.No)
-        if confirm == QMessageBox.Yes:
-            for media in self.media_list:
-                self.delete_media(media)
+        if confirm != QMessageBox.Yes:
+            return
+
+        total = len(self.media_list)
+        if total == 0:
+            return
+
+        progress = QProgressDialog("Suppression de tous les médias...", None, 0, total, self)
+        progress.setWindowTitle("Veuillez patienter")
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setCancelButton(None)
+        progress.setMinimumDuration(0)
+        progress.show()
+
+        for i, media in enumerate(self.media_list):
+            self.delete_media(media)
+            progress.setValue(i + 1)
+            QApplication.processEvents()
+
+        progress.close()
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
         self.populate_table()
+
+
     def manage_categories(self):
         """Ouvre une boîte de dialogue pour gérer les catégories."""
         dialog = ManageCategoriesDialog(self.media_manager, self)
@@ -2206,13 +2465,13 @@ class ManageArchivesDialog(QDialog):
         selected_row = self.archive_list.currentRow()
         if selected_row >= 0:
             media_id = int(self.archive_list.item(selected_row, 0).text())
-            confirm = QMessageBox.question(
-                self, 'Confirmation', "Êtes-vous sûr de vouloir supprimer définitivement ce média ?",
-                QMessageBox.Yes | QMessageBox.No
-            )
-            if confirm == QMessageBox.Yes:
-                self.media_manager.delete_media(media_id)
-                self.populate_archives()
+            # confirm = QMessageBox.question(
+            #     self, 'Confirmation', "Êtes-vous sûr de vouloir supprimer définitivement ce média ?",
+            #     QMessageBox.Yes | QMessageBox.No
+            # )
+            # if confirm == QMessageBox.Yes:
+            self.media_manager.delete_media(media_id)
+            self.populate_archives()
 
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
