@@ -1,0 +1,520 @@
+import sys
+import subprocess
+import os
+import platform
+import webbrowser
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, 
+                             QProgressBar, QLabel, QMessageBox, QHBoxLayout, QFrame, 
+                             QCheckBox, QGroupBox, QTabWidget, QTextEdit)
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QSize, QTimer
+from PyQt5.QtGui import QFont, QPixmap, QIcon, QColor, QPalette
+from qt_material import apply_stylesheet
+from urllib.request import urlopen
+from urllib.error import URLError
+
+class InstallerThread(QThread):
+    progress_signal = pyqtSignal(int, str)
+    finished_signal = pyqtSignal(bool, str)
+    log_signal = pyqtSignal(str)
+    
+    def __init__(self, options):
+        super().__init__()
+        self._is_running = True
+        self.options = options
+    
+    def run(self):
+        try:
+            self.log_signal.emit("Début du processus d'installation...")
+            
+            steps = [
+                ("Vérification des prérequis...", 5),
+                ("Installation des dépendances système...", 15),
+                ("Création de l'environnement virtuel...", 25),
+                ("Installation de Mayan EDMS...", 45),
+                ("Configuration de la base de données...", 65),
+                ("Création des répertoires nécessaires...", 85),
+                ("Finalisation de l'installation...", 100)
+            ]
+            
+            for step, progress in steps:
+                if not self._is_running:
+                    self.finished_signal.emit(False, "Installation annulée par l'utilisateur")
+                    return
+                
+                self.progress_signal.emit(progress, step)
+                self.log_signal.emit(f"Étape en cours: {step}")
+                
+                if "prérequis" in step:
+                    if not self.check_system_dependencies():
+                        raise Exception("Les prérequis système ne sont pas satisfaits.")
+                elif "dépendances système" in step:
+                    self.install_system_dependencies()
+                elif "environnement virtuel" in step:
+                    self.create_virtualenv()
+                elif "Mayan EDMS" in step:
+                    self.install_mayan()
+                elif "base de données" in step:
+                    self.setup_database()
+                elif "répertoires" in step:
+                    self.create_directories()
+                
+                self.msleep(500)  # Pause pour visualisation
+            
+            self.finished_signal.emit(True, "Installation terminée avec succès!")
+            self.log_signal.emit("Installation terminée avec succès!")
+            
+        except Exception as e:
+            self.log_signal.emit(f"ERREUR: {str(e)}")
+            self.finished_signal.emit(False, f"Erreur lors de l'installation: {str(e)}")
+    
+    def check_system_dependencies(self):
+        try:
+            # Vérifier Python 3.7+
+            python_version = platform.python_version_tuple()
+            if int(python_version[0]) < 3 or (int(python_version[0]) == 3 and int(python_version[1]) < 7):
+                self.log_signal.emit("Python 3.7 ou supérieur requis")
+                return False
+            
+            # Vérifier pip
+            subprocess.check_call(["pip", "--version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            
+            # Vérifier l'accès internet
+            try:
+                urlopen('https://pypi.org', timeout=3)
+            except URLError:
+                self.log_signal.emit("Aucune connexion Internet détectée")
+                return False
+            
+            return True
+        except subprocess.CalledProcessError:
+            self.log_signal.emit("Pip n'est pas installé")
+            return False
+        except Exception as e:
+            self.log_signal.emit(f"Erreur de vérification: {str(e)}")
+            return False
+    
+    def install_system_dependencies(self):
+        system = platform.system()
+        self.log_signal.emit(f"Système détecté: {system}")
+        
+        if system == "Linux":
+            if os.path.exists("/etc/debian_version"):
+                self.log_signal.emit("Distribution Debian/Ubuntu détectée")
+                subprocess.run(["sudo", "apt-get", "update"], check=True)
+                deps = ["python3-dev", "python3-venv", "libjpeg-dev", 
+                       "zlib1g-dev", "libpq-dev", "libffi-dev", 
+                       "build-essential", "ghostscript"]
+                subprocess.run(["sudo", "apt-get", "install", "-y"] + deps, check=True)
+            elif os.path.exists("/etc/redhat-release"):
+                self.log_signal.emit("Distribution RHEL/CentOS/Fedora détectée")
+                deps = ["python3-devel", "libjpeg-turbo-devel", 
+                       "zlib-devel", "postgresql-devel", 
+                       "libffi-devel", "gcc", "ghostscript"]
+                subprocess.run(["sudo", "dnf", "install", "-y"] + deps, check=True)
+        elif system == "Darwin":
+            self.log_signal.emit("macOS détecté")
+            subprocess.run(["brew", "install", "jpeg", "libpq", "ghostscript"], check=True)
+        elif system == "Windows":
+            self.log_signal.emit("Windows détecté - installation des dépendances via pip")
+    
+    def create_virtualenv(self):
+        venv_dir = os.path.join(os.path.expanduser("~"), "mayan-venv")
+        self.log_signal.emit(f"Création de l'environnement virtuel dans {venv_dir}")
+        
+        if not os.path.exists(venv_dir):
+            subprocess.run([sys.executable, "-m", "venv", venv_dir], check=True)
+            self.log_signal.emit("Environnement virtuel créé avec succès")
+    
+    def install_mayan(self):
+        venv_dir = os.path.join(os.path.expanduser("~"), "mayan-venv")
+        pip_path = os.path.join(venv_dir, "bin", "pip") if platform.system() != "Windows" else os.path.join(venv_dir, "Scripts", "pip.exe")
+        
+        self.log_signal.emit("Mise à jour de pip...")
+        subprocess.run([pip_path, "install", "--upgrade", "pip"], check=True)
+        
+        self.log_signal.emit("Installation de Mayan EDMS...")
+        subprocess.run([pip_path, "install", "mayan-edms"], check=True)
+        self.log_signal.emit("Mayan EDMS installé avec succès")
+    
+    def setup_database(self):
+        venv_dir = os.path.join(os.path.expanduser("~"), "mayan-venv")
+        mayan_path = os.path.join(venv_dir, "bin", "mayan-edms.py") if platform.system() != "Windows" else os.path.join(venv_dir, "Scripts", "mayan-edms.py")
+        
+        data_dir = os.path.join(os.path.expanduser("~"), "mayan-data")
+        self.log_signal.emit(f"Configuration dans le répertoire: {data_dir}")
+        
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+            self.log_signal.emit("Répertoire de données créé")
+        
+        self.log_signal.emit("Initialisation de la base de données...")
+        subprocess.run([mayan_path, "initialsetup", "--no-dependencies"], cwd=data_dir, check=True)
+        self.log_signal.emit("Base de données configurée")
+    
+    def create_directories(self):
+        data_dir = os.path.join(os.path.expanduser("~"), "mayan-data")
+        dirs = ["media", "documents", "settings"]
+        
+        for dir_name in dirs:
+            dir_path = os.path.join(data_dir, dir_name)
+            if not os.path.exists(dir_path):
+                os.makedirs(dir_path)
+                self.log_signal.emit(f"Répertoire créé: {dir_path}")
+    
+    def stop(self):
+        self._is_running = False
+        self.quit()
+
+
+class MayanInstaller(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Installateur Mayan EDMS")
+        self.setWindowIcon(QIcon(self.create_icon()))
+        self.setMinimumSize(800, 600)
+        
+        self.install_thread = None
+        self.setup_ui()
+        self.check_python_version()
+    
+    def create_icon(self):
+        pixmap = QPixmap(64, 64)
+        pixmap.fill(Qt.transparent)
+        return pixmap
+    
+    def check_python_version(self):
+        python_version = platform.python_version_tuple()
+        if int(python_version[0]) < 3 or (int(python_version[0]) == 3 and int(python_version[1]) < 7):
+            QMessageBox.critical(
+                self, "Version Python incompatible",
+                "Mayan EDMS nécessite Python 3.7 ou supérieur.\n\n"
+                f"Version détectée: {platform.python_version()}",
+                QMessageBox.Ok
+            )
+            sys.exit(1)
+    
+    def setup_ui(self):
+        main_widget = QWidget()
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+        
+        # En-tête
+        header = QLabel("Installateur Mayan EDMS")
+        header_font = QFont()
+        header_font.setPointSize(22)
+        header_font.setBold(True)
+        header.setFont(header_font)
+        header.setAlignment(Qt.AlignCenter)
+        header.setStyleSheet("color: #00a8ff;")
+        
+        # Description
+        desc = QLabel("""
+        Système de gestion de documents open-source complet avec indexation, 
+        classification et contrôle d'accès avancé.
+        """)
+        desc.setWordWrap(True)
+        desc.setAlignment(Qt.AlignCenter)
+        
+        # Logo
+        logo = QLabel()
+        logo.setPixmap(QPixmap(self.create_icon()).scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        logo.setAlignment(Qt.AlignCenter)
+        
+        # Onglets
+        tab_widget = QTabWidget()
+        
+        # Onglet Installation
+        install_tab = QWidget()
+        install_layout = QVBoxLayout()
+        
+        # Options d'installation
+        options_group = QGroupBox("Options d'installation")
+        options_layout = QVBoxLayout()
+        
+        self.create_venv_check = QCheckBox("Créer un environnement virtuel (recommandé)")
+        self.create_venv_check.setChecked(True)
+        
+        self.install_deps_check = QCheckBox("Installer les dépendances système")
+        self.install_deps_check.setChecked(True)
+        
+        self.create_data_dir_check = QCheckBox("Créer le répertoire de données")
+        self.create_data_dir_check.setChecked(True)
+        
+        self.launch_after_check = QCheckBox("Lancer Mayan EDMS après l'installation")
+        self.launch_after_check.setChecked(True)
+        
+        options_layout.addWidget(self.create_venv_check)
+        options_layout.addWidget(self.install_deps_check)
+        options_layout.addWidget(self.create_data_dir_check)
+        options_layout.addWidget(self.launch_after_check)
+        options_group.setLayout(options_layout)
+        
+        # Barre de progression
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setTextVisible(True)
+        
+        # Label d'état
+        self.status_label = QLabel("Prêt à installer")
+        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setWordWrap(True)
+        
+        # Boutons
+        button_layout = QHBoxLayout()
+        self.install_button = QPushButton("Commencer l'installation")
+        self.install_button.setIcon(QIcon.fromTheme("system-run"))
+        self.install_button.clicked.connect(self.start_installation)
+        
+        self.cancel_button = QPushButton("Annuler")
+        self.cancel_button.setIcon(QIcon.fromTheme("process-stop"))
+        self.cancel_button.clicked.connect(self.cancel_installation)
+        self.cancel_button.setEnabled(False)
+        
+        button_layout.addWidget(self.install_button)
+        button_layout.addWidget(self.cancel_button)
+        
+        # Assemblage onglet installation
+        install_layout.addWidget(options_group)
+        install_layout.addWidget(self.status_label)
+        install_layout.addWidget(self.progress_bar)
+        install_layout.addLayout(button_layout)
+        install_tab.setLayout(install_layout)
+        
+        # Onglet Journal
+        log_tab = QWidget()
+        log_layout = QVBoxLayout()
+        
+        self.log_output = QTextEdit()
+        self.log_output.setReadOnly(True)
+        self.log_output.setStyleSheet("font-family: monospace;")
+        
+        log_layout.addWidget(self.log_output)
+        log_tab.setLayout(log_layout)
+        
+        # Ajout des onglets
+        tab_widget.addTab(install_tab, "Installation")
+        tab_widget.addTab(log_tab, "Journal")
+        
+        # Pied de page
+        footer = QLabel("© 2024 Mayan EDMS - Logiciel Open Source - Version 1.0")
+        footer.setAlignment(Qt.AlignCenter)
+        footer_font = QFont()
+        footer_font.setPointSize(8)
+        footer.setFont(footer_font)
+        
+        # Assemblage de l'interface
+        main_layout.addWidget(header)
+        main_layout.addWidget(logo)
+        main_layout.addWidget(desc)
+        main_layout.addWidget(tab_widget)
+        main_layout.addWidget(footer)
+        
+        main_widget.setLayout(main_layout)
+        self.setCentralWidget(main_widget)
+        
+        # Style
+        self.apply_styles()
+    
+    def apply_styles(self):
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #2d3436;
+            }
+            QLabel {
+                color: #dfe6e9;
+            }
+            QGroupBox {
+                border: 1px solid #636e72;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 15px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 3px;
+                color: #74b9ff;
+            }
+            QProgressBar {
+                border: 2px solid #636e72;
+                border-radius: 5px;
+                text-align: center;
+                background: #2d3436;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #00a8ff, stop:1 #0097e6);
+                border-radius: 3px;
+            }
+            QTextEdit {
+                background-color: #2d3436;
+                color: #dfe6e9;
+                border: 1px solid #636e72;
+                border-radius: 5px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #636e72;
+                border-radius: 5px;
+            }
+            QTabBar::tab {
+                background: #2d3436;
+                color: #dfe6e9;
+                padding: 8px;
+                border: 1px solid #636e72;
+                border-bottom: none;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+            QTabBar::tab:selected {
+                background: #0984e3;
+                color: white;
+            }
+        """)
+        
+        # Style des boutons
+        button_style = """
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #00a8ff, stop:1 #0097e6);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #0097e6, stop:1 #00a8ff);
+            }
+            QPushButton:pressed {
+                background: #0078b5;
+            }
+            QPushButton:disabled {
+                background: #636e72;
+                color: #b2bec3;
+            }
+        """
+        
+        self.install_button.setStyleSheet(button_style)
+        self.cancel_button.setStyleSheet("""
+            QPushButton {
+                background: #e84118;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 120px;
+            }
+            QPushButton:hover {
+                background: #c23616;
+            }
+            QPushButton:pressed {
+                background: #a52e12;
+            }
+            QPushButton:disabled {
+                background: #636e72;
+                color: #b2bec3;
+            }
+        """)
+    
+    def start_installation(self):
+        self.install_button.setEnabled(False)
+        self.cancel_button.setEnabled(True)
+        self.log_output.clear()
+        
+        options = {
+            "create_venv": self.create_venv_check.isChecked(),
+            "install_deps": self.install_deps_check.isChecked(),
+            "create_data_dir": self.create_data_dir_check.isChecked(),
+            "launch_after": self.launch_after_check.isChecked()
+        }
+        
+        self.install_thread = InstallerThread(options)
+        self.install_thread.progress_signal.connect(self.update_progress)
+        self.install_thread.finished_signal.connect(self.installation_finished)
+        self.install_thread.log_signal.connect(self.update_log)
+        self.install_thread.start()
+    
+    def cancel_installation(self):
+        if self.install_thread and self.install_thread.isRunning():
+            reply = QMessageBox.question(
+                self, "Confirmation",
+                "Êtes-vous sûr de vouloir annuler l'installation?",
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                self.install_thread.stop()
+                self.status_label.setText("Installation annulée")
+                self.log_output.append(">>> Installation annulée par l'utilisateur")
+                self.install_button.setEnabled(True)
+                self.cancel_button.setEnabled(False)
+    
+    def update_progress(self, value, message):
+        self.progress_bar.setValue(value)
+        self.status_label.setText(message)
+    
+    def update_log(self, message):
+        self.log_output.append(message)
+        # Auto-scroll to bottom
+        self.log_output.verticalScrollBar().setValue(self.log_output.verticalScrollBar().maximum())
+    
+    def installation_finished(self, success, message):
+        self.install_button.setEnabled(True)
+        self.cancel_button.setEnabled(False)
+        
+        if success:
+            QMessageBox.information(
+                self, "Installation réussie",
+                f"""{message}
+                
+                Mayan EDMS a été installé avec succès!
+                
+                Pour démarrer Mayan EDMS, ouvrez un terminal et exécutez:
+                ~/mayan-venv/bin/mayan-edms.py runserver
+                
+                Puis ouvrez http://localhost:8000 dans votre navigateur.
+                """,
+                QMessageBox.Ok
+            )
+            
+            if self.launch_after_check.isChecked():
+                self.launch_mayan()
+        else:
+            QMessageBox.critical(
+                self, "Erreur d'installation",
+                message,
+                QMessageBox.Ok
+            )
+        
+        self.progress_bar.setValue(0)
+        self.status_label.setText("Prêt à installer")
+    
+    def launch_mayan(self):
+        venv_dir = os.path.join(os.path.expanduser("~"), "mayan-venv")
+        data_dir = os.path.join(os.path.expanduser("~"), "mayan-data")
+        
+        if platform.system() == "Windows":
+            mayan_path = os.path.join(venv_dir, "Scripts", "mayan-edms.py")
+            subprocess.Popen(["start", "cmd", "/k", mayan_path, "runserver"], shell=True, cwd=data_dir)
+        else:
+            mayan_path = os.path.join(venv_dir, "bin", "mayan-edms.py")
+            subprocess.Popen(["x-terminal-emulator", "-e", mayan_path, "runserver"], cwd=data_dir)
+        
+        # Ouvrir le navigateur après un court délai
+        QTimer.singleShot(3000, lambda: webbrowser.open("http://localhost:8000"))
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    
+    # Appliquer un thème moderne
+    apply_stylesheet(app, theme='dark_teal.xml')
+    
+    installer = MayanInstaller()
+    installer.show()
+    sys.exit(app.exec_())

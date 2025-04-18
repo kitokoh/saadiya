@@ -1,0 +1,1 @@
+ici je vais definir la strategie qu il faut pour que le truc puisse etre accecible directement en ligne 
