@@ -557,6 +557,14 @@ class MainDashboard(QMainWindow):
         self.nav_buttons.append(projects_btn)
         topbar_layout.addWidget(projects_btn)
 
+        # Bouton Tableau de bord (seul)
+        add_on_btn = QPushButton("add-on")
+        add_on_btn.setIcon(QIcon(self.resource_path('icons/add_on.png')))
+        add_on_btn.clicked.connect(lambda: self.add_on_page())
+        self.nav_buttons.append(add_on_btn)
+        topbar_layout.addWidget(add_on_btn)
+
+
         topbar_layout.addStretch(1)
 
         # Section utilisateur - Côté droit
@@ -3211,7 +3219,31 @@ class MainDashboard(QMainWindow):
         )
         
         self.log_activity("Mise à jour des préférences utilisateur")
-    
+    def add_on_page(self):
+        from Installsweb.installdisign import InstallerDialog
+        installer = InstallerDialog(self)
+        installer.exec_()
+       
+    def open_facebook(self):
+        #self.hide()  # Masquer le module de connexion
+        tab_name = "FB Robot"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+
+        # Vérifiez si un onglet avec ce nom existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # Si l'onglet existe déjà, sélectionnez-le
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Sinon, créez une instance unique de Nova360ProApp et ajoutez un nouvel onglet
+        if not hasattr(self, 'nova360pro') or self.nova360pro is None:
+           # self.nova360pro = Nova360ProApp(main_app=self)  # Créez une seule fois l'instance
+            self.face_main = FaceMainWindow()  # Remplacez ceci par votre classe de page d'accueil
+
+        self.open_new_tab(tab_name,"cool.ico",self.face_main)
+
+        # subprocess.Popen([sys.executable, "main_fb_robot.py"])
+
     def change_page(self, index):
         self.main_content.setCurrentIndex(index)
         

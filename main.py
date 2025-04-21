@@ -1143,8 +1143,17 @@ class Browser(QMainWindow):
         self.add_custom_tab(self.upgrades, tab_name, "resources/icons/multi_fb.ico")
 
     def connect_via_ssh(self):
-        print("Connecting via SSH...")
-        # Ajoute ici ton vrai code de connexion
+        import atexit
+
+        from online.online1 import RemoteAccessModal  # Import local pour éviter les dépendances circulaires
+        modal = RemoteAccessModal(self)
+        modal.exec_()        
+        # Configuration pour fermer proprement
+        atexit.register(self.cleanup)        # Ajoute ici ton vrai code de connexion
+    def cleanup(self):
+        """Nettoyage à la fermeture de l'application"""
+        if hasattr(self, 'remote_manager') and self.remote_manager.server:
+            self.remote_manager.stop_server()
 
     def connect_via_ftp(self):
         print("Connecting to FTP server...")
@@ -1272,15 +1281,17 @@ class Browser(QMainWindow):
             ("🧰", self.tr("Tools"), "tools", None, self.tr("Document tools"), [
                 ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
                 ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
-                ("📝", self.tr("Edit PDF"), "edit_pdf", self.open_editpdf_window, self.tr("Modify PDF documents"), []),
-                ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
-                ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
+                # ("📝", self.tr("Edit PDF"), "edit_pdf", self.open_editpdf_window, self.tr("Modify PDF documents"), []),
+                # ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
+                # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
+                ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+
             ]),
 
             # Settings section (dynamic)
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
-                ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
+                # ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
                 ("🖥️", self.tr("System"), "system", self.open_settings_window, self.tr("System configuration"), []),
                 ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
@@ -1292,11 +1303,12 @@ class Browser(QMainWindow):
                 ]),
                 ("🌐", self.tr("Online Connect"), "online_connect", None, self.tr("Remote connection settings"), [
                     ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
-                    ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
-                    ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
-                    ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
-                    ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
-                    ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
+                    # ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
+                    # ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
+                    # ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
+                    # ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
+                    # ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
+                
                 ])
             ]),
 
@@ -1366,7 +1378,7 @@ class Browser(QMainWindow):
             self.menu_buttons.append((button, icon, text))
             
             # Store reference for dynamic visibility control (except fixed buttons)
-            if identifier not in ["home", "upgrade"]:
+            if identifier not in ["home", "tools"]:
                 self.menu_button_refs[text] = button
 
             # Create submenus if they exist
@@ -1685,7 +1697,11 @@ class Browser(QMainWindow):
             
             self.save_menu_config()
             self.update_menu_visibility()
-
+    def add_on_page(self):
+        from Installsweb.installdisign import InstallerDialog
+        installer = InstallerDialog(self)
+        installer.exec_()
+       
     def update_menu_visibility(self):
         """Update menu buttons visibility based on configuration"""
         for button_name, visible in self.menu_config['visible_buttons'].items():
