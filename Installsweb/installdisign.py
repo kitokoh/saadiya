@@ -12,73 +12,84 @@ from PyQt5.QtGui import (QFont, QIcon, QColor, QPalette, QLinearGradient, QPaint
                         QRadialGradient, QImage, QPainterPath)
 from PyQt5.QtSvg import QSvgWidget
 
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import QTimer, QPointF, Qt, QSize
+from PyQt5.QtGui import QPainter, QColor, QBrush, QRadialGradient
+import random
+import math
+
 class ParticleSystem(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, particle_count=50):
         super().__init__(parent)
+        self.particle_count = particle_count
         self.particles = []
-        self.init_particles(50)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_particles)
         self.timer.start(20)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        
-    def init_particles(self, count):
-        for _ in range(count):
+        self.setMinimumSize(100, 100)
+
+    def resizeEvent(self, event):
+        self.init_particles()
+        super().resizeEvent(event)
+
+    def init_particles(self):
+        self.particles = []
+        for _ in range(self.particle_count):
             self.particles.append({
-                'pos': QPointF(random.random() * self.width(), random.random() * self.height()),
+                'pos': QPointF(random.uniform(0, self.width()), random.uniform(0, self.height())),
                 'size': random.randint(3, 8),
                 'speed': random.uniform(0.3, 1.2),
                 'color': QColor(
                     random.randint(100, 200),
                     random.randint(100, 200),
                     random.randint(200, 255),
-                    random.randint(30, 80)  # Alpha valide entre 30 et 80
+                    random.randint(30, 80)
                 ),
                 'direction': random.uniform(0, 2 * math.pi),
                 'life': random.randint(100, 200),
                 'max_life': random.randint(100, 200)
             })
 
-    
     def update_particles(self):
         for p in self.particles:
-            # Update position
-            p['pos'] += QPointF(
-                math.cos(p['direction']) * p['speed'],
-                math.sin(p['direction']) * p['speed']
-            )
-            
-            # Boundary check
-            if p['pos'].x() < 0 or p['pos'].x() > self.width():
+            # Déplacement
+            dx = math.cos(p['direction']) * p['speed']
+            dy = math.sin(p['direction']) * p['speed']
+            p['pos'] += QPointF(dx, dy)
+
+            # Rebonds sur les bords
+            if not (0 <= p['pos'].x() <= self.width()):
                 p['direction'] = math.pi - p['direction']
-            if p['pos'].y() < 0 or p['pos'].y() > self.height():
+            if not (0 <= p['pos'].y() <= self.height()):
                 p['direction'] = -p['direction']
-            
-            # Life cycle
+
+            # Cycle de vie
             p['life'] -= 1
             if p['life'] <= 0:
-                p['pos'] = QPointF(random.random() * self.width(), random.random() * self.height())
+                p['pos'] = QPointF(random.uniform(0, self.width()), random.uniform(0, self.height()))
                 p['life'] = p['max_life']
-    
+
+        self.update()
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        
+
         for p in self.particles:
             alpha = int(255 * (p['life'] / p['max_life']))
             color = QColor(p['color'])
             color.setAlpha(alpha)
-            
-            painter.setBrush(QBrush(color))
-            painter.setPen(Qt.NoPen)
-            
+
+            # Glow effect
             glow = QRadialGradient(p['pos'], p['size'] * 2)
             glow.setColorAt(0, color)
             glow.setColorAt(1, QColor(color.red(), color.green(), color.blue(), 0))
-            
             painter.setBrush(QBrush(glow))
+            painter.setPen(Qt.NoPen)
             painter.drawEllipse(p['pos'], p['size'] * 2, p['size'] * 2)
-            
+
+            # Particle center
             painter.setBrush(QBrush(color))
             painter.drawEllipse(p['pos'], p['size'], p['size'])
 
@@ -1091,6 +1102,238 @@ class ModernInstaller(QWidget):
         
         QTimer.singleShot(2000, anim.start)
 
+class ModernInstaller1(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+    
+    def setup_ui(self):
+        # Main layout
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(40, 40, 40, 40)
+        main_layout.setSpacing(30)
+        
+        # Set white background
+        self.setStyleSheet("""
+            QWidget {
+                background-color: white;
+            }
+        """)
+        
+        # Header
+        self.setup_header(main_layout)
+        
+        # Search bar
+        self.setup_search_bar(main_layout)
+        
+        # Content area
+        self.setup_content_area(main_layout)
+        
+        # Footer
+        self.setup_footer(main_layout)
+        
+        # Apply additional styles
+        self.setStyleSheet(self.styleSheet() + """
+            QScrollArea {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:vertical {
+                background: rgba(0, 0, 0, 0.1);
+                width: 10px;
+                margin: 0;
+                border-radius: 5px;
+            }
+            QScrollBar::handle:vertical {
+                background: rgba(0, 0, 0, 0.3);
+                min-height: 30px;
+                border-radius: 5px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0;
+                background: none;
+            }
+        """)
+    
+    def setup_header(self, layout):
+        header = QWidget()
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(15)
+        
+        # Title with animated gradient
+        self.title_label = QLabel("Suite Professionnelle Premium")
+        self.title_label.setStyleSheet("""
+            QLabel {
+                font-size: 32px;
+                font-weight: bold;
+                font-family: 'Segoe UI';
+                color: #333333;
+            }
+        """)
+        
+        # Create gradient animation
+        self.gradient_anim = QPropertyAnimation(self.title_label, b"gradientPos")
+        self.gradient_anim.setDuration(3000)
+        self.gradient_anim.setStartValue(0)
+        self.gradient_anim.setEndValue(1)
+        self.gradient_anim.setEasingCurve(QEasingCurve.InOutSine)
+        self.gradient_anim.setLoopCount(-1)
+        
+        header_layout.addWidget(self.title_label)
+        
+        # Subtitle with separator
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setStyleSheet("""
+            QFrame {
+                border: none;
+                height: 1px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 transparent, 
+                    stop:0.5 rgba(79, 172, 254, 0.5),
+                    stop:1 transparent);
+                margin: 10px 0;
+            }
+        """)
+        header_layout.addWidget(separator)
+        
+        subtitle = QLabel("Sélectionnez les applications à installer")
+        subtitle.setStyleSheet("""
+            color: #666666;
+            font-size: 16px;
+            font-family: 'Segoe UI';
+        """)
+        subtitle.setWordWrap(True)
+        header_layout.addWidget(subtitle)
+        
+        layout.addWidget(header)
+    
+    def setup_search_bar(self, layout):
+        search_bar = QWidget()
+        search_layout = QHBoxLayout(search_bar)
+        search_layout.setContentsMargins(0, 0, 0, 0)
+        search_layout.setSpacing(15)
+        
+        # Search input with icon
+        search_container = QWidget()
+        search_container.setStyleSheet("""
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        """)
+        
+        search_inner = QHBoxLayout(search_container)
+        search_inner.setContentsMargins(15, 5, 15, 5)
+        
+        search_icon = QLabel()
+        search_icon.setPixmap(QPixmap(":/icons/search.svg").scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        search_inner.addWidget(search_icon)
+        
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Rechercher des applications...")
+        self.search_input.setStyleSheet("""
+            QLineEdit {
+                background: transparent;
+                border: none;
+                padding: 8px;
+                color: #333333;
+                font-family: 'Segoe UI';
+                font-size: 14px;
+                selection-background-color: rgba(79, 172, 254, 0.5);
+            }
+        """)
+        search_inner.addWidget(self.search_input, 1)
+        
+        search_layout.addWidget(search_container, 1)
+        
+        # Filter buttons
+        self.filter_group = QButtonGroup()
+        filters = ["Tous", "Production", "Finance", "Bureau"]
+        
+        for i, text in enumerate(filters):
+            btn = QRadioButton(text)
+            btn.setStyleSheet("""
+                QRadioButton {
+                    color: #333333;
+                    font-family: 'Segoe UI';
+                    padding: 8px 15px;
+                }
+                QRadioButton::indicator {
+                    width: 0;
+                    height: 0;
+                }
+                QRadioButton:checked {
+                    background: rgba(79, 172, 254, 0.2);
+                    border-radius: 12px;
+                }
+            """)
+            if i == 0:
+                btn.setChecked(True)
+            self.filter_group.addButton(btn, i)
+            search_layout.addWidget(btn)
+        
+        layout.addWidget(search_bar)
+    
+    def setup_content_area(self, layout):
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        
+        # Fond du contenu défilable
+        self.scroll_content = QWidget()
+        self.scroll_content.setStyleSheet("""
+            QWidget {
+                background: rgba(240, 240, 240, 0.8);
+                border-radius: 15px;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }
+        """)
+        
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_layout.setSpacing(15)
+        self.scroll_layout.setContentsMargins(10, 10, 10, 10)
+        
+        scroll_area.setWidget(self.scroll_content)
+        layout.addWidget(scroll_area, 1)
+    
+    def setup_footer(self, layout):
+        footer = QWidget()
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Select all button
+        self.select_all_btn = GlassButton("Tout sélectionner")
+        self.select_all_btn.setFixedWidth(180)
+        self.select_all_btn.clicked.connect(self.toggle_select_all)
+        footer_layout.addWidget(self.select_all_btn)
+        
+        # Spacer
+        footer_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        
+        # Install button
+        self.install_btn = GlassButton("Installer la sélection")
+        self.install_btn.setFixedWidth(200)
+        self.install_btn.setStyleSheet("""
+            GlassButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4facfe, stop:1 #00f2fe);
+                border: none;
+            }
+            GlassButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #3a9cea, stop:1 #00d8e8);
+            }
+        """)
+        self.install_btn.clicked.connect(self.install_selected)
+        footer_layout.addWidget(self.install_btn)
+        
+        layout.addWidget(footer)
+    
+    # ... (le reste des méthodes reste inchangé)
+
+
+
+
 class InstallerDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -1255,13 +1498,44 @@ class InstallerDialog(QDialog):
                 app["action"]
             )
     
+    # def install_app(self, app_name):
+    #     # Simulate installation
+    #     self.installer.show_notification(
+    #         "Installation réussie",
+    #         f"{app_name} a été installé avec succès!"
+
     def install_app(self, app_name):
-        # Simulate installation
-        self.installer.show_notification(
-            "Installation réussie",
-            f"{app_name} a été installé avec succès!"
-        )
+        from Installsweb.odoo_installer import OdooInstaller
+        from Installsweb.erpnext_installer import ERPNextInstaller
+        from Installsweb.flectra_installer import FlectraInstaller
+        from Installsweb.tryton_installer import TrytonInstaller
+        from Installsweb.axelor_installer import AxelorInstaller
+        from Installsweb.dolibarr_installer import DolibarrInstaller
+        from Installsweb.mayan import MayanInstaller  # Ajoutez cette ligne
+
+        try:
+            if app_name == "Odoo Community":
+                OdooInstaller().install()
+            elif app_name == "ERPNext":
+                ERPNextInstaller().install()
+            elif app_name == "Flectra":
+                FlectraInstaller().install()
+            elif app_name == "Tryton":
+                TrytonInstaller().install()
+            elif app_name == "Axelor":
+                AxelorInstaller().install()
+            elif app_name == "Dolibarr":
+                DolibarrInstaller().install()
+            elif app_name == "Mayan EDMS":  # Ajoutez cette condition
+                MayanInstaller().install()
+            else:
+                raise ValueError("Application inconnue")
+
+            self.installer.show_notification("Succès", f"{app_name} installé avec succès !")
+        except Exception as e:
+            self.installer.show_notification("Erreur", f"Erreur lors de l'installation de {app_name} : {e}")
     
+        
     def closeEvent(self, event):
         # Close animation
         self.close_anim = QParallelAnimationGroup(self)
@@ -1288,6 +1562,158 @@ class InstallerDialog(QDialog):
         
         # Ignorer l'événement de fermeture immédiate
         event.ignore()
+
+class InstallerPage(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+        self.setup_applications()
+
+    def setup_ui(self):
+        # Utiliser un layout principal pour s'adapter à la taille de l'écran
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        # Définir un fond blanc
+        self.setStyleSheet("background-color: white;")
+
+        # Background with particle system
+        self.bg = ParticleSystem(self)
+        self.bg.setGeometry(0, 0, self.width(), self.height())
+
+        # Main container
+        self.container = QWidget(self)
+        self.container.setObjectName("container")
+        self.container.setStyleSheet("""
+            #container {
+                background: rgba(30, 35, 45, 0.80);
+                border-radius: 25px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+            }
+        """)
+
+        # Container shadow
+        self.container_shadow = QGraphicsDropShadowEffect(self.container)
+        self.container_shadow.setBlurRadius(40)
+        self.container_shadow.setColor(QColor(0, 0, 0, 200))
+        self.container_shadow.setOffset(0, 15)
+        self.container.setGraphicsEffect(self.container_shadow)
+
+        # Installer
+        self.installer = ModernInstaller(self.container)
+        installer_layout = QVBoxLayout(self.container)
+        installer_layout.addWidget(self.installer)
+
+        # Ajouter le conteneur au layout principal
+        main_layout.addWidget(self.container)
+
+        # Ajuster la taille du conteneur lors du redimensionnement de la fenêtre
+        self.resizeEvent = self.on_resize
+
+    def on_resize(self, event):
+        # Ajuster la taille du conteneur en fonction de la taille de la fenêtre
+        margins = 50  # Marges autour du conteneur
+        self.container.setGeometry(
+            margins,
+            margins,
+            self.width() - 2 * margins,
+            self.height() - 2 * margins
+        )
+        self.installer.setGeometry(0, 0, self.container.width(), self.container.height())
+
+    def setup_applications(self):
+        apps = [
+            {
+                "name": "Mayan EDMS",
+                "desc": "Système de gestion documentaire open-source pour numériser, organiser, rechercher et sécuriser tous vos fichiers professionnels.",
+                "icon": ":/icons/mayan.svg",
+                "action": lambda: self.install_app("Mayan EDMS")
+            },
+            {
+                "name": "Odoo Community",
+                "desc": "ERP modulaire open-source couvrant CRM, ventes, achats, inventaire, comptabilité, RH et plus, idéal pour les PME.",
+                "icon": ":/icons/odoo.svg",
+                "action": lambda: self.install_app("Odoo Community")
+            },
+            {
+                "name": "ERPNext",
+                "desc": "ERP open-source robuste pour gérer compta, fabrication, RH, CRM, projets et stock dans une interface moderne.",
+                "icon": ":/icons/erpnext.svg",
+                "action": lambda: self.install_app("ERPNext")
+            },
+            {
+                "name": "Crater CRM & Facturation",
+                "desc": "Outil gratuit pour gérer factures, devis, paiements, clients et finances, parfait pour les freelances et petites entreprises.",
+                "icon": ":/icons/crater.svg",
+                "action": lambda: self.install_app("Crater")
+            },
+            {
+                "name": "EspoCRM",
+                "desc": "CRM open-source personnalisable pour suivre clients, leads, ventes et interactions, avec une interface claire et rapide.",
+                "icon": ":/icons/espocrm.svg",
+                "action": lambda: self.install_app("EspoCRM")
+            },
+            {
+                "name": "OnlyOffice Workspace",
+                "desc": "Suite collaborative gratuite avec traitement de texte, tableur, gestion de projets et CRM intégré pour équipes.",
+                "icon": ":/icons/onlyoffice.svg",
+                "action": lambda: self.install_app("OnlyOffice")
+            },
+            {
+                "name": "Snipe-IT",
+                "desc": "Gestionnaire d’actifs open-source pour suivre le matériel, logiciels, licences et affectations dans l’entreprise.",
+                "icon": ":/icons/snipeit.svg",
+                "action": lambda: self.install_app("Snipe-IT")
+            },
+            {
+                "name": "Flectra ERP & CRM",
+                "desc": "Alternative open-source à Odoo, Flectra offre ERP et CRM puissants dans une solution unique, légère et modulaire.",
+                "icon": ":/icons/flectra.svg",
+                "action": lambda: self.install_app("Flectra")
+            }
+        ]
+
+        for app in apps:
+            self.installer.add_application(
+                app["name"],
+                app["desc"],
+                app["icon"],
+                app["action"]
+            )
+
+    def install_app(self, app_name):
+        from Installsweb.odoo_installer import OdooInstallerApp
+        from Installsweb.erpnext_installer import ERPNextInstaller
+        from Installsweb.flectra_installer import FlectraInstaller
+        from Installsweb.tryton_installer import TrytonInstaller
+        from Installsweb.axelor_installer import AxelorInstaller
+        from Installsweb.dolibarr_installer import DolibarrInstaller
+        from Installsweb.mayan import MayanInstaller  # Ajoutez cette ligne
+
+        try:
+            if app_name == "Odoo Community":
+                OdooInstallerApp().show()
+            elif app_name == "ERPNext":
+                ERPNextInstaller().install()
+            elif app_name == "Flectra":
+                FlectraInstaller().install()
+            elif app_name == "Tryton":
+                TrytonInstaller().install()
+            elif app_name == "Axelor":
+                AxelorInstaller().install()
+            elif app_name == "Dolibarr":
+                DolibarrInstaller().install()
+            elif app_name == "Mayan EDMS":  # Ajoutez cette condition
+                MayanInstaller().show()
+            else:
+                raise ValueError("Application inconnue")
+
+            self.installer.show_notification("Succès", f"{app_name} installé avec succès !")
+        except Exception as e:
+            self.installer.show_notification("Erreur", f"Erreur lors de l'installation de {app_name} : {e}")
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     

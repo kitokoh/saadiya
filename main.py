@@ -341,6 +341,25 @@ class Browser(QMainWindow):
         # Charger les données en arrière-plan
         QTimer.singleShot(1000, lambda: self.load_statistics_content(new_tab_index))
 
+    def open_installer_window(self):
+        from Installsweb.installdisign import InstallerPage
+        tab_name = self.tr("Installer Premium")
+
+        # Vérifie si l’onglet existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Crée l’interface de l’installeur
+        installer_page = InstallerPage(self)
+
+        # Ajoute l’onglet
+        new_tab_index = self.add_custom_ta(installer_page, tab_name, "resources/icons/installer.ico")
+        if new_tab_index is None:
+            raise RuntimeError("Failed to add a new tab.")
+
+        self.tab_widget.setCurrentIndex(new_tab_index)
 
     def load_statistics_content(self, tab_index):
         """
@@ -1285,7 +1304,8 @@ class Browser(QMainWindow):
                 # ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
                 # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
-                ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+                # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+                ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("add app"), []),
 
             ]),
 
