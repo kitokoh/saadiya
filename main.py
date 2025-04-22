@@ -1115,6 +1115,45 @@ class Browser(QMainWindow):
         # Add the existing instance to the new tab
         self.add_custom_tab(self.settings, tab_name, "resources/icons/multi_fb.ico")
 
+    def open_contacts_window(self):
+        from ModulesUI.whasapping.group_manager import ContactTable
+
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("contacts")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'contacts') or self.contacts is None:
+            self.contacts = ContactTable(parent=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+    def add_media_page(self):
+        from facebooksmodule.media_manager import MediaTable
+
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("contacts")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'contacts') or self.contacts is None:
+            self.contacts = MediaTable(parent=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+
     def open_help_window(self):
         """Open a tab with the content of the 'HelpWidget' class."""
         widget = HelpWidget()
@@ -1286,6 +1325,9 @@ class Browser(QMainWindow):
                 # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
                 ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+                ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
+                # ("🕸️", self.tr("Interconnexion"), "connect", self.add_on_page, self.tr("interconnect Management"), []),
+
 
             ]),
 
@@ -1293,7 +1335,9 @@ class Browser(QMainWindow):
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
                 # ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
-                ("🖥️", self.tr("System"), "system", self.open_settings_window, self.tr("System configuration"), []),
+                ("👥", self.tr("Mes Contacts"), "contact", self.open_contacts_window, self.tr("liste de mes contacts"), []),
+                # ("🌍", self.tr("Grups"), "grups", self.open_settings_window, self.tr("liste de mes grops"), []),
+
                 ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
                     ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
                     ("🏰", self.tr("English"), "english", lambda: self.switch_language("en"), self.tr("English language"), []),
@@ -1701,7 +1745,7 @@ class Browser(QMainWindow):
         from Installsweb.installdisign import InstallerDialog
         installer = InstallerDialog(self)
         installer.exec_()
-       
+
     def update_menu_visibility(self):
         """Update menu buttons visibility based on configuration"""
         for button_name, visible in self.menu_config['visible_buttons'].items():

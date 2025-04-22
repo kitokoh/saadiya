@@ -1,0 +1,482 @@
+[
+  {
+    "id": 17,
+    "title": "GitHub",
+    "url": "https://github.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Development",
+    "category_color": "#6f42c1",
+    "tags": [
+      {
+        "name": "code",
+        "color": "#858796"
+      },
+      {
+        "name": "versioning",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "GitLab",
+    "url": "https://gitlab.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Development",
+    "category_color": "#6f42c1",
+    "tags": [
+      {
+        "name": "code",
+        "color": "#858796"
+      },
+      {
+        "name": "versioning",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "MDN Web Docs",
+    "url": "https://developer.mozilla.org",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Development",
+    "category_color": "#6f42c1",
+    "tags": [
+      {
+        "name": "documentation",
+        "color": "#858796"
+      },
+      {
+        "name": "web",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Stack Overflow",
+    "url": "https://stackoverflow.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Development",
+    "category_color": "#6f42c1",
+    "tags": [
+      {
+        "name": "help",
+        "color": "#858796"
+      },
+      {
+        "name": "programming",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Facebook Ads",
+    "url": "https://www.facebook.com/adsmanager",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Digital Marketing",
+    "category_color": "#1cc88a",
+    "tags": [
+      {
+        "name": "advertising",
+        "color": "#858796"
+      },
+      {
+        "name": "facebook",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Google Ads",
+    "url": "https://ads.google.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Digital Marketing",
+    "category_color": "#1cc88a",
+    "tags": [
+      {
+        "name": "advertising",
+        "color": "#858796"
+      },
+      {
+        "name": "google",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Google Analytics",
+    "url": "https://analytics.google.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Digital Marketing",
+    "category_color": "#1cc88a",
+    "tags": [
+      {
+        "name": "analytics",
+        "color": "#858796"
+      },
+      {
+        "name": "traffic",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Mailchimp",
+    "url": "https://mailchimp.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Digital Marketing",
+    "category_color": "#1cc88a",
+    "tags": [
+      {
+        "name": "email",
+        "color": "#858796"
+      },
+      {
+        "name": "newsletter",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Amazon Seller",
+    "url": "https://sellercentral.amazon.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "E-commerce",
+    "category_color": "#f6c23e",
+    "tags": [
+      {
+        "name": "marketplace",
+        "color": "#858796"
+      },
+      {
+        "name": "sales",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Ebay",
+    "url": "https://www.ebay.com/sellercenter",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "E-commerce",
+    "category_color": "#f6c23e",
+    "tags": [
+      {
+        "name": "marketplace",
+        "color": "#858796"
+      },
+      {
+        "name": "sales",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Shopify",
+    "url": "https://shopify.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "E-commerce",
+    "category_color": "#f6c23e",
+    "tags": [
+      {
+        "name": "shop",
+        "color": "#858796"
+      },
+      {
+        "name": "ecommerce",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "WooCommerce",
+    "url": "https://woocommerce.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "E-commerce",
+    "category_color": "#f6c23e",
+    "tags": [
+      {
+        "name": "shop",
+        "color": "#858796"
+      },
+      {
+        "name": "wordpress",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Google Drive",
+    "url": "https://drive.google.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Productivity Tools",
+    "category_color": "#36b9cc",
+    "tags": [
+      {
+        "name": "storage",
+        "color": "#858796"
+      },
+      {
+        "name": "collaboration",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Notion",
+    "url": "https://www.notion.so",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Productivity Tools",
+    "category_color": "#36b9cc",
+    "tags": [
+      {
+        "name": "organization",
+        "color": "#858796"
+      },
+      {
+        "name": "notes",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Slack",
+    "url": "https://slack.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Productivity Tools",
+    "category_color": "#36b9cc",
+    "tags": [
+      {
+        "name": "communication",
+        "color": "#858796"
+      },
+      {
+        "name": "team",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Trello",
+    "url": "https://trello.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Productivity Tools",
+    "category_color": "#36b9cc",
+    "tags": [
+      {
+        "name": "management",
+        "color": "#858796"
+      },
+      {
+        "name": "project",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "title": "Facebook",
+    "url": "https://facebook.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Social Networks",
+    "category_color": "#4e73df",
+    "tags": [
+      {
+        "name": "social",
+        "color": "#858796"
+      },
+      {
+        "name": "network",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Instagram",
+    "url": "https://instagram.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Social Networks",
+    "category_color": "#4e73df",
+    "tags": [
+      {
+        "name": "social",
+        "color": "#858796"
+      },
+      {
+        "name": "photo",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "LinkedIn",
+    "url": "https://linkedin.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Social Networks",
+    "category_color": "#4e73df",
+    "tags": [
+      {
+        "name": "social",
+        "color": "#858796"
+      },
+      {
+        "name": "professional",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Twitter",
+    "url": "https://twitter.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Social Networks",
+    "category_color": "#4e73df",
+    "tags": [
+      {
+        "name": "social",
+        "color": "#858796"
+      },
+      {
+        "name": "news",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Product Hunt",
+    "url": "https://www.producthunt.com",
+    "username": null,
+    "password": null,
+    "favorite": true,
+    "category": "Tech News",
+    "category_color": "#e74a3b",
+    "tags": [
+      {
+        "name": "new",
+        "color": "#858796"
+      },
+      {
+        "name": "products",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "TechCrunch",
+    "url": "https://techcrunch.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Tech News",
+    "category_color": "#e74a3b",
+    "tags": [
+      {
+        "name": "news",
+        "color": "#858796"
+      },
+      {
+        "name": "technology",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "The Verge",
+    "url": "https://www.theverge.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Tech News",
+    "category_color": "#e74a3b",
+    "tags": [
+      {
+        "name": "news",
+        "color": "#858796"
+      },
+      {
+        "name": "technology",
+        "color": "#858796"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Wired",
+    "url": "https://www.wired.com",
+    "username": null,
+    "password": null,
+    "favorite": false,
+    "category": "Tech News",
+    "category_color": "#e74a3b",
+    "tags": [
+      {
+        "name": "news",
+        "color": "#858796"
+      },
+      {
+        "name": "innovation",
+        "color": "#858796"
+      }
+    ]
+  }
+]

@@ -12,11 +12,17 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QStyledItemDelegate
 from PyQt5.QtCore import pyqtSignal
 from imports import DB_PATH_links
+from PyQt5.QtCore import QUrl
+import webbrowser
+
+# Database path
+DB_PATH_links = DB_PATH_links
+
 class PasswordEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setEchoMode(QLineEdit.Password)
-        self.toggle_password_action = self.addAction(QIcon(":/icons/eye-off.svg"), QLineEdit.TrailingPosition)
+        self.toggle_password_action = self.addAction(QIcon.fromTheme("visibility"), QLineEdit.TrailingPosition)
         self.toggle_password_action.triggered.connect(self.toggle_password_visibility)
         self.password_visible = False
         self.setStyleSheet("""
@@ -28,20 +34,61 @@ class PasswordEdit(QLineEdit):
             }
             QLineEdit:focus {
                 border: 1px solid #4e73df;
+                outline: none;
             }
         """)
 
     def toggle_password_visibility(self):
         if self.password_visible:
             self.setEchoMode(QLineEdit.Password)
-            self.toggle_password_action.setIcon(QIcon(":/icons/eye-off.svg"))
+            self.toggle_password_action.setIcon(QIcon.fromTheme("visibility"))
             self.password_visible = False
         else:
             self.setEchoMode(QLineEdit.Normal)
-            self.toggle_password_action.setIcon(QIcon(":/icons/eye.svg"))
+            self.toggle_password_action.setIcon(QIcon.fromTheme("visibility-off"))
             self.password_visible = True
+from PyQt5.QtCore import pyqtProperty, QPropertyAnimation
+from PyQt5.QtGui import QPainter
 
 class FadeButton(QPushButton):
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self._opacity_value = 1.0  # Variable interne pour stocker l'opacité
+        self._animation = QPropertyAnimation(self, b"opacity")
+        self._animation.setDuration(200)
+        
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setOpacity(self._opacity_value)
+        super().paintEvent(event)
+        
+    def get_opacity(self):
+        return self._opacity_value
+        
+    def set_opacity(self, opacity):
+        # On s'assure que l'opacité reste entre 0 et 1
+        opacity = max(0.0, min(1.0, opacity))
+        if self._opacity_value != opacity:
+            self._opacity_value = opacity
+            self.update()  # Force le repaint
+            
+    # Définition de la propriété Qt
+    opacity = pyqtProperty(float, get_opacity, set_opacity)
+    
+    def enterEvent(self, event):
+        self.start_animation(0.7)
+        super().enterEvent(event)
+        
+    def leaveEvent(self, event):
+        self.start_animation(1.0)
+        super().leaveEvent(event)
+        
+    def start_animation(self, target_opacity):
+        self._animation.stop()
+        self._animation.setStartValue(self.opacity)
+        self._animation.setEndValue(target_opacity)
+        self._animation.start()
+class FadeButton1(QPushButton):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
         self._animation = QPropertyAnimation(self, b"opacity")
@@ -70,13 +117,52 @@ class FadeButton(QPushButton):
         painter = QPainter(self)
         painter.setOpacity(self._opacity)
         super().paintEvent(event)
-
+class FadeButton2(QPushButton):
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self._opacity = 1.0
+        self._animation = QPropertyAnimation(self, b"_opacity")
+        self._animation.setDuration(200)
+        
+        # Définir la propriété opacity comme dynamique
+        self.setProperty("_opacity", 1.0)
+        
+    def _get_opacity(self):
+        return self._opacity
+        
+    def _set_opacity(self, opacity):
+        self._opacity = opacity
+        self.update()
+        
+    _opacity = property(_get_opacity, _set_opacity)
+        
+    def enterEvent(self, event):
+        self._animation.stop()
+        self._animation.setStartValue(self._opacity)
+        self._animation.setEndValue(0.7)
+        self._animation.start()
+        super().enterEvent(event)
+        
+    def leaveEvent(self, event):
+        self._animation.stop()
+        self._animation.setStartValue(self._opacity)
+        self._animation.setEndValue(1.0)
+        self._animation.start()
+        super().leaveEvent(event)
+        
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setOpacity(self._opacity)
+        super().paintEvent(event)
 class GradientLabel(QLabel):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
         self._gradient = QLinearGradient(0, 0, 0, 1)
         self._gradient.setColorAt(0, QColor("#4e73df"))
         self._gradient.setColorAt(1, QColor("#224abe"))
+        self.setFont(QFont('Arial', 16, QFont.Bold))
+        self.setAlignment(Qt.AlignCenter)
+        self.setFixedHeight(50)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -86,55 +172,131 @@ class GradientLabel(QLabel):
         painter.drawRect(self.rect())
         painter.setPen(QColor("#ffffff"))
         painter.drawText(self.rect(), Qt.AlignCenter, self.text())
+
 class DatabaseManager:
     def __init__(self):
         self.conn = sqlite3.connect(DB_PATH_links, check_same_thread=False)
         self.create_tables()
+        self.initialize_default_data()
         
     def create_tables(self):
         cursor = self.conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS categories (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nom TEXT UNIQUE NOT NULL,
+                name TEXT UNIQUE NOT NULL,
                 color TEXT DEFAULT '#4e73df'
             )
         ''')
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS tags (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nom TEXT UNIQUE NOT NULL,
+                name TEXT UNIQUE NOT NULL,
                 color TEXT DEFAULT '#858796'
             )
         ''')
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS lien_tags (
-                lien_id INTEGER,
+            CREATE TABLE IF NOT EXISTS link_tags (
+                link_id INTEGER,
                 tag_id INTEGER,
-                PRIMARY KEY (lien_id, tag_id),
-                FOREIGN KEY (lien_id) REFERENCES liens(id),
+                PRIMARY KEY (link_id, tag_id),
+                FOREIGN KEY (link_id) REFERENCES links(id),
                 FOREIGN KEY (tag_id) REFERENCES tags(id)
             )
         ''')
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS liens (
+            CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                titre TEXT NOT NULL,
+                title TEXT NOT NULL,
                 url TEXT NOT NULL,
-                identifiant TEXT,
-                mot_de_passe TEXT,
-                favori BOOLEAN DEFAULT 0,
-                categorie_id INTEGER,
-                date_creation DATETIME DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (categorie_id) REFERENCES categories(id)
+                username TEXT,
+                password TEXT,
+                favorite BOOLEAN DEFAULT 0,
+                category_id INTEGER,
+                creation_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (category_id) REFERENCES categories(id)
             )
         ''')
         self.conn.commit()
         
-    def ajouter_categorie(self, nom, color="#4e73df"):
+    def initialize_default_data(self):
+        cursor = self.conn.cursor()
+        
+        # Check if database is empty
+        cursor.execute('SELECT COUNT(*) FROM categories')
+        if cursor.fetchone()[0] == 0:
+            # Default categories
+            categories = [
+                ("Social Networks", "#4e73df"),
+                ("Digital Marketing", "#1cc88a"),
+                ("E-commerce", "#f6c23e"),
+                ("Productivity Tools", "#36b9cc"),
+                ("Development", "#6f42c1"),
+                ("Tech News", "#e74a3b")
+            ]
+            
+            for name, color in categories:
+                self.add_category(name, color)
+            
+            # Default links
+            default_links = [
+                # Social Networks
+                ("Facebook", "https://facebook.com", None, None, False, "Social Networks", ["social", "network"]),
+                ("Instagram", "https://instagram.com", None, None, False, "Social Networks", ["social", "photo"]),
+                ("Twitter", "https://twitter.com", None, None, False, "Social Networks", ["social", "news"]),
+                ("LinkedIn", "https://linkedin.com", None, None, True, "Social Networks", ["social", "professional"]),
+                
+                # Digital Marketing
+                ("Google Analytics", "https://analytics.google.com", None, None, True, "Digital Marketing", ["analytics", "traffic"]),
+                ("Google Ads", "https://ads.google.com", None, None, False, "Digital Marketing", ["advertising", "google"]),
+                ("Facebook Ads", "https://www.facebook.com/adsmanager", None, None, False, "Digital Marketing", ["advertising", "facebook"]),
+                ("Mailchimp", "https://mailchimp.com", None, None, False, "Digital Marketing", ["email", "newsletter"]),
+                
+                # E-commerce
+                ("Shopify", "https://shopify.com", None, None, False, "E-commerce", ["shop", "ecommerce"]),
+                ("WooCommerce", "https://woocommerce.com", None, None, False, "E-commerce", ["wordpress", "shop"]),
+                ("Amazon Seller", "https://sellercentral.amazon.com", None, None, True, "E-commerce", ["marketplace", "sales"]),
+                ("Ebay", "https://www.ebay.com/sellercenter", None, None, False, "E-commerce", ["marketplace", "sales"]),
+                
+                # Productivity Tools
+                ("Google Drive", "https://drive.google.com", None, None, True, "Productivity Tools", ["storage", "collaboration"]),
+                ("Trello", "https://trello.com", None, None, False, "Productivity Tools", ["management", "project"]),
+                ("Slack", "https://slack.com", None, None, False, "Productivity Tools", ["communication", "team"]),
+                ("Notion", "https://www.notion.so", None, None, True, "Productivity Tools", ["organization", "notes"]),
+                
+                # Development
+                ("GitHub", "https://github.com", None, None, True, "Development", ["code", "versioning"]),
+                ("GitLab", "https://gitlab.com", None, None, False, "Development", ["code", "versioning"]),
+                ("Stack Overflow", "https://stackoverflow.com", None, None, True, "Development", ["help", "programming"]),
+                ("MDN Web Docs", "https://developer.mozilla.org", None, None, False, "Development", ["documentation", "web"]),
+                
+                # Tech News
+                ("TechCrunch", "https://techcrunch.com", None, None, False, "Tech News", ["news", "technology"]),
+                ("The Verge", "https://www.theverge.com", None, None, False, "Tech News", ["news", "technology"]),
+                ("Wired", "https://www.wired.com", None, None, False, "Tech News", ["news", "innovation"]),
+                ("Product Hunt", "https://www.producthunt.com", None, None, True, "Tech News", ["new", "products"])
+            ]
+            
+            for title, url, username, password, favorite, category, tags in default_links:
+                cursor.execute('SELECT id FROM categories WHERE name = ?', (category,))
+                category_id = cursor.fetchone()[0]
+                
+                tag_objects = [(tag, "#858796") for tag in tags]
+                
+                self.add_link(
+                    title=title,
+                    url=url,
+                    category_id=category_id,
+                    username=username,
+                    password=password,
+                    favorite=favorite,
+                    tags=tag_objects
+                )
+        
+    def add_category(self, name, color="#4e73df"):
         cursor = self.conn.cursor()
         try:
-            cursor.execute('INSERT INTO categories (nom, color) VALUES (?, ?)', (nom, color))
+            cursor.execute('INSERT INTO categories (name, color) VALUES (?, ?)', (name, color))
             self.conn.commit()
             return cursor.lastrowid
         except sqlite3.IntegrityError:
@@ -142,180 +304,188 @@ class DatabaseManager:
             
     def get_categories(self):
         cursor = self.conn.cursor()
-        cursor.execute('SELECT id, nom, color FROM categories ORDER BY nom')
+        cursor.execute('SELECT id, name, color FROM categories ORDER BY name')
         return cursor.fetchall()
         
-    def ajouter_tag(self, nom, color="#858796"):
+    def add_tag(self, name, color="#858796"):
         cursor = self.conn.cursor()
         try:
-            cursor.execute('INSERT INTO tags (nom, color) VALUES (?, ?)', (nom, color))
+            cursor.execute('INSERT INTO tags (name, color) VALUES (?, ?)', (name, color))
             self.conn.commit()
             return cursor.lastrowid
         except sqlite3.IntegrityError:
-            cursor.execute('SELECT id FROM tags WHERE nom = ?', (nom,))
+            cursor.execute('SELECT id FROM tags WHERE name = ?', (name,))
             return cursor.fetchone()[0]
             
     def get_tags(self):
         cursor = self.conn.cursor()
-        cursor.execute('SELECT id, nom, color FROM tags ORDER BY nom')
+        cursor.execute('SELECT id, name, color FROM tags ORDER BY name')
         return cursor.fetchall()
         
-    def get_tags_for_lien(self, lien_id):
+    def get_tags_for_link(self, link_id):
         cursor = self.conn.cursor()
         cursor.execute('''
-            SELECT t.id, t.nom, t.color 
+            SELECT t.id, t.name, t.color 
             FROM tags t
-            JOIN lien_tags lt ON t.id = lt.tag_id
-            WHERE lt.lien_id = ?
-        ''', (lien_id,))
+            JOIN link_tags lt ON t.id = lt.tag_id
+            WHERE lt.link_id = ?
+        ''', (link_id,))
         return cursor.fetchall()
         
-    def update_lien_tags(self, lien_id, tags):
+    def update_link_tags(self, link_id, tags):
         cursor = self.conn.cursor()
-        cursor.execute('DELETE FROM lien_tags WHERE lien_id = ?', (lien_id,))
+        cursor.execute('DELETE FROM link_tags WHERE link_id = ?', (link_id,))
         
         for tag in tags:
             if isinstance(tag, tuple):
-                tag_id = self.ajouter_tag(tag[0], tag[1])
+                tag_id = self.add_tag(tag[0], tag[1])
             else:
-                tag_id = self.ajouter_tag(tag)
-            cursor.execute('INSERT INTO lien_tags (lien_id, tag_id) VALUES (?, ?)', (lien_id, tag_id))
+                tag_id = self.add_tag(tag)
+            cursor.execute('INSERT INTO link_tags (link_id, tag_id) VALUES (?, ?)', (link_id, tag_id))
             
         self.conn.commit()
         
-    def ajouter_lien(self, titre, url, categorie_id, identifiant=None, mot_de_passe=None, favori=False, tags=None):
+    def add_link(self, title, url, category_id, username=None, password=None, favorite=False, tags=None):
         cursor = self.conn.cursor()
         cursor.execute('''
-            INSERT INTO liens (titre, url, categorie_id, identifiant, mot_de_passe, favori) 
+            INSERT INTO links (title, url, category_id, username, password, favorite) 
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (titre, url, categorie_id, identifiant, mot_de_passe, favori))
-        lien_id = cursor.lastrowid
+        ''', (title, url, category_id, username, password, favorite))
+        link_id = cursor.lastrowid
         
         if tags:
-            self.update_lien_tags(lien_id, tags)
+            self.update_link_tags(link_id, tags)
             
         self.conn.commit()
-        return lien_id
+        return link_id
         
-    def modifier_lien(self, lien_id, titre, url, categorie_id, identifiant=None, mot_de_passe=None, favori=None, tags=None):
+    def update_link(self, link_id, title, url, category_id, username=None, password=None, favorite=None, tags=None):
         cursor = self.conn.cursor()
         
-        if favori is not None:
+        if favorite is not None:
             cursor.execute('''
-                UPDATE liens 
-                SET titre = ?, url = ?, categorie_id = ?, identifiant = ?, mot_de_passe = ?, favori = ?
+                UPDATE links 
+                SET title = ?, url = ?, category_id = ?, username = ?, password = ?, favorite = ?
                 WHERE id = ?
-            ''', (titre, url, categorie_id, identifiant, mot_de_passe, favori, lien_id))
+            ''', (title, url, category_id, username, password, favorite, link_id))
         else:
             cursor.execute('''
-                UPDATE liens 
-                SET titre = ?, url = ?, categorie_id = ?, identifiant = ?, mot_de_passe = ?
+                UPDATE links 
+                SET title = ?, url = ?, category_id = ?, username = ?, password = ?
                 WHERE id = ?
-            ''', (titre, url, categorie_id, identifiant, mot_de_passe, lien_id))
+            ''', (title, url, category_id, username, password, link_id))
             
         if tags is not None:
-            self.update_lien_tags(lien_id, tags)
+            self.update_link_tags(link_id, tags)
             
         self.conn.commit()
         
-    def get_liens_par_categorie(self, categorie_id=None, favori=None, search_query=None):
+    def get_links_by_category(self, category_id=None, favorite=None, search_query=None):
         cursor = self.conn.cursor()
         query = '''
-            SELECT l.id, l.titre, l.url, l.identifiant, l.mot_de_passe, l.favori, c.nom, c.color 
-            FROM liens l 
-            JOIN categories c ON l.categorie_id = c.id 
+            SELECT l.id, l.title, l.url, l.username, l.password, l.favorite, c.name, c.color 
+            FROM links l 
+            JOIN categories c ON l.category_id = c.id 
         '''
         params = []
         
         conditions = []
-        if categorie_id:
-            conditions.append("l.categorie_id = ?")
-            params.append(categorie_id)
-        if favori is not None:
-            conditions.append("l.favori = ?")
-            params.append(favori)
+        if category_id:
+            conditions.append("l.category_id = ?")
+            params.append(category_id)
+        if favorite is not None:
+            conditions.append("l.favorite = ?")
+            params.append(favorite)
         if search_query:
-            conditions.append("(l.titre LIKE ? OR l.url LIKE ? OR c.nom LIKE ?)")
+            conditions.append("(l.title LIKE ? OR l.url LIKE ? OR c.name LIKE ?)")
             params.extend([f"%{search_query}%"] * 3)
             
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
             
-        query += " ORDER BY c.nom, l.titre"
+        query += " ORDER BY c.name, l.title"
         cursor.execute(query, params)
             
-        liens = cursor.fetchall()
+        links = cursor.fetchall()
         
-        # Récupérer les tags pour chaque lien
+        # Get tags for each link
         result = []
-        for lien in liens:
-            tags = self.get_tags_for_lien(lien[0])
-            result.append((*lien, tags))
+        for link in links:
+            tags = self.get_tags_for_link(link[0])
+            result.append((*link, tags))
             
         return result
         
-    def supprimer_lien(self, lien_id):
+    def delete_link(self, link_id):
         cursor = self.conn.cursor()
-        cursor.execute('DELETE FROM lien_tags WHERE lien_id = ?', (lien_id,))
-        cursor.execute('DELETE FROM liens WHERE id = ?', (lien_id,))
+        cursor.execute('DELETE FROM link_tags WHERE link_id = ?', (link_id,))
+        cursor.execute('DELETE FROM links WHERE id = ?', (link_id,))
         self.conn.commit()
         
-    def supprimer_categorie(self, categorie_id):
+    def delete_category(self, category_id):
         cursor = self.conn.cursor()
-        cursor.execute('DELETE FROM categories WHERE id = ?', (categorie_id,))
-        cursor.execute('DELETE FROM liens WHERE categorie_id = ?', (categorie_id,))
+        cursor.execute('DELETE FROM categories WHERE id = ?', (category_id,))
+        cursor.execute('DELETE FROM links WHERE category_id = ?', (category_id,))
         self.conn.commit()
         
-    def exporter_liens(self, filename):
-        liens = self.get_liens_par_categorie()
+    def delete_all_data(self):
+        cursor = self.conn.cursor()
+        cursor.execute('DELETE FROM link_tags')
+        cursor.execute('DELETE FROM links')
+        cursor.execute('DELETE FROM tags')
+        cursor.execute('DELETE FROM categories')
+        self.conn.commit()
+        
+    def export_links(self, filename):
+        links = self.get_links_by_category()
         data = []
         
-        for lien in liens:
+        for link in links:
             data.append({
-                'id': lien[0],
-                'titre': lien[1],
-                'url': lien[2],
-                'identifiant': lien[3],
-                'mot_de_passe': lien[4],
-                'favori': bool(lien[5]),
-                'categorie': lien[6],
-                'categorie_color': lien[7],
-                'tags': [{'nom': tag[1], 'color': tag[2]} for tag in lien[8]]
+                'id': link[0],
+                'title': link[1],
+                'url': link[2],
+                'username': link[3],
+                'password': link[4],
+                'favorite': bool(link[5]),
+                'category': link[6],
+                'category_color': link[7],
+                'tags': [{'name': tag[1], 'color': tag[2]} for tag in link[8]]
             })
             
         with open(filename, 'w') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
             
-    def importer_liens(self, filename):
+    def import_links(self, filename):
         with open(filename, 'r') as f:
             data = json.load(f)
             
         for item in data:
-            # Trouver ou créer la catégorie
+            # Find or create category
             cursor = self.conn.cursor()
-            cursor.execute('SELECT id FROM categories WHERE nom = ?', (item['categorie'],))
-            categorie = cursor.fetchone()
+            cursor.execute('SELECT id FROM categories WHERE name = ?', (item['category'],))
+            category = cursor.fetchone()
             
-            if not categorie:
-                self.ajouter_categorie(item['categorie'], item.get('categorie_color', '#4e73df'))
-                cursor.execute('SELECT id FROM categories WHERE nom = ?', (item['categorie'],))
-                categorie_id = cursor.fetchone()[0]
+            if not category:
+                self.add_category(item['category'], item.get('category_color', '#4e73df'))
+                cursor.execute('SELECT id FROM categories WHERE name = ?', (item['category'],))
+                category_id = cursor.fetchone()[0]
             else:
-                categorie_id = categorie[0]
+                category_id = category[0]
                 
-            # Vérifier si le lien existe déjà
-            cursor.execute('SELECT id FROM liens WHERE titre = ? AND url = ?', (item['titre'], item['url']))
+            # Check if link already exists
+            cursor.execute('SELECT id FROM links WHERE title = ? AND url = ?', (item['title'], item['url']))
             existing = cursor.fetchone()
             
             if not existing:
-                tags = [(tag['nom'], tag.get('color', '#858796')) for tag in item.get('tags', [])]
-                self.ajouter_lien(
-                    titre=item['titre'],
+                tags = [(tag['name'], tag.get('color', '#858796')) for tag in item.get('tags', [])]
+                self.add_link(
+                    title=item['title'],
                     url=item['url'],
-                    categorie_id=categorie_id,
-                    identifiant=item.get('identifiant'),
-                    mot_de_passe=item.get('mot_de_passe'),
-                    favori=item.get('favori', False),
+                    category_id=category_id,
+                    username=item.get('username'),
+                    password=item.get('password'),
+                    favorite=item.get('favorite', False),
                     tags=tags
                 )
 
@@ -354,20 +524,20 @@ class LinkWidget(QWidget):
     edit_requested = pyqtSignal(int)
     tag_clicked = pyqtSignal(str)
     
-    def __init__(self, lien_id, titre, url, categorie, categorie_color, 
-                 identifiant=None, mot_de_passe=None, favori=False, tags=None, parent=None):
+    def __init__(self, link_id, title, url, category, category_color, 
+                 username=None, password=None, favorite=False, tags=None, parent=None):
         super().__init__(parent)
-        self.lien_id = lien_id
+        self.link_id = link_id
         self.url = url
         self.parent = parent
-        self.mot_de_passe = mot_de_passe
-        self.mot_de_passe_visible = False
+        self.password = password
+        self.password_visible = False
         self.tags = tags or []
-        self.categorie_color = categorie_color
+        self.category_color = category_color
         
-        self.setup_ui(titre, categorie, identifiant, favori)
+        self.setup_ui(title, category, username, favorite)
         
-    def setup_ui(self, titre, categorie, identifiant, favori):
+    def setup_ui(self, title, category, username, favorite):
         self.setStyleSheet(f"""
             QWidget {{
                 background-color: #ffffff;
@@ -386,12 +556,12 @@ class LinkWidget(QWidget):
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(8)
         
-        # Header avec titre et boutons
+        # Header with title and buttons
         header = QWidget()
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Titre et favori
+        # Title and favorite
         title_fav = QWidget()
         title_fav_layout = QHBoxLayout(title_fav)
         title_fav_layout.setContentsMargins(0, 0, 0, 0)
@@ -399,7 +569,7 @@ class LinkWidget(QWidget):
         self.fav_btn = QPushButton()
         self.fav_btn.setFixedSize(24, 24)
         self.fav_btn.setFlat(True)
-        self.fav_btn.setIcon(QIcon.fromTheme("emblem-favorite" if favori else "emblem-default"))
+        self.fav_btn.setIcon(QIcon.fromTheme("emblem-favorite" if favorite else "emblem-default"))
         self.fav_btn.setIconSize(QSize(16, 16))
         self.fav_btn.setStyleSheet("""
             QPushButton {
@@ -410,27 +580,27 @@ class LinkWidget(QWidget):
                 background-color: #f8f9fa;
             }
         """)
-        self.fav_btn.clicked.connect(self.toggle_favori)
+        self.fav_btn.clicked.connect(self.toggle_favorite)
         
-        self.titre_label = QLabel(titre)
-        self.titre_label.setFont(QFont('Arial', 10, QFont.Bold))
-        self.titre_label.setStyleSheet("color: #2e59d9;")
+        self.title_label = QLabel(title)
+        self.title_label.setFont(QFont('Arial', 10, QFont.Bold))
+        self.title_label.setStyleSheet("color: #2e59d9;")
         
         title_fav_layout.addWidget(self.fav_btn)
-        title_fav_layout.addWidget(self.titre_label, 1)
+        title_fav_layout.addWidget(self.title_label, 1)
         title_fav_layout.addStretch()
         
         header_layout.addWidget(title_fav, 1)
         
-        # Boutons d'action
+        # Action buttons
         btn_container = QWidget()
         btn_layout = QHBoxLayout(btn_container)
         btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.setSpacing(5)
         
-        self.btn_visiter = FadeButton("Visiter")
-        self.btn_visiter.setIcon(QIcon.fromTheme("go-jump"))
-        self.btn_visiter.setStyleSheet("""
+        self.btn_visit = FadeButton("Visit")
+        self.btn_visit.setIcon(QIcon.fromTheme("go-jump"))
+        self.btn_visit.setStyleSheet("""
             QPushButton {
                 background-color: #4e73df; 
                 color: white;
@@ -439,11 +609,11 @@ class LinkWidget(QWidget):
                 background-color: #3a5bc7;
             }
         """)
-        self.btn_visiter.clicked.connect(self.visiter_lien)
+        self.btn_visit.clicked.connect(self.visit_link)
         
         self.btn_edit = QPushButton("")
         self.btn_edit.setIcon(QIcon.fromTheme("document-edit"))
-        self.btn_edit.setToolTip("Modifier")
+        self.btn_edit.setToolTip("Edit")
         self.btn_edit.setStyleSheet("""
             QPushButton {
                 background-color: #f6c23e; 
@@ -454,12 +624,12 @@ class LinkWidget(QWidget):
                 background-color: #dda20a;
             }
         """)
-        self.btn_edit.clicked.connect(lambda: self.edit_requested.emit(self.lien_id))
+        self.btn_edit.clicked.connect(lambda: self.edit_requested.emit(self.link_id))
         
-        self.btn_supprimer = QPushButton("")
-        self.btn_supprimer.setIcon(QIcon.fromTheme("edit-delete"))
-        self.btn_supprimer.setToolTip("Supprimer")
-        self.btn_supprimer.setStyleSheet("""
+        self.btn_delete = QPushButton("")
+        self.btn_delete.setIcon(QIcon.fromTheme("edit-delete"))
+        self.btn_delete.setToolTip("Delete")
+        self.btn_delete.setStyleSheet("""
             QPushButton {
                 background-color: #e74a3b; 
                 color: white;
@@ -469,58 +639,58 @@ class LinkWidget(QWidget):
                 background-color: #be2617;
             }
         """)
-        self.btn_supprimer.clicked.connect(self.supprimer_lien)
+        self.btn_delete.clicked.connect(self.delete_link)
         
-        btn_layout.addWidget(self.btn_visiter)
+        btn_layout.addWidget(self.btn_visit)
         btn_layout.addWidget(self.btn_edit)
-        btn_layout.addWidget(self.btn_supprimer)
+        btn_layout.addWidget(self.btn_delete)
         
         header_layout.addWidget(btn_container)
         
         main_layout.addWidget(header)
         
-        # Catégorie et URL
+        # Category and URL
         meta_container = QWidget()
         meta_layout = QVBoxLayout(meta_container)
         meta_layout.setContentsMargins(0, 0, 0, 0)
         meta_layout.setSpacing(4)
         
-        # Catégorie
-        self.categorie_label = QLabel(f"<small>Catégorie: <span style='color: {self.categorie_color}; font-weight: bold;'>{categorie}</span></small>")
+        # Category
+        self.category_label = QLabel(f"<small>Category: <span style='color: {self.category_color}; font-weight: bold;'>{category}</span></small>")
         
         # URL
         self.url_label = QLabel(f"<small>URL: {self.url}</small>")
         self.url_label.setStyleSheet("color: #858796;")
         self.url_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         
-        meta_layout.addWidget(self.categorie_label)
+        meta_layout.addWidget(self.category_label)
         meta_layout.addWidget(self.url_label)
         
         main_layout.addWidget(meta_container)
         
-        # Identifiant et mot de passe
-        if identifiant or self.mot_de_passe:
+        # Username and password
+        if username or self.password:
             auth_container = QWidget()
             auth_layout = QVBoxLayout(auth_container)
             auth_layout.setContentsMargins(0, 0, 0, 0)
             auth_layout.setSpacing(4)
             
-            # Identifiant
-            if identifiant:
-                identifiant_group = QWidget()
-                identifiant_layout = QHBoxLayout(identifiant_group)
-                identifiant_layout.setContentsMargins(0, 0, 0, 0)
+            # Username
+            if username:
+                username_group = QWidget()
+                username_layout = QHBoxLayout(username_group)
+                username_layout.setContentsMargins(0, 0, 0, 0)
                 
-                identifiant_title = QLabel("<small>Identifiant:</small>")
-                identifiant_title.setStyleSheet("color: #6c757d; min-width: 70px;")
+                username_title = QLabel("<small>Username:</small>")
+                username_title.setStyleSheet("color: #6c757d; min-width: 70px;")
                 
-                self.identifiant_value = QLabel(identifiant)
-                self.identifiant_value.setStyleSheet("color: #5a5c69;")
-                self.identifiant_value.setTextInteractionFlags(Qt.TextSelectableByMouse)
+                self.username_value = QLabel(username)
+                self.username_value.setStyleSheet("color: #5a5c69;")
+                self.username_value.setTextInteractionFlags(Qt.TextSelectableByMouse)
                 
                 btn_copy_id = QPushButton("")
                 btn_copy_id.setIcon(QIcon.fromTheme("edit-copy"))
-                btn_copy_id.setToolTip("Copier")
+                btn_copy_id.setToolTip("Copy")
                 btn_copy_id.setStyleSheet("""
                     QPushButton {
                         background-color: transparent;
@@ -531,21 +701,21 @@ class LinkWidget(QWidget):
                     }
                 """)
                 btn_copy_id.setFixedSize(24, 24)
-                btn_copy_id.clicked.connect(lambda: QApplication.clipboard().setText(identifiant))
+                btn_copy_id.clicked.connect(lambda: QApplication.clipboard().setText(username))
                 
-                identifiant_layout.addWidget(identifiant_title)
-                identifiant_layout.addWidget(self.identifiant_value, 1)
-                identifiant_layout.addWidget(btn_copy_id)
+                username_layout.addWidget(username_title)
+                username_layout.addWidget(self.username_value, 1)
+                username_layout.addWidget(btn_copy_id)
                 
-                auth_layout.addWidget(identifiant_group)
+                auth_layout.addWidget(username_group)
             
-            # Mot de passe
-            if self.mot_de_passe:
+            # Password
+            if self.password:
                 password_group = QWidget()
                 password_layout = QHBoxLayout(password_group)
                 password_layout.setContentsMargins(0, 0, 0, 0)
                 
-                password_title = QLabel("<small>Mot de passe:</small>")
+                password_title = QLabel("<small>Password:</small>")
                 password_title.setStyleSheet("color: #6c757d; min-width: 70px;")
                 
                 self.password_value = QLabel("••••••••")
@@ -558,7 +728,7 @@ class LinkWidget(QWidget):
                 
                 btn_show_pass = QPushButton("")
                 btn_show_pass.setIcon(QIcon.fromTheme("visibility-off"))
-                btn_show_pass.setToolTip("Afficher")
+                btn_show_pass.setToolTip("Show")
                 btn_show_pass.setStyleSheet("""
                     QPushButton {
                         background-color: transparent;
@@ -573,7 +743,7 @@ class LinkWidget(QWidget):
                 
                 btn_copy_pass = QPushButton("")
                 btn_copy_pass.setIcon(QIcon.fromTheme("edit-copy"))
-                btn_copy_pass.setToolTip("Copier")
+                btn_copy_pass.setToolTip("Copy")
                 btn_copy_pass.setStyleSheet("""
                     QPushButton {
                         background-color: transparent;
@@ -584,7 +754,7 @@ class LinkWidget(QWidget):
                     }
                 """)
                 btn_copy_pass.setFixedSize(24, 24)
-                btn_copy_pass.clicked.connect(lambda: QApplication.clipboard().setText(self.mot_de_passe))
+                btn_copy_pass.clicked.connect(lambda: QApplication.clipboard().setText(self.password))
                 
                 btn_pass_layout.addWidget(btn_show_pass)
                 btn_pass_layout.addWidget(btn_copy_pass)
@@ -614,52 +784,65 @@ class LinkWidget(QWidget):
         
         self.setLayout(main_layout)
         
-    def toggle_favori(self):
-        favori = not ("emblem-favorite" in self.fav_btn.icon().name())
-        self.parent.db.modifier_lien(
-            self.lien_id, 
-            favori=favori
+    def toggle_favorite(self):
+        favorite = not ("emblem-favorite" in self.fav_btn.icon().name())
+        self.parent.db.update_link(
+            self.link_id, 
+            favorite=favorite
         )
-        self.fav_btn.setIcon(QIcon.fromTheme("emblem-favorite" if favori else "emblem-default"))
-        if self.parent.favoris_check.isChecked():
-            self.setVisible(favori)
+        self.fav_btn.setIcon(QIcon.fromTheme("emblem-favorite" if favorite else "emblem-default"))
+        if self.parent.favorites_check.isChecked():
+            self.setVisible(favorite)
         
     def toggle_password_visibility(self):
-        if self.mot_de_passe_visible:
+        if self.password_visible:
             self.password_value.setText("••••••••")
             self.sender().setIcon(QIcon.fromTheme("visibility-off"))
-            self.sender().setToolTip("Afficher")
-            self.mot_de_passe_visible = False
+            self.sender().setToolTip("Show")
+            self.password_visible = False
         else:
-            self.password_value.setText(self.mot_de_passe)
+            self.password_value.setText(self.password)
             self.sender().setIcon(QIcon.fromTheme("visibility"))
-            self.sender().setToolTip("Masquer")
-            self.mot_de_passe_visible = True
-            
-    def visiter_lien(self):
-        self.parent.visiter_lien(self.url)
+            self.sender().setToolTip("Hide")
+            self.password_visible = True
+    def visit_link1(self):
+        """Dans LinkWidget"""
+        self.parent.open_link_with_choice(self.url, self.title_label.text())
+
+    def visit_link(self):
+        """Dans LinkWidget"""
+        link_data = {
+            'url': self.url,
+            'title': self.title_label.text(),
+            'username': self.username if hasattr(self, 'username') else None,
+            'password': self.password if hasattr(self, 'password') else None
+        }
+        self.parent.open_link_with_choice(link_data)
         
-    def supprimer_lien(self):
+    def visit_link1(self):
+        self.parent.visit_link(self.url)
+        
+    def delete_link(self):
         reply = QMessageBox.question(
             self, 'Confirmation', 
-            f"Voulez-vous vraiment supprimer le lien '{self.titre_label.text()}'?",
+            f"Do you really want to delete the link '{self.title_label.text()}'?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
         if reply == QMessageBox.Yes:
-            self.parent.db.supprimer_lien(self.lien_id)
-            self.parent.charger_liens()
+            self.parent.db.delete_link(self.link_id)
+            self.parent.load_links()
 
 class CategoryWidget(QWidget):
-    def __init__(self, categorie_id, nom, color, parent=None):
+    def __init__(self, category_id, name, color, parent=None):
         super().__init__(parent)
-        self.categorie_id = categorie_id
+        self.category_id = category_id
         self.parent = parent
         self.color = color
         
-        self.setup_ui(nom)
+        self.setup_ui(name)
         
-    def setup_ui(self, nom):
+    def setup_ui(self, name):
         self.setStyleSheet(f"""
             QWidget {{
                 background-color: #ffffff;
@@ -675,12 +858,12 @@ class CategoryWidget(QWidget):
         layout = QHBoxLayout()
         layout.setContentsMargins(15, 10, 15, 10)
         
-        self.nom_label = QLabel(nom)
-        self.nom_label.setFont(QFont('Arial', 12, QFont.Bold))
+        self.name_label = QLabel(name)
+        self.name_label.setFont(QFont('Arial', 12, QFont.Bold))
         
-        self.btn_visiter = FadeButton("Ouvrir tous")
-        self.btn_visiter.setIcon(QIcon.fromTheme("go-jump"))
-        self.btn_visiter.setStyleSheet(f"""
+        self.btn_visit = FadeButton("Open all")
+        self.btn_visit.setIcon(QIcon.fromTheme("go-jump"))
+        self.btn_visit.setStyleSheet(f"""
             QPushButton {{
                 background-color: {self.color};
                 color: white;
@@ -689,11 +872,11 @@ class CategoryWidget(QWidget):
                 background-color: {self.darken_color(self.color)};
             }}
         """)
-        self.btn_visiter.clicked.connect(self.visiter_tous_liens)
+        self.btn_visit.clicked.connect(self.visit_all_links)
         
-        self.btn_supprimer = FadeButton("Supprimer")
-        self.btn_supprimer.setIcon(QIcon.fromTheme("edit-delete"))
-        self.btn_supprimer.setStyleSheet("""
+        self.btn_delete = FadeButton("Delete")
+        self.btn_delete.setIcon(QIcon.fromTheme("edit-delete"))
+        self.btn_delete.setStyleSheet("""
             QPushButton {
                 background-color: #e74a3b;
                 color: white;
@@ -702,345 +885,400 @@ class CategoryWidget(QWidget):
                 background-color: #be2617;
             }
         """)
-        self.btn_supprimer.clicked.connect(self.supprimer_categorie)
+        self.btn_delete.clicked.connect(self.delete_category)
         
-        layout.addWidget(self.nom_label, 1)
-        layout.addWidget(self.btn_visiter)
-        layout.addWidget(self.btn_supprimer)
+        layout.addWidget(self.name_label, 1)
+        layout.addWidget(self.btn_visit)
+        layout.addWidget(self.btn_delete)
         
         self.setLayout(layout)
         
     def darken_color(self, hex_color, amount=0.2):
         color = QColor(hex_color)
         return color.darker(int(100 + (amount * 100))).name()
-        
-    def visiter_tous_liens(self):
-        liens = self.parent.db.get_liens_par_categorie(self.categorie_id)
+    def visit_all_links(self):
+        """Dans CategoryWidget"""
+        links = self.parent.db.get_links_by_category(self.category_id)
+        for i, link in enumerate(links):
+            title = link[1]
+            url = link[2]
+            if i == 0:  # Premier lien - demander le choix
+                self.parent.open_link_with_choice1(url, title)
+            else:  # Les suivants - utiliser le même choix que le premier
+                webbrowser.open(url)  # Ou self.parent.open_in_app() selon préférence            
+            
+    def visit_all_links1(self):
+        links = self.parent.db.get_links_by_category(self.category_id)
         first = True
-        for lien in liens:
-            self.parent.visiter_lien(lien[2], new_tab=not first)
+        for link in links:
+            self.parent.visit_link(link[2], new_tab=not first)
             first = False
             
-    def supprimer_categorie(self):
+    def delete_category(self):
         reply = QMessageBox.question(
             self, 'Confirmation', 
-            f"Voulez-vous vraiment supprimer la catégorie '{self.nom_label.text()}' et tous ses liens?",
+            f"Do you really want to delete the category '{self.name_label.text()}' and all its links?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         
         if reply == QMessageBox.Yes:
-            self.parent.db.supprimer_categorie(self.categorie_id)
-            self.parent.charger_categories()
-            self.parent.charger_liens()
+            self.parent.db.delete_category(self.category_id)
+            self.parent.load_categories()
+            self.parent.load_links()
 
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QComboBox, QPushButton, QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 
-
-class AddCategoryDialog(QWidget):
+class AddCategoryDialog(QDialog):
     def __init__(self, db, parent=None):
         super().__init__(parent)
         self.db = db
         self.parent = parent
-        
-        self.setWindowTitle("➕ Ajouter une catégorie")
+
+        self.setWindowTitle("➕ Add Category")
         self.setWindowModality(Qt.ApplicationModal)
-        self.setFixedSize(420, 240)
+        self.setFixedSize(450, 280)  # Légèrement plus grand pour mieux respirer
+
+        # Style moderne et cohérent
         self.setStyleSheet("""
-            QWidget {
-                background-color: #f9f9f9;
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 14px;
-            }
-            QLineEdit, QComboBox {
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                padding: 6px;
-                background-color: #ffffff;
+            QDialog {
+                background-color: #f8f9fc;
+                border-radius: 8px;
             }
             QLabel {
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 14px;
+                color: #5a5c69;
                 font-weight: bold;
-                color: #333;
+                margin-bottom: 5px;
+            }
+            QLineEdit, QComboBox {
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 14px;
+                border: 1px solid #d1d3e2;
+                border-radius: 6px;
+                padding: 8px;
+                background-color: white;
+                min-height: 36px;
+            }
+            QLineEdit:focus, QComboBox:focus {
+                border: 1px solid #4e73df;
+            }
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 30px;
+                border-left-width: 1px;
+                border-left-color: #d1d3e2;
+                border-left-style: solid;
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
+            }
+            QPushButton {
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 14px;
+                font-weight: bold;
+                padding: 10px 20px;
+                border-radius: 6px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                opacity: 0.9;
             }
         """)
-        
+
         self.setup_ui()
-        
+
     def setup_ui(self):
-        layout = QVBoxLayout()
-        layout.setContentsMargins(25, 25, 25, 25)
-        layout.setSpacing(20)
-        
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(25, 25, 25, 25)
+        main_layout.setSpacing(20)
+
+        # Header avec icône
+        header = QLabel("Add New Category")
+        header.setStyleSheet("""
+            font-size: 18px;
+            font-weight: bold;
+            color: #4e73df;
+            qproperty-alignment: AlignCenter;
+        """)
+        main_layout.addWidget(header)
+
         # Formulaire
         form_layout = QVBoxLayout()
-        form_layout.setSpacing(12)
-        
-        # Nom
-        nom_label = QLabel("Nom de la catégorie :")
-        self.nom_input = QLineEdit()
-        self.nom_input.setPlaceholderText("Ex : Priorité, Personnel, Projet...")
-        
+        form_layout.setSpacing(15)
+
+        # Nom de la catégorie
+        name_group = QVBoxLayout()
+        name_label = QLabel("Category Name:")
+        self.name_input = QLineEdit()
+        self.name_input.setPlaceholderText("e.g. Work, Personal, Projects...")
+        self.name_input.setStyleSheet("padding: 8px;")
+        name_group.addWidget(name_label)
+        name_group.addWidget(self.name_input)
+        form_layout.addLayout(name_group)
+
         # Couleur
-        color_label = QLabel("Couleur :")
+        color_group = QVBoxLayout()
+        color_label = QLabel("Color:")
         self.color_combo = QComboBox()
-        self.color_combo.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.color_combo.addItem("🔵 Bleu", "#4e73df")
-        self.color_combo.addItem("🔴 Rouge", "#e74a3b")
-        self.color_combo.addItem("🟢 Vert", "#1cc88a")
-        self.color_combo.addItem("🟡 Jaune", "#f6c23e")
-        self.color_combo.addItem("🟣 Violet", "#6f42c1")
-        self.color_combo.addItem("🟦 Cyan", "#36b9cc")
+        self.color_combo.setIconSize(QSize(16, 16))
         
-        form_layout.addWidget(nom_label)
-        form_layout.addWidget(self.nom_input)
-        form_layout.addWidget(color_label)
-        form_layout.addWidget(self.color_combo)
+        # Ajout des options de couleur avec icônes colorées
+        colors = [
+            ("🔵 Blue", "#4e73df"),
+            ("🔴 Red", "#e74a3b"),
+            ("🟢 Green", "#1cc88a"),
+            ("🟡 Yellow", "#f6c23e"),
+            ("🟣 Purple", "#6f42c1"),
+            ("🟦 Cyan", "#36b9cc")
+        ]
         
-        layout.addLayout(form_layout)
+        for text, color in colors:
+            self.color_combo.addItem(text, color)
+            # Colorer l'icône du combo box
+            self.color_combo.setItemData(self.color_combo.count()-1, QColor(color), Qt.DecorationRole)
         
+        color_group.addWidget(color_label)
+        color_group.addWidget(self.color_combo)
+        form_layout.addLayout(color_group)
+
+        main_layout.addLayout(form_layout)
+
         # Boutons
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(15)
-        
-        self.btn_annuler = FadeButton("Annuler")
-        self.btn_annuler.setIcon(QIcon.fromTheme("dialog-cancel"))
-        self.btn_annuler.setStyleSheet("""
+        btn_layout.addStretch()
+
+        # Bouton Annuler
+        self.btn_cancel = QPushButton("Cancel")
+        self.btn_cancel.setIcon(QIcon.fromTheme("dialog-cancel"))
+        self.btn_cancel.setStyleSheet("""
             QPushButton {
                 background-color: #e74a3b;
                 color: white;
+            }
+            QPushButton:hover {
+                background-color: #d62c1a;
+            }
+        """)
+        self.btn_cancel.clicked.connect(self.reject)
+
+        # Bouton Valider
+        self.btn_validate = QPushButton("Create")
+        self.btn_validate.setIcon(QIcon.fromTheme("dialog-ok"))
+        self.btn_validate.setStyleSheet("""
+            QPushButton {
+                background-color: #1cc88a;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #18b280;
+            }
+        """)
+        self.btn_validate.clicked.connect(self.validate)
+
+        btn_layout.addWidget(self.btn_cancel)
+        btn_layout.addWidget(self.btn_validate)
+        main_layout.addLayout(btn_layout)
+
+    def validate(self):
+        name = self.name_input.text().strip()
+        color = self.color_combo.currentData()
+
+        if not name:
+            QMessageBox.warning(self, "Error", "Please enter a name for the category")
+            return
+
+        success = self.db.add_category(name, color)
+        if success:
+            if self.parent:
+                self.parent.load_categories()
+            self.accept()  # Ferme le dialogue avec le statut Accepté
+        else:
+            QMessageBox.warning(self, "Error", "A category with this name already exists!")
+
+from PyQt5.QtWidgets import QDialog  # Ajout de l'import
+from PyQt5.QtWidgets import (
+    QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
+    QLabel, QLineEdit, QPushButton, QComboBox, QCheckBox,
+    QMessageBox
+)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+
+class EditLinkDialog(QDialog):
+    def __init__(self, db, link_id=None, parent=None):
+        super().__init__(parent)
+        self.db = db
+        self.link_id = link_id
+        self.parent = parent
+
+        self.setWindowTitle("Edit Link" if link_id else "Add Link")
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setFixedSize(500, 520)
+
+        self.set_main_style()
+        self.init_ui()
+
+        if self.link_id:
+            self.load_data()
+
+    def set_main_style(self):
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f8f9fc;
+            }
+            QLabel {
+                font-family: 'Segoe UI';
+                font-size: 13px;
+                font-weight: 600;
+                color: #4e73df;
+            }
+            QLineEdit, QComboBox {
+                border: 1px solid #d1d3e2;
                 border-radius: 6px;
-                padding: 8px 20px;
+                padding: 6px;
+                background-color: #ffffff;
+                font-family: 'Segoe UI';
+                font-size: 13px;
+            }
+            QCheckBox {
+                font-family: 'Segoe UI';
+                font-size: 13px;
+                padding: 6px 0;
+                color: #5a5c69;
+            }
+            QPushButton {
+                font-family: 'Segoe UI';
+                font-size: 13px;
+                font-weight: bold;
+                padding: 8px 18px;
+                border-radius: 6px;
+            }
+        """)
+
+    def init_ui(self):
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
+
+        form_layout = QFormLayout()
+        form_layout.setVerticalSpacing(15)
+
+        # Widgets
+        self.category_combo = QComboBox()
+        self.category_combo.setEditable(True)
+
+        self.title_input = QLineEdit()
+        self.url_input = QLineEdit()
+        self.url_input.setPlaceholderText("https://")
+
+        self.username_input = QLineEdit()
+        self.password_input = PasswordEdit()
+
+        self.favorite_check = QCheckBox("Mark as favorite")
+        self.tags_input = QLineEdit()
+
+        # Ajout des lignes
+        form_layout.addRow("Category:", self.category_combo)
+        form_layout.addRow("Title:", self.title_input)
+        form_layout.addRow("URL:", self.url_input)
+        form_layout.addRow("Username:", self.username_input)
+        form_layout.addRow("Password:", self.password_input)
+        form_layout.addRow("Tags (comma separated):", self.tags_input)
+        form_layout.addRow("", self.favorite_check)
+
+        main_layout.addLayout(form_layout)
+        main_layout.addLayout(self.setup_buttons())
+
+        self.load_categories()
+
+    def setup_buttons(self):
+        layout = QHBoxLayout()
+
+        self.btn_cancel = QPushButton("Cancel")
+        self.btn_cancel.setIcon(QIcon.fromTheme("dialog-cancel"))
+        self.btn_cancel.setStyleSheet("""
+            QPushButton {
+                background-color: #e74a3b;
+                color: white;
             }
             QPushButton:hover {
                 background-color: #c0392b;
             }
         """)
-        self.btn_annuler.clicked.connect(self.close)
+        self.btn_cancel.clicked.connect(self.reject)
 
-        self.btn_valider = FadeButton("Valider")
-        self.btn_valider.setIcon(QIcon.fromTheme("dialog-ok"))
-        self.btn_valider.setStyleSheet("""
+        self.btn_validate = QPushButton("Validate")
+        self.btn_validate.setIcon(QIcon.fromTheme("dialog-ok"))
+        self.btn_validate.setStyleSheet("""
             QPushButton {
                 background-color: #1cc88a;
                 color: white;
-                border-radius: 6px;
-                padding: 8px 20px;
             }
             QPushButton:hover {
                 background-color: #17a673;
             }
         """)
-        self.btn_valider.clicked.connect(self.valider)
-        
-        btn_layout.addStretch()
-        btn_layout.addWidget(self.btn_annuler)
-        btn_layout.addWidget(self.btn_valider)
-        
-        layout.addLayout(btn_layout)
-        self.setLayout(layout)
-        
-    def valider(self):
-        nom = self.nom_input.text().strip()
-        color = self.color_combo.currentData()
-        
-        if not nom:
-            QMessageBox.warning(self, "Erreur", "Veuillez entrer un nom pour la catégorie")
-            return
-            
-        success = self.db.ajouter_categorie(nom, color)
-        if success:
-            self.parent.charger_categories()
-            self.close()
-        else:
-            QMessageBox.warning(self, "Erreur", "Cette catégorie existe déjà !")
+        self.btn_validate.clicked.connect(self.validate)
 
-class EditLinkDialog(QWidget):
-    def __init__(self, db, lien_id=None, parent=None):
-        super().__init__(parent)
-        self.db = db
-        self.lien_id = lien_id
-        self.parent = parent
-        
-        self.setWindowTitle("Modifier un lien" if lien_id else "Ajouter un lien")
-        self.setWindowModality(Qt.ApplicationModal)
-        self.setFixedSize(500, 500)
-        
-        self.setup_ui()
-        
-        if lien_id:
-            self.charger_donnees()
-            
-    def setup_ui(self):
-        layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
-        
-        # Formulaire
-        form_layout = QVBoxLayout()
-        form_layout.setSpacing(15)
-        
-        # Catégorie
-        categorie_label = QLabel("Catégorie:")
-        self.categorie_combo = QComboBox()
-        self.categorie_combo.setEditable(True)
-        
-        # Titre
-        titre_label = QLabel("Titre:")
-        self.titre_input = QLineEdit()
-        
-        # URL
-        url_label = QLabel("URL:")
-        self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("https://")
-        
-        # Identifiant
-        identifiant_label = QLabel("Identifiant:")
-        self.identifiant_input = QLineEdit()
-        
-        # Mot de passe
-        mot_de_passe_label = QLabel("Mot de passe:")
-        self.mot_de_passe_input = PasswordEdit()
-        
-        # Favori
-        self.favori_check = QCheckBox("Marquer comme favori")
-        
-        # Tags
-        tags_label = QLabel("Tags (séparés par des virgules):")
-        self.tags_input = QLineEdit()
-        
-        form_layout.addWidget(categorie_label)
-        form_layout.addWidget(self.categorie_combo)
-        form_layout.addWidget(titre_label)
-        form_layout.addWidget(self.titre_input)
-        form_layout.addWidget(url_label)
-        form_layout.addWidget(self.url_input)
-        form_layout.addWidget(identifiant_label)
-        form_layout.addWidget(self.identifiant_input)
-        form_layout.addWidget(mot_de_passe_label)
-        form_layout.addWidget(self.mot_de_passe_input)
-        form_layout.addWidget(self.favori_check)
-        form_layout.addWidget(tags_label)
-        form_layout.addWidget(self.tags_input)
-        
-        layout.addLayout(form_layout, 1)
-        
-        # Boutons
-        btn_layout = QHBoxLayout()
-        btn_layout.setSpacing(10)
-        
-        self.btn_valider = FadeButton("Valider")
-        self.btn_valider.setIcon(QIcon.fromTheme("dialog-ok"))
-        self.btn_valider.setStyleSheet("background-color: #1cc88a; color: white;")
-        self.btn_valider.clicked.connect(self.valider)
-        
-        self.btn_annuler = FadeButton("Annuler")
-        self.btn_annuler.setIcon(QIcon.fromTheme("dialog-cancel"))
-        self.btn_annuler.setStyleSheet("background-color: #e74a3b; color: white;")
-        self.btn_annuler.clicked.connect(self.close)
-        
-        btn_layout.addStretch()
-        btn_layout.addWidget(self.btn_annuler)
-        btn_layout.addWidget(self.btn_valider)
-        
-        layout.addLayout(btn_layout)
-        
-        self.setLayout(layout)
-        
-        # Charger les catégories
-        self.charger_categories()
-        
-    def charger_categories(self):
-        self.categorie_combo.clear()
+        layout.addStretch()
+        layout.addWidget(self.btn_cancel)
+        layout.addWidget(self.btn_validate)
+
+        return layout
+
+    def load_categories(self):
+        self.category_combo.clear()
         categories = self.db.get_categories()
-        for cat_id, nom, color in categories:
-            self.categorie_combo.addItem(nom, cat_id)
-            
-    def charger_donnees(self):
-        liens = self.db.get_liens_par_categorie()
-        lien = next((l for l in liens if l[0] == self.lien_id), None)
-        
-        if lien:
-            # Trouver l'index de la catégorie
-            index = self.categorie_combo.findData(lien[6])
-            if index >= 0:
-                self.categorie_combo.setCurrentIndex(index)
-                
-            self.titre_input.setText(lien[1])
-            self.url_input.setText(lien[2])
-            self.identifiant_input.setText(lien[3] if lien[3] else "")
-            self.mot_de_passe_input.setText(lien[4] if lien[4] else "")
-            self.favori_check.setChecked(bool(lien[5]))
-            self.tags_input.setText(", ".join(tag[1] for tag in lien[8]))
-            
-    def valider(self):
-        titre = self.titre_input.text().strip()
+        for cat_id, name, color in categories:
+            self.category_combo.addItem(name, cat_id)
+
+    def load_data(self):
+        links = self.db.get_links_by_category()
+        for link in links:
+            if link[0] == self.link_id:
+                index = self.category_combo.findData(link[6])
+                if index >= 0:
+                    self.category_combo.setCurrentIndex(index)
+                self.title_input.setText(link[1])
+                self.url_input.setText(link[2])
+                self.username_input.setText(link[3] or "")
+                self.password_input.setText(link[4] or "")
+                self.favorite_check.setChecked(bool(link[5]))
+                tag_names = [tag[1] for tag in link[8]]
+                self.tags_input.setText(", ".join(tag_names))
+                break
+
+    def validate(self):
+        title = self.title_input.text().strip()
         url = self.url_input.text().strip()
-        categorie_index = self.categorie_combo.currentIndex()
-        identifiant = self.identifiant_input.text().strip() or None
-        mot_de_passe = self.mot_de_passe_input.text().strip() or None
-        favori = self.favori_check.isChecked()
-        tags = [t.strip() for t in self.tags_input.text().split(",") if t.strip()]
         
-        if not titre:
-            QMessageBox.warning(self, 'Erreur', 'Veuillez entrer un titre pour le lien')
+        if not title or not url:
+            QMessageBox.warning(self, "Error", "Please fill at least the title and URL.")
             return
-            
-        if not url:
-            QMessageBox.warning(self, 'Erreur', 'Veuillez entrer une URL')
-            return
-            
-        if not url.startswith(('http://', 'https://')):
-            url = 'https://' + url
-            
-        if categorie_index == -1:
-            # Nouvelle catégorie
-            nom_categorie = self.categorie_combo.currentText().strip()
-            if not nom_categorie:
-                QMessageBox.warning(self, 'Erreur', 'Veuillez sélectionner ou créer une catégorie')
-                return
-                
-            dialog = AddCategoryDialog(self.db, self.parent)
-            dialog.nom_input.setText(nom_categorie)
-            dialog.exec_()
-            
-            if dialog.result() == QDialog.Accepted:
-                self.charger_categories()
-                # Trouver l'ID de la nouvelle catégorie
-                for i in range(self.categorie_combo.count()):
-                    if self.categorie_combo.itemText(i) == nom_categorie:
-                        categorie_id = self.categorie_combo.itemData(i)
-                        break
-            else:
-                return
+
+        category_index = self.category_combo.currentIndex()
+        username = self.username_input.text().strip()
+        password = self.password_input.text()
+        favorite = int(self.favorite_check.isChecked())
+        tags = [tag.strip() for tag in self.tags_input.text().split(",") if tag.strip()]
+        category_id = self.category_combo.itemData(category_index)
+
+        if self.link_id:
+            self.db.update_link(self.link_id, title, url, username, password, favorite, category_id, tags)
         else:
-            categorie_id = self.categorie_combo.currentData()
-            
-        if self.lien_id:
-            # Modification
-            self.db.modifier_lien(
-                self.lien_id,
-                titre=titre,
-                url=url,
-                categorie_id=categorie_id,
-                identifiant=identifiant,
-                mot_de_passe=mot_de_passe,
-                favori=favori,
-                tags=tags
-            )
-        else:
-            # Ajout
-            self.db.ajouter_lien(
-                titre=titre,
-                url=url,
-                categorie_id=categorie_id,
-                identifiant=identifiant,
-                mot_de_passe=mot_de_passe,
-                favori=favori,
-                tags=tags
-            )
-            
-        self.parent.charger_liens()
-        self.close()
+            self.db.add_link(title, url, username, password, favorite, category_id, tags)
+
+        if self.parent:
+            self.parent.load_links()
+
+        self.accept()
 
 class MainWindowLink(QMainWindow):
-    def __init__(self,main_app=None):
+    def __init__(self, main_app=None):
         super().__init__()
         self.main_app = main_app
 
@@ -1048,88 +1286,95 @@ class MainWindowLink(QMainWindow):
         self.browser = None
         self.auto_save_timer = QTimer()
         self.auto_save_timer.timeout.connect(self.auto_save)
-        self.auto_save_timer.start(30000)  # Sauvegarde toutes les 30 secondes
+        self.auto_save_timer.start(30000)  # Save every 30 seconds
         
-        self.setWindowTitle("Gestionnaire de Liens Utiles")
+        self.setWindowTitle("Useful Links Manager")
         self.setGeometry(100, 100, 1200, 800)
         
         self.setup_ui()
         self.setup_menu()
-        self.charger_categories()
-        self.charger_liens()
+        self.load_categories()
+        self.load_links()
         
     def setup_menu(self):
         menubar = self.menuBar()
         
-        # Menu Fichier
-        file_menu = menubar.addMenu("Fichier")
+        # File menu
+        file_menu = menubar.addMenu("File")
         
-        export_action = QAction("Exporter les liens", self)
+        export_action = QAction("Export links", self)
         export_action.setShortcut(QKeySequence("Ctrl+E"))
-        export_action.triggered.connect(self.exporter_liens)
+        export_action.triggered.connect(self.export_links)
         file_menu.addAction(export_action)
         
-        import_action = QAction("Importer des liens", self)
+        import_action = QAction("Import links", self)
         import_action.setShortcut(QKeySequence("Ctrl+I"))
-        import_action.triggered.connect(self.importer_liens)
+        import_action.triggered.connect(self.import_links)
         file_menu.addAction(import_action)
+        
+        # New delete all action
+        delete_all_action = QAction("Delete All", self)
+        delete_all_action.setShortcut(QKeySequence("Ctrl+D"))
+        delete_all_action.triggered.connect(self.delete_all_links)
+        file_menu.addAction(delete_all_action)
         
         file_menu.addSeparator()
         
-        backup_action = QAction("Sauvegarde automatique", self, checkable=True)
+        backup_action = QAction("Auto backup", self, checkable=True)
         backup_action.setChecked(True)
         backup_action.triggered.connect(self.toggle_auto_save)
         file_menu.addAction(backup_action)
         
         file_menu.addSeparator()
         
-        quit_action = QAction("Quitter", self)
+        quit_action = QAction("Quit", self)
         quit_action.setShortcut(QKeySequence.Quit)
         quit_action.triggered.connect(self.close)
         file_menu.addAction(quit_action)
         
-        # Menu Edition
-        edit_menu = menubar.addMenu("Edition")
+        # Edit menu
+        edit_menu = menubar.addMenu("Edit")
         
-        add_link_action = QAction("Ajouter un lien", self)
+        add_link_action = QAction("Add link", self)
         add_link_action.setShortcut(QKeySequence("Ctrl+N"))
-        add_link_action.triggered.connect(self.ajouter_lien_dialog)
+        add_link_action.triggered.connect(self.add_link_dialog)
         edit_menu.addAction(add_link_action)
         
-        add_cat_action = QAction("Ajouter une catégorie", self)
+        add_cat_action = QAction("Add category", self)
         add_cat_action.setShortcut(QKeySequence("Ctrl+Shift+N"))
-        add_cat_action.triggered.connect(self.ajouter_categorie_dialog)
+        add_cat_action.triggered.connect(self.add_category_dialog)
         edit_menu.addAction(add_cat_action)
         
-        # Menu Affichage
-        view_menu = menubar.addMenu("Affichage")
+        # View menu
+        view_menu = menubar.addMenu("View")
         
-        self.show_fav_action = QAction("Afficher seulement les favoris", self, checkable=True)
+        self.show_fav_action = QAction("Show only favorites", self, checkable=True)
         self.show_fav_action.setShortcut(QKeySequence("Ctrl+F"))
-        self.show_fav_action.triggered.connect(self.toggle_favoris_view)
+        self.show_fav_action.triggered.connect(self.toggle_favorites_view)
         view_menu.addAction(self.show_fav_action)
         
-        # Menu Aide
-        help_menu = menubar.addMenu("Aide")
+        # Help menu
+        help_menu = menubar.addMenu("Help")
         
-        about_action = QAction("À propos", self)
+        about_action = QAction("About", self)
         about_action.triggered.connect(self.show_about)
         help_menu.addAction(about_action)
         
     def setup_ui(self):
-        # Style global
+        # Global style
         self.setStyleSheet("""
             QMainWindow {
                 background-color: #f8f9fc;
             }
             QLineEdit, QComboBox {
                 padding: 8px;
-                border: 1px solid #d1d3e2;
+                border: 1px solid #e3e6f0;
                 border-radius: 4px;
-                background-color: #fff;
+                background-color: #ffffff;
             }
             QLineEdit:focus, QComboBox:focus {
                 border: 1px solid #4e73df;
+                outline: none;
             }
             QGroupBox {
                 border: 1px solid #e3e6f0;
@@ -1146,6 +1391,7 @@ class MainWindowLink(QMainWindow):
             }
             QScrollArea {
                 border: none;
+                background-color: transparent;
             }
             QCheckBox {
                 spacing: 5px;
@@ -1154,77 +1400,10 @@ class MainWindowLink(QMainWindow):
                 width: 16px;
                 height: 16px;
             }
-        """)
-        
-        main_widget = QWidget()
-        main_layout = QHBoxLayout(main_widget)
-        main_layout.setContentsMargins(15, 15, 15, 15)
-        main_layout.setSpacing(15)
-        
-        # Partie gauche - Formulaire
-        left_widget = QWidget()
-        left_widget.setFixedWidth(350)
-        left_layout = QVBoxLayout(left_widget)
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(15)
-        
-        # Titre avec gradient
-        title = GradientLabel("Gestionnaire de Liens")
-        title.setFont(QFont('Arial', 16, QFont.Bold))
-        title.setFixedHeight(50)
-        title.setAlignment(Qt.AlignCenter)
-        left_layout.addWidget(title)
-        
-        # Bouton Ajouter
-        self.btn_ajouter_lien = FadeButton("Ajouter un lien")
-        self.btn_ajouter_lien.setIcon(QIcon.fromTheme("list-add"))
-        self.btn_ajouter_lien.setStyleSheet("""
-            QPushButton {
-                background-color: #4e73df;
-                color: white;
-                padding: 10px;
-                border-radius: 6px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #3a5bc7;
-            }
-        """)
-        self.btn_ajouter_lien.clicked.connect(self.ajouter_lien_dialog)
-        left_layout.addWidget(self.btn_ajouter_lien)
-        
-        # Bouton Ajouter Catégorie
-        self.btn_ajouter_categorie = FadeButton("Ajouter une catégorie")
-        self.btn_ajouter_categorie.setIcon(QIcon.fromTheme("folder-new"))
-        self.btn_ajouter_categorie.setStyleSheet("""
-            QPushButton {
-                background-color: #36b9cc;
-                color: white;
-                padding: 10px;
-                border-radius: 6px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #2a9faf;
-            }
-        """)
-        self.btn_ajouter_categorie.clicked.connect(self.ajouter_categorie_dialog)
-        left_layout.addWidget(self.btn_ajouter_categorie)
-        
-        # Liste des catégories
-        categories_group = QGroupBox("Catégories")
-        categories_group.setStyleSheet("""
-            QGroupBox {
-                margin-top: 10px;
-            }
-        """)
-        categories_layout = QVBoxLayout(categories_group)
-        
-        self.categories_list = QListWidget()
-        self.categories_list.setStyleSheet("""
             QListWidget {
                 border: none;
                 outline: none;
+                background-color: white;
             }
             QListWidget::item {
                 padding: 8px;
@@ -1239,50 +1418,113 @@ class MainWindowLink(QMainWindow):
                 border-radius: 4px;
             }
         """)
+        
+        main_widget = QWidget()
+        main_layout = QHBoxLayout(main_widget)
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(15)
+        
+        # Left part - Form
+        left_widget = QWidget()
+        left_widget.setFixedWidth(350)
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(15)
+        
+        # Title with gradient
+        title = GradientLabel("Links Manager")
+        left_layout.addWidget(title)
+        
+        # Add Link button
+        self.btn_add_link = FadeButton("Add Link")
+        self.btn_add_link.setIcon(QIcon.fromTheme("list-add"))
+        self.btn_add_link.setStyleSheet("""
+            QPushButton {
+                background-color: #4e73df;
+                color: white;
+                padding: 10px;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #3a5bc7;
+            }
+        """)
+        self.btn_add_link.clicked.connect(self.add_link_dialog)
+        left_layout.addWidget(self.btn_add_link)
+        
+        # Add Category button
+        self.btn_add_category = FadeButton("Add Category")
+        self.btn_add_category.setIcon(QIcon.fromTheme("folder-new"))
+        self.btn_add_category.setStyleSheet("""
+            QPushButton {
+                background-color: #36b9cc;
+                color: white;
+                padding: 10px;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #2a9faf;
+            }
+        """)
+        self.btn_add_category.clicked.connect(self.add_category_dialog)
+        left_layout.addWidget(self.btn_add_category)
+        
+        # Categories list
+        categories_group = QGroupBox("Categories")
+        categories_group.setStyleSheet("""
+            QGroupBox {
+                margin-top: 10px;
+            }
+        """)
+        categories_layout = QVBoxLayout(categories_group)
+        
+        self.categories_list = QListWidget()
         self.categories_list.setIconSize(QSize(16, 16))
-        self.categories_list.itemClicked.connect(self.filtrer_par_categorie)
+        self.categories_list.itemClicked.connect(self.filter_by_category)
         
         categories_layout.addWidget(self.categories_list)
         left_layout.addWidget(categories_group)
         
-        # Filtres
-        filters_group = QGroupBox("Filtres")
+        # Filters
+        filters_group = QGroupBox("Filters")
         filters_layout = QVBoxLayout(filters_group)
         
-        self.favoris_check = QCheckBox("Favoris seulement")
-        self.favoris_check.stateChanged.connect(self.filtrer_par_favoris)
+        self.favorites_check = QCheckBox("Favorites only")
+        self.favorites_check.stateChanged.connect(self.filter_by_favorites)
         
-        self.search_label = QLabel("Recherche rapide:")
+        self.search_label = QLabel("Quick search:")
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Titre, URL, catégorie...")
-        self.search_input.textChanged.connect(self.filtrer_liens)
+        self.search_input.setPlaceholderText("Title, URL, category...")
+        self.search_input.textChanged.connect(self.filter_links)
         
-        filters_layout.addWidget(self.favoris_check)
+        filters_layout.addWidget(self.favorites_check)
         filters_layout.addWidget(self.search_label)
         filters_layout.addWidget(self.search_input)
         left_layout.addWidget(filters_group)
         
         left_layout.addStretch()
         
-        # Partie droite - Liste des liens
+        # Right part - Links list
         right_widget = QWidget()
         right_layout = QVBoxLayout(right_widget)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(15)
         
-        # Barre d'outils
+        # Toolbar
         toolbar = QWidget()
         toolbar.setStyleSheet("background-color: white; border-radius: 8px; padding: 10px;")
         toolbar_layout = QHBoxLayout(toolbar)
         toolbar_layout.setContentsMargins(5, 5, 5, 5)
         
-        self.results_label = QLabel("Tous les liens")
+        self.results_label = QLabel("All links")
         self.results_label.setStyleSheet("font-weight: bold; color: #4e73df;")
         
-        self.btn_tous = QToolButton()
-        self.btn_tous.setIcon(QIcon.fromTheme("view-refresh"))
-        self.btn_tous.setToolTip("Réinitialiser les filtres")
-        self.btn_tous.setStyleSheet("""
+        self.btn_all = QToolButton()
+        self.btn_all.setIcon(QIcon.fromTheme("view-refresh"))
+        self.btn_all.setToolTip("Reset filters")
+        self.btn_all.setStyleSheet("""
             QToolButton {
                 background-color: transparent;
                 border: none;
@@ -1293,36 +1535,16 @@ class MainWindowLink(QMainWindow):
                 background-color: #f8f9fa;
             }
         """)
-        self.btn_tous.clicked.connect(self.charger_liens)
+        self.btn_all.clicked.connect(self.load_links)
         
         toolbar_layout.addWidget(self.results_label)
         toolbar_layout.addStretch()
-        toolbar_layout.addWidget(self.btn_tous)
+        toolbar_layout.addWidget(self.btn_all)
         right_layout.addWidget(toolbar)
         
-        # Liste des liens
+        # Links list
         self.links_scroll = QScrollArea()
         self.links_scroll.setWidgetResizable(True)
-        self.links_scroll.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background-color: transparent;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #f8f9fc;
-                width: 10px;
-                margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #d1d3e2;
-                min-height: 20px;
-                border-radius: 4px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """)
         
         self.links_container = QWidget()
         self.links_container.setStyleSheet("background-color: transparent;")
@@ -1334,23 +1556,136 @@ class MainWindowLink(QMainWindow):
         self.links_scroll.setWidget(self.links_container)
         right_layout.addWidget(self.links_scroll, 1)
         
-        # Ajout des parties gauche et droite
+        # Add left and right parts
         main_layout.addWidget(left_widget)
         main_layout.addWidget(right_widget)
         
         self.setCentralWidget(main_widget)
+    def open_link_with_choice1(self, url, link_title):
+        """Version avec mémorisation du choix"""
+        # Vérifier s'il y a un choix mémorisé
+        remember = hasattr(self, 'link_open_preference')
         
-    def charger_categories(self):
+        if remember:
+            if self.link_open_preference == "browser":
+                webbrowser.open(url)
+            else:
+                self.open_in_app(url, link_title)
+            return
+            
+        # Sinon demander avec option "Toujours utiliser ce choix"
+        msg = QMessageBox()
+        msg.setWindowTitle("Ouvrir le lien")
+        msg.setText(f"Comment ouvrir {link_title}?")
+        
+        browser_btn = msg.addButton("Navigateur", QMessageBox.ActionRole)
+        app_btn = msg.addButton("Application", QMessageBox.ActionRole)
+        remember_btn = msg.addButton("Toujours dans l'application", QMessageBox.ActionRole)
+        msg.addButton(QMessageBox.Cancel)
+        
+        msg.exec_()
+        
+        if msg.clickedButton() == browser_btn:
+            webbrowser.open(url)
+        elif msg.clickedButton() in (app_btn, remember_btn):
+            self.open_in_app(url, link_title)
+            if msg.clickedButton() == remember_btn:
+                self.link_open_preference = "app"
+
+    def open_link_with_choice(self, link_data):
+        """Ouvre un lien avec choix et gestion des identifiants"""
+        url = link_data['url']
+        title = link_data['title']
+        
+        if hasattr(self, 'link_open_preference'):
+            if self.link_open_preference == "browser":
+                webbrowser.open(url)
+            else:
+                self.open_in_app(url, link_data)
+            return
+        
+        msg = QMessageBox()
+        msg.setWindowTitle("Ouvrir le lien")
+        msg.setText(f"Comment ouvrir {title}?")
+        
+        browser_btn = msg.addButton("Navigateur", QMessageBox.ActionRole)
+        app_btn = msg.addButton("Application (auto-login)", QMessageBox.ActionRole)
+        remember_app_btn = msg.addButton("Toujours dans l'app (avec login)", QMessageBox.ActionRole)
+        msg.addButton(QMessageBox.Cancel)
+        
+        msg.exec_()
+        
+        if msg.clickedButton() == browser_btn:
+            webbrowser.open(url)
+        elif msg.clickedButton() == app_btn:
+            self.open_in_app(url, link_data)
+        elif msg.clickedButton() == remember_app_btn:
+            self.link_open_preference = "app"
+            self.open_in_app(url, link_data)
+                            
+    def find_tab_by_name1(self, name):
+        """Trouve l'index d'un onglet par son nom"""
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.tabText(i) == name:
+                return i
+        return -1
+
+    def find_tab_by_name(self, name):
+        for i in range(self.main_app.tab_widget.count()):
+            if self.main_app.tab_widget.tabText(i) == name:
+                return i  # Renvoie l'index si trouvé
+        return -1  # Aucun onglet trouvé
+    def open_in_app(self, url, link_data):
+        """Ouvre le lien dans l'application avec authentification automatique"""
+        tab_name = link_data['title']
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        
+        if existing_tab_index != -1:
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        web_view = QWebEngineView()
+        page = web_view.page()
+        profile = page.profile()
+        
+        # Stocker les cookies avant la navigation
+        cookie_store = profile.cookieStore()
+        cookie_store.deleteAllCookies()  # Nettoyer les cookies existants
+        
+        # Injecter les identifiants si disponibles
+        if link_data.get('username') and link_data.get('password'):
+            self.setup_auto_login(web_view, link_data)
+        
+        web_view.setUrl(QUrl(url))
+        self.main_app.tab_widget.addTab(web_view, tab_name)
+        self.main_app.tab_widget.setCurrentIndex(self.main_app.tab_widget.count() - 1)
+
+    def open_in_app2(self, url, tab_name):
+        """Ouvre le lien dans un nouvel onglet de l'application"""
+        # Vérifie si l'onglet existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.main_app.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+        
+        # Crée un QWebEngineView pour afficher la page
+        web_view = QWebEngineView()
+        web_view.setUrl(QUrl(url))
+        
+        # Ajoute un nouvel onglet
+        self.main_app.tab_widget.addTab(web_view, tab_name)
+        self.main_app.tab_widget.setCurrentIndex(self.main_app.tab_widget.count() - 1)                
+
+    def load_categories(self):
         self.categories_list.clear()
         
         categories = self.db.get_categories()
-        for cat_id, nom, color in categories:
-            item = QListWidgetItem(QIcon.fromTheme("folder"), nom)
+        for cat_id, name, color in categories:
+            item = QListWidgetItem(QIcon.fromTheme("folder"), name)
             item.setData(Qt.UserRole, cat_id)
             item.setData(Qt.UserRole + 1, color)
             self.categories_list.addItem(item)
-            
-    def charger_liens(self, categorie_id=None, favori=None):
+    def load_links(self, category_id=None, favorite=None):
         # Clear the current layout
         while self.links_layout.count() > 1:  # Keep the stretch
             item = self.links_layout.takeAt(0)
@@ -1358,74 +1693,134 @@ class MainWindowLink(QMainWindow):
             if widget is not None:
                 widget.deleteLater()
                 
-        if favori is None and self.favoris_check.isChecked():
-            favori = True
+        if favorite is None and self.favorites_check.isChecked():
+            favorite = True
             
         search_query = self.search_input.text().strip() or None
-        liens = self.db.get_liens_par_categorie(categorie_id, favori, search_query)
+        links = self.db.get_links_by_category(category_id, favorite, search_query)
         
-        # Mettre à jour le label des résultats
-        if categorie_id:
-            cat_name = next(item.text() for i in range(self.categories_list.count()) 
-                         if self.categories_list.item(i).data(Qt.UserRole) == categorie_id)
-            self.results_label.setText(f"Liens dans '{cat_name}'")
-        elif favori:
-            self.results_label.setText("Liens favoris")
+        # Update results label
+        if category_id:
+            # Find category name by iterating through the categories list
+            cat_name = None
+            for i in range(self.categories_list.count()):
+                item = self.categories_list.item(i)
+                if item.data(Qt.UserRole) == category_id:
+                    cat_name = item.text()
+                    break
+            if cat_name:
+                self.results_label.setText(f"Links in '{cat_name}'")
+            else:
+                self.results_label.setText(f"Links in category ID: {category_id}")
+        elif favorite:
+            self.results_label.setText("Favorite links")
         elif search_query:
-            self.results_label.setText(f"Résultats pour '{search_query}'")
+            self.results_label.setText(f"Results for '{search_query}'")
         else:
-            self.results_label.setText("Tous les liens")
+            self.results_label.setText("All links")
             
-        if not liens:
-            no_results = QLabel("Aucun lien trouvé")
+        if not links:
+            no_results = QLabel("No links found")
             no_results.setAlignment(Qt.AlignCenter)
             no_results.setStyleSheet("color: #6c757d; font-style: italic; padding: 20px;")
             self.links_layout.insertWidget(0, no_results)
             return
             
-        current_categorie = None
-        for lien in liens:
-            lien_id, titre, url, identifiant, mot_de_passe, favori, categorie, categorie_color, tags = lien
+        current_category = None
+        for link in links:
+            link_id, title, url, username, password, favorite, category, category_color, tags = link
             
-            if categorie != current_categorie and not self.favoris_check.isChecked() and not search_query:
-                current_categorie = categorie
+            if category != current_category and not self.favorites_check.isChecked() and not search_query:
+                current_category = category
                 cat_widget = CategoryWidget(
-                    next(cat_id for cat_id, nom, color in self.db.get_categories() if nom == categorie),
-                    categorie,
-                    categorie_color,
+                    next(cat_id for cat_id, name, color in self.db.get_categories() if name == category),
+                    category,
+                    category_color,
                     self
                 )
                 self.links_layout.insertWidget(self.links_layout.count()-1, cat_widget)
                 
-            link_widget = LinkWidget(lien_id, titre, url, categorie, categorie_color, 
-                                   identifiant, mot_de_passe, favori, tags, self)
-            link_widget.edit_requested.connect(self.modifier_lien_dialog)
-            link_widget.tag_clicked.connect(self.filtrer_par_tag)
+            link_widget = LinkWidget(link_id, title, url, category, category_color, 
+                                username, password, favorite, tags, self)
+            link_widget.edit_requested.connect(self.edit_link_dialog)
+            link_widget.tag_clicked.connect(self.filter_by_tag)
+            self.links_layout.insertWidget(self.links_layout.count()-1, link_widget)            
+    def load_links1(self, category_id=None, favorite=None):
+        # Clear the current layout
+        while self.links_layout.count() > 1:  # Keep the stretch
+            item = self.links_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+                
+        if favorite is None and self.favorites_check.isChecked():
+            favorite = True
+            
+        search_query = self.search_input.text().strip() or None
+        links = self.db.get_links_by_category(category_id, favorite, search_query)
+        
+        # Update results label
+        if category_id:
+            cat_name = next(item.text() for i in range(self.categories_list.count()) 
+                         if self.categories_list.item(i).data(Qt.UserRole) == category_id)
+            self.results_label.setText(f"Links in '{cat_name}'")
+        elif favorite:
+            self.results_label.setText("Favorite links")
+        elif search_query:
+            self.results_label.setText(f"Results for '{search_query}'")
+        else:
+            self.results_label.setText("All links")
+            
+        if not links:
+            no_results = QLabel("No links found")
+            no_results.setAlignment(Qt.AlignCenter)
+            no_results.setStyleSheet("color: #6c757d; font-style: italic; padding: 20px;")
+            self.links_layout.insertWidget(0, no_results)
+            return
+            
+        current_category = None
+        for link in links:
+            link_id, title, url, username, password, favorite, category, category_color, tags = link
+            
+            if category != current_category and not self.favorites_check.isChecked() and not search_query:
+                current_category = category
+                cat_widget = CategoryWidget(
+                    next(cat_id for cat_id, name, color in self.db.get_categories() if name == category),
+                    category,
+                    category_color,
+                    self
+                )
+                self.links_layout.insertWidget(self.links_layout.count()-1, cat_widget)
+                
+            link_widget = LinkWidget(link_id, title, url, category, category_color, 
+                                   username, password, favorite, tags, self)
+            link_widget.edit_requested.connect(self.edit_link_dialog)
+            link_widget.tag_clicked.connect(self.filter_by_tag)
             self.links_layout.insertWidget(self.links_layout.count()-1, link_widget)
             
-    def filtrer_par_categorie(self, item):
+    def filter_by_category(self, item):
         cat_id = item.data(Qt.UserRole)
-        self.charger_liens(cat_id)
+        self.load_links(cat_id)
         
-    def filtrer_par_tag(self, tag):
+    def filter_by_tag(self, tag):
         self.search_input.setText(tag)
-        self.filtrer_liens(tag)
+        self.filter_links(tag)
         
-    def filtrer_par_favoris(self, state):
-        self.charger_liens(favori=state == Qt.Checked)
+    def filter_by_favorites(self, state):
+        self.load_links(favorite=state == Qt.Checked)
         
-    def toggle_favoris_view(self, checked):
-        self.favoris_check.setChecked(checked)
-        self.filtrer_par_favoris(Qt.Checked if checked else Qt.Unchecked)
+    def toggle_favorites_view(self, checked):
+        self.favorites_check.setChecked(checked)
+        self.filter_by_favorites(Qt.Checked if checked else Qt.Unchecked)
         
-    def filtrer_liens(self, texte):
-        texte = texte.lower()
+    def filter_links(self, text):
+        text = text.lower()
         
         for i in range(self.links_layout.count()):
             widget = self.links_layout.itemAt(i).widget()
             if widget:
                 if isinstance(widget, CategoryWidget):
-                    # Masquer la catégorie si aucun lien visible en dessous
+                    # Hide category if no visible links below
                     has_visible = False
                     j = i + 1
                     while j < self.links_layout.count():
@@ -1438,40 +1833,120 @@ class MainWindowLink(QMainWindow):
                         j += 1
                     widget.setVisible(has_visible)
                 elif isinstance(widget, LinkWidget):
-                    visible = (texte in widget.titre_label.text().lower() or 
-                              texte in widget.url_label.text().lower() or 
-                              texte in widget.categorie_label.text().lower() or
-                              any(texte in tag[1].lower() for tag in widget.tags))
+                    visible = (text in widget.title_label.text().lower() or 
+                              text in widget.url_label.text().lower() or 
+                              text in widget.category_label.text().lower() or
+                              any(text in tag[1].lower() for tag in widget.tags))
                     widget.setVisible(visible)
                     
-    def ajouter_lien_dialog(self):
+    def add_link_dialog(self):
         dialog = EditLinkDialog(self.db, parent=self)
-        dialog.show()
+        if dialog.exec_() == QDialog.Accepted:
+           self.load_links()
+
+            # dialog.show()
+    def setup_auto_login(self, web_view, link_data):
+        """Configure l'auto-login via JavaScript"""
+        username = link_data['username']
+        password = link_data['password']
         
-    def ajouter_categorie_dialog(self):
-        dialog = AddCategoryDialog(self.db, parent=self)
-        dialog.show()
-        
-    def modifier_lien_dialog(self, lien_id):
-        dialog = EditLinkDialog(self.db, lien_id, parent=self)
-        dialog.show()
+        # Script JavaScript pour remplir le formulaire
+        login_script = f"""
+        function tryLogin() {{
+            // Tentative de trouver les champs de connexion
+            let usernameFields = [
+                document.querySelector('input[type="email"]'),
+                document.querySelector('input[type="text"][name*="user"]'),
+                document.querySelector('input[name*="login"]'),
+                document.querySelector('input[id*="user"]')
+            ].filter(Boolean);
+            
+            let passwordFields = [
+                document.querySelector('input[type="password"]'),
+                document.querySelector('input[name*="pass"]'),
+                document.querySelector('input[id*="pass"]')
+            ].filter(Boolean);
+            
+            if (usernameFields.length > 0 && passwordFields.length > 0) {{
+                // Remplir les champs
+                usernameFields[0].value = '{username}';
+                passwordFields[0].value = '{password}';
                 
-    def visiter_lien(self, url, new_tab=False):
+                // Trouver et cliquer sur le bouton de connexion
+                let loginButtons = [
+                    document.querySelector('button[type="submit"]'),
+                    document.querySelector('input[type="submit"]'),
+                    document.querySelector('button[id*="login"]')
+                ].filter(Boolean);
+                
+                if (loginButtons.length > 0) {{
+                    loginButtons[0].click();
+                }}
+                
+                return true;
+            }}
+            return false;
+        }}
+        
+        // Essai immédiat puis toutes les secondes pendant 5 secondes
+        if (!tryLogin()) {{
+            let attempts = 0;
+            const interval = setInterval(() => {{
+                if (tryLogin() || attempts >= 5) {{
+                    clearInterval(interval);
+                }}
+                attempts++;
+            }}, 1000);
+        }}
+        """
+        
+        # Exécuter le script lorsque la page est chargée
+        web_view.loadFinished.connect(
+            lambda: web_view.page().runJavaScript(login_script)
+        )        
+    def add_category_dialog(self):
+        dialog = AddCategoryDialog(self.db, parent=self)
+        if dialog.exec_() == QDialog.Accepted:
+            # La catégorie a été créée avec succès
+            self.load_categories()        
+    def edit_link_dialog(self, link_id):
+        dialog = EditLinkDialog(self.db, link_id, parent=self)
+        if dialog.exec_() == QDialog.Accepted:
+           self.load_links()
+        # dialog.show()
+                
+    def visit_link(self, url, new_tab=False):
         if not hasattr(self, 'browser') or not self.browser or new_tab:
             self.browser = QWebEngineView()
-            self.browser.setWindowTitle("Navigateur - Gestionnaire de Liens")
+            self.browser.setWindowTitle("Browser - Links Manager")
             self.browser.resize(1000, 700)
             
         self.browser.load(url)
         self.browser.show()
         self.browser.activateWindow()
+    def visit_link2(self, url, new_tab=False):
+        if not hasattr(self, 'browser') or not self.browser or new_tab:
+            self.browser = QWebEngineView()
+            self.browser.setWindowTitle("Browser - Links Manager")
+            self.browser.resize(1000, 700)
         
-    def exporter_liens(self):
+        # Convertir l'URL string en QUrl
+        from PyQt5.QtCore import QUrl
+        qurl = QUrl(url)
+        
+        # Vérifier que l'URL est valide
+        if not qurl.isValid():
+            qurl = QUrl("http://" + url)  # Essayer avec http:// si l'URL n'est pas valide
+        
+        self.browser.load(qurl)
+        self.browser.show()
+        self.browser.activateWindow()        
+    def export_links(self):
         filename, _ = QFileDialog.getSaveFileName(
             self,
-            "Exporter les liens",
+            "Export links",
             "",
-            "Fichiers JSON (*.json);;Tous les fichiers (*)"
+            "JSON Files (*.json);;All Files (*)"
         )
         
         if filename:
@@ -1479,34 +1954,57 @@ class MainWindowLink(QMainWindow):
                 filename += '.json'
                 
             try:
-                self.db.exporter_liens(filename)
-                QMessageBox.information(self, "Succès", "Les liens ont été exportés avec succès!")
+                self.db.export_links(filename)
+                QMessageBox.information(self, "Success", "Links exported successfully!")
             except Exception as e:
-                QMessageBox.critical(self, "Erreur", f"Une erreur est survenue lors de l'export:\n{str(e)}")
+                QMessageBox.critical(self, "Error", f"An error occurred during export:\n{str(e)}")
                 
-    def importer_liens(self):
+    def import_links(self):
         filename, _ = QFileDialog.getOpenFileName(
             self,
-            "Importer des liens",
+            "Import links",
             "",
-            "Fichiers JSON (*.json);;Tous les fichiers (*)"
+            "JSON Files (*.json);;All Files (*)"
         )
         
         if filename:
             try:
-                self.db.importer_liens(filename)
-                self.charger_categories()
-                self.charger_liens()
-                QMessageBox.information(self, "Succès", "Les liens ont été importés avec succès!")
+                self.db.import_links(filename)
+                self.load_categories()
+                self.load_links()
+                QMessageBox.information(self, "Success", "Links imported successfully!")
             except Exception as e:
-                QMessageBox.critical(self, "Erreur", f"Une erreur est survenue lors de l'import:\n{str(e)}")
+                QMessageBox.critical(self, "Error", f"An error occurred during import:\n{str(e)}")
+                
+    def delete_all_links(self):
+        reply = QMessageBox.question(
+            self, 'Confirmation', 
+            "Are you sure you want to delete ALL links and categories? This action cannot be undone!",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            try:
+                # Delete all data
+                self.db.delete_all_data()
+                
+                # Restore default data
+                self.db.initialize_default_data()
+                
+                # Reload interface
+                self.load_categories()
+                self.load_links()
+                
+                QMessageBox.information(self, "Success", "All data has been deleted and default data restored.")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
                 
     def auto_save(self):
-        # Sauvegarde automatique des données
+        # Auto-save data
         try:
             self.db.conn.commit()
         except Exception as e:
-            print(f"Erreur lors de la sauvegarde automatique: {e}")
+            print(f"Error during auto-save: {e}")
             
     def toggle_auto_save(self, enabled):
         if enabled:
@@ -1515,35 +2013,35 @@ class MainWindowLink(QMainWindow):
             self.auto_save_timer.stop()
             
     def closeEvent(self, event):
-        # Sauvegarde finale à la fermeture
+        # Final save on close
         self.auto_save()
         event.accept()
         
     def show_about(self):
         about = QMessageBox(self)
-        about.setWindowTitle("À propos")
+        about.setWindowTitle("About")
         about.setIconPixmap(QIcon.fromTheme("help-about").pixmap(64, 64))
         about.setText("""
-            <h2>Gestionnaire de Liens Utiles</h2>
+            <h2>Useful Links Manager</h2>
             <p>Version 3.0</p>
-            <p>Une application pour organiser et accéder facilement à vos liens web préférés.</p>
-            <p><b>Fonctionnalités:</b></p>
+            <p>An application to organize and easily access your favorite web links.</p>
+            <p><b>Features:</b></p>
             <ul>
-                <li>Organisation par catégories et tags</li>
-                <li>Stockage sécurisé des identifiants</li>
-                <li>Navigation intégrée</li>
-                <li>Import/Export des données</li>
-                <li>Sauvegarde automatique</li>
-                <li>Interface moderne et intuitive</li>
+                <li>Organization by categories and tags</li>
+                <li>Secure storage of credentials</li>
+                <li>Integrated browser</li>
+                <li>Import/Export data</li>
+                <li>Auto backup</li>
+                <li>Modern and intuitive interface</li>
             </ul>
-            <p>© 2023 - Tous droits réservés</p>
+            <p>© 2023 - All rights reserved</p>
         """)
         about.exec_()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
-    # Style fusion avec personnalisation
+    # Fusion style with customization
     app.setStyle("Fusion")
     
     palette = QPalette()
@@ -1561,7 +2059,7 @@ if __name__ == "__main__":
     palette.setColor(QPalette.HighlightedText, QColor(255, 255, 255))
     app.setPalette(palette)
     
-    # Police par défaut
+    # Default font
     font = QFont()
     font.setFamily("Segoe UI" if sys.platform == "win32" else "Arial")
     font.setPointSize(10)

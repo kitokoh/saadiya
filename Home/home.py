@@ -458,7 +458,7 @@ class HomePage(QMainWindow):
             ("Blogging", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico", "#4CAF50", self.open_blogging, "blogging_bot"),
             ("Insta Pro", "resources/icons/instagram-icon-956-Windows.ico", "#4CAF50", self.open_instagram, "instagram_bot"),
             ("Telegram Bot", "resources/icons/telgrampng.png", "#4CAF50", self.open_adsPro1, "telegram_bot"),
-            ("Branding", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding1, "branding_bot"),
+            ("Status", "resources/icons/promotion-icon-png-3422-Windows.ico", "#4CAF50", self.open_branding1, "branding_bot"),
             ("Emailing", "resources/icons/pink-message-icon-12045-Windows.ico", "#4CAF50", self.open_Emailing1, "emailing_bot"),
         ]
 
@@ -2042,7 +2042,7 @@ class HomePage(QMainWindow):
 
 
         #self.hide()  # Masquer le module de connexion
-        tab_name = "Branding"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
+        tab_name = "Status"  # Nom de l'onglet (correspond au label utilisé dans add_custom_tab)
 
         # Vérifiez si un onglet avec ce nom existe déjà
         existing_tab_index = self.find_tab_by_name(tab_name)
