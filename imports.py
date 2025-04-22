@@ -45,7 +45,7 @@ user_data_dir = get_user_data_dir()
 #permet de generer aussi le .dmg et met des condition de maniere a ceque si nous somme face a un os 
 #alors ca utiliste tel lien et si on est en face d un .exe ca utilise ca 
 DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups32.db')
-DB_PATH_links = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'links.db')
+DB_PATH_links = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'links1.db')
 DB_PATH_prompts = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts.db')
 
 
