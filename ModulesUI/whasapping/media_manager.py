@@ -150,6 +150,9 @@ def create_media_table():
     ''')
     conn.commit()
     conn.close()
+
+
+
 class SearchFilterWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)

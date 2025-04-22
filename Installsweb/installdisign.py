@@ -1692,21 +1692,32 @@ class InstallerPage(QWidget):
         from Installsweb.dolibarr_installer import DolibarrInstaller
         from Installsweb.mayan import MayanInstaller  # Ajoutez cette ligne
 
+
+
+
+
         try:
             if app_name == "Odoo Community":
-                OdooInstallerApp().show()
+                installer = OdooInstallerApp(self)
+                installer.exec_()
             elif app_name == "ERPNext":
-                ERPNextInstaller().install()
+                installer = ERPNextInstaller(self)
+                installer.exec_()
             elif app_name == "Flectra":
-                FlectraInstaller().install()
+                installer = FlectraInstaller(self)
+                installer.exec_()
             elif app_name == "Tryton":
-                TrytonInstaller().install()
+                installer = TrytonInstaller(self)
+                installer.exec_()
             elif app_name == "Axelor":
-                AxelorInstaller().install()
+                installer = AxelorInstaller(self)
+                installer.exec_()
             elif app_name == "Dolibarr":
-                DolibarrInstaller().install()
+                installer = DolibarrInstaller(self)
+                installer.exec_()
             elif app_name == "Mayan EDMS":  # Ajoutez cette condition
-                MayanInstaller().show()
+                installer = MayanInstaller(self)
+                installer.exec_()
             else:
                 raise ValueError("Application inconnue")
 

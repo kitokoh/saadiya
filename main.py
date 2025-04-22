@@ -1157,7 +1157,7 @@ class Browser(QMainWindow):
         from facebooksmodule.media_manager import MediaTable
 
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("contacts")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("Medias")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1167,11 +1167,11 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'contacts') or self.contacts is None:
-            self.contacts = MediaTable(parent=self)  # Create the instance only once
+        if not hasattr(self, 'medias') or self.medias is None:
+            self.medias = MediaTable(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.medias, tab_name, "resources/icons/multi_fb.ico")
 
     def open_help_window(self):
         """Open a tab with the content of the 'HelpWidget' class."""
@@ -1343,7 +1343,9 @@ class Browser(QMainWindow):
                 # ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
                 # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
-                ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+                # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+                ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("add app"), []),
+                # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
                 ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
                 # ("🕸️", self.tr("Interconnexion"), "connect", self.add_on_page, self.tr("interconnect Management"), []),
 
@@ -1364,7 +1366,7 @@ class Browser(QMainWindow):
                     ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
                     ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
                 ]),
-                ("🌐", self.tr("Online Connect"), "online_connect", None, self.tr("Remote connection settings"), [
+                ("🌐", self.tr("Connection"), "online_connect", None, self.tr("Remote connection settings"), [
                     ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
                     # ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
                     # ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),

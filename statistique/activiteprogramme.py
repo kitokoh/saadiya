@@ -2,153 +2,373 @@ import os
 import subprocess
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import (
-    QMessageBox, QTableWidgetItem, QCheckBox, QDialog, QCalendarWidget, QDateEdit, QGraphicsDropShadowEffect, QFileDialog
+    QMessageBox, QTableWidgetItem, QCheckBox, QDialog, QCalendarWidget, 
+    QDateEdit, QGraphicsDropShadowEffect, QFileDialog, QStyledItemDelegate
 )
-from PyQt5.QtGui import QColor, QFont
+from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QLinearGradient
+from PyQt5.QtCore import Qt, QRectF
 import locale
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
 
+class RoundButtonDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        if index.column() == 6:  # Column with action buttons
+            button = QtWidgets.QPushButton("⚙️ Action")
+            button.setStyleSheet("""
+                QPushButton {
+                    background-color: #4CAF50;
+                    color: white;
+                    border-radius: 15px;
+                    padding: 5px 10px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #45a049;
+                }
+            """)
+            
+            # Calculate button position
+            button_rect = QRectF(
+                option.rect.x() + (option.rect.width() - 100) / 2,
+                option.rect.y() + (option.rect.height() - 30) / 2,
+                100, 30
+            )
+            
+            # Draw button
+            painter.save()
+            painter.setRenderHint(QPainter.Antialiasing)
+            
+            if option.state & QtWidgets.QStyle.State_Selected:
+                gradient = QLinearGradient(button_rect.topLeft(), button_rect.bottomLeft())
+                gradient.setColorAt(0, QColor(76, 175, 80))
+                gradient.setColorAt(1, QColor(56, 142, 60))
+                painter.setBrush(gradient)
+            else:
+                painter.setBrush(QColor(76, 175, 80))
+            
+            painter.setPen(QPen(QColor(46, 125, 50), 1))
+            painter.drawRoundedRect(button_rect, 15, 15)
+            
+            painter.setPen(QColor(255, 255, 255))
+            painter.drawText(button_rect, Qt.AlignCenter, "⚙️ Action")
+            painter.restore()
+        else:
+            QStyledItemDelegate.paint(self, painter, option, index)
 
 class AddActivityDialog(QtWidgets.QDialog):
     def __init__(self, exe_files):
         super().__init__()
         self.setWindowTitle(self.tr("📅 Schedule an Activity"))
-        self.setFixedSize(500, 550)  # Taille ajustée pour le calendrier
+        self.setFixedSize(600, 650)
         self.setWindowIcon(QtGui.QIcon("resources/icons/schedule.ico"))
-
-        # Style général
+        
+        # Style moderne avec dégradés et ombres
         self.setStyleSheet("""
             QDialog {
-                background-color: #f5f5f5;
-                border-radius: 10px;
-                font-family: Arial, sans-serif;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #f5f7fa, stop:1 #c3cfe2);
+                border-radius: 15px;
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
             QLabel {
                 font-size: 14px;
                 color: #2c3e50;
+                font-weight: 500;
             }
             QLineEdit, QComboBox, QTimeEdit, QDateEdit {
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
-                padding: 5px;
+                background-color: white;
+                border: 2px solid #dfe6e9;
+                border-radius: 8px;
+                padding: 8px;
                 font-size: 14px;
+                min-height: 35px;
+                selection-background-color: #3498db;
+                selection-color: white;
             }
             QLineEdit:focus, QComboBox:focus, QTimeEdit:focus, QDateEdit:focus {
-                border: 1px solid #3498db;
+                border: 2px solid #3498db;
+            }
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 25px;
+                border-left-width: 1px;
+                border-left-color: #dfe6e9;
+                border-left-style: solid;
+                border-top-right-radius: 8px;
+                border-bottom-right-radius: 8px;
+            }
+            QComboBox QAbstractItemView {
+                border: 2px solid #dfe6e9;
+                selection-background-color: #3498db;
+                selection-color: white;
             }
             QCheckBox {
-                font-size: 13px;
+                font-size: 14px;
                 color: #34495e;
+                spacing: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #bdc3c7;
+                border-radius: 4px;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #3498db;
+                border: 2px solid #2980b9;
+                image: url(resources/icons/checkmark.png);
             }
             QGroupBox {
                 font-size: 14px;
                 font-weight: bold;
                 color: #2980b9;
-                border: 1px solid #bdc3c7;
-                border-radius: 5px;
+                border: 2px solid #bdc3c7;
+                border-radius: 8px;
                 margin-top: 10px;
+                padding-top: 15px;
+                background-color: rgba(255, 255, 255, 0.7);
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
             }
             QPushButton {
-                background-color: #3498db;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #3498db, stop:1 #2c3e50);
                 color: white;
                 font-size: 14px;
                 font-weight: bold;
-                border-radius: 5px;
-                padding: 8px 15px;
+                border-radius: 8px;
+                padding: 10px 20px;
+                min-width: 120px;
+                border: none;
             }
             QPushButton:hover {
-                background-color: #2980b9;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #2980b9, stop:1 #1a252f);
+            }
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #1a5276, stop:1 #17202a);
             }
             QCalendarWidget {
+                background-color: white;
+                border: 2px solid #bdc3c7;
+                border-radius: 8px;
+            }
+            QCalendarWidget QToolButton {
+                height: 30px;
+                font-size: 14px;
+                font-weight: bold;
+                color: #2c3e50;
+                background-color: #dfe6e9;
+                border-radius: 5px;
+            }
+            QCalendarWidget QMenu {
+                background-color: white;
+                border: 1px solid #bdc3c7;
+            }
+            QCalendarWidget QSpinBox {
+                width: 80px;
+                font-size: 14px;
+                font-weight: bold;
+                color: #2c3e50;
                 background-color: white;
                 border: 1px solid #bdc3c7;
                 border-radius: 5px;
             }
+            QCalendarWidget QWidget { 
+                alternate-background-color: #e8f4fc;
+            }
         """)
 
-        # Widgets
+        # Widgets avec icônes et placeholder text
         self.name_input = QtWidgets.QLineEdit()
-        self.name_input.setPlaceholderText(self.tr("📝 Program Name"))
+        self.name_input.setPlaceholderText(self.tr("📝 Enter activity name"))
         self.name_input.setReadOnly(True)
 
         self.program_input = QtWidgets.QComboBox()
         self.program_input.addItems(exe_files)
+        self.program_input.setCurrentIndex(-1)
+        self.program_input.setPlaceholderText(self.tr("📂 Select a program"))
         self.program_input.currentIndexChanged.connect(self.update_name)
 
+        # Style pour les jours de la semaine
         self.daily_checkbox = QtWidgets.QCheckBox(self.tr("🔄 Execute Daily"))
+        self.daily_checkbox.setStyleSheet("""
+            QCheckBox {
+                color: #2c3e50;
+                font-weight: bold;
+            }
+            QCheckBox::indicator {
+                width: 20px;
+                height: 20px;
+            }
+        """)
 
         self.days_group = QtWidgets.QGroupBox(self.tr("📅 Select Specific Days"))
         self.days_layout = QtWidgets.QHBoxLayout()
         self.day_checkboxes = []
-        for day in [self.tr("Mon"), self.tr("Tue"), self.tr("Wed"), self.tr("Thu"), self.tr("Fri"), self.tr("Sat"), self.tr("Sun")]:
+        
+        day_colors = [
+            ("#e74c3c", "#c0392b"),  # Monday - Red
+            ("#e67e22", "#d35400"),  # Tuesday - Orange
+            ("#f1c40f", "#f39c12"),  # Wednesday - Yellow
+            ("#2ecc71", "#27ae60"),  # Thursday - Green
+            ("#3498db", "#2980b9"),  # Friday - Blue
+            ("#9b59b6", "#8e44ad"),  # Saturday - Purple
+            ("#1abc9c", "#16a085")   # Sunday - Teal
+        ]
+        
+        for i, day in enumerate([self.tr("Mon"), self.tr("Tue"), self.tr("Wed"), 
+                                self.tr("Thu"), self.tr("Fri"), self.tr("Sat"), self.tr("Sun")]):
             checkbox = QtWidgets.QCheckBox(day)
+            checkbox.setStyleSheet(f"""
+                QCheckBox {{
+                    color: {day_colors[i][1]};
+                    font-weight: bold;
+                }}
+                QCheckBox::indicator {{
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid {day_colors[i][0]};
+                    border-radius: 4px;
+                }}
+                QCheckBox::indicator:checked {{
+                    background-color: {day_colors[i][0]};
+                    border: 2px solid {day_colors[i][1]};
+                }}
+            """)
             self.day_checkboxes.append(checkbox)
             self.days_layout.addWidget(checkbox)
         self.days_group.setLayout(self.days_layout)
 
         self.time_input = QtWidgets.QTimeEdit()
         self.time_input.setDisplayFormat("HH:mm")
-        self.time_input.setFont(QtGui.QFont("Arial", 12))
+        self.time_input.setTime(QtCore.QTime.currentTime())
+        self.time_input.setStyleSheet("""
+            QTimeEdit {
+                font-size: 16px;
+                font-weight: bold;
+            }
+            QTimeEdit::up-button, QTimeEdit::down-button {
+                width: 25px;
+                subcontrol-origin: border;
+            }
+        """)
 
-        # Ajouter un QCalendarWidget pour la sélection de dates spécifiques
+        # Calendar widget with custom style
         self.calendar = QCalendarWidget()
         self.calendar.setGridVisible(True)
-        self.calendar.setMinimumDate(QtCore.QDate.currentDate())  # Empêcher la sélection de dates passées
-        self.selected_dates = set()  # Pour stocker les dates sélectionnées
+        self.calendar.setMinimumDate(QtCore.QDate.currentDate())
+        self.selected_dates = set()
 
-        # Connecter le signal de clic sur une date
+        # Highlight current date
+        format = QtGui.QTextCharFormat()
+        format.setBackground(QtGui.QColor("#3498db20"))
+        format.setForeground(QtGui.QColor("#2c3e50"))
+        self.calendar.setDateTextFormat(QtCore.QDate.currentDate(), format)
+
         self.calendar.clicked.connect(self.toggle_date_selection)
 
-        # Ajouter un QCheckBox pour activer/désactiver la sélection de dates spécifiques
         self.specific_dates_checkbox = QtWidgets.QCheckBox(self.tr("📅 Schedule on specific dates"))
+        self.specific_dates_checkbox.setStyleSheet("""
+            QCheckBox {
+                color: #2c3e50;
+                font-weight: bold;
+            }
+            QCheckBox::indicator {
+                width: 20px;
+                height: 20px;
+            }
+        """)
         self.specific_dates_checkbox.stateChanged.connect(self.toggle_specific_dates)
 
-        # Bouton de sauvegarde
-        save_button = QtWidgets.QPushButton(self.tr("💾 Save"))
-        save_button.clicked.connect(self.accept)
+        # Save button with shadow effect
+        save_button = QtWidgets.QPushButton(self.tr("💾 Save Schedule"))
+        save_button.setCursor(Qt.PointingHandCursor)
+        
+        # Add shadow effect
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(0, 0, 0, 150))
+        shadow.setOffset(3, 3)
+        save_button.setGraphicsEffect(shadow)
 
-        # Layout principal
+        # Layout with spacing and margins
         main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setSpacing(10)
-        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+        main_layout.setContentsMargins(25, 25, 25, 25)
 
-        # Ajout des widgets
-        main_layout.addWidget(self.create_form_group("📂 Program:", self.program_input))
-        main_layout.addWidget(self.create_form_group("📝 Name:", self.name_input))
+        # Form layout with proper spacing
+        form_layout = QtWidgets.QFormLayout()
+        form_layout.setSpacing(15)
+        form_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Add form rows with icons
+        form_layout.addRow(self.create_form_row("📂 Program:", self.program_input))
+        form_layout.addRow(self.create_form_row("📝 Name:", self.name_input))
+        
+        # Add widgets to main layout
+        main_layout.addLayout(form_layout)
         main_layout.addWidget(self.daily_checkbox)
         main_layout.addWidget(self.days_group)
-        main_layout.addWidget(self.create_form_group("⏰ Execution Time:", self.time_input))
+        main_layout.addWidget(self.create_form_row("⏰ Execution Time:", self.time_input))
         main_layout.addWidget(self.specific_dates_checkbox)
         main_layout.addWidget(self.calendar)
-        main_layout.addWidget(save_button, alignment=QtCore.Qt.AlignRight)
-
-        # Masquer le calendrier par défaut
-        self.calendar.setVisible(False)
-
+        
+        # Button container with centered button
+        button_container = QtWidgets.QWidget()
+        button_layout = QtWidgets.QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.addStretch()
+        button_layout.addWidget(save_button)
+        button_layout.addStretch()
+        
+        main_layout.addWidget(button_container)
         self.setLayout(main_layout)
 
-        # Mettre à jour le nom initial
+        # Hide calendar by default
+        self.calendar.setVisible(False)
         self.update_name()
 
-    def create_form_group(self, label_text, widget):
-        """Crée une ligne de formulaire avec une étiquette et un widget."""
+    def create_form_row(self, label_text, widget):
+        """Create a form row with styled label and widget."""
         container = QtWidgets.QWidget()
-        form_layout = QtWidgets.QHBoxLayout(container)
-        form_layout.setContentsMargins(0, 0, 0, 0)
-        form_layout.addWidget(QtWidgets.QLabel(label_text))
-        form_layout.addWidget(widget)
+        layout = QtWidgets.QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(15)
+        
+        label = QtWidgets.QLabel(label_text)
+        label.setStyleSheet("""
+            QLabel {
+                font-size: 14px;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+        """)
+        
+        layout.addWidget(label)
+        layout.addWidget(widget)
         return container
 
     def update_name(self):
-        """Met à jour le champ du nom basé sur le fichier sélectionné."""
-        self.name_input.setText(self.program_input.currentText())
+        """Update the name field based on selected program."""
+        if self.program_input.currentIndex() >= 0:
+            self.name_input.setText(self.program_input.currentText())
 
     def toggle_specific_dates(self, state):
-        """Afficher ou masquer le calendrier en fonction de l'état de la checkbox."""
+        """Show/hide calendar based on checkbox state."""
         self.calendar.setVisible(state == QtCore.Qt.Checked)
+        if state == QtCore.Qt.Checked:
+            self.daily_checkbox.setChecked(False)
+            for checkbox in self.day_checkboxes:
+                checkbox.setChecked(False)
 
     def toggle_date_selection(self, date):
-        """Ajoute ou supprime une date de la sélection."""
+        """Add or remove date from selection."""
         if date in self.selected_dates:
             self.selected_dates.remove(date)
         else:
@@ -156,19 +376,29 @@ class AddActivityDialog(QtWidgets.QDialog):
         self.highlight_selected_dates()
 
     def highlight_selected_dates(self):
-        """Met en évidence les dates sélectionnées dans le calendrier."""
+        """Highlight selected dates in calendar."""
+        # Clear all formats first
+        self.calendar.setDateTextFormat(QtCore.QDate(), QtGui.QTextCharFormat())
+        
+        # Highlight current date
+        current_format = QtGui.QTextCharFormat()
+        current_format.setBackground(QtGui.QColor("#3498db20"))
+        current_format.setForeground(QtGui.QColor("#2c3e50"))
+        self.calendar.setDateTextFormat(QtCore.QDate.currentDate(), current_format)
+        
+        # Highlight selected dates
         for date in self.selected_dates:
             format = QtGui.QTextCharFormat()
             format.setBackground(QtGui.QColor("#3498db"))
             format.setForeground(QtGui.QColor("#ffffff"))
+            format.setFontWeight(QFont.Bold)
             self.calendar.setDateTextFormat(date, format)
 
     def get_activity_data(self):
-        """Retourne les données saisies par l'utilisateur, y compris les dates spécifiques si sélectionnées."""
+        """Return user input data including specific dates if selected."""
         selected_days = [checkbox.text() for checkbox in self.day_checkboxes if checkbox.isChecked()]
         
         if self.specific_dates_checkbox.isChecked():
-            # Convertir les dates sélectionnées en format MM/JJ/AAAA
             selected_dates = [date.toString("MM/dd/yyyy") for date in self.selected_dates]
         else:
             selected_dates = None
@@ -179,7 +409,7 @@ class AddActivityDialog(QtWidgets.QDialog):
             self.daily_checkbox.isChecked(),
             selected_days,
             self.time_input.time().toString("HH:mm"),
-            selected_dates  # Retourner les dates spécifiques au bon format
+            selected_dates
         )
 
 class Activite(QtWidgets.QWidget):
@@ -187,146 +417,314 @@ class Activite(QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle(self.tr("📅 Scheduled Activities Manager"))
         self.setStyleSheet(self._get_styles())
-        self.resize(1000, 700)
+        self.resize(1200, 800)
+        self.setWindowIcon(QtGui.QIcon("resources/icons/calendar.ico"))
 
-        # Titre principal
-        title_label = QtWidgets.QLabel(self.tr("📅 Scheduled Activities"))
+        # Main title with gradient effect
+        title_label = QtWidgets.QLabel(self.tr("📅 Scheduled Activities Manager"))
         title_label.setAlignment(QtCore.Qt.AlignCenter)
-        title_label.setFont(QtGui.QFont("Arial", 20, QFont.Bold))
+        title_label.setFont(QtGui.QFont("Segoe UI", 24, QFont.Bold))
+        title_label.setStyleSheet("""
+            QLabel {
+                color: #2c3e50;
+                padding: 10px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #3498db, stop:1 #2c3e50);
+                border-radius: 10px;
+                color: white;
+            }
+        """)
 
-        # Barre de recherche
+        # Search bar with modern style
         self.search_entry = QtWidgets.QLineEdit()
-        self.search_entry.setPlaceholderText(self.tr("🔍 Search an activity..."))
+        self.search_entry.setPlaceholderText(self.tr("🔍 Search activities..."))
+        self.search_entry.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #dfe6e9;
+                border-radius: 15px;
+                padding: 8px 15px;
+                font-size: 14px;
+                background-color: white;
+            }
+            QLineEdit:focus {
+                border: 2px solid #3498db;
+            }
+        """)
 
-        # Boutons d'action
-        self.search_button = QtWidgets.QPushButton(self.tr("🔍 Search"))
+        button_style = """
+        QPushButton {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {gradient_start}, stop:1 {gradient_end});
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 10px 15px;
+            min-width: 120px;
+            border: none;
+        }}
+        QPushButton:hover {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {hover_start}, stop:1 {hover_end});
+        }}
+        QPushButton:pressed {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {pressed_start}, stop:1 {pressed_end});
+        }}
+        QPushButton:disabled {{
+            background: #95a5a6;
+        }}
+        """.replace('\n', '').replace('    ', '')
+        self.search_button = self.create_button(
+            "🔍 Search", 
+            button_style.format(
+                gradient_start="#3498db", gradient_end="#2980b9",
+                hover_start="#2980b9", hover_end="#1a5276",
+                pressed_start="#1a5276", pressed_end="#154360"
+            )
+        )
         self.search_button.clicked.connect(self.search_activities)
 
-        self.add_button = QtWidgets.QPushButton(self.tr("➕ Schedule an Activity"))
+        self.add_button = self.create_button(
+            "➕ Add Activity", 
+            button_style.format(
+                gradient_start="#2ecc71", gradient_end="#27ae60",
+                hover_start="#27ae60", hover_end="#219653",
+                pressed_start="#219653", pressed_end="#1e8449"
+            )
+        )
         self.add_button.clicked.connect(self.add_activity)
 
-        self.pause_button = QtWidgets.QPushButton(self.tr("⏸️ Pause"))
+        self.pause_button = self.create_button(
+            "⏸️ Pause", 
+            button_style.format(
+                gradient_start="#f39c12", gradient_end="#e67e22",
+                hover_start="#e67e22", hover_end="#d35400",
+                pressed_start="#d35400", pressed_end="#ba4a00"
+            )
+        )
         self.pause_button.clicked.connect(self.pause_selected_activities)
 
-        self.delete_button = QtWidgets.QPushButton(self.tr("❌ Delete"))
+        self.delete_button = self.create_button(
+            "❌ Delete", 
+            button_style.format(
+                gradient_start="#e74c3c", gradient_end="#c0392b",
+                hover_start="#c0392b", hover_end="#a93226",
+                pressed_start="#a93226", pressed_end="#922b21"
+            )
+        )
         self.delete_button.clicked.connect(self.delete_selected_activities)
 
-        self.refresh_button = QtWidgets.QPushButton(self.tr("🔄 Load Activities"))
+        self.refresh_button = self.create_button(
+            "🔄 Refresh", 
+            button_style.format(
+                gradient_start="#9b59b6", gradient_end="#8e44ad",
+                hover_start="#8e44ad", hover_end="#7d3c98",
+                pressed_start="#7d3c98", pressed_end="#6c3483"
+            )
+        )
         self.refresh_button.clicked.connect(self.load_activities)
 
-        self.export_button = QtWidgets.QPushButton(self.tr("📤 Export Activities"))
+        self.export_button = self.create_button(
+            "📤 Export", 
+            button_style.format(
+                gradient_start="#1abc9c", gradient_end="#16a085",
+                hover_start="#16a085", hover_end="#138d75",
+                pressed_start="#138d75", pressed_end="#117a65"
+            )
+        )
         self.export_button.clicked.connect(self.export_activities)
 
-        # Ajouter une ombre lumineuse au bouton "Add"
+        # Add shadow effect to add button
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(30)
-        shadow.setColor(QColor(0, 212, 255))  # Bleu néon
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(46, 204, 113, 150))
         shadow.setOffset(0, 5)
         self.add_button.setGraphicsEffect(shadow)
 
-        # Layout pour la barre de recherche et les boutons
+        # Top bar layout with search and buttons
         top_bar_layout = QtWidgets.QHBoxLayout()
-        top_bar_layout.addWidget(self.search_entry)
-        top_bar_layout.addWidget(self.search_button)
-        top_bar_layout.addWidget(self.add_button)
-        top_bar_layout.addWidget(self.pause_button)
-        top_bar_layout.addWidget(self.delete_button)
-        top_bar_layout.addWidget(self.refresh_button)
-        top_bar_layout.addWidget(self.export_button)
+        top_bar_layout.setSpacing(15)
+        top_bar_layout.addWidget(self.search_entry, 4)
+        top_bar_layout.addWidget(self.search_button, 1)
+        top_bar_layout.addWidget(self.add_button, 1)
+        top_bar_layout.addWidget(self.pause_button, 1)
+        top_bar_layout.addWidget(self.delete_button, 1)
+        top_bar_layout.addWidget(self.refresh_button, 1)
+        top_bar_layout.addWidget(self.export_button, 1)
 
-        # Tableau des activités
+        # Activities table with modern style
         self.table = QtWidgets.QTableWidget()
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels([
-            self.tr("🔢 Number"), self.tr("📝 Name"), self.tr("📂 Program"), 
+            self.tr("🔢 #"), self.tr("📝 Name"), self.tr("📂 Program"), 
             self.tr("📅 Days"), self.tr("⏰ Time"), self.tr("📅 Date"), self.tr("⚙️ Action")
         ])
+        
+        # Customize table appearance
+        self.table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border: 2px solid #dfe6e9;
+                border-radius: 8px;
+                gridline-color: #dfe6e9;
+                font-size: 14px;
+            }
+            QHeaderView::section {
+                background-color: #3498db;
+                color: white;
+                font-weight: bold;
+                padding: 8px;
+                border: none;
+                font-size: 14px;
+            }
+            QTableWidget::item {
+                padding: 8px;
+            }
+            QTableWidget::item:selected {
+                background-color: #3498db;
+                color: white;
+            }
+            QScrollBar:vertical {
+                border: none;
+                background: #f5f5f5;
+                width: 12px;
+                margin: 0px 0px 0px 0px;
+            }
+            QScrollBar::handle:vertical {
+                background: #bdc3c7;
+                min-height: 20px;
+                border-radius: 6px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                background: none;
+            }
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+                background: none;
+            }
+        """)
+        
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.setSortingEnabled(True)
-
-        # Layout principal
+        self.table.verticalHeader().setVisible(False)
+        self.table.setShowGrid(False)
+        
+        # Set custom delegate for action column
+        self.table.setItemDelegateForColumn(6, RoundButtonDelegate())
+        
+        # Main layout with proper spacing
         main_layout = QtWidgets.QVBoxLayout()
+        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        
+        # Add widgets to main layout
         main_layout.addWidget(title_label)
         main_layout.addLayout(top_bar_layout)
         main_layout.addWidget(self.table)
+        
         self.setLayout(main_layout)
 
-        # Charger les activités planifiées au démarrage
+        # Load scheduled activities on startup
         QtCore.QTimer.singleShot(100, self.load_activities)
 
+    def create_button1(self, text, style_sheet):
+        """Create a styled button with hover effects."""
+        button = QtWidgets.QPushButton(text)
+        button.setStyleSheet(style_sheet)
+        button.setCursor(Qt.PointingHandCursor)
+        return button
+
+
+    def create_button(self, text, style_sheet):
+        """Create a styled button with hover effects."""
+        button = QtWidgets.QPushButton(text)
+        # Supprimez les sauts de ligne et les espaces excessifs dans le style_sheet
+        style_sheet = style_sheet.replace('\n', '').replace('                ', '')
+        button.setStyleSheet(style_sheet)
+        button.setCursor(Qt.PointingHandCursor)
+        return button
+
+
     def _get_styles(self):
-        """Retourne le style CSS pour l'interface utilisateur."""
+        """Return CSS styles for the UI."""
         return """
             QWidget {
-                font-family: Arial;
-                background-color: #f4f4f4;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #f5f7fa, stop:1 #c3cfe2);
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
             QLabel {
-                font-size: 20px;
-                font-weight: bold;
-                color: #333;
+                font-size: 14px;
+                color: #2c3e50;
             }
             QLineEdit {
-                border: 1px solid #888;
-                padding: 5px;
+                border: 2px solid #dfe6e9;
                 border-radius: 5px;
+                padding: 5px;
+                font-size: 14px;
+                background-color: white;
+            }
+            QLineEdit:focus {
+                border: 2px solid #3498db;
             }
             QPushButton {
-                background-color: #4CAF50;
-                color: white;
+                min-width: 100px;
                 padding: 8px;
                 border-radius: 5px;
-                border: none;
                 font-weight: bold;
-                min-width: 120px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
             }
             QTableWidget {
                 background-color: white;
                 border: 1px solid #ddd;
+                font-size: 14px;
             }
             QHeaderView::section {
-                background-color: #ddd;
+                background-color: #3498db;
+                color: white;
+                padding: 5px;
                 font-weight: bold;
-                padding: 4px;
+            }
+            QStatusBar {
+                background-color: #2c3e50;
+                color: white;
             }
         """
 
     def load_activities(self):
-        """Charge et affiche les activités planifiées."""
-        self.table.setRowCount(0)  # Réinitialiser le tableau
+        """Load and display scheduled activities."""
+        self.table.setRowCount(0)  # Reset table
 
         try:
-            # Chemin du dossier contenant les fichiers .exe
+            # Path to folder containing .exe files
             folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
             if not os.path.exists(folder_path):
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"The folder {folder_path} does not exist."))
+                self.show_error_message(self.tr("Folder Not Found"), 
+                                      self.tr(f"The folder {folder_path} does not exist."))
                 return
 
-            # Lister les fichiers .exe
+            # List .exe files
             exe_files = [f for f in os.listdir(folder_path) if f.endswith(".exe")]
             if not exe_files:
-                QMessageBox.warning(self, self.tr("Warning"), self.tr("No .exe files found in the tools folder."))
+                self.show_warning_message(self.tr("No Programs Found"), 
+                                         self.tr("No .exe files found in the tools folder."))
                 return
 
-            # Récupérer les tâches planifiées avec schtasks
+            # Get scheduled tasks with schtasks
             try:
-                result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, encoding="utf-8", errors="ignore")
+                result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, 
+                                                encoding="utf-8", errors="ignore")
             except subprocess.CalledProcessError as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Failed to query scheduled tasks: {e}"))
+                self.show_error_message(self.tr("Query Failed"), 
+                                       self.tr(f"Failed to query scheduled tasks: {e}"))
                 return
 
             lines = result.strip().splitlines()
 
             if not lines:
-                QMessageBox.information(self, self.tr("Info"), self.tr("No scheduled tasks found."))
+                self.show_info_message(self.tr("No Tasks Found"), 
+                                     self.tr("No scheduled tasks found."))
                 return
 
-            # Analyser les tâches
+            # Parse tasks
             for i, line in enumerate(lines):
                 try:
                     parts = [p.strip('"') for p in line.split(",")]
@@ -340,22 +738,96 @@ class Activite(QtWidgets.QWidget):
                         row_position = self.table.rowCount()
                         self.table.insertRow(row_position)
 
-                        # Ajouter les colonnes
-                        for j, data in enumerate([str(i + 1)] + parts[:3]):
-                            self.table.setItem(row_position, j, QTableWidgetItem(data))
+                        # Add columns with formatted data
+                        self.table.setItem(row_position, 0, QTableWidgetItem(str(i + 1)))
+                        self.table.setItem(row_position, 1, QTableWidgetItem(task_name))
+                        self.table.setItem(row_position, 2, QTableWidgetItem(parts[1] if len(parts) > 1 else ""))
+                        self.table.setItem(row_position, 3, QTableWidgetItem(parts[2] if len(parts) > 2 else ""))
+                        self.table.setItem(row_position, 4, QTableWidgetItem(parts[3] if len(parts) > 3 else ""))
+                        self.table.setItem(row_position, 5, QTableWidgetItem(parts[4] if len(parts) > 4 else ""))
 
-                        # Ajouter un bouton d'action
+                        # Add action button
                         action_button = QtWidgets.QPushButton(self.tr("⚙️ Action"))
-                        action_button.clicked.connect(lambda _, name=parts[0]: self.modify_or_delete_activity(name))
+                        action_button.setStyleSheet("""
+                            QPushButton {
+                                background-color: #3498db;
+                                color: white;
+                                border-radius: 15px;
+                                padding: 5px 10px;
+                                font-weight: bold;
+                                min-width: 80px;
+                            }
+                            QPushButton:hover {
+                                background-color: #2980b9;
+                            }
+                        """)
+                        action_button.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
                         self.table.setCellWidget(row_position, 6, action_button)
+
+                        # Set row colors for better readability
+                        for col in range(self.table.columnCount()):
+                            if self.table.item(row_position, col):
+                                self.table.item(row_position, col).setTextAlignment(Qt.AlignCenter)
+                                if row_position % 2 == 0:
+                                    self.table.item(row_position, col).setBackground(QColor(240, 248, 255))
                 except Exception as e:
-                    QMessageBox.warning(self, self.tr("Warning"), self.tr(f"Error processing task: {e}"))
+                    self.show_warning_message(self.tr("Processing Error"), 
+                                           self.tr(f"Error processing task: {e}"))
+
+            # Resize columns to content
+            self.table.resizeColumnsToContents()
+            self.table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
         except Exception as e:
-            QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error loading activities: {e}"))
+            self.show_error_message(self.tr("Loading Error"), 
+                                 self.tr(f"Error loading activities: {e}"))
+
+    def show_action_menu(self, name):
+        """Show context menu for a specific activity."""
+        menu = QtWidgets.QMenu(self)
+        
+        # Create actions with icons
+        modify_action = QtWidgets.QAction(QtGui.QIcon("resources/icons/edit.png"), "✏️ Modify", self)
+        delete_action = QtWidgets.QAction(QtGui.QIcon("resources/icons/delete.png"), "❌ Delete", self)
+        run_action = QtWidgets.QAction(QtGui.QIcon("resources/icons/run.png"), "▶️ Run Now", self)
+        
+        # Add actions to menu
+        menu.addAction(modify_action)
+        menu.addAction(delete_action)
+        menu.addAction(run_action)
+        
+        # Style the menu
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: white;
+                border: 2px solid #dfe6e9;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QMenu::item {
+                padding: 8px 25px 8px 20px;
+                font-size: 14px;
+            }
+            QMenu::item:selected {
+                background-color: #3498db;
+                color: white;
+                border-radius: 3px;
+            }
+            QMenu::icon {
+                padding-left: 10px;
+            }
+        """)
+        
+        # Connect actions to functions
+        modify_action.triggered.connect(lambda: self.modify_activity(name))
+        delete_action.triggered.connect(lambda: self.delete_activity(name))
+        run_action.triggered.connect(lambda: self.run_activity_now(name))
+        
+        # Show menu at cursor position
+        menu.exec_(QtGui.QCursor.pos())
 
     def add_activity(self):
-        """Ajoute une nouvelle activité planifiée."""
+        """Add a new scheduled activity."""
         folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
         exe_files = [os.path.splitext(f)[0] for f in os.listdir(folder_path) if f.endswith(".exe")]
 
@@ -365,7 +837,7 @@ class Activite(QtWidgets.QWidget):
             program_path = os.path.join(folder_path, f"{program}.exe")
 
             if specific_dates:
-                # Si des dates spécifiques sont sélectionnées, planifier pour ces dates
+                # Schedule for specific dates
                 for date in specific_dates:
                     try:
                         cmd = (
@@ -374,9 +846,10 @@ class Activite(QtWidgets.QWidget):
                         )
                         subprocess.run(cmd, shell=True)
                     except Exception as e:
-                        QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error scheduling activity: {e}"))
+                        self.show_error_message(self.tr("Scheduling Error"), 
+                                             self.tr(f"Error scheduling activity: {e}"))
             else:
-                # Sinon, utiliser le planning quotidien ou hebdomadaire
+                # Daily or weekly schedule
                 schedule_type = "/SC DAILY" if daily else "/SC WEEKLY"
                 date_flag = "" if daily else f" /D {','.join(days)}"
 
@@ -387,68 +860,68 @@ class Activite(QtWidgets.QWidget):
                     )
                     subprocess.run(cmd, shell=True)
                 except Exception as e:
-                    QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error scheduling activity: {e}"))
+                    self.show_error_message(self.tr("Scheduling Error"), 
+                                         self.tr(f"Error scheduling activity: {e}"))
 
-            QMessageBox.information(self, self.tr("Success"), self.tr("Activity scheduled successfully!"))
+            self.show_success_message(self.tr("Success"), 
+                                   self.tr("Activity scheduled successfully!"))
             self.load_activities()
 
     def search_activities(self):
-        """Filtre les activités en fonction de la recherche."""
+        """Filter activities based on search query."""
         query = self.search_entry.text().lower()
         for row in range(self.table.rowCount()):
-            match = any(query in (self.table.item(row, col).text().lower() if self.table.item(row, col) else "") 
-                        for col in range(self.table.columnCount()))
+            match = False
+            for col in range(self.table.columnCount() - 1):  # Skip action column
+                item = self.table.item(row, col)
+                if item and query in item.text().lower():
+                    match = True
+                    break
             self.table.setRowHidden(row, not match)
 
-    def modify_or_delete_activity(self, name):
-        """Affiche un menu pour modifier ou supprimer une activité."""
-        menu = QtWidgets.QMenu()
-        modify_action = menu.addAction(self.tr("✏️ Modify"))
-        delete_action = menu.addAction(self.tr("❌ Delete"))
-
-        action = menu.exec_(QtGui.QCursor.pos())
-        if action == modify_action:
-            self.modify_activity(name)
-        elif action == delete_action:
-            self.delete_activity(name)
-
     def delete_activity(self, name):
-        """Supprime une activité planifiée."""
+        """Delete a scheduled activity."""
         reply = QMessageBox.question(
             self,
             self.tr("Confirmation"),
             self.tr(f"Are you sure you want to delete the activity '{name}'?"),
             QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
         )
+        
         if reply == QMessageBox.Yes:
             try:
                 subprocess.run(f'schtasks /delete /tn "{name}" /f', shell=True)
-                QMessageBox.information(self, self.tr("Success"), self.tr(f"Activity {name} deleted successfully!"))
+                self.show_success_message(self.tr("Success"), 
+                                       self.tr(f"Activity {name} deleted successfully!"))
                 self.load_activities()
             except Exception as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error deleting activity: {e}"))
+                self.show_error_message(self.tr("Deletion Error"), 
+                                     self.tr(f"Error deleting activity: {e}"))
 
     def modify_activity(self, name):
-        """Modifie une activité planifiée."""
-        # Récupérer les détails de l'activité
+        """Modify a scheduled activity."""
+        # Get task details
         try:
-            result = subprocess.check_output(f'schtasks /query /tn "{name}" /fo list', shell=True, encoding="utf-8", errors="ignore")
+            result = subprocess.check_output(f'schtasks /query /tn "{name}" /fo list', 
+                                           shell=True, encoding="utf-8", errors="ignore")
             details = result.strip().splitlines()
         except subprocess.CalledProcessError as e:
-            QMessageBox.critical(self, self.tr("Error"), self.tr(f"Failed to retrieve task details: {e}"))
+            self.show_error_message(self.tr("Details Error"), 
+                                 self.tr(f"Failed to retrieve task details: {e}"))
             return
 
-        # Créer une boîte de dialogue pour la modification
+        # Create modification dialog
         dialog = AddActivityDialog(self.get_exe_files())
         if dialog.exec_() == QDialog.Accepted:
             new_name, program, daily, days, time, specific_dates = dialog.get_activity_data()
             program_path = os.path.join(self.get_tools_folder(), f"{program}.exe")
 
             try:
-                # Supprimer l'ancienne tâche
+                # Delete old task
                 subprocess.run(f'schtasks /delete /tn "{name}" /f', shell=True)
 
-                # Créer la nouvelle tâche
+                # Create new task
                 if specific_dates:
                     for date in specific_dates:
                         cmd = (
@@ -466,33 +939,45 @@ class Activite(QtWidgets.QWidget):
                     )
                     subprocess.run(cmd, shell=True)
 
-                QMessageBox.information(self, self.tr("Success"), self.tr("Activity modified successfully!"))
+                self.show_success_message(self.tr("Success"), 
+                                       self.tr("Activity modified successfully!"))
                 self.load_activities()
             except Exception as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error modifying activity: {e}"))
+                self.show_error_message(self.tr("Modification Error"), 
+                                     self.tr(f"Error modifying activity: {e}"))
 
     def export_activities(self):
-        """Exporte les activités planifiées dans un fichier CSV."""
+        """Export scheduled activities to a CSV file."""
         try:
-            file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, self.tr("Export Activities"), "", "CSV Files (*.csv)")
+            file_path, _ = QFileDialog.getSaveFileName(
+                self, 
+                self.tr("Export Activities"), 
+                "", 
+                "CSV Files (*.csv)"
+            )
+            
             if file_path:
                 with open(file_path, "w", encoding="utf-8") as file:
                     file.write("Number,Name,Program,Days,Time,Date\n")
                     for row in range(self.table.rowCount()):
                         row_data = [
                             self.table.item(row, col).text() if self.table.item(row, col) else ""
-                            for col in range(self.table.columnCount() - 1)
+                            for col in range(self.table.columnCount() - 1)  # Skip action column
                         ]
                         file.write(",".join(row_data) + "\n")
-                QMessageBox.information(self, self.tr("Success"), self.tr("Activities exported successfully!"))
+                
+                self.show_success_message(self.tr("Export Success"), 
+                                       self.tr("Activities exported successfully!"))
         except Exception as e:
-            QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error exporting activities: {e}"))
+            self.show_error_message(self.tr("Export Error"), 
+                                 self.tr(f"Error exporting activities: {e}"))
 
     def pause_selected_activities(self):
-        """Met en pause les activités sélectionnées."""
+        """Pause selected activities."""
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Please select activities to pause."))
+            self.show_warning_message(self.tr("Selection Required"), 
+                                   self.tr("Please select activities to pause."))
             return
 
         for row in selected_rows:
@@ -500,32 +985,151 @@ class Activite(QtWidgets.QWidget):
             try:
                 subprocess.run(f'schtasks /change /tn "{activity_name}" /disable', shell=True)
             except Exception as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error pausing activity {activity_name}: {e}"))
+                self.show_error_message(self.tr("Pause Error"), 
+                                     self.tr(f"Error pausing activity {activity_name}: {e}"))
 
-        QMessageBox.information(self, self.tr("Success"), self.tr("Selected activities paused successfully!"))
+        self.show_success_message(self.tr("Success"), 
+                               self.tr("Selected activities paused successfully!"))
         self.load_activities()
 
     def delete_selected_activities(self):
-        """Supprime les activités sélectionnées."""
+        """Delete selected activities."""
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Please select activities to delete."))
+            self.show_warning_message(self.tr("Selection Required"), 
+                                   self.tr("Please select activities to delete."))
             return
 
-        for row in selected_rows:
-            activity_name = self.table.item(row.row(), 1).text()
-            try:
-                subprocess.run(f'schtasks /delete /tn "{activity_name}" /f', shell=True)
-            except Exception as e:
-                QMessageBox.critical(self, self.tr("Error"), self.tr(f"Error deleting activity {activity_name}: {e}"))
-
-        QMessageBox.information(self, self.tr("Success"), self.tr("Selected activities deleted successfully!"))
-        self.load_activities()
+        reply = QMessageBox.question(
+            self,
+            self.tr("Confirm Deletion"),
+            self.tr(f"Are you sure you want to delete {len(selected_rows)} selected activities?"),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
         
+        if reply == QMessageBox.Yes:
+            for row in selected_rows:
+                activity_name = self.table.item(row.row(), 1).text()
+                try:
+                    subprocess.run(f'schtasks /delete /tn "{activity_name}" /f', shell=True)
+                except Exception as e:
+                    self.show_error_message(self.tr("Deletion Error"), 
+                                         self.tr(f"Error deleting activity {activity_name}: {e}"))
+
+            self.show_success_message(self.tr("Success"), 
+                                   self.tr("Selected activities deleted successfully!"))
+            self.load_activities()
+
+    def run_activity_now(self, name):
+        """Run the selected activity immediately."""
+        try:
+            subprocess.run(f'schtasks /run /tn "{name}"', shell=True)
+            self.show_success_message(self.tr("Success"), 
+                                   self.tr(f"Activity '{name}' started successfully!"))
+        except Exception as e:
+            self.show_error_message(self.tr("Execution Error"), 
+                                 self.tr(f"Error running activity: {e}"))
+
+    def get_exe_files(self):
+        """Get list of executable files from tools folder."""
+        folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
+        return [os.path.splitext(f)[0] for f in os.listdir(folder_path) if f.endswith(".exe")]
+
+    def get_tools_folder(self):
+        """Get path to tools folder."""
+        return os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
+
+    def show_error_message(self, title, message):
+        """Show styled error message."""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                font-size: 14px;
+            }
+            QLabel {
+                color: #2c3e50;
+            }
+        """)
+        msg.exec_()
+
+    def show_warning_message(self, title, message):
+        """Show styled warning message."""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                font-size: 14px;
+            }
+            QLabel {
+                color: #2c3e50;
+            }
+        """)
+        msg.exec_()
+
+    def show_success_message(self, title, message):
+        """Show styled success message."""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                font-size: 14px;
+            }
+            QLabel {
+                color: #2c3e50;
+            }
+        """)
+        msg.exec_()
+
+    def show_info_message(self, title, message):
+        """Show styled information message."""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+                font-size: 14px;
+            }
+            QLabel {
+                color: #2c3e50;
+            }
+        """)
+        msg.exec_()
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
+    
+    # Set application style and palette
+    app.setStyle("Fusion")
+    
+    palette = QtGui.QPalette()
+    palette.setColor(QtGui.QPalette.Window, QColor(245, 245, 245))
+    palette.setColor(QtGui.QPalette.WindowText, QColor(44, 62, 80))
+    palette.setColor(QtGui.QPalette.Base, QColor(255, 255, 255))
+    palette.setColor(QtGui.QPalette.AlternateBase, QColor(240, 248, 255))
+    palette.setColor(QtGui.QPalette.ToolTipBase, QColor(255, 255, 255))
+    palette.setColor(QtGui.QPalette.ToolTipText, QColor(44, 62, 80))
+    palette.setColor(QtGui.QPalette.Text, QColor(44, 62, 80))
+    palette.setColor(QtGui.QPalette.Button, QColor(52, 152, 219))
+    palette.setColor(QtGui.QPalette.ButtonText, QColor(255, 255, 255))
+    palette.setColor(QtGui.QPalette.BrightText, QColor(255, 0, 0))
+    palette.setColor(QtGui.QPalette.Highlight, QColor(52, 152, 219))
+    palette.setColor(QtGui.QPalette.HighlightedText, QColor(255, 255, 255))
+    app.setPalette(palette)
+    
     window = Activite()
     window.show()
     sys.exit(app.exec_())

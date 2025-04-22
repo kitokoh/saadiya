@@ -219,7 +219,7 @@ class DatabaseManager:
         ''')
         self.conn.commit()
         
-    def initialize_default_data(self):
+    def initialize_default_data1(self):
         cursor = self.conn.cursor()
         
         # Check if database is empty
@@ -283,6 +283,105 @@ class DatabaseManager:
                 
                 tag_objects = [(tag, "#858796") for tag in tags]
                 
+                self.add_link(
+                    title=title,
+                    url=url,
+                    category_id=category_id,
+                    username=username,
+                    password=password,
+                    favorite=favorite,
+                    tags=tag_objects
+                )
+    def initialize_default_data(self):
+        cursor = self.conn.cursor()
+
+        # Check if database is empty
+        cursor.execute('SELECT COUNT(*) FROM categories')
+        if cursor.fetchone()[0] == 0:
+            # Catégories enrichies pour un commerçant international
+            categories = [
+                ("Business Directories", "#4e73df"),
+                ("Import/Export Tools", "#1cc88a"),
+                ("Marketplaces", "#f6c23e"),
+                ("Logistics & Tracking", "#36b9cc"),
+                ("Market Research", "#6f42c1"),
+                ("Forums & Communities", "#e74a3b"),
+                ("Advertising Tools", "#fd7e14"),
+                ("Payment Solutions", "#20c997"),
+                ("Company Registers", "#0dcaf0"),
+                ("Legal & Compliance", "#6610f2")
+            ]
+
+            for name, color in categories:
+                self.add_category(name, color)
+
+            # Liens utiles par catégorie
+            default_links = [
+                # Business Directories
+                ("Europages", "https://www.europages.com", None, None, False, "Business Directories", ["b2b", "directory"]),
+                ("Kompass", "https://www.kompass.com", None, None, False, "Business Directories", ["b2b", "directory"]),
+                ("Yellow Pages", "https://www.yellowpages.com", None, None, False, "Business Directories", ["contacts", "local"]),
+                ("Pages Jaunes (France)", "https://www.pagesjaunes.fr", None, None, False, "Business Directories", ["entreprises", "local"]),
+
+                # Import/Export Tools
+                ("Trademap", "https://www.trademap.org", None, None, True, "Import/Export Tools", ["data", "export"]),
+                ("Alibaba", "https://www.alibaba.com", None, None, False, "Import/Export Tools", ["supplier", "china"]),
+                ("Aliexpress", "https://www.aliexpress.com", None, None, False, "Import/Export Tools", ["china", "retail"]),
+                ("Global Sources", "https://www.globalsources.com", None, None, False, "Import/Export Tools", ["supplier", "global"]),
+
+                # Marketplaces
+                ("Amazon Seller Central", "https://sellercentral.amazon.com", None, None, True, "Marketplaces", ["sales", "ecommerce"]),
+                ("eBay Seller Center", "https://www.ebay.com/sellercenter", None, None, False, "Marketplaces", ["marketplace", "sales"]),
+                ("Trendyol Partner", "https://partner.trendyol.com", None, None, False, "Marketplaces", ["turkey", "marketplace"]),
+                ("Hepsiburada Business", "https://www.hepsiburada.com", None, None, False, "Marketplaces", ["turkey", "ecommerce"]),
+
+                # Logistics & Tracking
+                ("Aramex Tracking", "https://www.aramex.com/track/shipments", None, None, False, "Logistics & Tracking", ["cargo", "tracking"]),
+                ("DHL Express", "https://www.dhl.com", None, None, False, "Logistics & Tracking", ["logistics", "shipment"]),
+                ("FedEx", "https://www.fedex.com", None, None, False, "Logistics & Tracking", ["delivery", "tracking"]),
+                ("CargoX", "https://cargox.digital", None, None, False, "Logistics & Tracking", ["blockchain", "logistics"]),
+
+                # Market Research
+                ("Market Access Map", "https://macmap.org", None, None, True, "Market Research", ["tariffs", "barriers"]),
+                ("World Bank WITS", "https://wits.worldbank.org", None, None, False, "Market Research", ["data", "trade"]),
+                ("OECD Trade", "https://data.oecd.org/trade.htm", None, None, False, "Market Research", ["stats", "international"]),
+                ("UN Comtrade", "https://comtrade.un.org", None, None, False, "Market Research", ["data", "imports"]),
+
+                # Forums & Communities
+                ("Reddit - Exporting", "https://www.reddit.com/r/Exporting/", None, None, False, "Forums & Communities", ["forum", "discussion"]),
+                ("Quora - International Trade", "https://www.quora.com/topic/International-Trade", None, None, False, "Forums & Communities", ["questions", "answers"]),
+                ("Exporters India Forum", "https://www.exportersindia.com/forums/", None, None, False, "Forums & Communities", ["network", "business"]),
+                ("LinkedIn Trade Groups", "https://www.linkedin.com/groups/1796788/", None, None, False, "Forums & Communities", ["professional", "network"]),
+
+                # Advertising Tools
+                ("Google Ads", "https://ads.google.com", None, None, True, "Advertising Tools", ["ads", "google"]),
+                ("Meta Business Suite", "https://business.facebook.com", None, None, True, "Advertising Tools", ["facebook", "ads"]),
+                ("TikTok Ads", "https://ads.tiktok.com", None, None, False, "Advertising Tools", ["tiktok", "marketing"]),
+                ("LinkedIn Ads", "https://www.linkedin.com/ad/start/", None, None, False, "Advertising Tools", ["linkedin", "ads"]),
+
+                # Payment Solutions
+                ("PayPal Business", "https://www.paypal.com/business", None, None, False, "Payment Solutions", ["payment", "global"]),
+                ("Wise Business", "https://wise.com/business", None, None, False, "Payment Solutions", ["bank", "transfer"]),
+                ("Payoneer", "https://www.payoneer.com", None, None, False, "Payment Solutions", ["payment", "freelance"]),
+                ("Stripe", "https://stripe.com", None, None, False, "Payment Solutions", ["payment", "ecommerce"]),
+
+                # Company Registers
+                ("Turkey MERSIS", "https://mersis.gtb.gov.tr", None, None, False, "Company Registers", ["turkey", "registry"]),
+                ("Infogreffe (France)", "https://www.infogreffe.fr", None, None, False, "Company Registers", ["france", "legal"]),
+                ("UK Companies House", "https://www.gov.uk/get-information-about-a-company", None, None, False, "Company Registers", ["uk", "registry"]),
+                ("OpenCorporates", "https://opencorporates.com", None, None, False, "Company Registers", ["global", "company"]),
+
+                # Legal & Compliance
+                ("TAREKS (Turkey)", "https://uygulama.tarimorman.gov.tr/TAREKS", None, None, False, "Legal & Compliance", ["export", "control"]),
+                ("EUR-Lex", "https://eur-lex.europa.eu", None, None, False, "Legal & Compliance", ["eu", "regulations"]),
+                ("US Customs Info", "https://www.cbp.gov", None, None, False, "Legal & Compliance", ["usa", "customs"]),
+                ("WTO", "https://www.wto.org", None, None, False, "Legal & Compliance", ["international", "trade"])
+            ]
+
+            for title, url, username, password, favorite, category, tags in default_links:
+                cursor.execute('SELECT id FROM categories WHERE name = ?', (category,))
+                category_id = cursor.fetchone()[0]
+                tag_objects = [(tag, "#858796") for tag in tags]
                 self.add_link(
                     title=title,
                     url=url,

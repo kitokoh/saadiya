@@ -335,6 +335,8 @@ class MediaManager:
         conn.close()
         return count > 0
 
+
+
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem,
     QComboBox, QHeaderView, QAbstractItemView, QMessageBox, QFileDialog, QMenu, QAction
