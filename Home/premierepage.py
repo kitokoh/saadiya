@@ -687,10 +687,10 @@ class MainWindow1(QMainWindow):
                 border: none;
             }
         """)
-        # from promptes.promptmarketing import MarketingAIAnalyzer
+        from promptes.promptmarketing import MarketingAIAnalyzer
 
         # # Crée une instance du widget personnalisé
-        # analyzer_widget = MarketingAIAnalyzer()
+        analyzer_widget = MarketingAIAnalyzer()
 
         # Crée une zone de défilement si le contenu déborde
         scroll_area = QScrollArea()
@@ -716,7 +716,7 @@ class MainWindow1(QMainWindow):
         """)
 
         # Ajoute le widget à l'intérieur de la zone scrollable
-        # scroll_area.setWidget(analyzer_widget)
+        scroll_area.setWidget(analyzer_widget)
 
         # Layout pour le conteneur transparent
         container_layout = QVBoxLayout(prompt_container)
