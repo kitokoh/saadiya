@@ -1690,7 +1690,7 @@ class InstallerPage(QWidget):
         from Installsweb.tryton_installer import TrytonInstaller
         from Installsweb.axelor_installer import AxelorInstaller
         from Installsweb.dolibarr_installer import DolibarrInstaller
-        from Installsweb.mayan import MayanInstaller  # Ajoutez cette ligne
+        from Installsweb.mayan import MayanInstallerDialog  # Ajoutez cette ligne
 
 
 
@@ -1716,7 +1716,7 @@ class InstallerPage(QWidget):
                 installer = DolibarrInstaller(self)
                 installer.exec_()
             elif app_name == "Mayan EDMS":  # Ajoutez cette condition
-                installer = MayanInstaller(self)
+                installer = MayanInstallerDialog(self)
                 installer.exec_()
             else:
                 raise ValueError("Application inconnue")

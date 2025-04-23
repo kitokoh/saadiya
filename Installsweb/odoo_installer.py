@@ -3,10 +3,10 @@ import os
 import subprocess
 import platform
 import webbrowser
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                            QLabel, QPushButton, QLineEdit, QComboBox, QCheckBox, 
-                            QGroupBox, QProgressBar, QTabWidget, QFileDialog, QMessageBox,
-                            QTextEdit, QSpinBox, QFormLayout)
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
+                            QLineEdit, QComboBox, QCheckBox, QGroupBox, QProgressBar, 
+                            QTabWidget, QFileDialog, QMessageBox, QTextEdit, QSpinBox, 
+                            QFormLayout, QApplication)
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QPalette
 
@@ -296,87 +296,123 @@ WantedBy=multi-user.target
         except:
             return False
 
-class OdooInstallerApp(QMainWindow):
-    def __init__(self):
-        super().__init__()
+class InstallerDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Odoo One-Click Installer")
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(900, 700)
         
         # Set application icon
         self.setWindowIcon(QIcon.fromTheme("applications-office"))
         
-        # Set style
+        # Modern style
         self.setStyleSheet("""
-            QMainWindow {
-                background-color: #f5f5f5;
+            QDialog {
+                background-color: #f8f9fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
             QGroupBox {
-                border: 1px solid #ddd;
-                border-radius: 5px;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
                 margin-top: 10px;
                 padding-top: 15px;
+                background-color: white;
             }
             QGroupBox::title {
                 subcontrol-origin: margin;
                 left: 10px;
                 padding: 0 3px;
+                color: #495057;
+                font-weight: bold;
             }
             QPushButton {
-                background-color: #4CAF50;
+                background-color: #007bff;
                 border: none;
                 color: white;
                 padding: 8px 16px;
                 text-align: center;
-                text-decoration: none;
                 font-size: 14px;
                 margin: 4px 2px;
                 border-radius: 4px;
+                min-width: 80px;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                background-color: #0069d9;
             }
             QPushButton:disabled {
                 background-color: #cccccc;
             }
+            QPushButton#installButton {
+                background-color: #28a745;
+                font-size: 16px;
+                padding: 10px 24px;
+            }
+            QPushButton#installButton:hover {
+                background-color: #218838;
+            }
             QLineEdit, QComboBox, QSpinBox {
-                padding: 5px;
-                border: 1px solid #ddd;
+                padding: 8px;
+                border: 1px solid #ced4da;
                 border-radius: 4px;
+                background-color: white;
+            }
+            QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+                border: 1px solid #80bdff;
+                outline: none;
             }
             QProgressBar {
-                border: 1px solid #ddd;
+                border: 1px solid #dee2e6;
                 border-radius: 4px;
                 text-align: center;
+                height: 20px;
             }
             QProgressBar::chunk {
-                background-color: #4CAF50;
+                background-color: #28a745;
                 width: 10px;
             }
             QTabWidget::pane {
-                border: 1px solid #ddd;
+                border: 1px solid #dee2e6;
                 border-radius: 4px;
                 padding: 5px;
+                background: white;
+                margin-top: 5px;
             }
             QTabBar::tab {
-                padding: 8px;
-                background: #e1e1e1;
-                border: 1px solid #ddd;
+                padding: 8px 12px;
+                background: #e9ecef;
+                border: 1px solid #dee2e6;
                 border-bottom: none;
                 border-top-left-radius: 4px;
                 border-top-right-radius: 4px;
+                margin-right: 2px;
             }
             QTabBar::tab:selected {
-                background: #f5f5f5;
-                border-bottom: 1px solid #f5f5f5;
+                background: white;
+                border-bottom: 1px solid white;
+                margin-bottom: -1px;
+            }
+            QTextEdit {
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+                padding: 5px;
+                background-color: white;
+            }
+            QLabel {
+                color: #495057;
+            }
+            QLabel#titleLabel {
+                font-size: 24px;
+                font-weight: bold;
+                color: #2c3e50;
+            }
+            QLabel#statusLabel {
+                font-style: italic;
+                color: #6c757d;
             }
         """)
         
-        # Central widget
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        
         # Main layout
-        self.main_layout = QVBoxLayout(self.central_widget)
+        self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
         
@@ -401,20 +437,14 @@ class OdooInstallerApp(QMainWindow):
     def create_header(self):
         header_layout = QHBoxLayout()
         
-        # Logo
-        logo_label = QLabel()
-        pixmap = QPixmap(":/images/odoo_logo.png").scaled(120, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        logo_label.setPixmap(pixmap)
-        header_layout.addWidget(logo_label)
-        
         # Title
         title_label = QLabel("Odoo One-Click Installer")
-        title_label.setStyleSheet("font-size: 24px; font-weight: bold; color: #714B67;")
+        title_label.setObjectName("titleLabel")
         header_layout.addWidget(title_label, 1, Qt.AlignCenter)
         
         # Version
         version_label = QLabel("v1.0")
-        version_label.setStyleSheet("font-size: 14px; color: #888;")
+        version_label.setStyleSheet("font-size: 14px; color: #6c757d;")
         header_layout.addWidget(version_label, 0, Qt.AlignRight | Qt.AlignTop)
         
         self.main_layout.addLayout(header_layout)
@@ -429,6 +459,7 @@ class OdooInstallerApp(QMainWindow):
         # Odoo Version Group
         version_group = QGroupBox("Odoo Version")
         version_layout = QFormLayout()
+        version_layout.setRowWrapPolicy(QFormLayout.WrapAllRows)
         
         self.version_combo = QComboBox()
         self.version_combo.addItems(["16.0", "15.0", "14.0", "13.0"])
@@ -455,6 +486,7 @@ class OdooInstallerApp(QMainWindow):
         # Database Configuration Group
         db_group = QGroupBox("Database Configuration")
         db_layout = QFormLayout()
+        db_layout.setRowWrapPolicy(QFormLayout.WrapAllRows)
         
         self.db_name_edit = QLineEdit("odoo")
         self.db_name_edit.setPlaceholderText("Database name")
@@ -498,14 +530,16 @@ class OdooInstallerApp(QMainWindow):
         layout.addWidget(self.progress_bar)
         
         self.status_label = QLabel("Ready to install")
-        self.status_label.setStyleSheet("font-style: italic; color: #666;")
+        self.status_label.setObjectName("statusLabel")
         layout.addWidget(self.status_label)
         
         # Install button
         self.install_btn = QPushButton("Install Odoo")
-        self.install_btn.setStyleSheet("font-size: 16px; padding: 10px;")
+        self.install_btn.setObjectName("installButton")
         self.install_btn.clicked.connect(self.start_installation)
         layout.addWidget(self.install_btn, 0, Qt.AlignCenter)
+        
+        layout.addStretch()
     
     def create_configuration_tab(self):
         tab = QWidget()
@@ -582,7 +616,7 @@ class OdooInstallerApp(QMainWindow):
         
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
-        self.log_text.setStyleSheet("font-family: monospace;")
+        self.log_text.setStyleSheet("font-family: 'Courier New', monospace;")
         layout.addWidget(self.log_text)
         
         # Log controls
@@ -605,22 +639,22 @@ class OdooInstallerApp(QMainWindow):
         
         # System info
         system_info = QLabel(f"System: {platform.system()} {platform.release()}")
-        system_info.setStyleSheet("font-size: 12px; color: #888;")
+        system_info.setStyleSheet("font-size: 12px; color: #6c757d;")
         footer_layout.addWidget(system_info)
         
         # Links
         links_layout = QHBoxLayout()
         links_layout.setSpacing(15)
         
-        odoo_link = QLabel('<a href="https://www.odoo.com">Odoo Website</a>')
+        odoo_link = QLabel('<a href="https://www.odoo.com" style="color: #007bff; text-decoration: none;">Odoo Website</a>')
         odoo_link.setOpenExternalLinks(True)
         links_layout.addWidget(odoo_link)
         
-        docs_link = QLabel('<a href="https://www.odoo.com/documentation">Documentation</a>')
+        docs_link = QLabel('<a href="https://www.odoo.com/documentation" style="color: #007bff; text-decoration: none;">Documentation</a>')
         docs_link.setOpenExternalLinks(True)
         links_layout.addWidget(docs_link)
         
-        forum_link = QLabel('<a href="https://www.odoo.com/forum">Community Forum</a>')
+        forum_link = QLabel('<a href="https://www.odoo.com/forum" style="color: #007bff; text-decoration: none;">Community Forum</a>')
         forum_link.setOpenExternalLinks(True)
         links_layout.addWidget(forum_link)
         
@@ -727,8 +761,8 @@ if __name__ == "__main__":
     # Set application style
     app.setStyle('Fusion')
     
-    # Create and show main window
-    window = OdooInstallerApp()
-    window.show()
+    # Create and show dialog
+    dialog = InstallerDialog()
+    dialog.exec_()
     
     sys.exit(app.exec_())

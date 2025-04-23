@@ -36,6 +36,8 @@ Fonctionnalités principales :
 6. Langues :  
     L’application peut supporter plusieurs langues (anglais, français, arabe, turc).
 
+l application doit avoir une pagne nomme reote ou en cliquant dessus on aurratout simplement un remote controle 
+
 
 
 

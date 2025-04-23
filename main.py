@@ -1153,6 +1153,28 @@ class Browser(QMainWindow):
 
         # Add the existing instance to the new tab
         self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+   
+    def open_grups_window(self):
+        from ModulesUI.whasapping.group_manager import ContactTable
+
+        """Open a tab with the content of the 'SettingsWidget' class."""
+        tab_name = self.tr("contacts")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'contacts') or self.contacts is None:
+            self.contacts = ContactTable(parent=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+   
+      
     def add_media_page(self):
         from facebooksmodule.media_manager import MediaTable
 
@@ -1349,15 +1371,19 @@ class Browser(QMainWindow):
                 ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
                 # ("🕸️", self.tr("Interconnexion"), "connect", self.add_on_page, self.tr("interconnect Management"), []),
 
+                ("👥", self.tr("Mes Contacts"), "contact", self.open_contacts_window, self.tr("liste de mes contacts"), []),
+                 ("🌍", self.tr("Grups"), "grups", self.open_grups_window, self.tr("liste de mes grops"), []),
 
             ]),
 
             # Settings section (dynamic)
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
                 # ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
+                ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("liste de mes contacts"), []),
+                 ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("liste de mes grops"), []),
+                 ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("liste de mes grops"), []),
+                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
-                ("👥", self.tr("Mes Contacts"), "contact", self.open_contacts_window, self.tr("liste de mes contacts"), []),
-                # ("🌍", self.tr("Grups"), "grups", self.open_settings_window, self.tr("liste de mes grops"), []),
 
                 ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
                     ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
@@ -1366,17 +1392,21 @@ class Browser(QMainWindow):
                     ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
                     ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
                 ]),
-                ("🌐", self.tr("Connection"), "online_connect", None, self.tr("Remote connection settings"), [
-                    ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
-                    # ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
-                    # ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
-                    # ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
-                    # ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
-                    # ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
+                # ("🌐", self.tr("Connection"), "online_connect", None, self.tr("Remote connection settings"), [
+                #     ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
+                #     # ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
+                #     # ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
+                #     # ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
+                #     # ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
+                #     # ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
                 
-                ])
+                # ])
             ]),
-
+            # Upgrade section (fixed)
+            ("💎", self.tr("Upgrade"), "upgrade", None, self.tr("Upgrade options"), [
+                ("✨", self.tr("IA BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
+                ("🏛️", self.tr("Licences"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
+            ]),
             # Data section (dynamic)
             ("📊", self.tr("Data"), "data", None, self.tr("Data management"), [
                 ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
@@ -1402,11 +1432,7 @@ class Browser(QMainWindow):
                 ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
             ]),
 
-            # Upgrade section (fixed)
-            ("💎", self.tr("Upgrade"), "upgrade", None, self.tr("Upgrade options"), [
-                ("✨", self.tr("Features"), "features", self.open_upgrade_window1, self.tr("Additional features"), []),
-                ("🏛️", self.tr("Enterprise"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
-            ]),
+
         ]
 
         self.menu_buttons = []
@@ -1691,6 +1717,123 @@ class Browser(QMainWindow):
         self.layout().addWidget(self.side_menu)
         self.is_menu_expanded = False
         self.is_user_menu_expanded = False
+    def open_management(self):
+        tab_name = self.tr("Management")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'management') or self.management is None:
+            from Home.homeManagement import MainDashboard
+            self.management = MainDashboard()
+
+        self.add_custom_tab(self.management, tab_name, "resources/icons/management.ico")
+    def open_marketing(self):
+        tab_name = self.tr("Marketing")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'marketing') or self.marketing is None:
+            from Home.login import Nova360ProApp
+            self.marketing = Nova360ProApp(main_app=self)
+
+        self.add_custom_tab(self.marketing, tab_name, "resources/icons/marketing.ico")
+
+        
+    def open_marketing1(self):
+        tab_name = self.tr("Marketing")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Loading UI
+        loading_label = QLabel(self.tr("Loading Marketing..."))
+        loading_label.setAlignment(Qt.AlignCenter)
+        self.add_custom_tab(loading_label, tab_name, "resources/icons/marketing.ico")
+
+        progress_dialog = QProgressDialog(self.tr("Loading..."), self.tr("Cancel"), 0, 0, self)
+        progress_dialog.setCancelButton(None)
+        progress_dialog.setWindowTitle(self.tr("Loading Marketing"))
+        progress_dialog.setWindowModality(Qt.ApplicationModal)
+        progress_dialog.show()
+
+    def open_management1(self):
+        tab_name = self.tr("Management")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        loading_label = QLabel(self.tr("Loading Management..."))
+        loading_label.setAlignment(Qt.AlignCenter)
+        self.add_custom_tab(loading_label, tab_name, "resources/icons/management.ico")
+
+        progress_dialog = QProgressDialog(self.tr("Loading..."), self.tr("Cancel"), 0, 0, self)
+        progress_dialog.setCancelButton(None)
+        progress_dialog.setWindowTitle(self.tr("Loading Management"))
+        progress_dialog.setWindowModality(Qt.ApplicationModal)
+        progress_dialog.show()
+
+        self.loader_thread = LoaderThread(main_app=self)
+
+        def load_management():
+            if not hasattr(self, 'management') or self.management is None:
+                from Home.homeManagement import MainDashboard
+                self.management = MainDashboard()
+            self.update_tab_content(tab_name, self.management, progress_dialog)
+
+        self.loader_thread.finished.connect(load_management)
+        self.loader_thread.start()
+    def open_finance(self):
+        tab_name = self.tr("Finance")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'finance') or self.finance is None:
+            from finance.finance import CryptoStrategyApp
+            self.finance = CryptoStrategyApp(parent=self)
+
+        self.add_custom_tab(self.finance, tab_name, "resources/icons/finance.ico")
+
+    def open_finance1(self):
+        tab_name = self.tr("Finance")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        loading_label = QLabel(self.tr("Loading Finance..."))
+        loading_label.setAlignment(Qt.AlignCenter)
+        self.add_custom_tab(loading_label, tab_name, "resources/icons/finance.ico")
+
+        progress_dialog = QProgressDialog(self.tr("Loading..."), self.tr("Cancel"), 0, 0, self)
+        progress_dialog.setCancelButton(None)
+        progress_dialog.setWindowTitle(self.tr("Loading Finance"))
+        progress_dialog.setWindowModality(Qt.ApplicationModal)
+        progress_dialog.show()
+
+        self.loader_thread = LoaderThread(main_app=self)
+
+        def load_finance():
+            if not hasattr(self, 'finance') or self.finance is None:
+                from finance.finance import CryptoStrategyApp
+                self.finance = CryptoStrategyApp(parent=self)
+            self.update_tab_content(tab_name, self.finance, progress_dialog)
+
+        self.loader_thread.finished.connect(load_finance)
+        self.loader_thread.start()
 
     def get_button_style(self, button_type):
         """Return style sheet for window control buttons"""

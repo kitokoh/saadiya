@@ -6,7 +6,7 @@ import requests
 import zipfile
 import shutil
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton,
+    QDialog, QVBoxLayout, QWidget, QPushButton,
     QProgressBar, QLabel, QMessageBox, QHBoxLayout, QFrame,
     QCheckBox, QGroupBox, QTabWidget, QTextEdit, QComboBox,
     QStackedWidget, QSizePolicy, QSpacerItem, QFileDialog,
@@ -27,6 +27,8 @@ import ctypes
 import winreg
 from packaging import version
 import subprocess
+from PyQt5.QtWidgets import QApplication, QWidget
+
 class InstallerThread(QThread):
     progress_signal = pyqtSignal(int, str)
     finished_signal = pyqtSignal(bool, str)
@@ -477,39 +479,6 @@ class AnimatedButton(QPushButton):
         self._animation.setEndValue(self.geometry().adjusted(-5, -3, 5, 3))
         self._shadow_anim.setStartValue(QPoint(0, 3))
         self._shadow_anim.setEndValue(QPoint(0, 6))
-        self.log_signal.emit(f"⚠ Erreur nettoyage fichiers temporaires: {str(e)}")
-
-    def stop(self):
-        self._is_running = False
-        self.quit()
-
-class AnimatedButton(QPushButton):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._animation = QPropertyAnimation(self, b"geometry")
-        self._animation.setEasingCurve(QEasingCurve.OutQuad)
-        self._animation.setDuration(200)
-
-        self._shadow = QGraphicsDropShadowEffect()
-        self._shadow.setBlurRadius(10)
-        self._shadow.setColor(QColor(0, 0, 0, 150))
-        self._shadow.setOffset(0, 3)
-        self.setGraphicsEffect(self._shadow)
-
-        self._shadow_anim = QPropertyAnimation(self._shadow, b"offset")
-        self._shadow_anim.setEasingCurve(QEasingCurve.OutQuad)
-        self._shadow_anim.setDuration(200)
-
-        self._group = QParallelAnimationGroup()
-        self._group.addAnimation(self._animation)
-        self._group.addAnimation(self._shadow_anim)
-
-    def enterEvent(self, event):
-        self._group.stop()
-        self._animation.setStartValue(self.geometry())
-        self._animation.setEndValue(self.geometry().adjusted(-5, -3, 5, 3))
-        self._shadow_anim.setStartValue(QPoint(0, 3))
-        self._shadow_anim.setEndValue(QPoint(0, 6))
         self._group.start()
         super().enterEvent(event)
 
@@ -540,9 +509,9 @@ class GradientLabel(QLabel):
         painter.setPen(QColor("#ffffff"))
         painter.drawText(self.rect(), Qt.AlignCenter, self.text())
 
-class MayanInstaller(QMainWindow):
-    def __init__(self):
-        super().__init__()
+class MayanInstallerDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Installateur Mayan EDMS Pro")
         self.setWindowIcon(QIcon(self.create_icon()))
         self.setMinimumSize(1000, 750)
@@ -600,7 +569,8 @@ class MayanInstaller(QMainWindow):
 
     def setup_ui(self):
         main_widget = QWidget()
-        self.setCentralWidget(main_widget)
+        self.setLayout(QVBoxLayout())
+        self.layout().addWidget(main_widget)
 
         # Layout principal avec fond dégradé
         main_layout = QVBoxLayout()
@@ -658,20 +628,9 @@ class MayanInstaller(QMainWindow):
         title_font.setBold(True)
         title.setFont(title_font)
 
-        # Boutons de la barre de titre
-        minimize_btn = QPushButton("─")
-        minimize_btn.setFixedSize(30, 30)
-        minimize_btn.clicked.connect(self.showMinimized)
-
-        close_btn = QPushButton("✕")
-        close_btn.setFixedSize(30, 30)
-        close_btn.clicked.connect(self.close)
-
         title_layout.addWidget(logo)
         title_layout.addWidget(title)
         title_layout.addStretch()
-        title_layout.addWidget(minimize_btn)
-        title_layout.addWidget(close_btn)
         title_bar.setLayout(title_layout)
 
         main_layout.addWidget(title_bar)
@@ -774,8 +733,104 @@ class MayanInstaller(QMainWindow):
         layout.addWidget(tab_widget)
         page.setLayout(layout)
         self.stacked_widget.addWidget(page)
-
     def create_install_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(20)
+        
+        # Options d'installation
+        options_group = QGroupBox("Options d'installation")
+        options_group.setObjectName("optionsGroup")
+        options_layout = QVBoxLayout()
+        
+        # Chemin d'installation
+        path_layout = QHBoxLayout()
+        path_label = QLabel("Répertoire d'installation:")
+        self.path_edit = QLabel(self.install_options['install_path'])
+        path_btn = QPushButton("Parcourir...")
+        path_btn.setFixedWidth(100)
+        path_btn.clicked.connect(self.select_install_path)
+        
+        path_layout.addWidget(path_label)
+        path_layout.addWidget(self.path_edit)
+        path_layout.addWidget(path_btn)
+        
+        # Cases à cocher
+        self.venv_check = QCheckBox("Créer un environnement virtuel (recommandé)")
+        self.venv_check.setChecked(self.install_options['create_venv'])
+        self.venv_check.stateChanged.connect(lambda: self.update_option('create_venv', self.venv_check.isChecked()))
+        
+        self.deps_check = QCheckBox("Installer les dépendances système")
+        self.deps_check.setChecked(self.install_options['install_deps'])
+        self.deps_check.stateChanged.connect(lambda: self.update_option('install_deps', self.deps_check.isChecked()))
+        
+        self.data_dir_check = QCheckBox("Créer le répertoire de données")
+        self.data_dir_check.setChecked(self.install_options['create_data_dir'])
+        self.data_dir_check.stateChanged.connect(lambda: self.update_option('create_data_dir', self.data_dir_check.isChecked()))
+        
+        self.launch_check = QCheckBox("Lancer Mayan EDMS après l'installation")
+        self.launch_check.setChecked(self.install_options['launch_after'])
+        self.launch_check.stateChanged.connect(lambda: self.update_option('launch_after', self.launch_check.isChecked()))
+        
+        self.sample_docs_check = QCheckBox("Télécharger des documents exemples")
+        self.sample_docs_check.setChecked(self.install_options['download_sample_docs'])
+        self.sample_docs_check.stateChanged.connect(lambda: self.update_option('download_sample_docs', self.sample_docs_check.isChecked()))
+        
+        self.desktop_icon_check = QCheckBox("Créer une icône sur le bureau")
+        self.desktop_icon_check.setChecked(self.install_options['create_desktop_icon'])
+        self.desktop_icon_check.stateChanged.connect(lambda: self.update_option('create_desktop_icon', self.desktop_icon_check.isChecked()))
+        
+        # Ajout des options
+        options_layout.addLayout(path_layout)
+        options_layout.addWidget(self.venv_check)
+        options_layout.addWidget(self.deps_check)
+        options_layout.addWidget(self.data_dir_check)
+        options_layout.addWidget(self.launch_check)
+        options_layout.addWidget(self.sample_docs_check)
+        options_layout.addWidget(self.desktop_icon_check)
+        options_group.setLayout(options_layout)
+        
+        # Barre de progression
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setTextVisible(True)
+        self.progress_bar.setObjectName("mainProgress")
+        
+        # Animation de progression
+        self.progress_animation = QPropertyAnimation(self.progress_bar, b"value")
+        self.progress_animation.setEasingCurve(QEasingCurve.OutQuad)
+        
+        # Label d'état
+        self.status_label = QLabel("Prêt à installer")
+        self.status_label.setAlignment(Qt.AlignCenter)
+        self.status_label.setWordWrap(True)
+        self.status_label.setObjectName("statusLabel")
+        
+        # Boutons
+        button_layout = QHBoxLayout()
+        self.install_btn = AnimatedButton("Commencer l'installation")
+        self.install_btn.setIcon(QIcon.fromTheme("system-run"))
+        self.install_btn.clicked.connect(self.start_installation)
+        
+        self.cancel_btn = AnimatedButton("Annuler")
+        self.cancel_btn.setIcon(QIcon.fromTheme("process-stop"))
+        self.cancel_btn.clicked.connect(self.cancel_installation)
+        self.cancel_btn.setEnabled(False)
+        
+        button_layout.addWidget(self.install_btn)
+        button_layout.addWidget(self.cancel_btn)
+        
+        # Assemblage onglet installation
+        layout.addWidget(options_group)
+        layout.addWidget(self.status_label)
+        layout.addWidget(self.progress_bar)
+        layout.addLayout(button_layout)
+        tab.setLayout(layout)
+        
+        return tab
+    
+    def create_install_tab1(self):
         tab = QWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
@@ -852,25 +907,10 @@ class MayanInstaller(QMainWindow):
         # Boutons
         button_layout = QHBoxLayout()
         self.install_btn = AnimatedButton("Commencer l'installation")
-        self.install_btn.setIcon(QIcon.fromTheme("system-run"))
-        self.install_btn.clicked.connect(self.start_installation)
 
-        self.cancel_btn = AnimatedButton("Annuler")
-        self.cancel_btn.setIcon(QIcon.fromTheme("process-stop"))
-        self.cancel_btn.clicked.connect(self.cancel_installation)
-        self.cancel_btn.setEnabled(False)
 
-        button_layout.addWidget(self.install_btn)
-        button_layout.addWidget(self.cancel_btn)
 
-        # Assemblage onglet installation
-        layout.addWidget(options_group)
-        layout.addWidget(self.status_label)
-        layout.addWidget(self.progress_bar)
-        layout.addLayout(button_layout)
-        tab.setLayout(layout)
 
-        return tab
 
     def create_prereq_tab(self):
         tab = QWidget()
@@ -1552,6 +1592,7 @@ class MayanInstaller(QMainWindow):
 
         QTimer.singleShot(3000, lambda: webbrowser.open("http://localhost:8000"))
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -1559,7 +1600,7 @@ if __name__ == "__main__":
     apply_stylesheet(app, theme='dark_teal.xml', invert_secondary=True)
 
     # Créer et afficher la fenêtre principale
-    installer = MayanInstaller()
+    installer = MayanInstallerDialog()
 
     # Animation d'apparition
     installer.setWindowOpacity(0)
@@ -1585,3 +1626,28 @@ if __name__ == "__main__":
     group.start()
 
     sys.exit(app.exec_())
+
+
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QVBoxLayout, QWidget
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        
+        self.setWindowTitle("Mon Application")
+        self.setGeometry(100, 100, 800, 600)
+        
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        
+        layout = QVBoxLayout()
+        central_widget.setLayout(layout)
+        
+        btn = QPushButton("Ouvrir l'installateur Mayan EDMS")
+        btn.clicked.connect(self.show_installer)
+        layout.addWidget(btn)
+    
+    def show_installer(self):
+        installer = MayanInstallerDialog(self)  # self comme parent
+        installer.exec_()  # Affiche comme une modale bloquante
+        # ou installer.show() pour une fenêtre non bloquante
