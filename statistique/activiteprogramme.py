@@ -18,15 +18,25 @@ class RoundButtonDelegate(QStyledItemDelegate):
                 QPushButton {
                     background-color: #4CAF50;
                     color: white;
-                    border-radius: 15px;
-                    padding: 5px 10px;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 8px 16px;
                     font-weight: bold;
+                    font-size: 14px;
+                    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
                 }
+
                 QPushButton:hover {
                     background-color: #45a049;
                 }
+
+                QPushButton:pressed {
+                    background-color: #3e8e41;
+                    padding-top: 10px;
+                    padding-bottom: 6px;
+                }
             """)
-            
+
             # Calculate button position
             button_rect = QRectF(
                 option.rect.x() + (option.rect.width() - 100) / 2,
@@ -752,15 +762,31 @@ class Activite(QtWidgets.QWidget):
                             QPushButton {
                                 background-color: #3498db;
                                 color: white;
-                                border-radius: 15px;
-                                padding: 5px 10px;
-                                font-weight: bold;
-                                min-width: 80px;
+                                border: none;
+                                border-radius: 12px;
+                                padding: 8px 20px;
+                                font-weight: 600;
+                                font-size: 14px;
+                                min-width: 100px;
+                                transition: background-color 0.3s ease;
                             }
+
                             QPushButton:hover {
                                 background-color: #2980b9;
                             }
+
+                            QPushButton:pressed {
+                                background-color: #2471a3;
+                                padding-top: 10px;
+                                padding-bottom: 6px;
+                            }
+
+                            QPushButton:disabled {
+                                background-color: #bdc3c7;
+                                color: #ecf0f1;
+                            }
                         """)
+
                         action_button.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
                         self.table.setCellWidget(row_position, 6, action_button)
 

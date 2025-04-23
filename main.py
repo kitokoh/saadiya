@@ -248,7 +248,8 @@ class Browser(QMainWindow):
        # self.side_menu.layout().insertWidget(0, self.menu_drag_handle)
 
         # Add first tab
-        self.open_accueil_window()
+        self.open_home()
+        # self.open_accueil_window()
 
 
 
@@ -1355,24 +1356,27 @@ class Browser(QMainWindow):
         # --- Menu Items ---
         menu_items = [
             # Home (fixed)
-            ("🏠", self.tr("Home"), "home", self.open_accueil_window, self.tr("Main dashboard"), []),
+            ("🏠", self.tr("Home"), "home", self.open_home, self.tr("Main dashboard"), []),
+            # ("🏠", self.tr("Home"), "home", self.open_accueil_window, self.tr("Main dashboard"), []),
 
             # Tools section (dynamic)
             ("🧰", self.tr("Tools"), "tools", None, self.tr("Document tools"), [
-                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
+                ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
+                ("👥", self.tr("Mes Contacts"), "contact", self.open_contacts_window, self.tr("liste de mes contacts"), []),
+                ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
+
                 ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
+                 ("🌍", self.tr("Grups"), "grups", self.open_grups_window, self.tr("liste de mes grops"), []),
+
+                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
                 # ("📝", self.tr("Edit PDF"), "edit_pdf", self.open_editpdf_window, self.tr("Modify PDF documents"), []),
                 # ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
                 # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
-                ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
                 # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
                 ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("add app"), []),
                 # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
-                ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
                 # ("🕸️", self.tr("Interconnexion"), "connect", self.add_on_page, self.tr("interconnect Management"), []),
 
-                ("👥", self.tr("Mes Contacts"), "contact", self.open_contacts_window, self.tr("liste de mes contacts"), []),
-                 ("🌍", self.tr("Grups"), "grups", self.open_grups_window, self.tr("liste de mes grops"), []),
 
             ]),
 
@@ -1408,21 +1412,25 @@ class Browser(QMainWindow):
                 ("🏛️", self.tr("Licences"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
             ]),
             # Data section (dynamic)
-            ("📊", self.tr("Data"), "data", None, self.tr("Data management"), [
-                ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
-                ("📤", self.tr("Export"), "export", self.open_exports_window, self.tr("Export data"), []),
-                ("📥", self.tr("Import"), "import", self.open_imports_window, self.tr("Import data"), []),
+            ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
                 ("📝", self.tr("Prompts"), "prompts", self.open_prompts_window, self.tr("les promptes utiles"), []),
+
+                ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
                 ("📜", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("les stategies possible"), []),
-                ("🗃️", self.tr("Backup"), "backup", None, self.tr("Backup and archive options"), [
-                    ("📁", self.tr("Local ZIP Archive"), "local_zip", self.archive_to_zip, self.tr("Compress and save locally"), []),
-                    ("☁️", self.tr("Google Drive"), "gdrive", self.archive_to_gdrive, self.tr("Upload archive to Google Drive"), []),
-                    ("📦", self.tr("Dropbox"), "dropbox", self.archive_to_dropbox, self.tr("Save archive to Dropbox"), []),
-                    ("🌐", self.tr("FTP Server"), "ftp_backup", self.archive_to_ftp, self.tr("Upload archive via FTP"), []),
-                    ("🔐", self.tr("SFTP Secure"), "sftp", self.archive_to_sftp, self.tr("Secure archive via SFTP"), []),
-                    ("🗄️", self.tr("External Disk"), "external_disk", self.archive_to_external_disk, self.tr("Save to external device"), []),
-                    ("🔁", self.tr("Schedule Backup"), "schedule_backup", self.schedule_backup, self.tr("Plan automatic backups"), []),
-                ]),
+
+                # ("📤", self.tr("Export"), "export", self.open_exports_window, self.tr("Export data"), []),
+                ("📥", self.tr("Import Data"), "import", self.open_imports_window, self.tr("Import data"), []),
+                ("🗃️", self.tr("ADN Backup"), "backup", self.open_imports_window, self.tr("Bakup the adn  data of your entreprise"), []),
+
+                # ("🗃️", self.tr("Backup"), "backup", None, self.tr("Backup and archive options"), [
+                #     ("📁", self.tr("Local ZIP Archive"), "local_zip", self.archive_to_zip, self.tr("Compress and save locally"), []),
+                #     ("☁️", self.tr("Google Drive"), "gdrive", self.archive_to_gdrive, self.tr("Upload archive to Google Drive"), []),
+                #     ("📦", self.tr("Dropbox"), "dropbox", self.archive_to_dropbox, self.tr("Save archive to Dropbox"), []),
+                #     ("🌐", self.tr("FTP Server"), "ftp_backup", self.archive_to_ftp, self.tr("Upload archive via FTP"), []),
+                #     ("🔐", self.tr("SFTP Secure"), "sftp", self.archive_to_sftp, self.tr("Secure archive via SFTP"), []),
+                #     ("🗄️", self.tr("External Disk"), "external_disk", self.archive_to_external_disk, self.tr("Save to external device"), []),
+                #     ("🔁", self.tr("Schedule Backup"), "schedule_backup", self.schedule_backup, self.tr("Plan automatic backups"), []),
+                # ]),
             ]),
 
             # Support section (dynamic)
@@ -1744,7 +1752,21 @@ class Browser(QMainWindow):
 
         self.add_custom_tab(self.marketing, tab_name, "resources/icons/marketing.ico")
 
-        
+    def open_home(self):
+        tab_name = self.tr("home")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'home') or self.home is None:
+            from promptes.promptmarketing import MarketingAIAnalyzer
+            self.marketing = MarketingAIAnalyzer(parent=self)
+
+        self.add_custom_tab(self.marketing, tab_name, "resources/icons/marketing.ico")
+
+             
     def open_marketing1(self):
         tab_name = self.tr("Marketing")
 
