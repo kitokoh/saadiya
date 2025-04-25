@@ -17,6 +17,7 @@ from PyQt5.QtCore import QTimer, QPointF, Qt, QSize
 from PyQt5.QtGui import QPainter, QColor, QBrush, QRadialGradient
 import random
 import math
+from PyQt5.QtWidgets import QWidget
 
 class ParticleSystem(QWidget):
     def __init__(self, parent=None, particle_count=50):
@@ -1684,7 +1685,7 @@ class InstallerPage(QWidget):
             )
 
     def install_app(self, app_name):
-        from Installsweb.odoo_installer import OdooInstallerApp
+        from Installsweb.odoo_installer import InstallerDialog
         from Installsweb.erpnext_installer import ERPNextInstaller
         from Installsweb.flectra_installer import FlectraInstaller
         from Installsweb.tryton_installer import TrytonInstaller
@@ -1698,7 +1699,7 @@ class InstallerPage(QWidget):
 
         try:
             if app_name == "Odoo Community":
-                installer = OdooInstallerApp(self)
+                installer = InstallerDialog(self)
                 installer.exec_()
             elif app_name == "ERPNext":
                 installer = ERPNextInstaller(self)

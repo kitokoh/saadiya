@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "name": "Backup",
+    "program": "backup.exe",
+    "schedule": "Daily",
+    "time": "02:00",
+    "status": "Active"
+  },
+  {
+    "id": "2",
+    "name": "Cleanup",
+    "program": "cleanup.exe",
+    "schedule": "Mon, Wed, Fri",
+    "time": "05:00",
+    "status": "Active"
+  },
+  {
+    "id": "3",
+    "name": "Update",
+    "program": "update.exe",
+    "schedule": "Once (2023-12-25)",
+    "time": "12:00",
+    "status": "Disabled"
+  }
+]

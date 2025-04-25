@@ -9,51 +9,36 @@ from PyQt5.QtGui import QColor, QFont, QPainter, QPen, QLinearGradient
 from PyQt5.QtCore import Qt, QRectF
 import locale
 locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
-
 class RoundButtonDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         if index.column() == 6:  # Column with action buttons
-            button = QtWidgets.QPushButton("⚙️ Action")
-            button.setStyleSheet("""
-                QPushButton {
-                    background-color: #4CAF50;
-                    color: white;
-                    border-radius: 15px;
-                    padding: 5px 10px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #45a049;
-                }
-            """)
+            # Désactiver l'apparence de sélection
+            option.state &= ~QtWidgets.QStyle.State_Selected
             
-            # Calculate button position
             button_rect = QRectF(
                 option.rect.x() + (option.rect.width() - 100) / 2,
                 option.rect.y() + (option.rect.height() - 30) / 2,
                 100, 30
             )
             
-            # Draw button
             painter.save()
             painter.setRenderHint(QPainter.Antialiasing)
             
-            if option.state & QtWidgets.QStyle.State_Selected:
-                gradient = QLinearGradient(button_rect.topLeft(), button_rect.bottomLeft())
-                gradient.setColorAt(0, QColor(76, 175, 80))
-                gradient.setColorAt(1, QColor(56, 142, 60))
-                painter.setBrush(gradient)
-            else:
-                painter.setBrush(QColor(76, 175, 80))
-            
+            # Dessiner le bouton rond
+            gradient = QLinearGradient(button_rect.topLeft(), button_rect.bottomLeft())
+            gradient.setColorAt(0, QColor(76, 175, 80))
+            gradient.setColorAt(1, QColor(56, 142, 60))
+            painter.setBrush(gradient)
             painter.setPen(QPen(QColor(46, 125, 50), 1))
             painter.drawRoundedRect(button_rect, 15, 15)
             
+            # Texte du bouton
             painter.setPen(QColor(255, 255, 255))
             painter.drawText(button_rect, Qt.AlignCenter, "⚙️ Action")
             painter.restore()
         else:
             QStyledItemDelegate.paint(self, painter, option, index)
+
 
 class AddActivityDialog(QtWidgets.QDialog):
     def __init__(self, exe_files):
@@ -575,13 +560,7 @@ class Activite(QtWidgets.QWidget):
                 border: none;
                 font-size: 14px;
             }
-            QTableWidget::item {
-                padding: 8px;
-            }
-            QTableWidget::item:selected {
-                background-color: #3498db;
-                color: white;
-            }
+
             QScrollBar:vertical {
                 border: none;
                 background: #f5f5f5;
@@ -599,6 +578,13 @@ class Activite(QtWidgets.QWidget):
             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 background: none;
             }
+                QTableWidget::item:selected {
+        background-color: transparent;
+        color: inherit;
+    }
+    QTableWidget::item:selected:active {
+        background-color: transparent;
+    }
         """)
         
         self.table.horizontalHeader().setStretchLastSection(True)
@@ -749,18 +735,35 @@ class Activite(QtWidgets.QWidget):
                         # Add action button
                         action_button = QtWidgets.QPushButton(self.tr("⚙️ Action"))
                         action_button.setStyleSheet("""
-                            QPushButton {
-                                background-color: #3498db;
-                                color: white;
-                                border-radius: 15px;
-                                padding: 5px 10px;
-                                font-weight: bold;
-                                min-width: 80px;
+  
+
+                      
+
+                            QPushButton:pressed {
+                                background-color: #2471a3;
+                                padding-top: 10px;
+                                padding-bottom: 6px;
                             }
-                            QPushButton:hover {
-                                background-color: #2980b9;
+
+                            QPushButton:disabled {
+                                background-color: #bdc3c7;
+                                color: #ecf0f1;
                             }
+
+                                QPushButton {
+        background-color: #3498db;
+        color: white;
+        border-radius: 15px;
+        padding: 5px 10px;
+        font-weight: bold;
+        min-width: 80px;
+        border: none;
+    }
+    QPushButton:hover {
+        background-color: #2980b9;
+    }
                         """)
+
                         action_button.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
                         self.table.setCellWidget(row_position, 6, action_button)
 

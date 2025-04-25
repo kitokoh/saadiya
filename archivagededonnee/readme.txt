@@ -1,4 +1,13 @@
 
+ecrit moi une app pyqt permettant de verifier si une 
+cle usb est integree dans un ordinateur windows si oui alors 
+il verifie si un dossier nomee adn_leopardo + date si oui alors 
+il va le renomee en changent la date par la date et heure actuelle
+ puis copier les dossier nommer dossie1 present dans le bureau de
+  lutilisateur de meme que le dossier2 present dans downlod dansle dossier 
+  adn_leopardo de lusb si lusb nest pas detecteter alors linviter a inserrer
+   dabord une usb et si plusier usb sont detecter lui inviter de selectionner 
+   cest ca lidee a toi de developper le reste 
 
 
 🌙✨ عملاؤنا الأعزاء،  
