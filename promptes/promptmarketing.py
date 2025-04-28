@@ -42,25 +42,25 @@ class AnalysisThread(QThread):
         self._is_running = True
 
 
-def run(self):
-    conn = None
-    try:
-        # ... (code existant jusqu'à la génération de l'analyse) ...
-        
-        # Générer le texte d'analyse
-        analysis_text = self.generate_detailed_analysis(prompt_lower, detected)
-        
-        # Préparer la liste des plateformes détectées (sans les templates)
-        detected_platforms = [(keyword, platform) for keyword, platform, _ in detected]
-        
-        # Émettre les résultats séparément
-        self.analysis_complete.emit(analysis_text, detected_platforms)
-        
-    except Exception as e:
-        self.error_occurred.emit(f"Erreur d'analyse : {str(e)}")
-    finally:
-        if conn:
-            conn.close()        
+    def runN(self):
+        conn = None
+        try:
+            # ... (code existant jusqu'à la génération de l'analyse) ...
+            
+            # Générer le texte d'analyse
+            analysis_text = self.generate_detailed_analysis(prompt_lower, detected)
+            
+            # Préparer la liste des plateformes détectées (sans les templates)
+            detected_platforms = [(keyword, platform) for keyword, platform, _ in detected]
+            
+            # Émettre les résultats séparément
+            self.analysis_complete.emit(analysis_text, detected_platforms)
+            
+        except Exception as e:
+            self.error_occurred.emit(f"Erreur d'analyse : {str(e)}")
+        finally:
+            if conn:
+                conn.close()        
     def run(self):
         conn = None
         try:
@@ -1817,6 +1817,7 @@ if __name__ == "__main__":
     # Définir une police moderne
     font = QFont()
     font.setFamily("Segoe UI" if platform.system() == "Windows" else "Helvetica Neue")
+    font.setFamily("Segoe UI" if platform.system() == "Windows" else "Helvetica Neue")
     font.setPointSize(10)
     app.setFont(font)
     
@@ -1842,5 +1843,6 @@ if __name__ == "__main__":
     # Créer et afficher la fenêtre principale
     window = MarketingAIAnalyzer()
     window.show()
+    
     
     sys.exit(app.exec_())

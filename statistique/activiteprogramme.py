@@ -272,15 +272,17 @@ class AddActivityDialog(QtWidgets.QDialog):
         self.specific_dates_checkbox.stateChanged.connect(self.toggle_specific_dates)
 
         # Save button with shadow effect
-        save_button = QtWidgets.QPushButton(self.tr("💾 Save Schedule"))
-        save_button.setCursor(Qt.PointingHandCursor)
+        self.save_button = QtWidgets.QPushButton(self.tr("💾 Save Schedule"))
+        self.save_button.setCursor(Qt.PointingHandCursor)
         
         # Add shadow effect
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
         shadow.setColor(QColor(0, 0, 0, 150))
         shadow.setOffset(3, 3)
-        save_button.setGraphicsEffect(shadow)
+        self.save_button.setGraphicsEffect(shadow)
+
+        self.save_button.clicked.connect(self.validate_and_accept)
 
         # Layout with spacing and margins
         main_layout = QtWidgets.QVBoxLayout()
@@ -309,7 +311,7 @@ class AddActivityDialog(QtWidgets.QDialog):
         button_layout = QtWidgets.QHBoxLayout(button_container)
         button_layout.setContentsMargins(0, 0, 0, 0)
         button_layout.addStretch()
-        button_layout.addWidget(save_button)
+        button_layout.addWidget(self.save_button)
         button_layout.addStretch()
         
         main_layout.addWidget(button_container)
@@ -319,6 +321,32 @@ class AddActivityDialog(QtWidgets.QDialog):
         self.calendar.setVisible(False)
         self.update_name()
 
+
+
+
+
+
+
+
+
+
+    # Ajoutez cette nouvelle méthode à la classe AddActivityDialog:
+    def validate_and_accept(self):
+        """Validate inputs before accepting the dialog."""
+        if not self.program_input.currentText():
+            QtWidgets.QMessageBox.warning(self, "Error", "Please select a program")
+            return
+            
+        if not self.daily_checkbox.isChecked() and not any(cb.isChecked() for cb in self.day_checkboxes) and not self.specific_dates_checkbox.isChecked():
+            QtWidgets.QMessageBox.warning(self, "Error", "Please select at least one schedule option (daily, weekly days, or specific dates)")
+            return
+            
+        if self.specific_dates_checkbox.isChecked() and not self.selected_dates:
+            QtWidgets.QMessageBox.warning(self, "Error", "Please select at least one specific date")
+            return
+            
+        self.accept()
+        
     def create_form_row(self, label_text, widget):
         """Create a form row with styled label and widget."""
         container = QtWidgets.QWidget()
@@ -517,6 +545,27 @@ class Activite(QtWidgets.QWidget):
         )
         self.export_button.clicked.connect(self.export_activities)
 
+        # Dans __init__(), modifiez le bouton Export :
+        self.import_export_button = QtWidgets.QPushButton("📊 Importer/Exporter")
+        self.import_export_button.setStyleSheet("""
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #1abc9c, stop:1 #16a085);
+                color: white;
+                border-radius: 8px;
+                padding: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #16a085, stop:1 #138d75);
+            }
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #138d75, stop:1 #117a65);
+            }
+        """)
+        self.import_export_button.clicked.connect(self.show_import_export_menu)
         # Add shadow effect to add button
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
@@ -533,59 +582,71 @@ class Activite(QtWidgets.QWidget):
         top_bar_layout.addWidget(self.pause_button, 1)
         top_bar_layout.addWidget(self.delete_button, 1)
         top_bar_layout.addWidget(self.refresh_button, 1)
-        top_bar_layout.addWidget(self.export_button, 1)
+        # top_bar_layout.addWidget(self.export_button, 1)
+        top_bar_layout.addWidget(self.import_export_button, 1)
 
         # Activities table with modern style
         self.table = QtWidgets.QTableWidget()
-        self.table.setColumnCount(7)
+        self.table.setColumnCount(8)
         self.table.setHorizontalHeaderLabels([
             self.tr("🔢 #"), self.tr("📝 Name"), self.tr("📂 Program"), 
-            self.tr("📅 Days"), self.tr("⏰ Time"), self.tr("📅 Date"), self.tr("⚙️ Action")
+            self.tr("📅 Days"), self.tr("⏰ Time"), self.tr("📅 Date"), self.tr("🔄 Statut"), self.tr("⚙️ Action")
         ])
-        
-        # Customize table appearance
-        self.table.setStyleSheet("""
-            QTableWidget {
-                background-color: white;
-                border: 2px solid #dfe6e9;
-                border-radius: 8px;
-                gridline-color: #dfe6e9;
-                font-size: 14px;
-            }
-            QHeaderView::section {
-                background-color: #3498db;
-                color: white;
-                font-weight: bold;
-                padding: 8px;
-                border: none;
-                font-size: 14px;
-            }
 
-            QScrollBar:vertical {
-                border: none;
-                background: #f5f5f5;
-                width: 12px;
-                margin: 0px 0px 0px 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #bdc3c7;
-                min-height: 20px;
-                border-radius: 6px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                background: none;
-            }
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-                background: none;
-            }
-                QTableWidget::item:selected {
-        background-color: transparent;
-        color: inherit;
+
+
+    #     # Customize table appearance
+    #     self.table.setStyleSheet("""
+    #         QTableWidget {
+    #             background-color: white;
+    #             border: 2px solid #dfe6e9;
+    #             border-radius: 8px;
+    #             gridline-color: #dfe6e9;
+    #             font-size: 14px;
+    #         }
+    #         QHeaderView::section {
+    #             background-color: #3498db;
+    #             color: white;
+    #             font-weight: bold;
+    #             padding: 8px;
+    #             border: none;
+    #             font-size: 14px;
+    #         }
+
+    #         QScrollBar:vertical {
+    #             border: none;
+    #             background: #f5f5f5;
+    #             width: 12px;
+    #             margin: 0px 0px 0px 0px;
+    #         }
+    #         QScrollBar::handle:vertical {
+    #             background: #bdc3c7;
+    #             min-height: 20px;
+    #             border-radius: 6px;
+    #         }
+    #         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    #             background: none;
+    #         }
+    #         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    #             background: none;
+    #         }
+    #             QTableWidget::item:selected {
+    #     background-color: transparent;
+    #     color: inherit;
+    # }
+    # QTableWidget::item:selected:active {
+    #     background-color: transparent;
+    # }
+    #     """)
+
+        self.table.setStyleSheet("""
+    QTableWidget::item:selected {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+            stop:0 #3498db, stop:1 #2980b9);
+        color: white;
+        border: none;
     }
-    QTableWidget::item:selected:active {
-        background-color: transparent;
-    }
-        """)
+""")
         
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
@@ -674,6 +735,22 @@ class Activite(QtWidgets.QWidget):
                 color: white;
             }
         """
+    def update_pause_button_text(self):
+        """Change le texte du bouton Pause selon la sélection."""
+        selected_rows = self.table.selectionModel().selectedRows()
+        if not selected_rows:
+            self.pause_button.setText("⏸️ Pause")
+            return
+
+        # Vérifie si au moins une tâche sélectionnée est active
+        any_active = any(
+            not self.is_task_disabled(self.table.item(row.row(), 1).text())
+            for row in selected_rows
+        )
+
+        self.pause_button.setText("⏸️ Pause" if any_active else "▶️ Reprendre")
+
+
 
     def load_activities(self):
         """Load and display scheduled activities."""
@@ -764,6 +841,7 @@ class Activite(QtWidgets.QWidget):
     }
                         """)
 
+
                         action_button.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
                         self.table.setCellWidget(row_position, 6, action_button)
 
@@ -828,6 +906,8 @@ class Activite(QtWidgets.QWidget):
         
         # Show menu at cursor position
         menu.exec_(QtGui.QCursor.pos())
+
+
 
     def add_activity(self):
         """Add a new scheduled activity."""
@@ -975,7 +1055,7 @@ class Activite(QtWidgets.QWidget):
             self.show_error_message(self.tr("Export Error"), 
                                  self.tr(f"Error exporting activities: {e}"))
 
-    def pause_selected_activities(self):
+    def pause_selected_activities1(self):
         """Pause selected activities."""
         selected_rows = self.table.selectionModel().selectedRows()
         if not selected_rows:
@@ -995,6 +1075,64 @@ class Activite(QtWidgets.QWidget):
                                self.tr("Selected activities paused successfully!"))
         self.load_activities()
 
+
+    def is_task_disabled(self, task_name):
+        """Vérifie si une tâche est désactivée."""
+        try:
+            result = subprocess.run(
+                f'schtasks /query /tn "{task_name}" /fo list',
+                shell=True,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='ignore'
+            )
+            return "Désactivé" in result.stdout or "Disabled" in result.stdout
+        except subprocess.CalledProcessError:
+            return False
+        
+    def pause_selected_activities(self):
+        """Active ou désactive les tâches sélectionnées."""
+        selected_rows = self.table.selectionModel().selectedRows()
+        if not selected_rows:
+            self.show_warning_message(
+                "Sélection requise",
+                "Veuillez sélectionner des activités à mettre en pause/reprendre."
+            )
+            return
+
+        for row in selected_rows:
+            activity_name = self.table.item(row.row(), 1).text()
+            is_disabled = self.is_task_disabled(activity_name)
+
+            try:
+                if is_disabled:
+                    # Si la tâche est en pause, on la relance
+                    subprocess.run(
+                        f'schtasks /change /tn "{activity_name}" /enable',
+                        shell=True,
+                        check=True
+                    )
+                else:
+                    # Si la tâche est active, on la met en pause
+                    subprocess.run(
+                        f'schtasks /change /tn "{activity_name}" /disable',
+                        shell=True,
+                        check=True
+                    )
+            except subprocess.CalledProcessError as e:
+                self.show_error_message(
+                    "Erreur",
+                    f"Impossible de modifier l'état de '{activity_name}': {e}"
+                )
+
+        self.show_success_message(
+            "Succès",
+            "Les activités sélectionnées ont été mises à jour."
+        )
+        self.load_activities()  # Recharge la liste pour afficher les nouveaux états
+
+        
     def delete_selected_activities(self):
         """Delete selected activities."""
         selected_rows = self.table.selectionModel().selectedRows()
@@ -1110,6 +1248,562 @@ class Activite(QtWidgets.QWidget):
             }
         """)
         msg.exec_()
+
+
+
+    def fill_table_row(self, row, task):
+        """Remplit une ligne du tableau avec les données de la tâche"""
+        # Colonne 0: Numéro
+        self.table.setItem(row, 0, self.create_centered_item(str(row + 1)))
+        
+        # Colonne 1: Nom
+        self.table.setItem(row, 1, self.create_centered_item(task["name"]))
+        
+        # Colonne 2: Programme
+        self.table.setItem(row, 2, self.create_centered_item(task["program"]))
+        
+        # Colonne 3: Jours
+        days = ", ".join(task["days"]) if task["days"] else "Quotidien"
+        self.table.setItem(row, 3, self.create_centered_item(days))
+        
+        # Colonne 4: Heure
+        self.table.setItem(row, 4, self.create_centered_item(task["time"]))
+        
+        # Colonne 5: Date
+        self.table.setItem(row, 5, self.create_centered_item(task["date"] or "N/A"))
+        
+        # Colonne 6: Statut (avec couleur)
+        status_item = self.create_centered_item("⏸️ Pause" if task["disabled"] else "▶️ Actif")
+        status_item.setForeground(QtGui.QColor("#e74c3c" if task["disabled"] else "#2ecc71"))
+        self.table.setItem(row, 6, status_item)
+        
+        # Colonne 7: Bouton d'action
+        self.add_action_button(row, task["name"])
+
+    def create_centered_item(self, text):
+        """Crée un QTableWidgetItem centré avec le texte donné"""
+        item = QtWidgets.QTableWidgetItem(text)
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        return item
+
+    def colorize_row(self, row, color):
+        """Applique une couleur de fond à toute une ligne"""
+        for col in range(self.table.columnCount()):
+            if self.table.item(row, col):
+                self.table.item(row, col).setBackground(QtGui.QColor(color))
+
+    def add_action_button(self, row, task_name):
+        """Ajoute un bouton d'action stylisé dans la dernière colonne"""
+        btn = QtWidgets.QPushButton("⚙️ Actions")
+        btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 4px;
+                padding: 5px 10px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """)
+        btn.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
+        self.table.setCellWidget(row, 7, btn)
+
+    def update_action_buttons(self):
+        """Met à jour les boutons en fonction de la sélection"""
+        selected_rows = self.table.selectionModel().selectedRows()
+        
+        # Bouton Pause/Reprendre
+        if selected_rows:
+            any_active = any(
+                self.table.item(row.row(), 6).text() == "▶️ Actif"
+                for row in selected_rows
+            )
+            self.pause_button.setText("⏸️ Pause" if any_active else "▶️ Reprendre")
+            self.pause_button.setEnabled(True)
+            self.delete_button.setEnabled(True)
+        else:
+            self.pause_button.setEnabled(False)
+            self.delete_button.setEnabled(False)
+
+    def get_scheduled_tasks(self):
+        """Récupère les tâches planifiées avec leurs métadonnées"""
+        tasks = []
+        try:
+            # Exemple de données (à remplacer par votre logique schtasks)
+            raw_tasks = subprocess.check_output(
+                'schtasks /query /fo csv /nh',
+                shell=True,
+                encoding='utf-8',
+                errors='ignore'
+            ).splitlines()
+            
+            for line in raw_tasks:
+                parts = line.strip('"').split('","')
+                if len(parts) >= 6:
+                    tasks.append({
+                        "name": parts[0],
+                        "program": parts[1],
+                        "days": self.parse_days(parts[2]),
+                        "time": parts[3],
+                        "date": parts[4],
+                        "disabled": "Désactivé" in parts[5] or "Disabled" in parts[5]
+                    })
+        
+        except Exception as e:
+            self.show_error_message("Erreur", f"Impossible de lire les tâches : {str(e)}")
+        
+        return tasks
+
+    def parse_days(self, days_str):
+        """Convertit la chaîne de jours en liste"""
+        if not days_str or days_str.lower() == "tous les jours":
+            return []
+        return [d.strip() for d in days_str.split(",")]
+
+
+
+    def load_activities2(self):
+        """Load and display scheduled activities."""
+        self.table.setRowCount(0)  # Reset table
+
+        try:
+            # Path to folder containing .exe files
+            folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
+            if not os.path.exists(folder_path):
+                self.show_error_message(self.tr("Folder Not Found"), 
+                                      self.tr(f"The folder {folder_path} does not exist."))
+                return
+
+            # List .exe files
+            exe_files = [f for f in os.listdir(folder_path) if f.endswith(".exe")]
+            if not exe_files:
+                self.show_warning_message(self.tr("No Programs Found"), 
+                                         self.tr("No .exe files found in the tools folder."))
+                return
+
+            # Get scheduled tasks with schtasks
+            try:
+                result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, 
+                                                encoding="utf-8", errors="ignore")
+            except subprocess.CalledProcessError as e:
+                self.show_error_message(self.tr("Query Failed"), 
+                                       self.tr(f"Failed to query scheduled tasks: {e}"))
+                return
+
+            lines = result.strip().splitlines()
+
+            if not lines:
+                self.show_info_message(self.tr("No Tasks Found"), 
+                                     self.tr("No scheduled tasks found."))
+                return
+
+            # Parse tasks
+            for i, line in enumerate(lines):
+                try:
+                    parts = [p.strip('"') for p in line.split(",")]
+                    if len(parts) < 3:
+                        continue
+
+                    task_name = parts[0].lstrip("\\").strip()
+                    task_name_with_extension = f"{task_name}.exe"
+
+                    if task_name_with_extension.lower() in [exe_file.lower() for exe_file in exe_files]:
+                        row_position = self.table.rowCount()
+                        self.table.insertRow(row_position)
+
+                        # Add columns with formatted data
+                        self.table.setItem(row_position, 0, QTableWidgetItem(str(i + 1)))
+                        self.table.setItem(row_position, 1, QTableWidgetItem(task_name))
+                        self.table.setItem(row_position, 2, QTableWidgetItem(parts[1] if len(parts) > 1 else ""))
+                        self.table.setItem(row_position, 3, QTableWidgetItem(parts[2] if len(parts) > 2 else ""))
+                        self.table.setItem(row_position, 4, QTableWidgetItem(parts[3] if len(parts) > 3 else ""))
+                        self.table.setItem(row_position, 5, QTableWidgetItem(parts[4] if len(parts) > 4 else ""))
+
+                        # Add action button
+                        action_button = QtWidgets.QPushButton(self.tr("⚙️ Action"))
+                        action_button.setStyleSheet("""
+  
+
+                      
+
+                            QPushButton:pressed {
+                                background-color: #2471a3;
+                                padding-top: 10px;
+                                padding-bottom: 6px;
+                            }
+
+                            QPushButton:disabled {
+                                background-color: #bdc3c7;
+                                color: #ecf0f1;
+                            }
+
+                                QPushButton {
+        background-color: #3498db;
+        color: white;
+        border-radius: 15px;
+        padding: 5px 10px;
+        font-weight: bold;
+        min-width: 80px;
+        border: none;
+    }
+    QPushButton:hover {
+        background-color: #2980b9;
+    }
+                        """)
+
+
+                        action_button.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
+                        self.table.setCellWidget(row_position, 6, action_button)
+
+                        # Set row colors for better readability
+                        for col in range(self.table.columnCount()):
+                            if self.table.item(row_position, col):
+                                self.table.item(row_position, col).setTextAlignment(Qt.AlignCenter)
+                                if row_position % 2 == 0:
+                                    self.table.item(row_position, col).setBackground(QColor(240, 248, 255))
+                except Exception as e:
+                    self.show_warning_message(self.tr("Processing Error"), 
+                                           self.tr(f"Error processing task: {e}"))
+
+            # Resize columns to content
+            self.table.resizeColumnsToContents()
+            self.table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+
+        except Exception as e:
+            self.show_error_message(self.tr("Loading Error"), 
+                                 self.tr(f"Error loading activities: {e}"))
+
+    def load_activities(self):
+        """Charge et affiche les activités planifiées avec gestion améliorée des états"""
+        self.table.setRowCount(0)  # Réinitialise le tableau
+        self.table.setSortingEnabled(False)  # Désactive le tri pendant le chargement
+
+        try:
+            # Vérification du dossier des outils
+            folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
+            if not os.path.exists(folder_path):
+                self.show_error_message(self.tr("Dossier introuvable"), 
+                                    self.tr(f"Le dossier {folder_path} n'existe pas."))
+                return
+
+            # Liste des fichiers exe
+            exe_files = [f for f in os.listdir(folder_path) if f.endswith(".exe")]
+            if not exe_files:
+                self.show_warning_message(self.tr("Aucun programme trouvé"), 
+                                        self.tr("Aucun fichier .exe trouvé dans le dossier des outils."))
+                return
+
+            # Récupération des tâches planifiées
+            try:
+                result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, 
+                                            encoding="utf-8", errors="ignore")
+                lines = result.strip().splitlines()
+            except subprocess.CalledProcessError as e:
+                self.show_error_message(self.tr("Erreur de requête"), 
+                                    self.tr(f"Échec de la récupération des tâches : {e}"))
+                return
+
+            if not lines:
+                self.show_info_message(self.tr("Aucune tâche trouvée"), 
+                                    self.tr("Aucune tâche planifiée trouvée."))
+                return
+
+            # Traitement des tâches
+            for i, line in enumerate(lines):
+                try:
+                    parts = [p.strip('"') for p in line.split(",")]
+                    if len(parts) < 3:
+                        continue
+
+                    task_name = parts[0].lstrip("\\").strip()
+                    task_name_with_extension = f"{task_name}.exe"
+
+                    if task_name_with_extension.lower() in [exe_file.lower() for exe_file in exe_files]:
+                        row_position = self.table.rowCount()
+                        self.table.insertRow(row_position)
+
+                        # Détermine l'état de la tâche
+                        is_disabled = "Désactivé" in parts[-1] or "Disabled" in parts[-1]
+
+                        # Colonne 0: Numéro
+                        self.table.setItem(row_position, 0, self.create_centered_item(str(i + 1)))
+                        
+                        # Colonne 1: Nom
+                        self.table.setItem(row_position, 1, self.create_centered_item(task_name))
+                        
+                        # Colonne 2: Programme
+                        self.table.setItem(row_position, 2, self.create_centered_item(parts[1] if len(parts) > 1 else ""))
+                        
+                        # Colonne 3: Jours
+                        self.table.setItem(row_position, 3, self.create_centered_item(parts[2] if len(parts) > 2 else ""))
+                        
+                        # Colonne 4: Heure
+                        self.table.setItem(row_position, 4, self.create_centered_item(parts[3] if len(parts) > 3 else ""))
+                        
+                        # Colonne 5: Date
+                        self.table.setItem(row_position, 5, self.create_centered_item(parts[4] if len(parts) > 4 else ""))
+                        
+                        # Colonne 6: Statut (nouvelle colonne)
+                        status_item = self.create_centered_item("⏸️ Pause" if is_disabled else "▶️ Actif")
+                        status_item.setForeground(QtGui.QColor("#e74c3c" if is_disabled else "#2ecc71"))
+                        self.table.setItem(row_position, 6, status_item)
+                        
+                        # Colonne 7: Bouton d'action
+                        action_button = QtWidgets.QPushButton(self.tr("⚙️ Action"))
+                        action_button.setStyleSheet("""
+                            QPushButton {
+                                background-color: #3498db;
+                                color: white;
+                                border-radius: 15px;
+                                padding: 5px 10px;
+                                font-weight: bold;
+                                min-width: 80px;
+                                border: none;
+                            }
+                            QPushButton:hover {
+                                background-color: #2980b9;
+                            }
+                            QPushButton:pressed {
+                                background-color: #2471a3;
+                            }
+                        """)
+                        action_button.clicked.connect(lambda _, name=task_name: self.show_action_menu(name))
+                        self.table.setCellWidget(row_position, 7, action_button)
+
+                        # Couleur de fond alternée pour les lignes
+                        for col in range(self.table.columnCount()):
+                            if self.table.item(row_position, col):
+                                if row_position % 2 == 0:
+                                    self.table.item(row_position, col).setBackground(QColor(240, 248, 255))
+
+                except Exception as e:
+                    self.show_warning_message(self.tr("Erreur de traitement"), 
+                                        self.tr(f"Erreur lors du traitement de la tâche : {e}"))
+
+            # Configuration finale de la table
+            self.table.setSortingEnabled(True)
+            self.table.resizeColumnsToContents()
+            self.table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+            
+            # Connexion de la sélection pour mettre à jour les boutons
+            self.table.selectionModel().selectionChanged.connect(self.update_action_buttons)
+
+        except Exception as e:
+            self.show_error_message(self.tr("Erreur de chargement"), 
+                                self.tr(f"Erreur lors du chargement des activités : {e}"))
+
+    def create_centered_item(self, text):
+        """Crée un QTableWidgetItem avec texte centré"""
+        item = QtWidgets.QTableWidgetItem(text)
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        return item
+
+    def update_action_buttons(self):
+        """Met à jour les boutons en fonction de la sélection"""
+        selected_rows = self.table.selectionModel().selectedRows()
+        
+        if selected_rows:
+            # Vérifie si au moins une tâche sélectionnée est active
+            any_active = any(
+                self.table.item(row.row(), 6).text() == "▶️ Actif"
+                for row in selected_rows
+            )
+            self.pause_button.setText("⏸️ Pause" if any_active else "▶️ Reprendre")
+            self.pause_button.setEnabled(True)
+            self.delete_button.setEnabled(True)
+        else:
+            self.pause_button.setEnabled(False)
+            self.delete_button.setEnabled(False)
+
+
+    def show_import_export_menu(self):
+        """Affiche le menu contextuel pour l'import/export"""
+        menu = QtWidgets.QMenu(self)
+        
+        # Actions avec icônes
+        export_action = QtWidgets.QAction(QtGui.QIcon("resources/icons/export.png"), "Exporter vers CSV", self)
+        import_action = QtWidgets.QAction(QtGui.QIcon("resources/icons/import.png"), "Importer depuis CSV", self)
+        
+        # Style du menu
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: white;
+                border: 2px solid #dfe6e9;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QMenu::item {
+                padding: 8px 25px 8px 20px;
+                font-size: 14px;
+            }
+            QMenu::item:selected {
+                background-color: #3498db;
+                color: white;
+                border-radius: 3px;
+            }
+        """)
+        
+        menu.addAction(export_action)
+        menu.addAction(import_action)
+        
+        # Connexion des actions
+        export_action.triggered.connect(self.export_to_csv)
+        import_action.triggered.connect(self.import_from_csv)
+        
+        # Affichage du menu
+        menu.exec_(QtGui.QCursor.pos())
+    def export_to_csv(self):
+        """Exporte les activités vers un fichier CSV"""
+        try:
+            file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+                self,
+                "Exporter les activités",
+                "",
+                "Fichiers CSV (*.csv);;Tous les fichiers (*)"
+            )
+            
+            if not file_path:
+                return
+                
+            # Ajout automatique de l'extension si absent
+            if not file_path.lower().endswith('.csv'):
+                file_path += '.csv'
+            
+            with open(file_path, 'w', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file, delimiter=';')
+                
+                # En-têtes
+                headers = [self.table.horizontalHeaderItem(i).text().replace("🔢 ", "").replace("📝 ", "").replace("📂 ", "")
+                        for i in range(self.table.columnCount()-1)]  # Exclut la colonne Action
+                writer.writerow(headers)
+                
+                # Données
+                for row in range(self.table.rowCount()):
+                    row_data = []
+                    for col in range(self.table.columnCount()-1):  # Exclut la colonne Action
+                        item = self.table.item(row, col)
+                        row_data.append(item.text() if item else "")
+                    
+                    writer.writerow(row_data)
+            
+            self.show_success_message("Export réussi", f"Les activités ont été exportées vers:\n{file_path}")
+            
+        except Exception as e:
+            self.show_error_message("Erreur d'export", f"Une erreur est survenue lors de l'export:\n{str(e)}")
+
+    def import_from_csv(self):
+        """Importe des activités depuis un fichier CSV"""
+        try:
+            file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                "Importer des activités",
+                "",
+                "Fichiers CSV (*.csv);;Tous les fichiers (*)"
+            )
+            
+            if not file_path:
+                return
+                
+            # Vérification de confirmation
+            reply = QtWidgets.QMessageBox.question(
+                self,
+                "Confirmation d'import",
+                "Voulez-vous vraiment importer ces activités?\nCela écrasera les activités existantes.",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.No
+            )
+            
+            if reply != QtWidgets.QMessageBox.Yes:
+                return
+            
+            with open(file_path, 'r', encoding='utf-8') as file:
+                reader = csv.reader(file, delimiter=';')
+                headers = next(reader)  # Ligne d'en-tête
+                
+                # Vérification du format
+                if len(headers) < 5:  # Adaptez selon vos colonnes
+                    raise ValueError("Format de fichier invalide")
+                
+                # Nettoyage des tâches existantes
+                self.clear_all_tasks()
+                
+                # Import des nouvelles tâches
+                for row in reader:
+                    if len(row) < 5:  # Vérification du nombre de colonnes
+                        continue
+                        
+                    self.create_task_from_import(
+                        name=row[0],
+                        program=row[1],
+                        days=row[2],
+                        time=row[3],
+                        date=row[4],
+                        status=row[5] if len(row) > 5 else "▶️ Actif"
+                    )
+            
+            self.show_success_message("Import réussi", "Les activités ont été importées avec succès!")
+            self.load_activities()  # Recharge la table
+            
+        except Exception as e:
+            self.show_error_message("Erreur d'import", f"Une erreur est survenue lors de l'import:\n{str(e)}")
+
+    def clear_all_tasks(self):
+        """Supprime toutes les tâches existantes"""
+        try:
+            # Récupère toutes les tâches
+            result = subprocess.check_output("schtasks /query /fo csv /nh", shell=True, 
+                                        encoding='utf-8', errors='ignore')
+            lines = result.strip().splitlines()
+            
+            for line in lines:
+                parts = [p.strip('"') for p in line.split(",")]
+                if parts:  # Vérifie que la ligne n'est pas vide
+                    task_name = parts[0].lstrip("\\").strip()
+                    subprocess.run(f'schtasks /delete /tn "{task_name}" /f', shell=True)
+                    
+        except Exception as e:
+            self.show_warning_message("Avertissement", 
+                                    f"Certaines tâches n'ont pas pu être supprimées: {str(e)}")
+
+    def create_task_from_import(self, name, program, days, time, date, status):
+        """Crée une nouvelle tâche à partir des données importées"""
+        try:
+            folder_path = os.path.expanduser("~\\AppData\\Roaming\\Saadiya\\resources\\tools")
+            program_path = os.path.join(folder_path, f"{program}.exe")
+            
+            if not os.path.exists(program_path):
+                self.show_warning_message("Programme introuvable",
+                                        f"Le programme {program} n'existe pas dans le dossier des outils")
+                return
+                
+            # Construction de la commande schtasks
+            if date and date.lower() not in ["n/a", "na", ""]:
+                # Tâche avec date spécifique
+                cmd = (f'schtasks /create /tn "{name}" /tr "{program_path}" '
+                    f'/sc once /sd {date} /st {time} /f')
+            else:
+                # Tâche récurrente
+                if days and days.lower() not in ["tous les jours", "daily"]:
+                    # Hebdomadaire
+                    cmd = (f'schtasks /create /tn "{name}" /tr "{program_path}" '
+                        f'/sc weekly /d {days} /st {time} /f')
+                else:
+                    # Quotidienne
+                    cmd = (f'schtasks /create /tn "{name}" /tr "{program_path}" '
+                        f'/sc daily /st {time} /f')
+            
+            # Exécution de la commande
+            subprocess.run(cmd, shell=True, check=True)
+            
+            # Gestion du statut (activé/désactivé)
+            if "pause" in status.lower() or "⏸️" in status:
+                subprocess.run(f'schtasks /change /tn "{name}" /disable', shell=True)
+                
+        except subprocess.CalledProcessError as e:
+            self.show_warning_message("Erreur de création",
+                                    f"La tâche {name} n'a pas pu être créée: {str(e)}")
 
 if __name__ == "__main__":
     import sys

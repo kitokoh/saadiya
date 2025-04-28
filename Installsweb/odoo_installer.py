@@ -6,7 +6,10 @@ import webbrowser
 import shutil
 import urllib.request
 import tempfile
+<<<<<<< HEAD
 import ctypes
+=======
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
                             QLineEdit, QComboBox, QCheckBox, QGroupBox, QProgressBar, 
                             QTabWidget, QFileDialog, QMessageBox, QTextEdit, QSpinBox, 
@@ -33,15 +36,29 @@ class InstallationThread(QThread):
                 return
             
             # Step 1: Install Chocolatey if not present
+<<<<<<< HEAD
             self.progress_update.emit(5, "Configuration de Chocolatey...")
             if not self.install_chocolatey():
                 self.finished_signal.emit(False, "Échec de l'installation de Chocolatey")
                 return
             
+=======
+            self.progress_update.emit(5, "Setting up Chocolatey package manager...")
+            if not self.install_chocolatey():
+                self.finished_signal.emit(False, "Failed to install Chocolatey")
+                return
+            
+            # # Step 2: Install system dependencies
+            # self.progress_update.emit(15, "Installing system dependencies...")
+            # if not self.install_system_dependencies():
+            #     self.finished_signal.emit(False, "Failed to install system dependencies")
+            #     return
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             # Step 2: Install system dependencies
             self.progress_update.emit(15, "Installation des dépendances système...")
             if not self.install_system_dependencies():
                 error_msg = """
+<<<<<<< HEAD
 Échec de l'installation des dépendances système.
 Causes possibles :
 1. Connexion Internet instable
@@ -54,12 +71,27 @@ Causes possibles :
             
             # Step 3: Install and configure PostgreSQL
             self.progress_update.emit(30, "Installation de PostgreSQL...")
+=======
+    Échec de l'installation des dépendances système.
+    Causes possibles :
+    1. Connexion Internet instable
+    2. Chocolatey non installé correctement
+    3. Droits administrateur insuffisants
+    Veuillez vérifier les logs pour plus de détails.
+    """
+                self.finished_signal.emit(False, error_msg)
+                return
+                        
+            # Step 3: Install and configure PostgreSQL
+            self.progress_update.emit(30, "Installing PostgreSQL...")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             if not self.install_postgresql():
                 self.finished_signal.emit(False, "Échec de l'installation de PostgreSQL")
                 return
             
             # Step 4: Install Wkhtmltopdf if selected
             if self.config['install_wkhtmltopdf']:
+<<<<<<< HEAD
                 self.progress_update.emit(45, "Installation de Wkhtmltopdf...")
                 if not self.install_wkhtmltopdf():
                     self.finished_signal.emit(False, "Échec de l'installation de Wkhtmltopdf")
@@ -67,27 +99,59 @@ Causes possibles :
             
             # Step 5: Install Odoo
             self.progress_update.emit(60, "Téléchargement d'Odoo...")
+=======
+                self.progress_update.emit(45, "Installing Wkhtmltopdf...")
+                if not self.install_wkhtmltopdf():
+                    self.finished_signal.emit(False, "Failed to install Wkhtmltopdf")
+                    return
+            
+            # Step 5: Install Odoo
+            self.progress_update.emit(60, "Downloading and installing Odoo...")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             if not self.install_odoo():
                 self.finished_signal.emit(False, "Échec de l'installation d'Odoo")
                 return
             
             # Step 6: Configure Odoo
+<<<<<<< HEAD
             self.progress_update.emit(75, "Configuration d'Odoo...")
+=======
+            self.progress_update.emit(75, "Configuring Odoo...")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             if not self.configure_odoo():
                 self.finished_signal.emit(False, "Échec de la configuration d'Odoo")
                 return
             
             # Step 7: Create startup scripts
+<<<<<<< HEAD
             self.progress_update.emit(85, "Création des scripts de démarrage...")
             if not self.create_startup_scripts():
                 self.finished_signal.emit(False, "Échec de la création des scripts")
+=======
+            self.progress_update.emit(85, "Creating startup scripts...")
+            if not self.create_startup_scripts():
+                self.finished_signal.emit(False, "Failed to create startup scripts")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                 return
             
             # Step 8: Create Windows service if selected
             if self.config['create_service']:
+<<<<<<< HEAD
                 self.progress_update.emit(90, "Création du service Windows...")
                 if not self.create_windows_service():
                     self.finished_signal.emit(False, "Échec de la création du service")
+=======
+                self.progress_update.emit(90, "Creating Windows service...")
+                if not self.create_windows_service():
+                    self.finished_signal.emit(False, "Failed to create Windows service")
+                    return
+            
+            # Step 9: Start Odoo if selected
+            if self.config['start_service']:
+                self.progress_update.emit(95, "Starting Odoo...")
+                if not self.start_odoo():
+                    self.finished_signal.emit(False, "Failed to start Odoo")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                     return
             
             # Step 9: Start Odoo if selected
@@ -105,10 +169,20 @@ Causes possibles :
     
     def validate_inputs(self):
         if not self.config['odoo_version']:
+<<<<<<< HEAD
             self.log_signal.emit("Erreur: Version d'Odoo non sélectionnée")
             return False
         if not self.config['install_dir']:
             self.log_signal.emit("Erreur: Répertoire d'installation non spécifié")
+=======
+            self.log_signal.emit("Error: Odoo version not selected")
+            return False
+        if not self.config['install_dir']:
+            self.log_signal.emit("Error: Installation directory not specified")
+            return False
+        if not self.config['admin_password']:
+            self.log_signal.emit("Error: Admin password not set")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
         if not self.config['admin_password']:
             self.log_signal.emit("Erreur: Mot de passe admin non défini")
@@ -116,6 +190,7 @@ Causes possibles :
         if len(self.config['admin_password']) < 8:
             self.log_signal.emit("Attention: Le mot de passe admin est trop court (min 8 caractères)")
         return True
+<<<<<<< HEAD
     
     def install_chocolatey(self):
         try:
@@ -180,12 +255,72 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
                 return False
             
             self.log_signal.emit("Chocolatey installé avec succès")
+=======
+    def install_chocolatey(self):
+        try:
+            # Vérifier si Chocolatey est déjà installé
+            process = subprocess.Popen("choco --version", shell=True, 
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Installation de Chocolatey...")
+                
+                # Télécharger et exécuter le script d'installation
+                install_script = """
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    """
+                # Écrire le script dans un fichier temporaire
+                with tempfile.NamedTemporaryFile(suffix='.ps1', delete=False) as tmp:
+                    tmp.write(install_script.encode('utf-8'))
+                    tmp_path = tmp.name
+                
+                # Exécuter le script PowerShell avec les droits admin
+                cmd = [
+                    'powershell.exe', 
+                    '-ExecutionPolicy', 'Bypass', 
+                    '-NoProfile', 
+                    '-File', 
+                    tmp_path
+                ]
+                
+                self.log_signal.emit("Exécution de l'installation Chocolatey...")
+                process = subprocess.Popen(cmd, shell=True, 
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                
+                # Supprimer le fichier temporaire
+                os.unlink(tmp_path)
+                
+                if process.returncode != 0:
+                    self.log_signal.emit("Échec de l'installation de Chocolatey")
+                    self.log_signal.emit(stderr.decode().strip())
+                    return False
+                
+                # Mettre à jour le PATH manuellement
+                self.log_signal.emit("Mise à jour des variables d'environnement...")
+                chocolatey_path = os.path.join(os.environ['ProgramData'], 'chocolatey', 'bin')
+                os.environ['PATH'] += os.pathsep + chocolatey_path
+                
+                # Vérifier que Chocolatey est maintenant disponible
+                process = subprocess.Popen("choco --version", shell=True, 
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                
+                if process.returncode != 0:
+                    self.log_signal.emit("Chocolatey n'est toujours pas disponible après installation")
+                    return False
+                
+            self.log_signal.emit(f"Chocolatey est installé (version: {stdout.decode().strip()})")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return True
             
         except Exception as e:
             self.log_signal.emit(f"Erreur lors de l'installation de Chocolatey: {str(e)}")
             return False
         
+<<<<<<< HEAD
     def install_system_dependencies(self):
         try:
             self.log_signal.emit("Vérification des dépendances système...")
@@ -283,6 +418,36 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             process.communicate()
             return process.returncode == 0
         except:
+=======
+        
+    def install_chocolatey1(self):
+        try:
+            # Check if Chocolatey is already installed
+            process = subprocess.Popen("choco --version", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Installing Chocolatey package manager...")
+                cmd = (
+                    'Set-ExecutionPolicy Bypass -Scope Process -Force; '
+                    '[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; '
+                    'iex ((New-Object System.Net.WebClient).DownloadString("https://community.chocolatey.org/install.ps1"))'
+                )
+                process = subprocess.Popen(["powershell", "-Command", cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                
+                if process.returncode != 0:
+                    self.log_signal.emit("Failed to install Chocolatey")
+                    self.log_signal.emit(stderr.decode().strip())
+                    return False
+                
+                # Refresh environment variables
+                subprocess.call("refreshenv", shell=True)
+            
+            return True
+        except Exception as e:
+            self.log_signal.emit(f"Error installing Chocolatey: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
         
     def verify_chocolatey(self):
@@ -295,9 +460,103 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
         except:
             return False   
     
+    def install_system_dependencies(self):
+        try:
+            self.log_signal.emit("Vérification des dépendances système...")
+            
+            # Liste des paquets Chocolatey requis avec vérifications
+            packages = [
+                ("git", "git --version"),
+                ("python3", "python --version"),
+                ("pip", "python -m pip --version"),
+                ("nodejs", "node --version"),
+                ("libjpeg-turbo", None),  # Vérification plus complexe
+                ("openssl", "openssl version"),
+                ("visualstudio2022-workload-vctools", None)
+            ]
+
+            # Installer chaque paquet avec vérification
+            for pkg, check_cmd in packages:
+                if check_cmd and self.check_command_available(check_cmd):
+                    self.log_signal.emit(f"{pkg} est déjà installé - on passe")
+                    continue
+
+                self.log_signal.emit(f"Installation de {pkg} via Chocolatey...")
+                cmd = f"choco install -y {pkg}"
+                process = subprocess.Popen(cmd, shell=True, 
+                                        stdout=subprocess.PIPE, 
+                                        stderr=subprocess.PIPE,
+                                        universal_newlines=True)
+                
+                # Affichage en temps réel
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        self.log_signal.emit(output.strip())
+                
+                if process.returncode != 0:
+                    self.log_signal.emit(f"Échec de l'installation de {pkg}")
+                    return False
+
+            # Installation des dépendances Python
+            python_deps = [
+                ("pip", "python -m pip install --upgrade pip setuptools wheel"),
+                ("pywin32", "python -m pip install pywin32"),
+                ("psycopg2", "python -m pip install psycopg2-binary")
+            ]
+
+            for name, cmd in python_deps:
+                self.log_signal.emit(f"Installation de {name}...")
+                process = subprocess.Popen(cmd, shell=True,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        universal_newlines=True)
+                
+                # Affichage en temps réel
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        self.log_signal.emit(output.strip())
+                
+                if process.returncode != 0:
+                    self.log_signal.emit(f"Échec de l'installation de {name}")
+                    return False
+
+            return True
+
+        except Exception as e:
+            self.log_signal.emit(f"Erreur critique dans install_system_dependencies: {str(e)}")
+            return False
+
+    def check_command_available(self, command):
+        """Vérifie si une commande est disponible"""
+        try:
+            process = subprocess.Popen(command, shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            process.communicate()
+            return process.returncode == 0
+        except:
+            return False
+        
+
+    def verify_chocolatey(self):
+        """Vérifie que Chocolatey est correctement installé et dans le PATH"""
+        try:
+            process = subprocess.Popen("choco --version", shell=True,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            return process.returncode == 0
+        except:
+            return False   
     def install_postgresql(self):
         try:
             # Install PostgreSQL with Chocolatey
+<<<<<<< HEAD
             cmd = f"choco install -y postgresql --version=15.5.0 --params '/Password:{self.config['admin_password']}'"
             self.log_signal.emit(f"Exécution: {cmd}")
             process = subprocess.Popen(cmd, shell=True, 
@@ -322,6 +581,20 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             
             # Add PostgreSQL to PATH
             postgres_path = os.path.join(os.environ["ProgramFiles"], "PostgreSQL", "15", "bin")
+=======
+            cmd = "choco install -y postgresql --params '/Password:{}'".format(self.config['admin_password'])
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to install PostgreSQL")
+                self.log_signal.emit(stderr.decode().strip())
+                return False
+            
+            # Add PostgreSQL to PATH
+            postgres_path = os.path.join(os.environ["ProgramFiles"], "PostgreSQL", "latest", "bin")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             os.environ["PATH"] += os.pathsep + postgres_path
             
             # Initialize database and create user
@@ -331,6 +604,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             ]
             
             for cmd in init_cmds:
+<<<<<<< HEAD
                 if self.abort_flag:
                     return False
                 
@@ -358,6 +632,19 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             return True
         except Exception as e:
             self.log_signal.emit(f"Erreur lors de l'installation de PostgreSQL: {str(e)}")
+=======
+                self.log_signal.emit(f"Executing: {cmd}")
+                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                if process.returncode != 0:
+                    self.log_signal.emit(f"Command failed: {cmd}")
+                    self.log_signal.emit(stderr.decode().strip())
+                    # Continue even if fails (might already exist)
+            
+            return True
+        except Exception as e:
+            self.log_signal.emit(f"Error installing PostgreSQL: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
     
     def install_wkhtmltopdf(self):
@@ -367,11 +654,16 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             wkhtmltopdf_url = "https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.msvc2015-win64.exe"
             installer_path = os.path.join(temp_dir, "wkhtmltopdf.exe")
             
+<<<<<<< HEAD
             self.log_signal.emit(f"Téléchargement de wkhtmltopdf depuis {wkhtmltopdf_url}")
+=======
+            self.log_signal.emit(f"Downloading wkhtmltopdf from {wkhtmltopdf_url}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             urllib.request.urlretrieve(wkhtmltopdf_url, installer_path)
             
             # Silent install
             cmd = f"{installer_path} /S"
+<<<<<<< HEAD
             self.log_signal.emit(f"Exécution: {cmd}")
             process = subprocess.Popen(cmd, shell=True, 
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -391,6 +683,15 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             
             if process.returncode != 0:
                 self.log_signal.emit("Échec de l'installation de Wkhtmltopdf")
+=======
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to install Wkhtmltopdf")
+                self.log_signal.emit(stderr.decode().strip())
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                 return False
             
             # Add to PATH
@@ -399,7 +700,11 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             
             return True
         except Exception as e:
+<<<<<<< HEAD
             self.log_signal.emit(f"Erreur lors de l'installation de Wkhtmltopdf: {str(e)}")
+=======
+            self.log_signal.emit(f"Error installing Wkhtmltopdf: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
     
     def install_odoo(self):
@@ -413,6 +718,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             
             # Clone Odoo repository
             if os.path.exists(os.path.join(install_dir, "odoo")):
+<<<<<<< HEAD
                 self.log_signal.emit("Suppression du répertoire Odoo existant...")
                 shutil.rmtree(os.path.join(install_dir, "odoo"))
             
@@ -436,6 +742,19 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             
             if process.returncode != 0:
                 self.log_signal.emit("Échec du clonage du dépôt Odoo")
+=======
+                self.log_signal.emit("Removing existing Odoo directory...")
+                shutil.rmtree(os.path.join(install_dir, "odoo"))
+            
+            cmd = f'git clone --depth 1 --branch {version} https://www.github.com/odoo/odoo "{os.path.join(install_dir, "odoo")}"'
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to clone Odoo repository")
+                self.log_signal.emit(stderr.decode().strip())
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                 return False
             
             # Create virtual environment
@@ -444,6 +763,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
                 shutil.rmtree(venv_path)
             
             cmd = f'python -m venv "{venv_path}"'
+<<<<<<< HEAD
             self.log_signal.emit(f"Exécution: {cmd}")
             process = subprocess.Popen(cmd, shell=True, 
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -463,6 +783,15 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             
             if process.returncode != 0:
                 self.log_signal.emit("Échec de la création de l'environnement virtuel")
+=======
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to create virtual environment")
+                self.log_signal.emit(stderr.decode().strip())
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                 return False
             
             # Install requirements
@@ -476,6 +805,7 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
             ]
             
             for cmd in cmds:
+<<<<<<< HEAD
                 if self.abort_flag:
                     return False
                 
@@ -498,11 +828,23 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
                 
                 if process.returncode != 0:
                     self.log_signal.emit(f"La commande a échoué: {cmd}")
+=======
+                self.log_signal.emit(f"Executing: {cmd}")
+                process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                if process.returncode != 0:
+                    self.log_signal.emit(f"Command failed: {cmd}")
+                    self.log_signal.emit(stderr.decode().strip())
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                     return False
             
             return True
         except Exception as e:
+<<<<<<< HEAD
             self.log_signal.emit(f"Erreur lors de l'installation d'Odoo: {str(e)}")
+=======
+            self.log_signal.emit(f"Error installing Odoo: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
     
     def configure_odoo(self):
@@ -549,17 +891,26 @@ without_demo = {'false' if self.config['demo_data'] else 'true'}
             
             # Write config file
             config_path = os.path.join(install_dir, "etc", "odoo.conf")
+<<<<<<< HEAD
             with open(config_path, "w", encoding='utf-8') as f:
+=======
+            with open(config_path, "w") as f:
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                 f.write(config_content)
             
             return True
         except Exception as e:
+<<<<<<< HEAD
             self.log_signal.emit(f"Erreur lors de la configuration d'Odoo: {str(e)}")
+=======
+            self.log_signal.emit(f"Error configuring Odoo: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
     
     def create_startup_scripts(self):
         try:
             install_dir = self.config['install_dir']
+<<<<<<< HEAD
             
             # Create batch file
             bat_content = f"""
@@ -572,10 +923,25 @@ pause
             with open(bat_path, "w", encoding='utf-8') as f:
                 f.write(bat_content)
             
+=======
+            
+            # Create batch file
+            bat_content = f"""
+@echo off
+call "{os.path.join(install_dir, "venv", "Scripts", "activate")}"
+python "{os.path.join(install_dir, "odoo", "odoo-bin")}" -c "{os.path.join(install_dir, "etc", "odoo.conf")}"
+pause
+"""
+            bat_path = os.path.join(install_dir, "start_odoo.bat")
+            with open(bat_path, "w") as f:
+                f.write(bat_content)
+            
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             # Create PowerShell script
             ps_content = f"""
 $env:Path += ";{os.path.join(install_dir, "venv", "Scripts")}"
 & "{os.path.join(install_dir, "venv", "Scripts", "python")}" "{os.path.join(install_dir, "odoo", "odoo-bin")}" -c "{os.path.join(install_dir, "etc", "odoo.conf")}"
+<<<<<<< HEAD
 Read-Host -Prompt "Appuyez sur Entrée pour quitter"
 """
             ps_path = os.path.join(install_dir, "start_odoo.ps1")
@@ -668,6 +1034,111 @@ Read-Host -Prompt "Appuyez sur Entrée pour quitter"
             return True
         except Exception as e:
             self.log_signal.emit(f"Erreur lors de la création du service Windows: {str(e)}")
+=======
+Read-Host -Prompt "Press Enter to exit"
+"""
+            ps_path = os.path.join(install_dir, "start_odoo.ps1")
+            with open(ps_path, "w") as f:
+                f.write(ps_content)
+            
+            return True
+        except Exception as e:
+            self.log_signal.emit(f"Error creating startup scripts: {str(e)}")
+            return False
+    
+    def create_windows_service(self):
+        try:
+            install_dir = self.config['install_dir']
+            
+            # Install pywin32 service utilities if not present
+            cmd = f'"{os.path.join(install_dir, "venv", "Scripts", "pip")}" install pywin32'
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process.communicate()
+            
+            # Create service script
+            service_script = f"""
+import win32serviceutil
+import win32service
+import win32event
+import servicemanager
+import subprocess
+import os
+import sys
+
+class OdooService(win32serviceutil.ServiceFramework):
+    _svc_name_ = "Odoo"
+    _svc_display_name_ = "Odoo Server"
+    _svc_description_ = "Odoo ERP Service"
+
+    def __init__(self, args):
+        win32serviceutil.ServiceFramework.__init__(self, args)
+        self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
+        self.process = None
+
+    def SvcStop(self):
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        if self.process:
+            self.process.terminate()
+        win32event.SetEvent(self.hWaitStop)
+
+    def SvcDoRun(self):
+        servicemanager.LogMsg(
+            servicemanager.EVENTLOG_INFORMATION_TYPE,
+            servicemanager.PYS_SERVICE_STARTED,
+            (self._svc_name_, '')
+        )
+        self.main()
+
+    def main(self):
+        odoo_path = r"{os.path.join(install_dir, "odoo", "odoo-bin")}"
+        config_path = r"{os.path.join(install_dir, "etc", "odoo.conf")}"
+        python_path = r"{os.path.join(install_dir, "venv", "Scripts", "python.exe")}"
+        
+        self.process = subprocess.Popen(
+            [python_path, odoo_path, "-c", config_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        self.process.wait()
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(OdooService)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(OdooService)
+"""
+            service_script_path = os.path.join(install_dir, "odoo_service.py")
+            with open(service_script_path, "w") as f:
+                f.write(service_script)
+            
+            # Install the service
+            cmd = f'"{os.path.join(install_dir, "venv", "Scripts", "python")}" "{service_script_path}" install'
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to install Windows service")
+                self.log_signal.emit(stderr.decode().strip())
+                return False
+            
+            # Start the service
+            cmd = f'"{os.path.join(install_dir, "venv", "Scripts", "python")}" "{service_script_path}" start'
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to start Windows service")
+                self.log_signal.emit(stderr.decode().strip())
+                return False
+            
+            return True
+        except Exception as e:
+            self.log_signal.emit(f"Error creating Windows service: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
     
     def start_odoo(self):
@@ -682,6 +1153,7 @@ Read-Host -Prompt "Appuyez sur Entrée pour quitter"
                 bat_path = os.path.join(install_dir, "start_odoo.bat")
                 cmd = f'start cmd /k "{bat_path}"'
             
+<<<<<<< HEAD
             self.log_signal.emit(f"Exécution: {cmd}")
             process = subprocess.Popen(cmd, shell=True, 
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -701,17 +1173,34 @@ Read-Host -Prompt "Appuyez sur Entrée pour quitter"
             
             if process.returncode != 0:
                 self.log_signal.emit("Échec du démarrage d'Odoo")
+=======
+            self.log_signal.emit(f"Executing: {cmd}")
+            process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                self.log_signal.emit("Failed to start Odoo")
+                self.log_signal.emit(stderr.decode().strip())
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                 return False
             
             return True
         except Exception as e:
+<<<<<<< HEAD
             self.log_signal.emit(f"Erreur lors du démarrage d'Odoo: {str(e)}")
+=======
+            self.log_signal.emit(f"Error starting Odoo: {str(e)}")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
             return False
 
 class InstallerDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+<<<<<<< HEAD
         self.setWindowTitle("Installateur Odoo pour Windows")
+=======
+        self.setWindowTitle("Odoo One-Click Installer for Windows")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         self.setMinimumSize(900, 700)
         
         # Set application icon
@@ -869,6 +1358,7 @@ class InstallerDialog(QDialog):
     def create_header(self):
         header_layout = QHBoxLayout()
         
+<<<<<<< HEAD
         # Logo and title
         logo_title_layout = QHBoxLayout()
         
@@ -885,6 +1375,13 @@ class InstallerDialog(QDialog):
         
         header_layout.addLayout(logo_title_layout, 1)
         
+=======
+        # Title
+        title_label = QLabel("Odoo One-Click Installer for Windows")
+        title_label.setObjectName("titleLabel")
+        header_layout.addWidget(title_label, 1, Qt.AlignCenter)
+        
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         # System info
         system_info = QLabel(f"Windows {platform.release()} | {platform.architecture()[0]}")
         system_info.setStyleSheet("font-size: 12px; color: #6c757d;")
@@ -907,7 +1404,11 @@ class InstallerDialog(QDialog):
         self.version_combo = QComboBox()
         self.version_combo.addItems(["17.0", "16.0", "15.0", "14.0"])
         self.version_combo.setCurrentIndex(0)
+<<<<<<< HEAD
         version_layout.addRow("Sélectionnez la version d'Odoo:", self.version_combo)
+=======
+        version_layout.addRow("Select Odoo Version:", self.version_combo)
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         
         version_group.setLayout(version_layout)
         layout.addWidget(version_group)
@@ -917,7 +1418,11 @@ class InstallerDialog(QDialog):
         dir_layout = QHBoxLayout()
         
         self.dir_edit = QLineEdit(os.path.join(os.environ["ProgramFiles"], "Odoo"))
+<<<<<<< HEAD
         self.dir_edit.setPlaceholderText("Entrez le répertoire d'installation")
+=======
+        self.dir_edit.setPlaceholderText("Enter installation directory")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         dir_layout.addWidget(self.dir_edit)
         
         browse_btn = QPushButton("Parcourir...")
@@ -936,9 +1441,15 @@ class InstallerDialog(QDialog):
         self.db_name_edit.setPlaceholderText("Nom de la base de données")
         db_layout.addRow("Nom de la base:", self.db_name_edit)
         
+<<<<<<< HEAD
         self.db_user_edit = QLineEdit("odoo")
         self.db_user_edit.setPlaceholderText("Utilisateur de la base")
         db_layout.addRow("Utilisateur:", self.db_user_edit)
+=======
+        self.db_user_edit = QLineEdit("postgres")
+        self.db_user_edit.setPlaceholderText("Database user")
+        db_layout.addRow("Database User:", self.db_user_edit)
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         
         self.admin_pass_edit = QLineEdit()
         self.admin_pass_edit.setPlaceholderText("Mot de passe admin")
@@ -956,11 +1467,19 @@ class InstallerDialog(QDialog):
         self.install_wkhtmltopdf_check.setChecked(True)
         options_layout.addWidget(self.install_wkhtmltopdf_check)
         
+<<<<<<< HEAD
         self.create_service_check = QCheckBox("Créer un service Windows (recommandé)")
         self.create_service_check.setChecked(True)
         options_layout.addWidget(self.create_service_check)
         
         self.start_service_check = QCheckBox("Démarrer Odoo après l'installation")
+=======
+        self.create_service_check = QCheckBox("Create Windows service (recommended)")
+        self.create_service_check.setChecked(True)
+        options_layout.addWidget(self.create_service_check)
+        
+        self.start_service_check = QCheckBox("Start Odoo after installation")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         self.start_service_check.setChecked(True)
         options_layout.addWidget(self.start_service_check)
         
@@ -1040,14 +1559,22 @@ class InstallerDialog(QDialog):
         add_options_group = QGroupBox("Options supplémentaires")
         add_options_layout = QVBoxLayout()
         
+<<<<<<< HEAD
         self.demo_data_check = QCheckBox("Charger les données de démonstration")
+=======
+        self.demo_data_check = QCheckBox("Load demo data")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         self.demo_data_check.setChecked(True)
         add_options_layout.addWidget(self.demo_data_check)
         
         self.workers_spin = QSpinBox()
         self.workers_spin.setRange(0, 32)
         self.workers_spin.setValue(2)
+<<<<<<< HEAD
         add_options_layout.addWidget(QLabel("Nombre de workers (0 pour la valeur par défaut):"))
+=======
+        add_options_layout.addWidget(QLabel("Number of workers (0 for default):"))
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         add_options_layout.addWidget(self.workers_spin)
         
         add_options_group.setLayout(add_options_layout)
@@ -1116,7 +1643,11 @@ class InstallerDialog(QDialog):
         self.main_layout.addLayout(footer_layout)
     
     def browse_directory(self):
+<<<<<<< HEAD
         directory = QFileDialog.getExistingDirectory(self, "Sélectionnez le répertoire d'installation", os.environ["ProgramFiles"])
+=======
+        directory = QFileDialog.getExistingDirectory(self, "Select Installation Directory", os.environ["ProgramFiles"])
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         if directory:
             self.dir_edit.setText(directory)
     
@@ -1184,8 +1715,11 @@ class InstallerDialog(QDialog):
     
     def log_message(self, message):
         self.log_text.append(message)
+<<<<<<< HEAD
         # Auto-scroll to bottom
         self.log_text.verticalScrollBar().setValue(self.log_text.verticalScrollBar().maximum())
+=======
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
     
     def installation_finished(self, success, message):
         self.set_ui_enabled(True)
@@ -1199,8 +1733,13 @@ class InstallerDialog(QDialog):
             self.log_text.append("Installation terminée avec succès!")
             
             # Offer to open Odoo in browser
+<<<<<<< HEAD
             reply = QMessageBox.question(self, "Odoo Installé", 
                                       "Odoo a été installé avec succès. Voulez-vous l'ouvrir dans votre navigateur maintenant?",
+=======
+            reply = QMessageBox.question(self, "Odoo Installed", 
+                                      "Odoo has been successfully installed. Would you like to open it in your browser now?",
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
                                       QMessageBox.Yes | QMessageBox.No)
             
             if reply == QMessageBox.Yes:
@@ -1216,7 +1755,11 @@ class InstallerDialog(QDialog):
         self.cancel_btn.setEnabled(enabled)
     
     def save_configuration(self):
+<<<<<<< HEAD
         QMessageBox.information(self, "Succès", "Configuration sauvegardée avec succès")
+=======
+        QMessageBox.information(self, "Success", "Configuration saved successfully")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
     
     def clear_log(self):
         self.log_text.clear()
@@ -1254,13 +1797,20 @@ if __name__ == "__main__":
     
     # Check if running on supported platform
     if platform.system() not in ['Windows']:
+<<<<<<< HEAD
         QMessageBox.critical(None, "Plateforme non supportée", 
                             "Cet installateur ne fonctionne que sous Windows.\n"
                             "Linux et macOS ne sont pas supportés dans cette version.")
+=======
+        QMessageBox.critical(None, "Unsupported Platform", 
+                            "This installer only supports Windows.\n"
+                            "Linux and macOS are not supported in this version.")
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
         sys.exit(1)
     
     # Check if running as administrator
     try:
+<<<<<<< HEAD
         if not ctypes.windll.shell32.IsUserAnAdmin():
             # Re-run with admin rights
             ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, None, 1)
@@ -1280,6 +1830,19 @@ if __name__ == "__main__":
     y = (screen_geometry.height() - dialog.height()) // 2
     dialog.move(x, y)
     
+=======
+        import ctypes
+        if not ctypes.windll.shell32.IsUserAnAdmin():
+            QMessageBox.critical(None, "Administrator Rights Required", 
+                                "This installer requires administrator privileges.\n"
+                                "Please restart the installer as Administrator.")
+            sys.exit(1)
+    except:
+        pass
+    
+    # Create and show dialog
+    dialog = InstallerDialog()
+>>>>>>> d290c4a6440d79bc75a442e6a9bf93548318175e
     dialog.show()
     
     sys.exit(app.exec_())

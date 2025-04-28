@@ -2311,7 +2311,7 @@ class PromptManager(QMainWindow):
             "Prompt Genius\n\n"
             "Une application pour gérer, organiser et réutiliser vos prompts.\n\n"
             "Version 1.0\n"
-            "© 2023 - Tous droits réservés"
+            "© 2025 - Tous droits réservés"
         )
     
     def create_menu(self):

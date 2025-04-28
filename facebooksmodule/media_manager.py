@@ -667,7 +667,6 @@ class MediaTable(QWidget):
         """)
         
         
-        top_layout.addWidget(self.action_button)
 
         # Settings button with dropdown menu
         self.settings_button = QPushButton("⚙️ Settings", self)
@@ -689,32 +688,75 @@ class MediaTable(QWidget):
                 background-color: #343a40;
             }
         """)
-        top_layout.addWidget(self.settings_button)
 
-        # Update Robot button
-        self.update_robot_button = QPushButton("🤖 Update Robot", self)
-        self.update_robot_button.clicked.connect(self.show_update_modal)
-        self.update_robot_button.setStyleSheet("""
+        # # Update Robot button
+        # self.update_robot_button = QPushButton("🤖 Update Robot", self)
+        # self.update_robot_button.clicked.connect(self.show_update_modal)
+        # self.update_robot_button.setStyleSheet("""
+        #     QPushButton {
+        #         padding: 10px 18px;
+        #         font-size: 14px;
+        #         font-weight: bold;
+        #         background-color: #17a2b8;
+        #         color: white;
+        #         border: none;
+        #         border-radius: 8px;
+        #     }
+        #     QPushButton:hover {
+        #         background-color: #117a8b;
+        #     }
+        #     QPushButton:pressed {
+        #         background-color: #0d5c73;
+        #     }
+        # """)
+
+        self.add_media_button = QPushButton("🖼️ Add Media")
+        self.add_media_button.clicked.connect(self.import_media)
+
+        # Stylisation du bouton
+        self.add_media_button.setStyleSheet("""
             QPushButton {
-                padding: 10px 18px;
-                font-size: 14px;
-                font-weight: bold;
-                background-color: #17a2b8;
+                background-color: #4CAF50;
                 color: white;
                 border: none;
+                padding: 10px 20px;
                 border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #117a8b;
+                background-color: #45a049;
             }
             QPushButton:pressed {
-                background-color: #0d5c73;
+                background-color: #3e8e41;
             }
         """)
-        top_layout.addWidget(self.update_robot_button)
-
-        # Spacer to push the search bar and media selection to the right
-        top_layout.addStretch()
+            
+        # Bouton "Update Robot" avec menu déroulant
+        self.update_robot_button = QPushButton(self.tr("🤖 Send to Robot"), self)
+        self.update_robot_button.setStyleSheet("""
+            QPushButton {
+                background-color: #1F1B24; /* Dark background */
+                color: #00D4FF; /* Neon text color */
+                border: 2px solid #00D4FF; /* Bright border */
+                border-radius: 20px; /* Rounded corners */
+                font-size: 16px;
+                padding: 10px 20px;
+                font-family: 'Segoe UI', sans-serif;
+                font-weight: bold;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: #00D4FF; /* Hover color */
+                color: #1F1B24; /* Inverted text */
+                border: 2px solid #1F1B24; /* Dark border */
+            }
+            QPushButton:pressed {
+                background-color: #008DBE; /* Click color */
+                border: 2px solid #006B93;
+            }
+        """)
+        self.update_robot_button.clicked.connect(self.show_update_modal)
 
         # Search bar
         self.search_field = QLineEdit(self)
@@ -733,7 +775,6 @@ class MediaTable(QWidget):
                 box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
             }
         """)
-        top_layout.addWidget(self.search_field)
 
         # Media selection combo box
         self.instance_combo = QComboBox(self)
@@ -752,7 +793,23 @@ class MediaTable(QWidget):
                 border: 1px solid #007BFF;
             }
         """)
+
+
+
+        top_layout.addWidget(self.search_field)
         top_layout.addWidget(self.instance_combo)
+
+        # Spacer to push the search bar and media selection to the right
+        top_layout.addStretch()
+
+        top_layout.addWidget(self.add_media_button)
+        
+        top_layout.addWidget(self.action_button)
+        top_layout.addWidget(self.settings_button)
+        
+        top_layout.addWidget(self.update_robot_button)
+        
+
 
         # Add the top layout to the main layout
         layout.addLayout(top_layout)
@@ -814,6 +871,8 @@ class MediaTable(QWidget):
         layout.addWidget(footer)
         # Populate the table
         self.populate_table()
+  
+  
     def export_media(self):
         """Export media to a file."""
         options = QFileDialog.Options()

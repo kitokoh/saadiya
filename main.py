@@ -1725,6 +1725,8 @@ class Browser(QMainWindow):
         self.layout().addWidget(self.side_menu)
         self.is_menu_expanded = False
         self.is_user_menu_expanded = False
+    
+    
     def open_management(self):
         tab_name = self.tr("Management")
 
