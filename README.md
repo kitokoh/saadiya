@@ -1,3 +1,96 @@
+ne code rien du tout ameliore juste lecritue du text en terme de vocabulaire grammaire coorige l ortogramme 
+
+01Page1
+le disign est bon mais jaimerais que ca soitt mieux fonctionnelle je rppelle le fond du probleme
+j aimerais que le truc fonctionne de sorte que lutilisateuteru en redigent le  pormopt et et ciquenat sur le button envoyer representer par un emojji adequat puisse recevoir le resulatat de sa demande sous forme de button radio cliquable  genre le gard ditje veut automatisr ma publication whatsapp alors le truc afficche en reponse selon qu il y a dans la base de donne poar exemple une ou deux options genre message personnaliser whatssap ou message de group whatssap les deux option de la solution seront cliquable et capable dexecuter chacun un fonction dernier  et ainsi de suite 
+
+02 maj
+propose moi un truc qui permet d envoyer une ligne que je vien de chosir de l envoyer directemennt et lajouter a .json
+
+comment pourrais je faire pour mieu disigner l entete du tableau  aussi j aurrais qimer que le text
+
+Prompose moi un truc qui permet de faire de sorte que mon tableau pyqt puisse afficher des text ave mise a jour genre en gras  pour que ca affiche mieu
+
+page installateur
+jaimerais que tu fasse de sorte que ma page d installation soit de fond de couleur blanc et le text noir tu  peu apporter tout autre amelioration de style de disign et de tout ce que tu veux pour le meilleur pourvu que tu respecte la logique deja fonctionnelle actuelle
+
+03backup
+
+propose moi un modal qui permet dextraire le bacup de l application le modal va permettre de choisir ce que lon veu extraire via des button
+radio a choix multiple
+lutilisateur doit etre capable de choisir entre  extraire
+robot1 facebook ….
+de meme que les dossier correspondant predant dans …..
+de meme que la base de donnee correspnndant prerest dans l erp de lutilisateur
+le prgramme doit etre capable de ziper et extraire les donner directement ver lusb
+
+03rebacup
+
+dans la meme logique tu a extrait alos donne moi le programme qui permet dimporter les donner dans la meme logique genre le gars utiliser un formulaire qui permet dimporter un .zip le programme le deşip et ouvre le modal permettant de selectioner les donner a importer au programme en selectionnat les option si possible düne maniere iteligente
+
+04list robots
+
+donne moi un programme pyqut capable de renvoyer le nome de robot present pour chaque reseau social
+
+le programedoit etre capable en lui donnat le nom dun reseu socai renvoyer le nombre de dossier robot preseet pour ce reseaux
+
+voil comment ca doit marcher concretement si on demande au programme il ya combien de :
+
+facebook robot insatller le progrmame va le dossier c bon de lutiliatateur et compt le momre de dossier pressent dans le dossier bon surout les dossier nommer robot1 robot2 etc…. car les dossier sont nommer robot1 a x   et donc le programme doit renvoyer le nombre x des robot present dans c bon
+
+whatsapp robot installer alors le prgramme vas aller compter les robotx present dans le dossier c wabon
+
+linkedind robot insatller alor le prgramme va aller verifier le nombrede robot x present dans c inbon
+
+de instagramm robo installer le prgramm va verifier le nombre de robotx present dans c instabon
+
+de youtube robot alors il cherhe dans c ytbon
+
+05Menu
+
+j aierais  ce menü deja fonctionnelle soit encore plus stulyse plus sobre et que aulieu de safficher en sidebarre quil saffiche en haut çömme pour la plupart des application desktop genre Word exccel et cosort garde la lgique disign et style actuelle tout en amelirant n y retire rien du tout arrange et ameliore plutot  selon ma demande actuelle  aussi si tu peu si tu as compris alor donne moi un truc au top de top sutot ne liasse pas de marge enbas gerre ce qui vien appres puisse se çöller diectement aprcontre tu peut mettre une ligne commce sur corde ca doit etre le top de top
+
+Licence
+
+form gs
+
+donne moi une application en gscod  qui permet de faire une demande de licence le programme lui affiche une page ou il y des case a cocher çömme licence for facebook robot whatssap robot instarobot linkedin robot  youtube robot  mangement  finance link management prompt mangement  etc… une fois lutilisateur aura chosi les option voulu alor le programme envoie le formualaire de demande et demande a lutilisateur
+
+de verifier sa boite mail que sa licence y sera et une alors
+
+06VALİDATE LİCENCE 
+DONE UN PROGRAMME PYQT progrmme doit doc afficher des que le formulaire est envoyer le prgramme doit affficer une page pyqt qui en terme de disgn fait penser a la page de window qui demmande aux utilisateur de rentree leurs licece la page recoi la licence recu par lutilisateur et applique ala fonctier activer liciceNCE
+
+Activer licence
+
+ce code activeelicence est fonctionnelle ajoute aussi loption activve licence qui concerne wabon instabon ytbon  etc…..
+
+genrer licence pour les autres reseau gs
+
+ce codd benere bien les licence pour facebook robot realise moi un truc similiare pour generer et envoyer les licence des autre reseaux
+
+mieux inspire toi de ca et lorsque le trc demande plus düne licence alors envoie le plus düne licence selon sa demande
+
+07Preference
+
+İnspire toi de ca et surtot donne mi un truc qui permet de faire de sorte que lutilisateur puisse selection ce quil aimerais installer comme installer facebook  robot installer whattsapp robot inssatller youtube robot etc…le truc doit etre süper hyperbien disgner  lutilisateur selectionne se preferecne  il pourra egalement selectionner sa langue il pourra ussi selctionner les foctionnaliter de base lors de linsatallation de l application chauq option selectionner pourra declancer leeccuter d une fonction a part le le button envoyer final exectter toute les foctions des options selectionner  utilise pyqt et propose un trc hautement styliser disigner  et avec une experiece utilisateur au top
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Objectif de l'application :  

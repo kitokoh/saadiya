@@ -1373,43 +1373,21 @@ class Browser(QMainWindow):
                 # ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
                 # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),
                 # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
-                ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("add app"), []),
                 # ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
                 # ("🕸️", self.tr("Interconnexion"), "connect", self.add_on_page, self.tr("interconnect Management"), []),
 
 
             ]),
 
-            # Settings section (dynamic)
-            ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
-                # ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
+
+            # Upgrade section (fixed)
+            ("✨", self.tr("Beta Feature"), "beta", None, self.tr("Beata options"), [
+                ("✨", self.tr("IA BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
+                ("🏛️", self.tr("Licences"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("liste de mes contacts"), []),
                  ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("liste de mes grops"), []),
                  ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("liste de mes grops"), []),
-                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
-                ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
 
-                ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
-                    ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
-                    ("🏰", self.tr("English"), "english", lambda: self.switch_language("en"), self.tr("English language"), []),
-                    ("🕋", self.tr("Arabic"), "arabic", lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
-                    ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
-                    ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
-                ]),
-                # ("🌐", self.tr("Connection"), "online_connect", None, self.tr("Remote connection settings"), [
-                #     ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
-                #     # ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
-                #     # ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
-                #     # ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
-                #     # ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
-                #     # ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
-                
-                # ])
-            ]),
-            # Upgrade section (fixed)
-            ("💎", self.tr("Upgrade"), "upgrade", None, self.tr("Upgrade options"), [
-                ("✨", self.tr("IA BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
-                ("🏛️", self.tr("Licences"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
             ]),
             # Data section (dynamic)
             ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
@@ -1439,7 +1417,35 @@ class Browser(QMainWindow):
                 ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
                 ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
             ]),
+            ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), [ ]),
 
+            # Settings section (dynamic)
+            ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
+                # ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
+                ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("add app"), []),
+                ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+
+                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
+                ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
+
+                ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
+                    ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
+                    ("🏰", self.tr("English"), "english", lambda: self.switch_language("en"), self.tr("English language"), []),
+                    ("🕋", self.tr("Arabic"), "arabic", lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
+                    ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
+                    ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
+                ]),
+                # ("🌐", self.tr("Connection"), "online_connect", None, self.tr("Remote connection settings"), [
+                #     ("🖥️", self.tr("SSH Connect"), "ssh", self.connect_via_ssh, self.tr("Connect securely via SSH"), []),
+                #     # ("📂", self.tr("FTP Server"), "ftp", self.connect_via_ftp, self.tr("Access files via FTP"), []),
+                #     # ("🔗", self.tr("API Link"), "api", self.connect_via_api, self.tr("Connect to external APIs"), []),
+                #     # ("🛰️", self.tr("Remote Desktop"), "remote_desktop", self.connect_remote_desktop, self.tr("Access remote desktop sessions"), []),
+                #     # ("🔒", self.tr("VPN Connect"), "vpn", self.connect_via_vpn, self.tr("Connect securely using VPN"), []),
+                #     # ("🧠", self.tr("AI Service"), "ai_service", self.connect_ai_service, self.tr("Connect to external AI platforms"), []),
+                
+                # ])
+            ]),
+            
 
         ]
 
