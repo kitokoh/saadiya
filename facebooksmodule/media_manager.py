@@ -73,12 +73,87 @@ STYLESHEET = """
         background-color: white;
     }
 """
-
-# Classe pour gérer les médias
 class MediaManager:
     def __init__(self, DB_PATH):
         self.DB_PATH = DB_PATH
+
+
+        self.update_queue = []
+        self.update_timer = QTimer()
+        self.update_timer.timeout.connect(self.process_updates)
+        self.update_timer.start(2000)  # Traite les updates toutes les 2 secondes
         self.create_database()
+
+
+    def load_media_from_db_paginated(self, user_choice, limit=50, offset=0):
+        """Version paginée de la requête"""
+        conn = sqlite3.connect(self.DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT m.id, m.nom, m.description, m.preview_path, c.name AS categorie
+            FROM media m
+            LEFT JOIN category c ON m.category_id = c.id
+            WHERE m.type_id = (SELECT id FROM media_type WHERE type = ?)
+            AND m.est_supprime = 0
+            ORDER BY m.date_ajout DESC
+            LIMIT ? OFFSET ?
+        ''', (user_choice, limit, offset))
+
+        results = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        return results
+
+    def get_media_count(self, user_choice):
+        """Compte le nombre total de médias"""
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT COUNT(*) 
+            FROM media 
+            WHERE type_id = (SELECT id FROM media_type WHERE type = ?)
+            AND est_supprime = 0
+        ''', (user_choice,))
+
+        count = cursor.fetchone()[0]
+        conn.close()
+        return count
+
+
+
+    def queue_update(self, media_id, field, value):
+        """Ajoute une mise à jour à la file d'attente"""
+        self.update_queue.append((media_id, field, value))
+        
+    def process_updates(self):
+        """Exécute les mises à jour en batch"""
+        if not self.update_queue:
+            return
+            
+        updates = {}
+        for media_id, field, value in self.update_queue:
+            if media_id not in updates:
+                updates[media_id] = {}
+            updates[media_id][field] = value
+            
+        self.update_queue = []
+        
+        with sqlite3.connect(self.DB_PATH) as conn:
+            cursor = conn.cursor()
+            for media_id, fields in updates.items():
+                set_clause = ", ".join(f"{k} = ?" for k in fields.keys())
+                values = list(fields.values()) + [media_id]
+                
+                cursor.execute(f"""
+                    UPDATE media 
+                    SET {set_clause}, date_modification = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                """, values)
+            conn.commit()
+# Classe pour gérer les médias
+# class MediaManager:
 
     def create_database(self):
         """Crée la base de données SQLite avec les tables media, media_type, et category."""
@@ -143,31 +218,57 @@ class MediaManager:
         conn.commit()
         conn.close()
 
-    def load_media_from_db(self, user_choice):
-        """Charge les médias depuis la base de données."""
-        conn = sqlite3.connect(self.DB_PATH)
-        cursor = conn.cursor()
+    # def load_media_from_db(self, user_choice):
+    #     """Charge les médias depuis la base de données."""
+    #     conn = sqlite3.connect(self.DB_PATH)
+    #     cursor = conn.cursor()
 
-        cursor.execute('''
-            SELECT media.id, media.nom, media.description, media.preview_path, category.name 
-            FROM media 
-            LEFT JOIN category ON media.category_id = category.id
-            WHERE media.type_id = (SELECT id FROM media_type WHERE type = ?) AND media.est_supprime = 0
-        ''', (user_choice,))
+    #     cursor.execute('''
+    #         SELECT media.id, media.nom, media.description, media.preview_path, category.name 
+    #         FROM media 
+    #         LEFT JOIN category ON media.category_id = category.id
+    #         WHERE media.type_id = (SELECT id FROM media_type WHERE type = ?) AND media.est_supprime = 0
+    #     ''', (user_choice,))
 
-        media_list = [
-            {
-                'id': row[0],
-                'nom': row[1],
-                'description': row[2],
-                'preview_path': row[3],
-                'categorie': row[4]
-            }
-            for row in cursor.fetchall()
-        ]
+    #     media_list = [
+    #         {
+    #             'id': row[0],
+    #             'nom': row[1],
+    #             'description': row[2],
+    #             'preview_path': row[3],
+    #             'categorie': row[4]
+    #         }
+    #         for row in cursor.fetchall()
+    #     ]
 
-        conn.close()
-        return media_list
+    #     conn.close()
+    #     return media_list
+    def load_media_from_db(self, user_choice, limit=100, offset=0):
+        """Charge les médias avec pagination et jointures optimisées"""
+        with sqlite3.connect(self.DB_PATH) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            # Requête optimisée avec LEFT JOIN et pagination
+            cursor.execute('''
+                SELECT 
+                    m.id, 
+                    m.nom, 
+                    m.description, 
+                    m.preview_path, 
+                    c.name AS categorie,
+                    mt.type AS media_type
+                FROM media m
+                LEFT JOIN category c ON m.category_id = c.id
+                LEFT JOIN media_type mt ON m.type_id = mt.id
+                WHERE mt.type = ? 
+                AND m.est_supprime = 0
+                ORDER BY m.date_ajout DESC
+                LIMIT ? OFFSET ?
+            ''', (user_choice, limit, offset))
+            
+            return [dict(row) for row in cursor.fetchall()]
+        
 
     import logging
 
@@ -602,9 +703,946 @@ class AddMediaDialog(QDialog):
         # 2. Pour les vidéos: extraire une frame ou garder le chemin
         # Pour l'exemple, nous retournons simplement le chemin
         return self.media_path
+    
+import time
+from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtCore import QDateTime, QTime
+from PyQt5.QtCore import QPropertyAnimation
+from PyQt5.QtWidgets import QCalendarWidget
+
+from PyQt5.QtWidgets import QSpinBox, QDateTimeEdit, QDialogButtonBox, QCalendarWidget, QTextEdit
+from PyQt5.QtCore import QDate, QTime, QDateTime
+from PyQt5.QtCore import QEvent
+
+    # ... (les autres méthodes restent les mêmes)
+class RichTextDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.editor = None
+    def eventFilter(self, editor, event):
+        """Gère les événements clavier pour une meilleure expérience d'édition"""
+        if event.type() == QEvent.KeyPress:
+            # Valider avec Ctrl+Entrée
+            if event.key() == Qt.Key_Return and (event.modifiers() & Qt.ControlModifier):
+                self.commitData.emit(editor)
+                self.closeEditor.emit(editor, QAbstractItemDelegate.SubmitModelCache)
+                return True
+            
+            # Tabulation pour navigation
+            elif event.key() == Qt.Key_Tab:
+                self.commitData.emit(editor)
+                self.closeEditor.emit(editor, QAbstractItemDelegate.SubmitModelCache)
+                return False  # Laissez le tableau gérer la navigation
+                
+            # Échap pour annuler
+            elif event.key() == Qt.Key_Escape:
+                self.closeEditor.emit(editor, QAbstractItemDelegate.RevertModelCache)
+                return True
+                
+        return super().eventFilter(editor, event)
+
+    def createEditor(self, parent, option, index):
+        """Crée un éditeur riche lorsqu'on double-clique"""
+        self.editor = QTextEdit(parent)
+        self.editor.setStyleSheet("""
+            QTextEdit {
+                border: 2px solid #3498db;
+                border-radius: 6px;
+                padding: 10px;
+                font-family: 'Segoe UI';
+                font-size: 14px;
+                min-height: 100px;
+                background-color: white;
+            }
+        """)
+        self.editor.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.editor.setAcceptRichText(False)
+        return self.editor
+
+    def setEditorData(self, editor, index):
+        """Charge les données dans l'éditeur"""
+        editor.setPlainText(index.data(Qt.DisplayRole))
+
+    def setModelData(self, editor, model, index):
+        """Sauvegarde les données après édition"""
+        model.setData(index, editor.toPlainText(), Qt.EditRole)
+
+    def updateEditorGeometry(self, editor, option, index):
+        """Ajuste la géométrie de l'éditeur"""
+        editor.setGeometry(option.rect.adjusted(0, 0, 0, 100))  # Étendre vers le bas
+
+    def sizeHint(self, option, index):
+        """Définit la taille initiale de l'item"""
+        size = super().sizeHint(option, index)
+        size.setHeight(size.height() * 2)  # Double hauteur pour les descriptions
+        return size
+
 
 class MediaTable(QWidget):
+    def handle_item_changed(self, item):
+        """Gère les modifications des cellules"""
+        if item.column() == 2:  # Si c'est la colonne description
+            media_id = self.table.item(item.row(), 0).data(Qt.UserRole)
+            new_description = item.text()
+            
+            # Sauvegarde différée
+            QTimer.singleShot(1000, lambda: 
+                self.save_description(media_id, new_description)
+            )
+
+    def save_description(self, media_id, description):
+        """Sauvegarde asynchrone"""
+        threading.Thread(
+            target=self.media_manager.update_media_description,
+            args=(media_id, description, self.user_choice),
+            daemon=True
+    ).start()
+ # class MediaTable(QWidget):
+    def __inipt__(self, parent=None):
+        super().__init__(parent)
+        self.user_choice = self.load_user_choice()
+        self.media_manager = MediaManager(DB_PATH)
+        self.media_list = self.media_manager.load_media_from_db(self.user_choice)
+        self.page_size = 20
+        self.current_page = 0
+        
+        # Couleurs modernes
+        self.primary_color = "#3498db"
+        self.secondary_color = "#2ecc71"
+        self.dark_color = "#2c3e50"
+        self.light_color = "#ecf0f1"
+        self.accent_color = "#e74c3c"
+        self.setup_pagination()
+
+        self.init_ui()
+
+        # ... (header et toolbar existants)
+
+        self.db_manager = DatabaseManager(DB_PATH)  # Nouveau manager optimisé
+        self.init_ui()
+        self.load_page()
+        # ... (pagination et footer existants)
     def __init__(self, parent=None):
+        super().__init__(parent)
+        self.current_page = 0
+        self.page_size = 50
+        self.total_items = 0
+        
+        # Initialisez d'abord le layout principal
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        
+        # Ensuite initialisez la table
+        self.table = QTableWidget()
+        self.init_table()
+        
+        # Initialisez la pagination
+        self.setup_pagination()
+        
+        # Chargez les données
+        self.load_page()
+
+    def load_page(self):
+        """Charge une page spécifique"""
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            offset = self.current_page * self.page_size
+            self.media_list = self.media_manager.load_media_from_db_paginated(
+                self.user_choice, 
+                limit=self.page_size, 
+                offset=offset
+            )
+            self.total_items = self.media_manager.get_media_count(self.user_choice)
+            self.populate_table()
+            self.update_pagination_controls()
+        finally:
+            QApplication.restoreOverrideCursor()
+
+    def update_pagination_controls(self):
+        """Met à jour l'état des boutons"""
+        self.prev_button.setEnabled(self.current_page > 0)
+        self.next_button.setEnabled(
+            (self.current_page + 1) * self.page_size < self.total_items
+        )
+        self.page_label.setText(
+            f"Page {self.current_page + 1}/{(self.total_items // self.page_size) + 1}"
+        )
+
+    def next_page(self):
+        """Page suivante"""
+        if (self.current_page + 1) * self.page_size < self.total_items:
+            self.current_page += 1
+            self.load_page()
+
+    def prev_page(self):
+        """Page précédente"""
+        if self.current_page > 0:
+            self.current_page -= 1
+            self.load_page()
+
+
+
+
+
+    def load_page1(self):
+        """Charge une page de données de manière optimisée"""
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            self.media_list = self.db_manager.get_paginated_media(
+                self.user_choice,
+                limit=self.page_size,
+                offset=self.current_page * self.page_size
+            )
+            self.populate_table()
+            self.update_pagination()
+        finally:
+            QApplication.restoreOverrideCursor()
+
+    def update_pagination(self):
+        """Met à jour les contrôles de pagination"""
+        total_items = self.db_manager.get_media_count(self.user_choice)
+        total_pages = (total_items + self.page_size - 1) // self.page_size
+        
+        self.page_label.setText(
+            f"Page {self.current_page + 1}/{max(1, total_pages)} | "
+            f"Total: {total_items} médias"
+        )
+        self.prev_button.setEnabled(self.current_page > 0)
+        self.next_button.setEnabled(
+            (self.current_page + 1) * self.page_size < total_items
+        )  
+# class MediaTable(QWidget):
+
+
+
+    def init_ui(self):
+        """Initialise l'interface utilisateur avec un design moderne"""
+        self.setStyleSheet(f"""
+            QWidget {{
+                background-color: {self.light_color};
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }}
+            QLabel {{
+                color: {self.dark_color};
+            }}
+        """)
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        
+        # Header avec dégradé et ombre (hauteur réduite)
+        self.header = QWidget()
+        self.header.setFixedHeight(80)  # Hauteur réduite
+        self.header.setStyleSheet(f"""
+            QWidget {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 {self.primary_color}, stop:1 {self.secondary_color});
+                border-radius: 0;
+                padding: 10px;
+            }}
+        """)
+        
+        header_layout = QVBoxLayout(self.header)
+        header_layout.setContentsMargins(20, 5, 20, 5)  # Marges réduites
+        
+        # Titre avec icône
+        title_layout = QHBoxLayout()
+        
+        self.logo_label = QLabel()
+        self.logo_label.setPixmap(QPixmap("icons/logo.png").scaled(30, 30, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        
+        self.title_label = QLabel("FBK GROUP MANAGEMENT")
+        self.title_label.setStyleSheet(f"""
+            QLabel {{
+                color: white;
+                font-size: 20px;  # Taille réduite
+                font-weight: bold;
+                margin-left: 10px;
+            }}
+        """)
+        
+        title_layout.addWidget(self.logo_label)
+        title_layout.addWidget(self.title_label)
+        title_layout.addStretch()
+        
+        header_layout.addLayout(title_layout)
+        header_layout.addStretch()
+        
+        layout.addWidget(self.header)
+
+        # Barre d'outils avec effet de carte
+        toolbar = QWidget()
+        toolbar.setStyleSheet(f"""
+            QWidget {{
+                background-color: white;
+                border-radius: 8px;
+                margin: 15px;
+                padding: 10px;
+                border: 1px solid #ddd;
+            }}
+        """)
+        
+        toolbar_layout = QHBoxLayout(toolbar)
+        toolbar_layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Bouton d'action avec menu déroulant (avec emoji)
+        self.action_button = self.create_tool_button("📋 Actions", self.primary_color)
+        self.action_button.setMenu(self.create_action_menu())
+        
+        # Bouton de paramètres (avec emoji)
+        self.settings_button = self.create_tool_button("⚙️ Paramètres", "#7f8c8d")
+        self.settings_button.setMenu(self.create_settings_menu())
+        
+        # Bouton d'ajout de média (avec emoji)
+        self.add_media_button = self.create_tool_button("➕ Ajouter média", self.secondary_color)
+        self.add_media_button.clicked.connect(self.import_media)
+        
+        # Bouton d'envoi au robot
+        self.update_robot_button = self.create_tool_button("🤖 Envoyer au robot", self.accent_color)
+        self.update_robot_button.clicked.connect(self.show_update_modal)
+        
+        # Barre de recherche
+        self.search_field = QLineEdit()
+        self.search_field.setPlaceholderText("🔍 Rechercher...")
+        self.search_field.setStyleSheet(f"""
+            QLineEdit {{
+                padding: 8px 15px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                background-color: white;
+                min-width: 250px;
+            }}
+            QLineEdit:focus {{
+                border: 1px solid {self.primary_color};
+                box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+            }}
+        """)
+        self.search_field.textChanged.connect(self.filter_table)
+        
+        # Sélecteur d'instance
+        self.instance_combo = QComboBox()
+        self.instance_combo.addItems([f"media{i}" for i in range(1, 11)])
+        self.instance_combo.setCurrentText(self.user_choice)
+        self.instance_combo.currentIndexChanged.connect(self.on_instance_changed)
+        self.instance_combo.setStyleSheet(f"""
+            QComboBox {{
+                padding: 8px 15px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                background-color: white;
+            }}
+            QComboBox:hover {{
+                border: 1px solid {self.primary_color};
+            }}
+            QComboBox::drop-down {{
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 30px;
+                border-left-width: 1px;
+                border-left-color: #ddd;
+                border-left-style: solid;
+                border-top-right-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }}
+        """)
+        
+        toolbar_layout.addWidget(self.search_field)
+        toolbar_layout.addWidget(self.instance_combo)
+        toolbar_layout.addStretch()
+        toolbar_layout.addWidget(self.add_media_button)
+        toolbar_layout.addWidget(self.action_button)
+        toolbar_layout.addWidget(self.settings_button)
+        toolbar_layout.addWidget(self.update_robot_button)
+        
+        layout.addWidget(toolbar)
+
+        # Configuration du tableau avec style amélioré pour l'édition
+        self.table = QTableWidget()
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['Nom', 'Description', 'Catégorie', 'Aperçu', 'Actions'])
+
+        # Configuration pour la sélection multiple
+        self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)  # Permet la sélection multiple
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        
+        # Augmenter la hauteur des lignes
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.table.verticalHeader().setDefaultSectionSize(40)
+        
+        # Activer le word-wrap pour les descriptions
+        self.table.setWordWrap(True)
+        
+        # Style amélioré pour le tableau
+        self.table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border-radius: 8px;
+                margin: 15px;
+                border: 1px solid #ddd;
+                gridline-color: #eee;
+                font-size: 14px;
+                selection-background-color: #e3f2fd;
+                selection-color: black;
+                alternate-background-color: #f9f9f9;
+            }
+            QHeaderView::section {
+                background-color: #3498db;
+                color: white;
+                padding: 10px;
+                border: none;
+                font-weight: bold;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #eee;
+            }
+            QTableWidget::item:selected {
+                background-color: #e3f2fd;
+                color: black;
+            }
+            QTextEdit {
+                selection-background-color: #3498db;
+                selection-color: white;
+            }
+        """)
+
+        # Configuration des colonnes
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+
+        # Activer l'édition
+        self.table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        
+        layout.addWidget(self.table)
+        
+        # Pagination avec style moderne
+        pagination = QWidget()
+        pagination.setStyleSheet("""
+            QWidget {
+                background-color: white;
+                border-radius: 8px;
+                margin: 15px;
+                padding: 10px;
+                border: 1px solid #ddd;
+            }
+        """)
+        
+        pagination_layout = QHBoxLayout(pagination)
+        
+        self.prev_button = QPushButton("◀ Précédent")
+        self.prev_button.setStyleSheet(f"""
+            QPushButton {{
+                padding: 8px 15px;
+                background-color: {self.light_color};
+                color: {self.dark_color};
+                border: none;
+                border-radius: 5px;
+            }}
+            QPushButton:hover {{
+                background-color: #d5dbdb;
+            }}
+        """)
+        self.prev_button.clicked.connect(self.prev_page)
+        
+        self.page_label = QLabel("Page 1")
+        self.page_label.setStyleSheet(f"color: {self.dark_color};")
+        
+        self.next_button = QPushButton("Suivant ▶")
+        self.next_button.setStyleSheet(f"""
+            QPushButton {{
+                padding: 8px 15px;
+                background-color: {self.primary_color};
+                color: white;
+                border: none;
+                border-radius: 5px;
+            }}
+            QPushButton:hover {{
+                background-color: #2980b9;
+            }}
+        """)
+        self.next_button.clicked.connect(self.next_page)
+        
+        pagination_layout.addWidget(self.prev_button)
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.page_label)
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.next_button)
+        
+        layout.addWidget(pagination)
+        
+        # Activer la navigation au clavier
+        self.table.setTabKeyNavigation(True)
+        
+        self.populate_table()
+        
+    
+    def __ini4t__(self, parent=None):
+        super().__init__(parent)
+        # ... (initialisation existante)
+        self.init_ui()
+           
+
+
+
+    def populate_table(self):
+        """Remplit le tableau avec pagination"""
+        self.table.setRowCount(len(self.media_list))
+        
+        for row, media in enumerate(self.media_list):
+            # Colonne 0 cachée - ID
+            id_item = QTableWidgetItem(str(media['id']))
+            id_item.setData(Qt.UserRole, media['id'])
+            id_item.setFlags(Qt.NoItemFlags)
+            self.table.setItem(row, 0, id_item)
+
+            # Colonne 1 - Nom
+            name_item = QTableWidgetItem(media['nom'])
+            name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 1, name_item)
+
+            # Colonne 2 - Description
+            desc_item = QTableWidgetItem(media['description'])
+            desc_item.setFont(QFont("Segoe UI", 10))
+            desc_item.setFlags(desc_item.flags() | Qt.ItemIsEditable)
+            self.table.setItem(row, 2, desc_item)
+            
+            # ... le reste de votre méthode existante ...
+
+
+    # def populate_table(self):
+    #     """Remplit le tableau avec un style amélioré et les nouvelles fonctionnalités"""
+    #     self.table.setRowCount(len(self.media_list))
+        
+    #     for row, media in enumerate(self.media_list):
+    #         # Colonne Nom
+    #         name_item = QTableWidgetItem(media['nom'])
+    #         name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+    #         self.table.setItem(row, 0, name_item)
+
+    #         # # Colonne Description avec éditeur enrichi
+    #         # desc_item = QTableWidgetItem(media['description'])
+    #         # desc_item.setFont(QFont("Segoe UI", 10))
+    #         # self.table.setItem(row, 1, desc_item)
+   
+    #         # Colonne Description avec éditeur enrichi
+    #         desc_item = QTableWidgetItem(media['description'])
+    #         desc_item.setFont(QFont("Segoe UI", 10))
+    #         desc_item.setFlags(desc_item.flags() | Qt.ItemIsEditable)
+    #         self.table.setItem(row, 1, desc_item)
+            
+            # Configurer le delegate pour la colonne Description
+            self.table.setItemDelegateForColumn(1, RichTextDelegate(self.table))
+
+ 
+            # Colonne Catégorie
+            category_combo = QComboBox()
+            categories = self.media_manager.load_categories()
+            for category in categories:
+                category_combo.addItem(category['name'])
+            category_combo.setCurrentText(media.get('categorie', 'Default'))
+            category_combo.currentTextChanged.connect(lambda text, row=row: self.update_category(row, text))
+            self.table.setCellWidget(row, 2, category_combo)
+
+            # Colonne Aperçu
+            preview_label = QLabel()
+            preview_label.setAlignment(Qt.AlignCenter)
+            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+                pixmap = QPixmap(media['preview_path']).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                preview_label.setPixmap(pixmap)
+            elif media['nom'].endswith(('.mp4', '.mov')):
+                preview_label.setText("🎥 Voir")
+            preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
+            self.table.setCellWidget(row, 3, preview_label)
+            from PyQt5.QtWidgets import QToolButton
+
+            def create_action_button(emoji, tooltip, color, hover_color, callback):
+                btn = QToolButton()
+                btn.setText(emoji)
+                btn.setToolTip(tooltip)
+                btn.setCursor(Qt.PointingHandCursor)
+                btn.setStyleSheet(f"""
+                    QToolButton {{
+                        background-color: {color};
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px;
+                        font-size: 18px;
+                    }}
+                    QToolButton:hover {{
+                        background-color: {hover_color};
+                        box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+                    }}
+                """)
+                btn.clicked.connect(callback)
+                return btn
+
+            # Colonne Actions avec style amélioré
+            action_widget = QWidget()
+            action_layout = QHBoxLayout(action_widget)
+            action_layout.setContentsMargins(8, 2, 8, 2)
+            action_layout.setSpacing(10)
+
+            # Boutons avec emojis
+            schedule_btn = create_action_button("📅", "Planifier la publication", "#9b59b6", "#8e44ad", lambda _, m=media: self.schedule_publication(m))
+            send_btn = create_action_button("🤖", "Envoyer au robot", "#3498db", "#2980b9", lambda _, m=media: self.send_to_robot(m))
+            delete_btn = create_action_button("🗑️", "Supprimer", "#e74c3c", "#c0392b", lambda _, m=media: self.delete_media(m))
+
+            # Ajout à l’interface
+            for btn in [schedule_btn, send_btn, delete_btn]:
+                action_layout.addWidget(btn)
+
+
+            self.table.setCellWidget(row, 4, action_widget)
+   
+        # Ajuster automatiquement la hauteur des lignes
+        self.table.resizeRowsToContents()
+        self.table.setColumnHidden(0, True)
+        
+        # Connecter le signal pour redimensionner après édition
+        self.table.model().dataChanged.connect(lambda: self.table.resizeRowsToContents())
+           # Cache la colonne ID
+   
+    def delete_media(self, media):
+        """Version corrigée de la suppression de média"""
+        try:
+            # Vérifier si le fichier existe avant de le déplacer
+            if not os.path.exists(media['preview_path']):
+                QMessageBox.warning(self, "Erreur", "Le fichier média n'existe plus.")
+                return
+
+            # Créer le dossier archive s'il n'existe pas
+            archive_folder = os.path.join(media_folder, f"{self.user_choice}Archive")
+            os.makedirs(archive_folder, exist_ok=True)
+
+            # Générer un nom de fichier d'archive unique
+            base_name = os.path.basename(media['preview_path'])
+            archive_name = f"archived_{int(time.time())}_{base_name}"
+            archive_path = os.path.join(archive_folder, archive_name)
+
+            # Déplacer le fichier
+            shutil.move(media['preview_path'], archive_path)
+
+            # Supprimer de la base de données
+            self.media_manager.delete_media_in_db(media, self.user_choice)
+            
+            # Rafraîchir l'affichage
+            self.media_list = self.media_manager.load_media_from_db(self.user_choice)
+            self.populate_table()
+
+            QMessageBox.information(self, "Succès", "Média supprimé et archivé avec succès.")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur lors de la suppression : {str(e)}")
+
+    def schedule_publication(self, media):
+        """Ouvre un modal de planification avec calendrier"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Planifier la publication")
+        dialog.setFixedSize(400, 300)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Calendrier
+        self.calendar = QCalendarWidget()
+        self.calendar.setStyleSheet("""
+            QCalendarWidget {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+            }
+            QCalendarWidget QToolButton {
+                height: 30px;
+                font-size: 14px;
+            }
+        """)
+        layout.addWidget(self.calendar)
+        
+        # Sélecteur d'heure
+        time_layout = QHBoxLayout()
+        time_layout.addWidget(QLabel("Heure:"))
+        
+        self.hour_spin = QSpinBox()
+        self.hour_spin.setRange(0, 23)
+        self.hour_spin.setValue(12)
+        time_layout.addWidget(self.hour_spin)
+        
+        time_layout.addWidget(QLabel("Minute:"))
+        
+        self.minute_spin = QSpinBox()
+        self.minute_spin.setRange(0, 59)
+        self.minute_spin.setValue(0)
+        time_layout.addWidget(self.minute_spin)
+        
+        layout.addLayout(time_layout)
+        
+        # Boutons
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addWidget(button_box)
+        
+        if dialog.exec_() == QDialog.Accepted:
+            selected_date = self.calendar.selectedDate()
+            selected_time = QTime(self.hour_spin.value(), self.minute_spin.value())
+            datetime = QDateTime(selected_date, selected_time)
+            
+            # Ici vous pourriez enregistrer la date planifiée dans la base de données
+            QMessageBox.information(self, "Planifié", 
+                                  f"Publication planifiée pour le {datetime.toString('dd/MM/yyyy HH:mm')}")
+
+    def send_to_robot(self, media):
+        """Envoie un seul média au robot"""
+        try:
+            # Préparer les données pour l'envoi
+            data = {
+                "posts": [{
+                    "id": media['id'],
+                    "name": media['nom'],
+                    "description": media['description'],
+                    "path": media['preview_path'],
+                    "type": "image" if media['nom'].endswith(('.png', '.jpg', '.jpeg')) else "video"
+                }],
+                "groups": []
+            }
+
+            # Afficher une progression
+            progress = QProgressDialog("Envoi au robot en cours...", "Annuler", 0, 100, self)
+            progress.setWindowModality(Qt.WindowModal)
+            
+            # Simuler l'envoi progressif
+            for i in range(5):
+                progress.setValue(i * 20)
+                QApplication.processEvents()
+                time.sleep(0.5)
+                if progress.wasCanceled():
+                    break
+
+            progress.close()
+            
+            QMessageBox.information(self, "Succès", "Média envoyé au robot avec succès!")
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Échec de l'envoi au robot : {str(e)}")
+
+    # Pour avoir un éditeur qui s'étend en hauteur
+    def eventFilter(self, editor, event):
+        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Return:
+            editor.textCursor().insertText("\n")
+            return True
+        return super().eventFilter(editor, event)
+
+    def on_cell_changed(self, row, column):
+        """Amélioration de l'édition directe dans le tableau"""
+        if column == 1:  # Colonne Description
+            try:
+                new_description = self.table.item(row, column).text()
+                media = self.media_list[row]
+                
+                # Créer un champ de texte riche temporaire pour améliorer l'expérience
+                text_edit = QTextEdit()
+                text_edit.setPlainText(new_description)
+                text_edit.setStyleSheet("""
+                    QTextEdit {
+                        border: 1px solid #3498db;
+                        border-radius: 4px;
+                        padding: 5px;
+                        font-family: 'Segoe UI';
+                        font-size: 14px;
+                    }
+                """)
+                
+                # Afficher l'éditeur en plein tableau
+                self.table.setCellWidget(row, column, text_edit)
+                text_edit.setFocus()
+                
+                # Quand l'édition est terminée (quand le widget perd le focus)
+                def finish_edit():
+                    final_text = text_edit.toPlainText()
+                    self.table.removeCellWidget(row, column)
+                    item = QTableWidgetItem(final_text)
+                    self.table.setItem(row, column, item)
+                    
+                    # Mettre à jour la base de données
+                    media['description'] = final_text
+                    self.media_manager.update_media_in_db(media, self.user_choice)
+                
+                text_edit.focusOutEvent = lambda event: finish_edit()
+                
+            except Exception as e:
+                QMessageBox.warning(self, "Erreur", f"Erreur lors de la modification : {str(e)}")
+
+    def create_tool_button(self, text, color):
+        """Crée un bouton d'outil stylisé"""
+        button = QPushButton(text)
+        button.setStyleSheet(f"""
+            QPushButton {{
+                padding: 8px 15px;
+                background-color: {color};
+                color: white;
+                border: none;
+                border-radius: 20px;
+                font-size: 14px;
+                min-width: 120px;
+            }}
+            QPushButton:hover {{
+                background-color: {self.darken_color(color, 15)};
+            }}
+        """)
+        return button
+
+    def darken_color(self, hex_color, percent):
+        """Assombrit une couleur hexadécimale"""
+        color = QColor(hex_color)
+        return color.darker(100 + percent).name()
+
+    def populate_table1(self):
+        """Remplit le tableau avec un style amélioré"""
+        self.table.setRowCount(len(self.media_list))
+        
+        for row, media in enumerate(self.media_list):
+            # Nom avec icône selon le type
+            name_item = QTableWidgetItem()
+            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+                name_item.setIcon(QIcon("icons/image.png"))
+            elif media['nom'].endswith(('.mp4', '.mov')):
+                name_item.setIcon(QIcon("icons/video.png"))
+            name_item.setText(media['nom'])
+            name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 0, name_item)
+            
+            # Description avec style riche
+            desc_item = QTableWidgetItem(media['description'])
+            desc_item.setFont(QFont("Segoe UI", 10))
+            self.table.setItem(row, 1, desc_item)
+            
+            # Catégorie avec badge coloré
+            category_combo = QComboBox()
+            categories = self.media_manager.load_categories()
+            for category in categories:
+                category_combo.addItem(category['name'])
+            category_combo.setCurrentText(media.get('categorie', 'Default'))
+            category_combo.currentTextChanged.connect(lambda text, row=row: self.update_category(row, text))
+            category_combo.setStyleSheet("""
+                QComboBox {
+                    padding: 5px;
+                    border: 1px solid #ddd;
+                    border-radius: 12px;
+                }
+            """)
+            self.table.setCellWidget(row, 2, category_combo)
+            
+            # Aperçu avec effet de survol
+            preview_label = QLabel()
+            preview_label.setAlignment(Qt.AlignCenter)
+            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+                pixmap = QPixmap(media['preview_path']).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                preview_label.setPixmap(pixmap)
+            elif media['nom'].endswith(('.mp4', '.mov')):
+                preview_label.setText("🎥 Cliquer pour prévisualiser")
+                preview_label.setStyleSheet("color: #3498db; font-style: italic;")
+            preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
+            self.table.setCellWidget(row, 3, preview_label)
+            
+            # Boutons d'action avec style moderne
+            action_widget = QWidget()
+            action_layout = QHBoxLayout(action_widget)
+            action_layout.setContentsMargins(0, 0, 0, 0)
+            action_layout.setSpacing(5)
+            
+            edit_btn = QPushButton()
+            edit_btn.setIcon(QIcon("icons/edit.png"))
+            edit_btn.setToolTip("Modifier")
+            edit_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #f39c12;
+                    border-radius: 5px;
+                    padding: 5px;
+                    border: none;
+                }
+                QPushButton:hover {
+                    background-color: #e67e22;
+                }
+            """)
+            edit_btn.clicked.connect(lambda _, m=media: self.edit_media(m))
+            
+            delete_btn = QPushButton()
+            delete_btn.setIcon(QIcon("icons/delete.png"))
+            delete_btn.setToolTip("Supprimer")
+            delete_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #e74c3c;
+                    border-radius: 5px;
+                    padding: 5px;
+                    border: none;
+                }
+                QPushButton:hover {
+                    background-color: #c0392b;
+                }
+            """)
+            delete_btn.clicked.connect(lambda _, m=media: self.delete_media(m))
+            
+            view_btn = QPushButton()
+            view_btn.setIcon(QIcon("icons/view.png"))
+            view_btn.setToolTip("Voir")
+            view_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #3498db;
+                    border-radius: 5px;
+                    padding: 5px;
+                    border: none;
+                }
+                QPushButton:hover {
+                    background-color: #2980b9;
+                }
+            """)
+            view_btn.clicked.connect(lambda _, m=media: self.show_media(m))
+            
+            action_layout.addWidget(edit_btn)
+            action_layout.addWidget(view_btn)
+            action_layout.addWidget(delete_btn)
+            
+            self.table.setCellWidget(row, 4, action_widget)
+        
+        # Mise à jour de la pagination
+        self.page_label.setText(f"Page {self.current_page + 1}")
+        self.prev_button.setEnabled(self.current_page > 0)
+        self.next_button.setEnabled((self.current_page + 1) * self.page_size < len(self.media_list))
+
+    def show_preview(self, path):
+        """Affiche un aperçu agrandi avec animation"""
+        preview = QDialog(self)
+        preview.setWindowTitle("Aperçu")
+        preview.setWindowModality(Qt.ApplicationModal)
+        
+        layout = QVBoxLayout(preview)
+        
+        if path.endswith(('.png', '.jpg', '.jpeg')):
+            label = QLabel()
+            pixmap = QPixmap(path)
+            label.setPixmap(pixmap.scaled(800, 600, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            layout.addWidget(label)
+        elif path.endswith(('.mp4', '.mov')):
+            # Ici vous pourriez intégrer un lecteur vidéo
+            label = QLabel("Prévisualisation vidéo non implémentée")
+            layout.addWidget(label)
+        
+        close_btn = QPushButton("Fermer")
+        close_btn.clicked.connect(preview.close)
+        layout.addWidget(close_btn)
+        
+        preview.exec_()
+
+    # ... (le reste des méthodes reste inchangé)
+# class MediaTable(QWidget):
+    def __initt__(self, parent=None):
         super().__init__(parent)
         self.user_choice = self.load_user_choice()  # Load user choice
         self.media_manager = MediaManager(DB_PATH)
@@ -630,8 +1668,69 @@ class MediaTable(QWidget):
         config = {'user_choice': choice}
         with open(config_path, 'w') as f:
             json.dump(config, f)
+    def setup_pagination1(self):
+        """Initialise les contrôles de pagination"""
+        self.pagination_widget = QWidget()
+        pagination_layout = QHBoxLayout(self.pagination_widget)
+        
+        self.prev_button = QPushButton("◀ Précédent")
+        self.prev_button.clicked.connect(self.prev_page)
+        
+        self.page_label = QLabel()
+        
+        self.next_button = QPushButton("Suivant ▶")
+        self.next_button.clicked.connect(self.next_page)
+        
+        pagination_layout.addWidget(self.prev_button)
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.page_label)
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.next_button)
+        
+        # Ajoutez ce widget à votre layout principal
+        self.layout().addWidget(self.pagination_widget)
+    def setup_pagination(self):
+        """Initialise les contrôles de pagination"""
+        self.pagination_widget = QWidget()
+        pagination_layout = QHBoxLayout(self.pagination_widget)
+        pagination_layout.setContentsMargins(10, 5, 10, 5)
+        
+        self.prev_button = QPushButton("◀ Précédent")
+        self.prev_button.clicked.connect(self.prev_page)
+        
+        self.page_label = QLabel("Chargement...")
+        self.page_label.setAlignment(Qt.AlignCenter)
+        
+        self.next_button = QPushButton("Suivant ▶")
+        self.next_button.clicked.connect(self.next_page)
+        
+        pagination_layout.addWidget(self.prev_button)
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.page_label)
+        pagination_layout.addStretch()
+        pagination_layout.addWidget(self.next_button)
+        
+        # Ajout au layout principal
+        self.main_layout.addWidget(self.table)
+        self.main_layout.addWidget(self.pagination_widget)
 
-    def init_ui(self):
+
+    def init_table(self):
+        """Initialise la configuration de base du tableau"""
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['ID', 'Nom', 'Description', 'Catégorie', 'Actions'])
+        self.table.verticalHeader().setVisible(False)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        
+        # Configuration des colonnes
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.Interactive)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents)
+        def init_uii(self):
         """Initialize the user interface."""
         layout = QVBoxLayout(self)
 
@@ -1008,7 +2107,7 @@ class MediaTable(QWidget):
             self.populate_table()
 
 
-    def populate_table(self):
+    def populate_table1(self):
         """Populate the table with media."""
         self.table.setRowCount(len(self.media_list))
 
@@ -1177,7 +2276,7 @@ class MediaTable(QWidget):
         self.media_manager.add_media_to_db(new_media, self.user_choice)
         self.populate_table()
 
-    def update_media_description(self, media_id, description):
+    def update_media_description1(self, media_id, description):
         """Met à jour la description d'un média dans la base de données."""
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
@@ -1191,7 +2290,21 @@ class MediaTable(QWidget):
         conn.commit()
         conn.close()
         self.populate_table()
-
+    def update_media_description(self, media_id, new_description, user_choice):
+        """Met à jour la description dans la base"""
+        conn = sqlite3.connect(self.DB_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            UPDATE media 
+            SET description = ?, date_modification = CURRENT_TIMESTAMP
+            WHERE id = ? AND type_id = (
+                SELECT id FROM media_type WHERE type = ?
+            )
+        ''', (new_description, media_id, user_choice))
+        
+        conn.commit()
+        conn.close()
     def on_instance_changed(self):
         """Met à jour l'interface lorsque l'utilisateur change de dossier média."""
         self.user_choice = self.instance_combo.currentText()
@@ -1268,7 +2381,7 @@ class MediaTable(QWidget):
             self.populate_table()
 
 
-    def delete_media(self, media):
+    def delete_media1(self, media):
         progress = QProgressDialog("Suppression en cours...", None, 0, 0, self)
         progress.setWindowTitle("Veuillez patienter")
         progress.setCancelButton(None)
@@ -1381,19 +2494,19 @@ class MediaTable(QWidget):
         filtered_media = [media for media in self.media_list if search_text in media['nom'].lower() or search_text in media['description'].lower()]
         self.populate_table()
 
-    def prev_page(self):
+    def prev_page1(self):
         """Navigue vers la page précédente."""
         if self.current_page > 0:
             self.current_page -= 1
             self.populate_table()
 
-    def next_page(self):
+    def next_page1(self):
         """Navigue vers la page suivante."""
         if (self.current_page + 1) * self.page_size < len(self.media_list):
             self.current_page += 1
             self.populate_table()
 
-    def on_cell_changed(self, row, column):
+    def on_cell_changed1(self, row, column):
         """Met à jour la base de données lorsque l'utilisateur modifie une cellule."""
         if column == 1:  # Colonne "Description"
             media = self.media_list[row]
@@ -1828,7 +2941,581 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
+import sqlite3
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QListWidget, QListWidgetItem, 
+                            QPushButton, QLabel, QMessageBox, QTabWidget, QWidget,
+                            QProgressDialog, QHBoxLayout)
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal
 
+DB_PATH = "database.db"
+class DatabaseManager:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self._optimize_database()
+
+    def _optimize_database(self):
+        """Applique les optimisations SQLite au démarrage"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA cache_size=-10000")  # 10MB cache
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA temp_store=MEMORY")
+            
+            # Création des index critiques
+            conn.execute('''
+                CREATE INDEX IF NOT EXISTS idx_media_type 
+                ON media(type_id)
+            ''')
+            conn.execute('''
+                CREATE INDEX IF NOT EXISTS idx_media_category 
+                ON media(category_id)
+            ''')
+            conn.execute('''
+                CREATE INDEX IF NOT EXISTS idx_media_deleted 
+                ON media(est_supprime)
+            ''')
+
+    def get_paginated_media(self, media_type, limit=100, offset=0):
+        """Version optimisée pour la pagination"""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT m.*, c.name AS category_name
+                FROM media m
+                LEFT JOIN category c ON m.category_id = c.id
+                WHERE m.type_id = (
+                    SELECT id FROM media_type WHERE type = ?
+                )
+                AND m.est_supprime = 0
+                LIMIT ? OFFSET ?
+            ''', (media_type, limit, offset))
+            
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_media_count(self, media_type):
+        """Compte rapide pour la pagination"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT COUNT(*) 
+                FROM media 
+                WHERE type_id = (
+                    SELECT id FROM media_type WHERE type = ?
+                )
+                AND est_supprime = 0
+            ''', (media_type,))
+            return cursor.fetchone()[0]
+# class DatabaseManager:
+#     def __init__(self, db_path):
+#         self.db_path = db_path
+        
+#     def __enter__(self):
+#         self.conn = sqlite3.connect(self.db_path)
+#         self.cursor = self.conn.cursor()
+#         return self
+        
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         self.conn.close()
+        
+#     def get_media_categories(self):
+#         self.cursor.execute("SELECT id, name, description FROM category")
+#         return self.cursor.fetchall()
+        
+#     def get_group_categories(self):
+#         self.cursor.execute("SELECT id, name, description FROM category")
+#         return self.cursor.fetchall()
+        
+#     def get_media_by_category(self, category_ids):
+#         query = f"""
+#             SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+#             FROM media m
+#             JOIN media_type mt ON m.type_id = mt.id
+#             WHERE m.category_id IN ({','.join('?'*len(category_ids))})
+#         """
+#         self.cursor.execute(query, category_ids)
+#         return self.cursor.fetchall()
+        
+#     def get_groups_by_category(self, category_ids):
+#         query = f"""
+#             SELECT g.id, g.link, g.remarks, g.description, g.keywords
+#             FROM groups g
+#             WHERE g.category_id IN ({','.join('?'*len(category_ids))})
+#         """
+#         self.cursor.execute(query, category_ids)
+#         return self.cursor.fetchall()
+        
+#     def get_single_media(self, media_id):
+#         self.cursor.execute("""
+#             SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+#             FROM media m
+#             JOIN media_type mt ON m.type_id = mt.id
+#             WHERE m.id = ?
+#         """, (media_id,))
+#         return self.cursor.fetchone()
+        
+#     def get_single_group(self, group_id):
+#         self.cursor.execute("""
+#             SELECT id, link, remarks, description, keywords
+#             FROM groups
+#             WHERE id = ?
+#         """, (group_id,))
+#         return self.cursor.fetchone()
+
+class SendWorker(QThread):
+    progress_updated = pyqtSignal(int)
+    finished = pyqtSignal(bool, str)
+    
+    def __init__(self, data, is_bulk=True):
+        super().__init__()
+        self.data = data
+        self.is_bulk = is_bulk
+        
+    def run(self):
+        try:
+            if self.is_bulk:
+                # Logique d'envoi en masse
+                total_items = len(self.data.get("posts", [])) + len(self.data.get("groups", []))
+                for i in range(total_items):
+                    self.progress_updated.emit(int((i+1)/total_items*100))
+                    QThread.msleep(100)  # Simulation
+            else:
+                # Logique d'envoi unitaire
+                for i in range(5):  # Simulation de sous-étapes
+                    self.progress_updated.emit((i+1)*20)
+                    QThread.msleep(150)
+                    
+            self.finished.emit(True, "Envoi réussi")
+        except Exception as e:
+            self.finished.emit(False, str(e))
+
+class UpdateRobotDialognew(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+        self.setup_connections()
+        self.load_data_async()
+        self.current_selection = None
+        
+    def setup_ui(self):
+        self.setWindowTitle("Envoyer au Robot")
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setFixedSize(700, 550)
+        
+        # Style moderne
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial;
+            }
+            QTabWidget::pane {
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                padding: 4px;
+                background: white;
+            }
+            QTabBar::tab {
+                padding: 8px 16px;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background: #3b82f6;
+                color: white;
+            }
+            QListWidget {
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                background: white;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            QListWidget::item:selected {
+                background: #bfdbfe;
+                color: #1e40af;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            #send_button {
+                background-color: #3b82f6;
+                color: white;
+            }
+            #send_button:hover {
+                background-color: #2563eb;
+            }
+            #send_one_button {
+                background-color: #10b981;
+                color: white;
+            }
+            #send_one_button:hover {
+                background-color: #059669;
+            }
+        """)
+        
+        # Onglets principaux
+        self.tabs = QTabWidget()
+        self.setup_media_tab()
+        self.setup_groups_tab()
+        
+        # Barre de boutons
+        button_layout = QHBoxLayout()
+        self.send_button = QPushButton("Envoyer la sélection", objectName="send_button")
+        self.send_one_button = QPushButton("Envoyer l'élément sélectionné", objectName="send_one_button")
+        self.cancel_button = QPushButton("Annuler")
+        button_layout.addWidget(self.send_one_button)
+        button_layout.addStretch()
+        button_layout.addWidget(self.send_button)
+        button_layout.addWidget(self.cancel_button)
+        
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.tabs)
+        main_layout.addLayout(button_layout)
+        self.setLayout(main_layout)
+        
+    def setup_media_tab(self):
+        """Configure l'onglet des médias"""
+        self.media_tab = QWidget()
+        layout = QVBoxLayout()
+        
+        # Filtres
+        filter_layout = QHBoxLayout()
+        self.media_filter = QLineEdit(placeholderText="Filtrer les médias...")
+        self.media_filter.setClearButtonEnabled(True)
+        filter_layout.addWidget(QLabel("Filtre:"))
+        filter_layout.addWidget(self.media_filter)
+        
+        # Liste des catégories
+        self.media_category_list = QListWidget()
+        self.media_category_list.setSelectionMode(QListWidget.MultiSelection)
+        
+        # Liste des médias
+        self.media_list = QListWidget()
+        self.media_list.setSelectionMode(QListWidget.SingleSelection)
+        
+        # Layout
+        layout.addLayout(filter_layout)
+        layout.addWidget(QLabel("Catégories:"))
+        layout.addWidget(self.media_category_list)
+        layout.addWidget(QLabel("Médias disponibles:"))
+        layout.addWidget(self.media_list)
+        
+        self.media_tab.setLayout(layout)
+        self.tabs.addTab(self.media_tab, "Médias")
+        
+    def setup_groups_tab(self):
+        """Configure l'onglet des groupes"""
+        self.groups_tab = QWidget()
+        layout = QVBoxLayout()
+        
+        # Filtres
+        filter_layout = QHBoxLayout()
+        self.group_filter = QLineEdit(placeholderText="Filtrer les groupes...")
+        self.group_filter.setClearButtonEnabled(True)
+        filter_layout.addWidget(QLabel("Filtre:"))
+        filter_layout.addWidget(self.group_filter)
+        
+        # Liste des catégories
+        self.group_category_list = QListWidget()
+        self.group_category_list.setSelectionMode(QListWidget.MultiSelection)
+        
+        # Liste des groupes
+        self.group_list = QListWidget()
+        self.group_list.setSelectionMode(QListWidget.SingleSelection)
+        
+        # Layout
+        layout.addLayout(filter_layout)
+        layout.addWidget(QLabel("Catégories:"))
+        layout.addWidget(self.group_category_list)
+        layout.addWidget(QLabel("Groupes disponibles:"))
+        layout.addWidget(self.group_list)
+        
+        self.groups_tab.setLayout(layout)
+        self.tabs.addTab(self.groups_tab, "Groupes")
+        
+    def setup_connections(self):
+        """Connecte les signaux et slots"""
+        # Boutons
+        self.send_button.clicked.connect(self.send_to_robot)
+        self.send_one_button.clicked.connect(self.send_one_to_robot)
+        self.cancel_button.clicked.connect(self.reject)
+        
+        # Filtres
+        self.media_filter.textChanged.connect(self.filter_media)
+        self.group_filter.textChanged.connect(self.filter_groups)
+        
+        # Sélections
+        self.media_category_list.itemSelectionChanged.connect(self.load_media_for_categories)
+        self.group_category_list.itemSelectionChanged.connect(self.load_groups_for_categories)
+        self.media_list.itemSelectionChanged.connect(self.update_current_selection)
+        self.group_list.itemSelectionChanged.connect(self.update_current_selection)
+        
+    def update_current_selection(self):
+        """Met à jour la sélection courante"""
+        sender = self.sender()
+        if sender == self.media_list and sender.currentItem():
+            self.current_selection = ("media", sender.currentItem().data(Qt.UserRole))
+        elif sender == self.group_list and sender.currentItem():
+            self.current_selection = ("group", sender.currentItem().data(Qt.UserRole))
+        else:
+            self.current_selection = None
+            
+        # Active/désactive le bouton d'envoi unitaire
+        self.send_one_button.setEnabled(self.current_selection is not None)
+        
+    def load_data_async(self):
+        """Charge les données de manière asynchrone"""
+        # Afficher un indicateur de chargement
+        self.loading_indicator = QLabel("Chargement en cours...")
+        self.loading_indicator.setAlignment(Qt.AlignCenter)
+        self.tabs.addTab(self.loading_indicator, "Chargement")
+        self.tabs.setCurrentIndex(2)
+        
+        # Simuler un chargement asynchrone
+        QTimer.singleShot(500, self.populate_initial_data)
+        
+    def populate_initial_data(self):
+        """Remplit les données initiales"""
+        try:
+            with DatabaseManager(DB_PATH) as db:
+                # Catégories de médias
+                media_categories = db.get_media_categories()
+                for cat_id, name, desc in media_categories:
+                    item = QListWidgetItem(f"{name} - {desc}")
+                    item.setData(Qt.UserRole, cat_id)
+                    self.media_category_list.addItem(item)
+                
+                # Catégories de groupes
+                group_categories = db.get_group_categories()
+                for cat_id, name, desc in group_categories:
+                    item = QListWidgetItem(f"{name} - {desc}")
+                    item.setData(Qt.UserRole, cat_id)
+                    self.group_category_list.addItem(item)
+                
+            # Retirer l'onglet de chargement
+            self.tabs.removeTab(2)
+            
+        except Exception as e:
+            self.show_error("Erreur de chargement", f"Impossible de charger les données: {str(e)}")
+            self.reject()
+            
+    def load_media_for_categories(self):
+        """Charge les médias pour les catégories sélectionnées"""
+        selected_ids = [item.data(Qt.UserRole) for item in self.media_category_list.selectedItems()]
+        if not selected_ids:
+            self.media_list.clear()
+            return
+            
+        try:
+            with DatabaseManager(DB_PATH) as db:
+                medias = db.get_media_by_category(selected_ids)
+                self.media_list.clear()
+                for media_id, name, desc, path, mtype in medias:
+                    item = QListWidgetItem(f"{mtype}: {name}")
+                    item.setData(Qt.UserRole, media_id)
+                    item.setToolTip(desc)
+                    self.media_list.addItem(item)
+                    
+        except Exception as e:
+            self.show_error("Erreur", f"Impossible de charger les médias: {str(e)}")
+            
+    def load_groups_for_categories(self):
+        """Charge les groupes pour les catégories sélectionnées"""
+        selected_ids = [item.data(Qt.UserRole) for item in self.group_category_list.selectedItems()]
+        if not selected_ids:
+            self.group_list.clear()
+            return
+            
+        try:
+            with DatabaseManager(DB_PATH) as db:
+                groups = db.get_groups_by_category(selected_ids)
+                self.group_list.clear()
+                for group_id, link, remarks, desc, keywords in groups:
+                    item = QListWidgetItem(f"{link} - {remarks}")
+                    item.setData(Qt.UserRole, group_id)
+                    item.setToolTip(f"{desc}\nMots-clés: {keywords}")
+                    self.group_list.addItem(item)
+                    
+        except Exception as e:
+            self.show_error("Erreur", f"Impossible de charger les groupes: {str(e)}")
+            
+    def filter_media(self, text):
+        """Filtre la liste des médias"""
+        for i in range(self.media_list.count()):
+            item = self.media_list.item(i)
+            item.setHidden(text.lower() not in item.text().lower())
+            
+    def filter_groups(self, text):
+        """Filtre la liste des groupes"""
+        for i in range(self.group_list.count()):
+            item = self.group_list.item(i)
+            item.setHidden(text.lower() not in item.text().lower())
+            
+    def validate_selection(self):
+        """Valide qu'il y a une sélection"""
+        if not any([self.media_category_list.selectedItems(), self.group_category_list.selectedItems()]):
+            self.show_warning("Sélection requise", 
+                             "Veuillez sélectionner au moins une catégorie de médias ou de groupes.")
+            return False
+        return True
+        
+    def send_to_robot(self):
+        """Envoie les sélections au robot"""
+        if not self.validate_selection():
+            return
+            
+        # Préparer les données
+        media_ids = [item.data(Qt.UserRole) for item in self.media_category_list.selectedItems()]
+        group_ids = [item.data(Qt.UserRole) for item in self.group_category_list.selectedItems()]
+        
+        try:
+            with DatabaseManager(DB_PATH) as db:
+                media_data = db.get_media_by_category(media_ids) if media_ids else []
+                group_data = db.get_groups_by_category(group_ids) if group_ids else []
+                
+                data = {
+                    "posts": [{
+                        "id": m[0],
+                        "name": m[1],
+                        "description": m[2],
+                        "path": m[3],
+                        "type": m[4]
+                    } for m in media_data],
+                    "groups": [{
+                        "id": g[0],
+                        "link": g[1],
+                        "remarks": g[2],
+                        "description": g[3],
+                        "keywords": g[4]
+                    } for g in group_data]
+                }
+                
+                # Démarrer l'envoi en arrière-plan
+                self.start_send_process(data, is_bulk=True)
+                
+        except Exception as e:
+            self.show_error("Erreur d'envoi", f"Échec de la préparation des données: {str(e)}")
+            
+    def send_one_to_robot(self):
+        """Envoie un seul élément sélectionné au robot"""
+        if not self.current_selection:
+            return
+            
+        item_type, item_id = self.current_selection
+        
+        try:
+            with DatabaseManager(DB_PATH) as db:
+                if item_type == "media":
+                    media = db.get_single_media(item_id)
+                    if not media:
+                        self.show_warning("Introuvable", "Le média sélectionné n'existe plus.")
+                        return
+                        
+                    data = {
+                        "posts": [{
+                            "id": media[0],
+                            "name": media[1],
+                            "description": media[2],
+                            "path": media[3],
+                            "type": media[4]
+                        }],
+                        "groups": []
+                    }
+                else:
+                    group = db.get_single_group(item_id)
+                    if not group:
+                        self.show_warning("Introuvable", "Le groupe sélectionné n'existe plus.")
+                        return
+                        
+                    data = {
+                        "posts": [],
+                        "groups": [{
+                            "id": group[0],
+                            "link": group[1],
+                            "remarks": group[2],
+                            "description": group[3],
+                            "keywords": group[4]
+                        }]
+                    }
+                
+                # Démarrer l'envoi en arrière-plan
+                self.start_send_process(data, is_bulk=False)
+                
+        except Exception as e:
+            self.show_error("Erreur d'envoi", f"Échec de la préparation des données: {str(e)}")
+            
+    def start_send_process(self, data, is_bulk=True):
+        """Démarre le processus d'envoi avec une progress bar"""
+        self.progress = QProgressDialog(
+            "Envoi en cours...", 
+            "Annuler", 
+            0, 
+            100, 
+            self
+        )
+        self.progress.setWindowModality(Qt.WindowModal)
+        self.progress.setAutoClose(True)
+        
+        # Créer et démarrer le worker
+        self.worker = SendWorker(data, is_bulk)
+        self.worker.progress_updated.connect(self.progress.setValue)
+        self.worker.finished.connect(self.on_send_finished)
+        self.progress.canceled.connect(self.worker.terminate)
+        self.worker.start()
+        
+    def on_send_finished(self, success, message):
+        """Gère la fin de l'envoi"""
+        self.progress.close()
+        
+        if success:
+            self.show_success("Succès", message)
+            self.accept()
+        else:
+            self.show_error("Échec", message)
+            
+    def show_success(self, title, message):
+        """Affiche un message de succès"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+        
+    def show_warning(self, title, message):
+        """Affiche un avertissement"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+        
+    def show_error(self, title, message):
+        """Affiche une erreur"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+# # Exemple d'utilisation
+# if __name__ == "__main__":
+#     import sys
+#     from PyQt5.QtWidgets import QApplication
+    
+#     app = QApplication(sys.argv)
+#     dialog = UpdateRobotDialog()
+#     dialog.show()
+#     sys.exit(app.exec_())
 class UpdateRobotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)

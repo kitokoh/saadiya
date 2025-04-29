@@ -1416,6 +1416,7 @@ class Browser(QMainWindow):
                 ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
                 ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
                 ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
+
             ]),
             ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), [ ]),
 
@@ -1424,6 +1425,9 @@ class Browser(QMainWindow):
                 # ("📅", self.tr("Schedule"), "schedule", self.open_sheduling_window, self.tr("Configure schedules"), []),
                 ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("add app"), []),
                 ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("add app"), []),
+                ("📞", self.tr("Vision"), "contact", self.open_contact_window, self.tr("vision global"), []),
+                ("📞", self.tr("Com Interne"), "contact", self.open_contact_window, self.tr("vision global"), []),
+                ("📞", self.tr("Com Externe"), "contact", self.open_contact_window, self.tr("vision global"), []),
 
                  ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
