@@ -10,10 +10,6 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem, QHeaderView, QAbstractItemView, QMessageBox, QMenu, QDialog, QDialogButtonBox, QFileDialog,
     QCheckBox, QApplication, QStackedWidget, QTableWidgetSelectionRange, QInputDialog, QStyledItemDelegate
 )
-
-import time
-from PyQt5.QtWidgets import QTextEdit
-from PyQt5.QtCore import QDateTime, QTime
 from PyQt5.QtWidgets import QAction
 # Chemin vers le dossier de l'utilisateur (Roaming)
 # user_data_dir = os.path.join(os.getenv('APPDATA'), 'saadiya')
@@ -23,9 +19,16 @@ from imports import *
 from facebooksmodule.group_manager import ReseauSocialManagementDialog
 from facebooksmodule.group_manager import MediaTypeManagementDialog
 from PyQt5.QtWidgets import QProgressDialog
-from PyQt5.QtWidgets import QStyle
-from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import QStyleOptionButton
+from PyQt5.QtWidgets import QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QTabWidget
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtCore import QPropertyAnimation
+import time
+from PyQt5.QtWidgets import QCalendarWidget
+from PyQt5.QtCore import QDate
+from PyQt5.QtWidgets import QGroupBox
+from PyQt5.QtWidgets import QDateTimeEdit
+from PyQt5.QtCore import QTime
 
 from ui.header import HeaderSection
 from ui.footer import FooterSection
@@ -151,7 +154,7 @@ class MediaManager:
         conn.commit()
         conn.close()
 
-    def load_media_from_db1(self, user_choice):
+    def load_media_from_db(self, user_choice):
         """Charge les médias depuis la base de données."""
         conn = sqlite3.connect(self.DB_PATH)
         cursor = conn.cursor()
@@ -177,33 +180,6 @@ class MediaManager:
         conn.close()
         return media_list
 
-
-    def load_media_from_db(self, user_choice):
-        """Charge les médias depuis la base de données pour le modèle"""
-        conn = sqlite3.connect(self.DB_PATH)
-        cursor = conn.cursor()
-
-        cursor.execute('''
-            SELECT media.id, media.nom, media.description, media.preview_path, category.name 
-            FROM media 
-            LEFT JOIN category ON media.category_id = category.id
-            WHERE media.type_id = (SELECT id FROM media_type WHERE type = ?) AND media.est_supprime = 0
-        ''', (user_choice,))
-
-        # Retourne une liste de listes directement compatible avec le modèle
-        media_data = [
-            [
-                row[1],  # nom
-                row[2],  # description
-                row[4],  # categorie
-                row[3],  # preview_path
-                row[0]   # id (stocké mais non affiché)
-            ]
-            for row in cursor.fetchall()
-        ]
-
-        conn.close()
-        return media_data
     import logging
 
     logging.basicConfig(level=logging.DEBUG)
@@ -371,9 +347,6 @@ class MediaManager:
         return count > 0
 
 
-
-from PyQt5.QtCore import QAbstractTableModel
-from PyQt5.QtCore import QSortFilterProxyModel
 
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem,
@@ -719,9 +692,6 @@ class MediaTable(QWidget):
         self.light_color = "#ecf0f1"
         self.accent_color = "#e74c3c"
         # Initialize UI
-
-
-        
         self.init_ui()
     def create_tool_button(self, text, color):
         """Crée un bouton d'outil stylisé"""
@@ -1337,8 +1307,7 @@ class MediaTable(QWidget):
     def reload_list(self):
         """Reload the media list from the database."""
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
-        # self.populate_table()
-        self.load_data()
+        self.populate_table()
         QMessageBox.information(self, "Success", "Media list reloaded successfully!")
 
     def manage_social_networks(self):
@@ -1632,8 +1601,8 @@ class MediaTable(QWidget):
         self.user_choice = self.instance_combo.currentText()
         self.save_user_choice(self.user_choice)
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
-            # self.populate_table()
-        self.load_data()
+        self.populate_table()
+
     # def populate_table(self):
     #     """Remplit le tableau avec les médias."""
     #     self.table.setRowCount(len(self.media_list))
@@ -2723,12 +2692,6 @@ class MediaTable(QWidget):
         preview.exec_()
 
 
-    def update_pagination(self):
-        """Met à jour la pagination lorsque le nombre d'éléments par page change"""
-        self.current_page = 1  # Retour à la première page
-        self.page_label.setText(f"Page {self.current_page}")
-        self.populate_table()  # Ou self.populate_model() si vous utilisez QTableView
-        
     def init_ui(self):
         """Initialise l'interface utilisateur avec un design moderne et des améliorations UX"""
         # Appliquer le style global
@@ -3009,6 +2972,12 @@ class MediaTable(QWidget):
                 height: 0;
                 background: none;
             }}
+
+                /* Lignes verticales seulement */
+    QTableWidget::item {{
+        border-right: 1px solid #e0e0e0;  /* Couleur des lignes verticales */
+        border-bottom: none;  /* Désactive les lignes horizontales */
+    }}
         """)
 
         # Activer l'édition avec feedback visuel
@@ -3110,67 +3079,99 @@ class MediaTable(QWidget):
         self.setMinimumSize(1000, 700)  # Taille minimale pour une bonne expérience
         self.populate_table()
 
-    def init_ui(self):
-        """Initialise l'interface utilisateur avec QTableView pour une meilleure performance"""
-        # Appliquer le style global
+
+    def update_pagination(self):
+        """Met à jour la pagination lorsque le nombre d'éléments par page change"""
+        self.current_page = 1  # Retour à la première page
+        self.page_label.setText(f"Page {self.current_page}")
+        self.populate_table()  # Ou self.populate_model() si vous utilisez QTableView
+
+    def init_uiplus(self):
+        """Initialise l'interface utilisateur avec un design moderne et des améliorations UX"""
+        # Appliquer le style global avec effets de matériel design
         self.setStyleSheet(f"""
-            /* Styles de base */
+            /* Styles de base avec animation fluide */
             QWidget {{
                 background-color: {self.light_color};
                 font-family: 'Segoe UI', Arial, sans-serif;
                 color: {self.dark_color};
             }}
             
-            /* Styles pour les éléments désactivés */
-            QWidget:disabled {{
-                color: #95a5a6;
+            /* Effets de hover et de focus modernes */
+            QPushButton, QComboBox, QLineEdit, QTableView {{
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             }}
             
-            /* Effets de transition pour les interactions */
-            QPushButton, QComboBox, QLineEdit {{
-                transition: all 0.3s ease;
+            /* Effets d'ombre pour les éléments flottants */
+            .shadow-effect {{
+                border-radius: 8px;
+                background: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }}
+            
+            /* Style pour les tooltips */
+            QToolTip {{
+                background-color: {self.dark_color};
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 4px;
+                opacity: 240;
             }}
         """)
 
         # Layout principal avec espacement optimisé
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(5)
+        layout.setSpacing(0)  # Nous gérons les marges individuellement
         
         # ----------------------------
-        # Header amélioré (identique pour conserver l'identité visuelle)
+        # Header premium avec effet de verre
         # ----------------------------
         self.header = QWidget()
-        self.header.setFixedHeight(70)
+        self.header.setFixedHeight(80)
         self.header.setStyleSheet(f"""
             QWidget {{
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                     stop:0 {self.primary_color}, stop:1 {self.secondary_color});
-                border-bottom: 2px solid {self.dark_color};
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             }}
         """)
         
-        header_layout = QHBoxLayout(self.header)
-        header_layout.setContentsMargins(15, 5, 15, 5)
-        header_layout.setSpacing(10)
+        # Effet de flou pour le header (simulé avec un dégradé)
+        header_effect = QGraphicsOpacityEffect(self.header)
+        header_effect.setOpacity(0.98)
+        self.header.setGraphicsEffect(header_effect)
         
+        header_layout = QHBoxLayout(self.header)
+        header_layout.setContentsMargins(20, 10, 20, 10)
+        header_layout.setSpacing(15)
+        
+        # Logo et titre avec animation au hover
         title_container = QWidget()
         title_layout = QHBoxLayout(title_container)
         title_layout.setContentsMargins(0, 0, 0, 0)
-        title_layout.setSpacing(10)
+        title_layout.setSpacing(15)
         
         self.logo_label = QLabel()
-        logo_pixmap = QPixmap("icons/logo.png").scaled(30, 30, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        logo_pixmap = QPixmap("icons/logo.png").scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.logo_label.setPixmap(logo_pixmap)
         self.logo_label.setAlignment(Qt.AlignVCenter)
+        self.logo_label.setCursor(Qt.PointingHandCursor)
+        self.logo_label.setStyleSheet("""
+            QLabel:hover {
+                transform: rotate(10deg);
+            }
+        """)
         
         self.title_label = QLabel("FBK GROUP MANAGEMENT")
         self.title_label.setStyleSheet(f"""
             QLabel {{
                 color: white;
-                font-size: 18px;
-                font-weight: bold;
-                margin: 0;
+                font-size: 22px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             }}
         """)
         self.title_label.setAlignment(Qt.AlignVCenter)
@@ -3179,50 +3180,125 @@ class MediaTable(QWidget):
         title_layout.addWidget(self.title_label)
         title_layout.addStretch()
         
+        # Bouton de menu utilisateur avec icône circulaire
+        self.user_button = QPushButton()
+        self.user_button.setFixedSize(40, 40)
+        self.user_button.setStyleSheet(f"""
+            QPushButton {{
+                border-radius: 20px;
+                background-color: white;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                padding: 0;
+            }}
+            QPushButton:hover {{
+                border: 2px solid white;
+                background-color: {self.accent_color};
+            }}
+        """)
+        user_icon = QLabel(self.user_button)
+        user_icon.setPixmap(QPixmap("icons/user.png").scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        user_icon.setAlignment(Qt.AlignCenter)
+        user_icon.setGeometry(8, 8, 24, 24)
+        
         header_layout.addWidget(title_container)
         header_layout.addStretch()
+        header_layout.addWidget(self.user_button)
         
         layout.addWidget(self.header)
 
         # ----------------------------
-        # Barre d'outils améliorée (identique)
+        # Barre d'outils premium avec onglets
         # ----------------------------
-        toolbar = QWidget()
-        toolbar.setStyleSheet(f"""
-            QWidget {{
+        toolbar_container = QWidget()
+        toolbar_container.setStyleSheet("""
+            QWidget {
                 background-color: white;
-                border-radius: 0;
-                padding: 10px 15px;
-                border-bottom: 1px solid #ddd;
+                border-bottom: 1px solid #e0e0e0;
+            }
+        """)
+        
+        toolbar_layout = QVBoxLayout(toolbar_container)
+        toolbar_layout.setContentsMargins(0, 0, 0, 0)
+        toolbar_layout.setSpacing(0)
+        
+        # Onglets modernes
+        self.tab_bar = QTabWidget()
+        self.tab_bar.setStyleSheet(f"""
+            QTabWidget::pane {{
+                border: none;
+                margin: 0;
+                padding: 0;
+            }}
+            QTabBar::tab {{
+                background: transparent;
+                color: {self.dark_color};
+                padding: 12px 20px;
+                border: none;
+                font-weight: 500;
+                font-size: 14px;
+            }}
+            QTabBar::tab:selected {{
+                color: {self.primary_color};
+                border-bottom: 3px solid {self.primary_color};
+            }}
+            QTabBar::tab:hover {{
+                background-color: #f5f5f5;
             }}
         """)
         
-        toolbar_layout = QHBoxLayout(toolbar)
-        toolbar_layout.setContentsMargins(5, 5, 5, 5)
-        toolbar_layout.setSpacing(10)
+        # Onglet principal
+        main_tab = QWidget()
+        self.tab_bar.addTab(main_tab, "📁 Gestion des médias")
+        self.tab_bar.addTab(QWidget(), "📊 Statistiques")
+        self.tab_bar.addTab(QWidget(), "⚙️ Paramètres avancés")
+        
+        # Contenu de l'onglet principal
+        tab_layout = QHBoxLayout(main_tab)
+        tab_layout.setContentsMargins(15, 15, 15, 15)
+        tab_layout.setSpacing(15)
+        
+        # Barre de recherche avec icône intégrée
+        search_container = QWidget()
+        search_container.setStyleSheet(".shadow-effect;")
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(5, 5, 5, 5)
         
         self.search_field = QLineEdit()
-        self.search_field.setPlaceholderText("🔍 Rechercher...")
+        self.search_field.setPlaceholderText("Rechercher des médias...")
         self.search_field.setClearButtonEnabled(True)
         self.search_field.setStyleSheet(f"""
             QLineEdit {{
-                padding: 8px 15px;
+                padding: 10px 15px;
                 font-size: 14px;
-                border: 1px solid #ddd;
-                border-radius: 20px;
-                background-color: white;
-                min-width: 250px;
-            }}
-            QLineEdit:hover {{
-                border: 1px solid {self.primary_color};
+                border: none;
+                background: transparent;
+                min-width: 300px;
             }}
             QLineEdit:focus {{
-                border: 2px solid {self.primary_color};
-                padding: 7px 14px;
+                border: none;
+                outline: none;
             }}
         """)
         self.search_field.textChanged.connect(self.filter_table)
         
+        search_button = QPushButton()
+        search_button.setIcon(QIcon("icons/search.png"))
+        search_button.setStyleSheet(f"""
+            QPushButton {{
+                border: none;
+                background: transparent;
+                padding: 8px;
+                border-radius: 4px;
+            }}
+            QPushButton:hover {{
+                background-color: {self.light_color};
+            }}
+        """)
+        
+        search_layout.addWidget(self.search_field)
+        search_layout.addWidget(search_button)
+        
+        # Sélecteur d'instance avec style moderne
         self.instance_combo = QComboBox()
         self.instance_combo.addItems([f"media{i}" for i in range(1, 11)])
         self.instance_combo.setCurrentText(self.user_choice)
@@ -3230,153 +3306,223 @@ class MediaTable(QWidget):
         self.instance_combo.currentIndexChanged.connect(self.on_instance_changed)
         self.instance_combo.setStyleSheet(f"""
             QComboBox {{
-                padding: 8px 15px 8px 10px;
+                padding: 10px 15px;
                 font-size: 14px;
-                border: 1px solid #ddd;
-                border-radius: 20px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
                 background-color: white;
+                min-width: 150px;
             }}
             QComboBox:hover {{
                 border: 1px solid {self.primary_color};
             }}
-            QComboBox:focus {{
-                border: 2px solid {self.primary_color};
-                padding: 7px 14px 7px 9px;
-            }}
             QComboBox::drop-down {{
                 subcontrol-origin: padding;
                 subcontrol-position: top right;
-                width: 25px;
-                border-left-width: 1px;
-                border-left-color: #ddd;
-                border-left-style: solid;
-                border-top-right-radius: 20px;
-                border-bottom-right-radius: 20px;
+                width: 30px;
+                border-left: none;
             }}
             QComboBox::down-arrow {{
-                image: url(icons/down-arrow.png);
-                width: 12px;
-                height: 12px;
+                image: url(icons/arrow-down.png);
+                width: 14px;
+                height: 14px;
+            }}
+            QComboBox QAbstractItemView {{
+                border: 1px solid #e0e0e0;
+                selection-background-color: {self.primary_color};
+                selection-color: white;
+                padding: 8px;
             }}
         """)
         
+        # Boutons d'action avec effets matériels
         button_style = """
             QPushButton {{
-                padding: 8px 15px;
+                padding: 10px 20px;
                 font-size: 14px;
-                border-radius: 20px;
+                border-radius: 8px;
                 border: none;
                 color: white;
                 background-color: {0};
-                min-width: 120px;
+                min-width: 140px;
+                transition: all 0.2s;
             }}
             QPushButton:hover {{
                 background-color: {1};
-                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                transform: translateY(-2px);
             }}
             QPushButton:pressed {{
-                transform: translateY(1px);
+                transform: translateY(0);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }}
+            QPushButton::menu-indicator {{
+                image: none;
             }}
         """
         
-        self.add_media_button = QPushButton("➕ Ajouter média")
+        self.add_media_button = QPushButton("Ajouter média")
+        self.add_media_button.setIcon(QIcon("icons/add.png"))
         self.add_media_button.setStyleSheet(button_style.format(
             self.secondary_color, 
             QColor(self.secondary_color).darker(110).name()
         ))
         self.add_media_button.clicked.connect(self.import_media)
         
-        self.action_button = QPushButton("📋 Actions")
+        self.action_button = QPushButton("Actions")
+        self.action_button.setIcon(QIcon("icons/actions.png"))
         self.action_button.setStyleSheet(button_style.format(
             self.primary_color,
             QColor(self.primary_color).darker(110).name()
         ))
         self.action_button.setMenu(self.create_action_menu())
         
-        self.settings_button = QPushButton("⚙️ Paramètres")
+        self.settings_button = QPushButton("Paramètres")
+        self.settings_button.setIcon(QIcon("icons/settings.png"))
         self.settings_button.setStyleSheet(button_style.format(
             "#7f8c8d",
             QColor("#7f8c8d").darker(110).name()
         ))
         self.settings_button.setMenu(self.create_settings_menu())
         
-        self.update_robot_button = QPushButton("🤖 Envoyer au robot")
+        self.update_robot_button = QPushButton("Envoyer au robot")
+        self.update_robot_button.setIcon(QIcon("icons/robot.png"))
         self.update_robot_button.setStyleSheet(button_style.format(
             self.accent_color,
             QColor(self.accent_color).darker(110).name()
         ))
         self.update_robot_button.clicked.connect(self.show_update_modal)
         
-        toolbar_layout.addWidget(self.search_field)
-        toolbar_layout.addWidget(self.instance_combo)
-        toolbar_layout.addStretch()
-        toolbar_layout.addWidget(self.add_media_button)
-        toolbar_layout.addWidget(self.action_button)
-        toolbar_layout.addWidget(self.settings_button)
-        toolbar_layout.addWidget(self.update_robot_button)
+        # Ajout des éléments avec espacement
+        tab_layout.addWidget(search_container)
+        tab_layout.addWidget(self.instance_combo)
+        tab_layout.addStretch()
+        tab_layout.addWidget(self.add_media_button)
+        tab_layout.addWidget(self.action_button)
+        tab_layout.addWidget(self.settings_button)
+        tab_layout.addWidget(self.update_robot_button)
         
-        layout.addWidget(toolbar)
+        toolbar_layout.addWidget(self.tab_bar)
+        layout.addWidget(toolbar_container)
 
         # ----------------------------
-        # Nouvelle implémentation avec QTableView
+        # Tableau ultra moderne
         # ----------------------------
-        self.table_view = QTableView()
+        self.table_container = QWidget()
+        self.table_container.setStyleSheet("""
+            QWidget {
+                background-color: #f8f9fa;
+                border: none;
+            }
+        """)
         
-        # Création du modèle de données
-        self.model = MediaTableModel()
-        self.proxy_model = QSortFilterProxyModel()
-        self.proxy_model.setSourceModel(self.model)
-        self.table_view.setModel(self.proxy_model)
+        table_layout = QVBoxLayout(self.table_container)
+        table_layout.setContentsMargins(20, 20, 20, 20)
+        table_layout.setSpacing(15)
         
-        # Configuration avancée de la vue
-        self.table_view.setSelectionBehavior(QTableView.SelectRows)
-        self.table_view.setSelectionMode(QTableView.ExtendedSelection)
-        self.table_view.setSortingEnabled(True)
-        self.table_view.verticalHeader().setVisible(False)
-        self.table_view.setShowGrid(False)
-        self.table_view.setAlternatingRowColors(True)
-        self.table_view.verticalHeader().setDefaultSectionSize(40)
+        # En-tête du tableau
+        table_header = QWidget()
+        table_header.setStyleSheet(".shadow-effect;")
+        header_layout = QHBoxLayout(table_header)
+        header_layout.setContentsMargins(15, 10, 15, 10)
+        
+        self.table_title = QLabel("Liste des médias")
+        self.table_title.setStyleSheet(f"""
+            QLabel {{
+                font-size: 16px;
+                font-weight: 600;
+                color: {self.dark_color};
+            }}
+        """)
+        
+        self.selected_count = QLabel("0 éléments sélectionnés")
+        self.selected_count.setStyleSheet("""
+            QLabel {
+                font-size: 13px;
+                color: #7f8c8d;
+            }
+        """)
+        
+        header_layout.addWidget(self.table_title)
+        header_layout.addStretch()
+        header_layout.addWidget(self.selected_count)
+        
+        table_layout.addWidget(table_header)
+        
+        # Tableau lui-même
+        self.table = QTableWidget()
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(['Nom', 'Description', 'Catégorie', 'Aperçu', 'Actions'])
+        
+        # Configuration avancée du tableau
+        self.table.setAlternatingRowColors(True)
+        self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSortingEnabled(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.setShowGrid(False)
+        self.table.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        self.table.cellChanged.connect(self.on_cell_changed)
+        
+        # Hauteur des lignes et polices
+        self.table.verticalHeader().setDefaultSectionSize(50)
+        self.table.setFont(QFont('Segoe UI', 11))
         
         # Configuration des colonnes
-        self.table_view.horizontalHeader().setStretchLastSection(True)
-        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.table_view.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # Nom
+        header.setSectionResizeMode(1, QHeaderView.Stretch)          # Description
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents) # Catégorie
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents) # Aperçu
+        header.setSectionResizeMode(4, QHeaderView.ResizeToContents) # Actions
+        header.setDefaultAlignment(Qt.AlignLeft)
         
-        # Style amélioré pour la vue
-        self.table_view.setStyleSheet(f"""
-            QTableView {{
+        # Style premium pour le tableau
+        self.table.setStyleSheet(f"""
+            QTableWidget {{
                 background-color: white;
-                border-radius: 0;
-                margin: 0;
+                border-radius: 8px;
                 border: none;
-                alternate-background-color: #f9f9f9;
-                selection-background-color: {self.primary_color}20;
+                alternate-background-color: #fafafa;
+                selection-background-color: {self.primary_color}15;
                 selection-color: {self.dark_color};
+                gridline-color: transparent;
+            }}
+            QHeaderView {{
+                background-color: white;
+                border-radius: 8px 8px 0 0;
+                border: none;
             }}
             QHeaderView::section {{
-                background-color: {self.primary_color};
-                color: white;
-                padding: 10px;
+                background-color: white;
+                color: {self.dark_color};
+                padding: 15px;
                 border: none;
-                font-weight: bold;
-                font-size: 12px;
+                font-weight: 500;
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                border-bottom: 2px solid {self.primary_color};
             }}
-            QTableView::item {{
-                padding: 8px;
-                border-bottom: 1px solid #eee;
+            QTableWidget::item {{
+                padding: 12px 15px;
+                border-bottom: 1px solid #f0f0f0;
             }}
-            QTableView::item:selected {{
-                background-color: {self.primary_color}40;
+            QTableWidget::item:selected {{
+                background-color: {self.primary_color}20;
             }}
             QScrollBar:vertical {{
-                width: 12px;
-                margin: 0;
+                width: 10px;
                 background: transparent;
+                margin: 5px;
             }}
             QScrollBar::handle:vertical {{
-                background: {self.primary_color};
-                min-height: 20px;
-                border-radius: 6px;
+                background: {self.primary_color}40;
+                min-height: 30px;
+                border-radius: 5px;
+            }}
+            QScrollBar::handle:vertical:hover {{
+                background: {self.primary_color}60;
             }}
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
                 height: 0;
@@ -3384,422 +3530,210 @@ class MediaTable(QWidget):
             }}
         """)
         
-        # Ajout des boutons d'action dans la dernière colonne
-        self.table_view.setItemDelegateForColumn(4, ActionItemDelegate(self))
+        # Ajouter des boutons d'action dans chaque ligne
+        self.table.setRowCount(0)  # Reset avant le remplissage
         
-        # Activer l'édition avec double-clic
-        self.table_view.setEditTriggers(QTableView.DoubleClicked | QTableView.EditKeyPressed)
-        
-        layout.addWidget(self.table_view, 1)
-        
+        table_layout.addWidget(self.table, 1)
+        layout.addWidget(self.table_container, 1)
+
         # ----------------------------
-        # Pagination améliorée avec prise en charge du proxy
+        # Pagination et statut bar
         # ----------------------------
-        pagination = QWidget()
-        pagination.setStyleSheet("""
+        footer = QWidget()
+        footer.setStyleSheet("""
             QWidget {
                 background-color: white;
-                border-top: 1px solid #ddd;
-                padding: 10px 15px;
+                border-top: 1px solid #e0e0e0;
             }
         """)
         
-        pagination_layout = QHBoxLayout(pagination)
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(20, 15, 20, 15)
+        
+        # Statistiques
+        self.stats_label = QLabel("Total: 0 médias")
+        self.stats_label.setStyleSheet("""
+            QLabel {
+                color: #7f8c8d;
+                font-size: 13px;
+            }
+        """)
+        
+        # Pagination avancée
+        pagination_container = QWidget()
+        pagination_layout = QHBoxLayout(pagination_container)
         pagination_layout.setContentsMargins(0, 0, 0, 0)
+        pagination_layout.setSpacing(5)
         
-        self.prev_button = QPushButton("◀ Précédent")
-        self.prev_button.setCursor(Qt.PointingHandCursor)
-        self.prev_button.setStyleSheet(f"""
+        # Boutons de pagination avec icônes
+        self.first_page_button = QPushButton()
+        self.first_page_button.setIcon(QIcon("icons/first-page.png"))
+        self.first_page_button.setToolTip("Première page")
+        self.first_page_button.setFixedSize(32, 32)
+        
+        self.prev_button = QPushButton()
+        self.prev_button.setIcon(QIcon("icons/chevron-left.png"))
+        self.prev_button.setToolTip("Page précédente")
+        self.prev_button.setFixedSize(32, 32)
+        
+        self.page_edit = QLineEdit("1")
+        self.page_edit.setAlignment(Qt.AlignCenter)
+        self.page_edit.setFixedWidth(50)
+        self.page_edit.setValidator(QIntValidator(1, 999))
+        
+        self.page_label = QLabel("/ 1")
+        self.page_label.setFixedWidth(40)
+        
+        self.next_button = QPushButton()
+        self.next_button.setIcon(QIcon("icons/chevron-right.png"))
+        self.next_button.setToolTip("Page suivante")
+        self.next_button.setFixedSize(32, 32)
+        
+        self.last_page_button = QPushButton()
+        self.last_page_button.setIcon(QIcon("icons/last-page.png"))
+        self.last_page_button.setToolTip("Dernière page")
+        self.last_page_button.setFixedSize(32, 32)
+        
+        # Style des boutons de pagination
+        pagination_style = f"""
             QPushButton {{
-                padding: 8px 15px;
-                background-color: {self.light_color};
-                color: {self.dark_color};
-                border: 1px solid #ddd;
-                border-radius: 5px;
+                border-radius: 16px;
+                background-color: white;
+                border: 1px solid #e0e0e0;
             }}
             QPushButton:hover {{
-                background-color: #e0e0e0;
-            }}
-            QPushButton:disabled {{
                 background-color: #f5f5f5;
-                color: #bdbdbd;
             }}
-        """)
-        self.prev_button.clicked.connect(self.prev_page)
-        
-        self.page_label = QLabel("Page 1")
-        self.page_label.setStyleSheet(f"""
-            QLabel {{
-                color: {self.dark_color};
-                font-weight: bold;
-            }}
-        """)
-        self.page_label.setAlignment(Qt.AlignCenter)
-        
-        self.next_button = QPushButton("Suivant ▶")
-        self.next_button.setCursor(Qt.PointingHandCursor)
-        self.next_button.setStyleSheet(f"""
-            QPushButton {{
-                padding: 8px 15px;
-                background-color: {self.primary_color};
-                color: white;
-                border: none;
-                border-radius: 5px;
-            }}
-            QPushButton:hover {{
-                background-color: {QColor(self.primary_color).darker(110).name()};
+            QPushButton:pressed {{
+                background-color: #eeeeee;
             }}
             QPushButton:disabled {{
-                background-color: #b0bec5;
+                background-color: #fafafa;
+                border-color: #eeeeee;
             }}
-        """)
-        self.next_button.clicked.connect(self.next_page)
+            QLineEdit {{
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                padding: 5px;
+            }}
+        """
         
+        for btn in [self.first_page_button, self.prev_button, self.next_button, self.last_page_button]:
+            btn.setStyleSheet(pagination_style)
+            btn.setCursor(Qt.PointingHandCursor)
+        
+        # Sélecteur d'éléments par page
         self.items_per_page = QComboBox()
         self.items_per_page.addItems(["10", "25", "50", "100", "Tous"])
         self.items_per_page.setCurrentText("25")
         self.items_per_page.currentTextChanged.connect(self.update_pagination)
         self.items_per_page.setStyleSheet(f"""
             QComboBox {{
-                padding: 5px;
-                border: 1px solid #ddd;
+                padding: 5px 10px;
+                border: 1px solid #e0e0e0;
                 border-radius: 4px;
-                min-width: 60px;
+                min-width: 80px;
             }}
         """)
         
-        pagination_layout.addWidget(self.prev_button)
-        pagination_layout.addStretch()
+        # Connecter les signaux
+        # self.first_page_button.clicked.connect(lambda: self.go_to_page(1))
+        # self.prev_button.clicked.connect(self.prev_page)
+        # self.next_button.clicked.connect(self.next_page)
+        # self.last_page_button.clicked.connect(self.go_to_last_page)
+        # self.page_edit.returnPressed.connect(self.on_page_edit_changed)
+
+        # Remplacer les connexions des signaux de pagination par ceci :
+        self.first_page_button.clicked.connect(lambda: self.go_to_page(1))
+        self.prev_button.clicked.connect(self.prev_page)
+        self.next_button.clicked.connect(self.next_page)
+        self.last_page_button.clicked.connect(lambda: self.go_to_page(self.total_pages))
+        self.page_edit.returnPressed.connect(self.on_page_edit_changed)
+
+            
+        # Assembler la pagination
         pagination_layout.addWidget(QLabel("Éléments par page:"))
         pagination_layout.addWidget(self.items_per_page)
-        pagination_layout.addStretch()
+        pagination_layout.addSpacing(20)
+        pagination_layout.addWidget(self.first_page_button)
+        pagination_layout.addWidget(self.prev_button)
+        pagination_layout.addWidget(self.page_edit)
         pagination_layout.addWidget(self.page_label)
-        pagination_layout.addStretch()
         pagination_layout.addWidget(self.next_button)
+        pagination_layout.addWidget(self.last_page_button)
         
-        layout.addWidget(pagination)
+        # Ajouter au footer
+        footer_layout.addWidget(self.stats_label)
+        footer_layout.addStretch()
+        footer_layout.addWidget(pagination_container)
+        
+        layout.addWidget(footer)
         
         # Configuration finale
-        self.setMinimumSize(1000, 700)
-        self.load_data()  # Nouvelle méthode pour charger les données dans le modèle
-
-    def load_data(self):
-        """Charge les données dans le modèle et configure la vue"""
-        # Charger les données
-        media_data = self.media_manager.load_media_from_db(self.user_choice)
-        categories = self.media_manager.load_categories()
+        self.setMinimumSize(1200, 800)
+        self.setWindowTitle("FBK Group Management")
+        self.setWindowIcon(QIcon("icons/logo.png"))
         
-        # Créer et configurer le modèle
-        self.model = MediaTableModel(media_data)
-        self.model.set_categories([cat['name'] for cat in categories])
+        # Animation d'apparition
+        self.opacity_effect = QGraphicsOpacityEffect(self)
+        self.setGraphicsEffect(self.opacity_effect)
+        self.opacity_animation = QPropertyAnimation(self.opacity_effect, b"opacity")
+        self.opacity_animation.setDuration(300)
+        self.opacity_animation.setStartValue(0)
+        self.opacity_animation.setEndValue(1)
+        self.opacity_animation.start()
         
-        # Configurer le proxy model
-        self.proxy_model = QSortFilterProxyModel()
-        self.proxy_model.setSourceModel(self.model)
-        self.proxy_model.setFilterKeyColumn(-1)  # Filtrer sur toutes les colonnes
-        
-        # Appliquer à la vue
-        self.table_view.setModel(self.proxy_model)
-        
-        # Configurer les colonnes
-        self.table_view.setColumnWidth(0, 200)  # Nom
-        self.table_view.setColumnWidth(1, 300)  # Description
-        self.table_view.setColumnWidth(2, 150)  # Catégorie
-        self.table_view.setColumnWidth(3, 120)  # Aperçu
-        
-        # Configurer le delegate pour la colonne Catégorie
-        self.table_view.setItemDelegateForColumn(2, CategoryItemDelegate(self, categories))
-        
-        # Configurer le delegate pour la colonne Aperçu
-        self.table_view.setItemDelegateForColumn(3, PreviewItemDelegate(self))
+        # Remplir le tableau
+        self.populate_table()
 
 
-    def edit_media(self, row):
-        """Ouvre l'éditeur pour le média sélectionné"""
-        source_index = self.proxy_model.mapToSource(self.proxy_model.index(row, 0))
-        media_id = self.model._data[source_index.row()][4]  # L'ID est stocké dans la 5ème colonne
-        # ... votre logique d'édition existante
-
-    def delete_media(self, row):
-        """Supprime le média sélectionné"""
-        source_index = self.proxy_model.mapToSource(self.proxy_model.index(row, 0))
-        media_id = self.model._data[source_index.row()][4]
-        # ... votre logique de suppression existante
-        self.model.remove_media(source_index.row())
-    def load_media_from_db(self, user_choice):
-        """Charge les médias depuis la base de données pour le modèle"""
-        conn = sqlite3.connect(self.DB_PATH)
-        cursor = conn.cursor()
-
-        cursor.execute('''
-            SELECT media.id, media.nom, media.description, media.preview_path, category.name 
-            FROM media 
-            LEFT JOIN category ON media.category_id = category.id
-            WHERE media.type_id = (SELECT id FROM media_type WHERE type = ?) AND media.est_supprime = 0
-        ''', (user_choice,))
-
-        # Retourne une liste de listes directement compatible avec le modèle
-        media_data = [
-            [
-                row[1],  # nom
-                row[2],  # description
-                row[4],  # categorie
-                row[3],  # preview_path
-                row[0]   # id (stocké mais non affiché)
-            ]
-            for row in cursor.fetchall()
-        ]
-
-        conn.close()
-        return media_data
-
-class CategoryItemDelegate(QStyledItemDelegate):
-    """Delegate pour la sélection de catégorie avec QComboBox"""
-    def __init__(self, parent, categories):
-        super().__init__(parent)
-        self.categories = categories
-        
-    def createEditor(self, parent, option, index):
-        editor = QComboBox(parent)
-        editor.addItems(self.categories)
-        return editor
-        
-    def setEditorData(self, editor, index):
-        value = index.model().data(index, Qt.DisplayRole)
-        editor.setCurrentText(value)
-        
-    def setModelData(self, editor, model, index):
-        model.setData(index, editor.currentText())
-
-class PreviewItemDelegate(QStyledItemDelegate):
-    """Delegate pour l'affichage des aperçus"""
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.parent = parent
-        
-    def paint(self, painter, option, index):
-        if not index.isValid():
-            return
-            
-        # Dessiner le fond
-        if option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, QColor(self.parent.primary_color).lighter(160))
-        elif index.row() % 2 == 0:
-            painter.fillRect(option.rect, QColor('#f9f9f9'))
-        else:
-            painter.fillRect(option.rect, Qt.white)
-            
-        preview_path = index.model().data(index, Qt.DisplayRole)
-        media_name = index.model().index(index.row(), 0).data()
-        
-        if media_name.lower().endswith(('.png', '.jpg', '.jpeg')):
-            pixmap = QPixmap(preview_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            painter.drawPixmap(option.rect.center() - pixmap.rect().center(), pixmap)
-        elif media_name.lower().endswith(('.mp4', '.mov')):
-            painter.drawText(option.rect, Qt.AlignCenter, "🎥 Voir")
-            
-    def editorEvent(self, event, model, option, index):
-        if event.type() == QEvent.MouseButtonRelease:
-            preview_path = index.model().data(index, Qt.DisplayRole)
-            self.parent.show_preview(preview_path)
-            return True
-        return super().editorEvent(event, model, option, index)
-        
-    def sizeHint(self, option, index):
-        return QSize(120, 100)  # Taille fixe pour les aperçus
 
 
-class MediaTableModel(QAbstractTableModel):
-    """Modèle personnalisé pour gérer les données des médias"""
-    def __init__(self, data=None, parent=None):
-        super().__init__(parent)
-        self._data = data or []
-        self._headers = ['Nom', 'Description', 'Catégorie', 'Aperçu', 'Actions']
-        
-    def rowCount(self, parent=None):
-        return len(self._data)
-    
-    def columnCount(self, parent=None):
-        return len(self._headers)
-    
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return None
-            
-        row = index.row()
-        col = index.column()
-        
-        if role == Qt.DisplayRole:
-            if col == 4:  # Colonne Actions - affichage spécial
-                return None
-            return self._data[row][col]
-            
-        elif role == Qt.TextAlignmentRole:
-            return Qt.AlignLeft | Qt.AlignVCenter
-            
-        elif role == Qt.BackgroundRole and row % 2 == 0:
-            return QColor('#f9f9f9')
-            
-        return None
-    
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._headers[section]
-        return None
-    
-    def flags(self, index):
-        flags = super().flags(index)
-        if index.column() != 4:  # Toutes les colonnes sauf Actions sont éditables
-            flags |= Qt.ItemIsEditable
-        return flags
-    
-    def setData(self, index, value, role=Qt.EditRole):
-        if index.isValid() and role == Qt.EditRole:
-            self._data[index.row()][index.column()] = value
-            self.dataChanged.emit(index, index)
-            return True
-        return False
-    
-    def add_media(self, media_data):
-        self.beginInsertRows(QModelIndex(), len(self._data), len(self._data))
-        self._data.append(media_data)
-        self.endInsertRows()
-    
-    def remove_media(self, row):
-        self.beginRemoveRows(QModelIndex(), row, row)
-        del self._data[row]
-        self.endRemoveRows()
-# class MediaTableModel(QAbstractTableModel):
-    """Modèle personnalisé amélioré avec prise en charge des catégories"""
-    def __init__(self, data=None, parent=None):
-        super().__init__(parent)
-        self._data = data or []
-        self._headers = ['Nom', 'Description', 'Catégorie', 'Aperçu', 'Actions']
-        self._categories = []
-        
-    def set_categories(self, categories):
-        self._categories = categories
-        
-    # ... (autres méthodes existantes)
+    def go_to_page(self, page_num):
+        """Aller à une page spécifique"""
+        if 1 <= page_num <= self.total_pages:
+            self.current_page = page_num
+            self.update_pagination()
+            self.populate_table()
 
-    def flags(self, index):
-        flags = super().flags(index)
-        if index.column() in (0, 1, 2):  # Colonnes éditables
-            flags |= Qt.ItemIsEditable
-        return flags
-class ActionItemDelegate(QStyledItemDelegate):
-    """Délégué pour afficher les boutons d'action dans la dernière colonne"""
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.parent = parent
-        
-    def paint(self, painter, option, index):
-        if not index.isValid():
-            return
-            
-        # Dessiner le fond
-        if option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, QColor(self.parent.primary_color).lighter(160))
-        elif index.row() % 2 == 0:
-            painter.fillRect(option.rect, QColor('#f9f9f9'))
-        else:
-            painter.fillRect(option.rect, Qt.white)
-            
-        # Créer les boutons
-        btn_width = option.rect.width() // 3 - 2
-        btn_height = option.rect.height() - 4
-        
-        # Bouton Éditer
-        edit_rect = QRect(option.rect.left() + 2, option.rect.top() + 2, btn_width, btn_height)
-        edit_option = QStyleOptionButton()
-        edit_option.rect = edit_rect
-        edit_option.text = "✏️"
-        edit_option.state = QStyle.State_Enabled
-        
-        # Bouton Supprimer
-        delete_rect = QRect(edit_rect.right() + 2, option.rect.top() + 2, btn_width, btn_height)
-        delete_option = QStyleOptionButton()
-        delete_option.rect = delete_rect
-        delete_option.text = "🗑️"
-        delete_option.state = QStyle.State_Enabled
-        
-        # Dessiner les boutons
-        QApplication.style().drawControl(QStyle.CE_PushButton, edit_option, painter)
-        QApplication.style().drawControl(QStyle.CE_PushButton, delete_option, painter)
-        
-    def editorEvent(self, event, model, option, index):
-        if event.type() == QEvent.MouseButtonRelease:
-            btn_width = option.rect.width() // 3 - 2
-            btn_height = option.rect.height() - 4
-            
-            # Vérifier quel bouton a été cliqué
-            edit_rect = QRect(option.rect.left() + 2, option.rect.top() + 2, btn_width, btn_height)
-            delete_rect = QRect(edit_rect.right() + 2, option.rect.top() + 2, btn_width, btn_height)
-            
-            if edit_rect.contains(event.pos()):
-                self.parent.edit_media(index.row())
-                return True
-            elif delete_rect.contains(event.pos()):
-                self.parent.delete_media(index.row())
-                return True
-                
-        return super().editorEvent(event, model, option, index)
-    
-    def sizeHint(self, option, index):
-        return QSize(150, 40)  # Taille fixe pour la colonne Actions
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, QTranslator, QLocale
-from PyQt5.QtGui import QPixmap, QColor, QFont
-from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QHBoxLayout, QWidget, QLabel, 
-                            QLineEdit, QComboBox, QPushButton, QTableView, QHeaderView,
-                            QAbstractItemView, QStyledItemDelegate, QStyleOptionViewItem)
+    def on_page_edit_changed(self):
+        """Gère le changement de page via l'édition directe"""
+        try:
+            page_num = int(self.page_edit.text())
+            self.go_to_page(page_num)
+        except ValueError:
+            pass
 
-class MultilingualTableModel(QAbstractTableModel):
-    def __init__(self, data, headers, parent=None):
-        super().__init__(parent)
-        self._data = data
-        self._headers = headers
+    def update_pagination(self):
+        """Met à jour l'état des boutons de pagination et les labels"""
+        # Calculer le nombre total de pages
+        items_per_page = int(self.items_per_page.currentText()) if self.items_per_page.currentText() != "Tous" else float('inf')
+        self.total_pages = max(1, math.ceil(len(self.media_data) / items_per_page)) if items_per_page != float('inf') else 1
         
-    def rowCount(self, parent=None):
-        return len(self._data)
-    
-    def columnCount(self, parent=None):
-        return len(self._headers)
-    
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return QVariant()
+        # Mettre à jour les boutons
+        self.prev_button.setEnabled(self.current_page > 1)
+        self.next_button.setEnabled(self.current_page < self.total_pages)
+        self.first_page_button.setEnabled(self.current_page > 1)
+        self.last_page_button.setEnabled(self.current_page < self.total_pages)
         
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            return self._data[index.row()][index.column()]
-            
-        return QVariant()
-    
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._headers[section]
-        return QVariant()
-    
-    def flags(self, index):
-        return Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsEditable
-    
-    def setData(self, index, value, role=Qt.EditRole):
-        if role == Qt.EditRole:
-            self._data[index.row()][index.column()] = value
-            self.dataChanged.emit(index, index)
-            return True
-        return False
+        # Mettre à jour les labels
+        self.page_edit.setText(str(self.current_page))
+        self.page_label.setText(f"/ {self.total_pages}")
+        self.stats_label.setText(f"Total: {len(self.media_data)} médias | Page {self.current_page}/{self.total_pages}")
 
-class MediaDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-    
-    def initStyleOption(self, option, index):
-        super().initStyleOption(option, index)
-        # Custom rendering for specific columns
-        if index.column() == 3:  # Preview column
-            option.font.setItalic(True)
-            option.palette.setColor(option.palette.Text, QColor('#3498db'))
+    def prev_page(self):
+        """Aller à la page précédente"""
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.update_pagination()
+            self.populate_table()
 
+    def next_page(self):
+        """Aller à la page suivante"""
+        if self.current_page < self.total_pages:
+            self.current_page += 1
+            self.update_pagination()
+            self.populate_table()
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLineEdit, QDialogButtonBox, QLabel, QMessageBox
 )
