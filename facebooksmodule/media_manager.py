@@ -675,6 +675,8 @@ class RichTextDelegate(QStyledItemDelegate):
         size = super().sizeHint(option, index)
         size.setHeight(size.height() * 2)  # Double hauteur pour les descriptions
         return size
+from PyQt5.QtWidgets import QToolButton
+from facebooksmodule.notemedia import WorkingPremiumModal
 
 
 class MediaTable(QWidget):
@@ -715,7 +717,27 @@ class MediaTable(QWidget):
         """Assombrit une couleur hexadécimale"""
         color = QColor(hex_color)
         return color.darker(100 + percent).name()
-   
+    def open_premium_modal(self):
+        """Fonction appelée quand on clique sur le bouton"""
+        
+        # Création et configuration du modal
+        self.modal = WorkingPremiumModal(parent=self)
+        self.modal.set_title("Éditeur Premium")
+        
+        # Personnalisation du contenu (exemple)
+        content = QLabel("Contenu personnalisé du modal...")
+        self.modal.set_content(content)
+        
+        # Optionnel: personnaliser le bouton d'action
+        self.modal.set_action_text("Fermer")
+        self.modal.set_action_callback(self.on_modal_close)
+        
+        # Afficher le modal
+        self.modal.show()
+    
+    def on_modal_close(self):
+        """Callback quand on ferme le modal"""
+        print("Modal fermé")  
     def load_user_choice(self):
         """Load the last user choice from a JSON file."""
         config_path = os.path.join(user_data_dir, 'config.json')
@@ -1003,7 +1025,8 @@ class MediaTable(QWidget):
         self.table.setTabKeyNavigation(True)
         
         self.populate_table()
-        
+    def total_pages(self):
+        pass        
     def iinit_ui(self):
         """Initialise l'interface utilisateur avec un design moderne"""
         self.setStyleSheet(f"""
@@ -1329,6 +1352,10 @@ class MediaTable(QWidget):
         # dialog = ManageArchivesDialog(self.media_manager, self.user_choice, self)
         # dialog.exec_()
         pass
+
+
+
+
     def create_action_menu(self):
         """Create a context menu for the Action button."""
         menu = QMenu()
@@ -1400,6 +1427,16 @@ class MediaTable(QWidget):
         robot_management_action = QAction("🤖 " + self.tr("Robot Management"), self)
         robot_management_action.triggered.connect(self.open_robot_management_dialog)
         menu.addAction(robot_management_action)
+
+
+
+
+
+
+        robot_management_action = QAction("📋 " + self.tr("Notes"), self)
+        robot_management_action.triggered.connect(self.open_premium_modal)
+        menu.addAction(robot_management_action)
+      
         return menu
 
 
@@ -1520,7 +1557,9 @@ class MediaTable(QWidget):
         """Ouvre une boîte de dialogue pour importer des médias."""
         file_dialog = QFileDialog(self)
         file_dialog.setWindowTitle("Sélectionner des médias")
-        file_dialog.setNameFilter("Images (*.png *.jpg *.jpeg);;Vidéos (*.mp4 *.mov)")
+        # file_dialog.setNameFilter("Images (*.png *.jpg *.jpeg);;Vidéos (*.mp4 *.mov)")
+        file_dialog.setNameFilter("Médias (*.png *.jpg *.jpeg *.mp4 *.mov)")
+
         file_dialog.setFileMode(QFileDialog.ExistingFiles)
 
         if file_dialog.exec_() == QFileDialog.Accepted:
@@ -1529,6 +1568,8 @@ class MediaTable(QWidget):
                 self.add_single_media(selected_file)
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
         self.populate_table()
+   
+   
     def import_description(self):
         """Ouvre une boîte de dialogue pour importer des descriptions."""
         file_dialog = QFileDialog(self)
@@ -1542,6 +1583,28 @@ class MediaTable(QWidget):
                 descriptions = json.load(f)
                 for media_id, description in descriptions.items():
                     self.update_media_description(int(media_id), description)
+    def import_description(self):
+        """Importe des descriptions et les applique dans l'ordre aux médias existants."""
+        file_dialog = QFileDialog(self)
+        file_dialog.setWindowTitle("Sélectionner un fichier JSON")
+        file_dialog.setNameFilter("JSON files (*.json)")
+        file_dialog.setFileMode(QFileDialog.ExistingFile)
+
+        if file_dialog.exec_() == QFileDialog.Accepted:
+            selected_file = file_dialog.selectedFiles()[0]
+            with open(selected_file, 'r', encoding='utf-8') as f:
+                descriptions = json.load(f)
+
+                # Connexion à la base pour obtenir les IDs des médias existants (triés)
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.cursor()
+                cursor.execute("SELECT id FROM media ORDER BY id ASC")
+                media_ids = [row[0] for row in cursor.fetchall()]
+                conn.close()
+
+                # Appliquer les descriptions dans l'ordre
+                for media_id, description in zip(media_ids, descriptions):
+                    self.update_media_description(media_id, description)
 
     def add_single_media(self, file_path):
         """Ajoute un seul média à la base de données."""
@@ -1752,8 +1815,57 @@ class MediaTable(QWidget):
         progress.close()
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
         self.populate_table()
+    def delete_all_media(self):
+        """Supprime tous les médias sans confirmation, avec une barre de progression."""
+        total = len(self.media_list)
+        if total == 0:
+            return  # Rien à supprimer
+
+        progress = QProgressDialog("Suppression de tous les médias...", None, 0, total, self)
+        progress.setWindowTitle("Veuillez patienter")
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setCancelButton(None)
+        progress.setMinimumDuration(0)
+        progress.show()
+
+        for i, media in enumerate(self.media_list):
+            self.delete_mediamuet(media)
+            progress.setValue(i + 1)
+            QApplication.processEvents()
+
+        progress.close()
+        self.media_list = self.media_manager.load_media_from_db(self.user_choice)
+        self.populate_table()
 
 
+    def delete_mediamuet(self, media):
+        """Supprime un média sans confirmation, avec une indication visuelle de progression."""
+        progress = QProgressDialog("Suppression en cours...", None, 0, 0, self)
+        progress.setWindowTitle("Veuillez patienter")
+        progress.setCancelButton(None)
+        progress.setWindowModality(Qt.WindowModal)
+        progress.show()
+        QApplication.processEvents()
+
+        try:
+            # Déplacement vers le dossier d'archive
+            archive_folder = os.path.join(media_folder, f"{self.user_choice}Archive")
+            os.makedirs(archive_folder, exist_ok=True)
+
+            # Génération du nom d'archive
+            archive_files = [f for f in os.listdir(archive_folder) if f.startswith('archive')]
+            archive_number = len(archive_files) + 1
+            archive_name = f"archive{archive_number}{os.path.splitext(media['nom'])[1]}"
+            archive_path = os.path.join(archive_folder, archive_name)
+
+            # Déplacement du fichier et suppression de la base de données
+            shutil.move(media['preview_path'], archive_path)
+            self.media_manager.delete_media_in_db(media, self.user_choice)
+
+        except Exception as e:
+            print(f"Erreur lors de la suppression : {e}")  # Optionnel : logging ou message d'erreur
+        finally:
+            progress.close()
     def manage_categories(self):
         """Ouvre une boîte de dialogue pour gérer les catégories."""
         dialog = ManageCategoriesDialog(self.media_manager, self)
@@ -1853,6 +1965,19 @@ class MediaTable(QWidget):
             category_combo.currentTextChanged.connect(lambda text, row=row: self.update_category(row, text))
             self.table.setCellWidget(row, 2, category_combo)
 
+            # # Colonne Aperçu (chargement paresseux)
+            # preview_label = QLabel()
+            # preview_label.setAlignment(Qt.AlignCenter)
+            
+            # if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+            #     # On crée un QLabel vide et on stocke le chemin pour chargement ultérieur
+            #     preview_label.setProperty("image_path", media['preview_path'])
+            #     preview_label.setText("(Chargement...)")
+            # elif media['nom'].endswith(('.mp4', '.mov')):
+            #     preview_label.setText("🎥 Voir")
+                
+            # preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
+            # self.table.setCellWidget(row, 3, preview_label)
             # Colonne Aperçu
             preview_label = QLabel()
             preview_label.setAlignment(Qt.AlignCenter)
@@ -1863,6 +1988,30 @@ class MediaTable(QWidget):
                 preview_label.setText("🎥 Voir")
             preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
             self.table.setCellWidget(row, 3, preview_label)
+
+
+
+            # # Colonne Aperçu (avec chargement paresseux + style amélioré)
+            # preview_label = QLabel()
+            # preview_label.setAlignment(Qt.AlignCenter)
+
+            # if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+            #     image_path = media['preview_path']
+
+            #     # Vérifie si l'image est déjà chargée ou existe en cache
+            #     if os.path.exists(image_path):  # tu peux aussi utiliser un cache ici
+            #         pixmap = QPixmap(image_path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            #         preview_label.setPixmap(pixmap)
+            #     else:
+            #         preview_label.setText("(Chargement...)")
+            #         preview_label.setProperty("image_path", image_path)
+
+            # elif media['nom'].endswith(('.mp4', '.mov')):
+            #     preview_label.setText("🎥 Voir")
+
+            # # Dans tous les cas, ajout d'un événement pour afficher l'aperçu au clic
+            # preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
+            # self.table.setCellWidget(row, 3, preview_label)
 
             from PyQt5.QtWidgets import QToolButton
 
@@ -1908,14 +2057,23 @@ class MediaTable(QWidget):
             self.table.setCellWidget(row, 4, action_widget)
    
 
+        # Configurer le chargement paresseux
+        self.table.verticalScrollBar().valueChanged.connect(self.lazy_load_images)
+        # Charger les images visibles initialement
+        QTimer.singleShot(100, self.lazy_load_images)
+        
+        # Ajustement automatique des hauteurs de ligne
+        self.table.resizeRowsToContents()
+        self.table.model().dataChanged.connect(lambda: self.table.resizeRowsToContents())
+
 
             # Configurer le delegate pour la colonne Description
         # Ajuster automatiquement la hauteur des lignes
-        self.table.resizeRowsToContents()
+        # self.table.resizeRowsToContents()
         
-        # Connecter le signal pour redimensionner après édition
-        self.table.model().dataChanged.connect(lambda: self.table.resizeRowsToContents())
-        #self.table.setItemDelegateForColumn(1, RichTextDelegate(self.table))
+        # # Connecter le signal pour redimensionner après édition
+        # self.table.model().dataChanged.connect(lambda: self.table.resizeRowsToContents())
+        # #self.table.setItemDelegateForColumn(1, RichTextDelegate(self.table))
 
    
         # Ajuster automatiquement la hauteur des lignes
@@ -1981,15 +2139,55 @@ class MediaTable(QWidget):
             self.table.setCellWidget(row, 2, category_combo)
 
             # Colonne Aperçu
+            # preview_label = QLabel()
+            # preview_label.setAlignment(Qt.AlignCenter)
+            # if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+            #     pixmap = QPixmap(media['preview_path']).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            #     preview_label.setPixmap(pixmap)
+            # elif media['nom'].endswith(('.mp4', '.mov')):
+            #     preview_label.setText("🎥 Voir")
+            #     preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
+            #     self.table.setCellWidget(row, 3, preview_label)
+            import subprocess
+            from PyQt5.QtCore import Qt
+            from PyQt5.QtGui import QPixmap, QImage
+            from PyQt5.QtWidgets import QLabel
+            from io import BytesIO
+
+            def extract_thumbnail_from_video(video_path):
+                # Utiliser ffmpeg pour extraire une image en mémoire
+                process = subprocess.Popen(
+                    ['ffmpeg', '-i', video_path, '-ss', '00:00:01', '-vframes', '1', '-f', 'image2pipe', '-'],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                )
+                # Lire l'image extraite depuis la sortie standard de ffmpeg
+                image_data, _ = process.communicate()
+                
+                # Charger l'image directement depuis les données binaires
+                image = QImage.fromData(image_data)
+                
+                # Convertir l'image en pixmap pour l'affichage dans la QLabel
+                pixmap = QPixmap(image)
+                
+                return pixmap
+
+            # Colonne Aperçu
             preview_label = QLabel()
             preview_label.setAlignment(Qt.AlignCenter)
-            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+
+            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):  # Si c'est une image
                 pixmap = QPixmap(media['preview_path']).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 preview_label.setPixmap(pixmap)
-            elif media['nom'].endswith(('.mp4', '.mov')):
-                preview_label.setText("🎥 Voir")
+            elif media['nom'].endswith(('.mp4', '.mov')):  # Si c'est une vidéo
+                # Extraire la miniature de la vidéo en live (sans fichier temporaire)
+                pixmap = extract_thumbnail_from_video(media['preview_path'])
+                pixmap = pixmap.scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                preview_label.setPixmap(pixmap)
+
             preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
             self.table.setCellWidget(row, 3, preview_label)
+
+
             from PyQt5.QtWidgets import QToolButton
 
             def create_action_button(emoji, tooltip, color, hover_color, callback):
@@ -2692,6 +2890,34 @@ class MediaTable(QWidget):
         preview.exec_()
 
 
+    def show_preview(self, path):
+        """Affiche un aperçu agrandi pour image ou ouvre la vidéo avec le lecteur par défaut"""
+        if path.endswith(('.png', '.jpg', '.jpeg')):
+            preview = QDialog(self)
+            preview.setWindowTitle("Aperçu")
+            preview.setWindowModality(Qt.ApplicationModal)
+
+            layout = QVBoxLayout(preview)
+            label = QLabel()
+            pixmap = QPixmap(path)
+            label.setPixmap(pixmap.scaled(800, 600, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            layout.addWidget(label)
+
+            close_btn = QPushButton("Fermer")
+            close_btn.clicked.connect(preview.close)
+            layout.addWidget(close_btn)
+
+            preview.exec_()
+
+        elif path.endswith(('.mp4', '.mov')):
+            # Ouvre la vidéo avec le lecteur système par défaut
+            if sys.platform.startswith('win'):
+                os.startfile(path)
+            elif sys.platform.startswith('darwin'):
+                subprocess.call(['open', path])
+            else:
+                subprocess.call(['xdg-open', path])
+
     def init_ui(self):
         """Initialise l'interface utilisateur avec un design moderne et des améliorations UX"""
         # Appliquer le style global
@@ -2864,7 +3090,22 @@ class MediaTable(QWidget):
                 transform: translateY(1px);
             }}
         """
+
+        self.add_note_button = QPushButton("📋 Ajouter Note")
+        self.add_note_button.setStyleSheet(button_style.format(
+            self.secondary_color, 
+            QColor(self.secondary_color).darker(110).name()
+        ))
+        self.add_note_button.clicked.connect(self.import_media)
         
+        self.add_maj_button = QPushButton("↺")
+        self.add_maj_button.setStyleSheet(button_style.format(
+            self.secondary_color, 
+            QColor(self.secondary_color).darker(110).name()
+        ))
+        self.add_maj_button.clicked.connect(self.import_media)
+        
+
         self.add_media_button = QPushButton("➕ Ajouter média")
         self.add_media_button.setStyleSheet(button_style.format(
             self.secondary_color, 
@@ -2898,6 +3139,9 @@ class MediaTable(QWidget):
         toolbar_layout.addWidget(self.instance_combo)
         toolbar_layout.addStretch()
         toolbar_layout.addWidget(self.add_media_button)
+        # toolbar_layout.addWidget(self.add_note_button)
+        # toolbar_layout.addWidget(self.add_maj_button)
+
         toolbar_layout.addWidget(self.action_button)
         toolbar_layout.addWidget(self.settings_button)
         toolbar_layout.addWidget(self.update_robot_button)
@@ -3734,6 +3978,113 @@ class MediaTable(QWidget):
             self.current_page += 1
             self.update_pagination()
             self.populate_table()
+
+
+    def populate_tabl1e(self):
+        """Remplit le tableau avec un style amélioré et chargement paresseux des images"""
+        self.table.setRowCount(len(self.media_list))
+        
+        # Configurer le delegate pour la colonne Description
+        # self.table.setItemDelegateForColumn(1, RichTextDelegate(self.table))
+        
+        for row, media in enumerate(self.media_list):
+            # Colonne Nom
+            name_item = QTableWidgetItem(media['nom'])
+            name_item.setFlags(name_item.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(row, 0, name_item)
+
+            # Colonne Description
+            desc_item = QTableWidgetItem(media['description'])
+            desc_item.setFont(QFont("Segoe UI", 10))
+            desc_item.setFlags(desc_item.flags() | Qt.ItemIsEditable)
+            self.table.setItem(row, 1, desc_item)
+
+            # Colonne Catégorie
+            category_combo = QComboBox()
+            categories = self.media_manager.load_categories()
+            category_combo.addItems([c['name'] for c in categories])
+            category_combo.setCurrentText(media.get('categorie', 'Default'))
+            category_combo.currentTextChanged.connect(lambda text, row=row: self.update_category(row, text))
+            self.table.setCellWidget(row, 2, category_combo)
+
+            # Colonne Aperçu (chargement paresseux)
+            preview_label = QLabel()
+            preview_label.setAlignment(Qt.AlignCenter)
+            
+            if media['nom'].endswith(('.png', '.jpg', '.jpeg')):
+                # On crée un QLabel vide et on stocke le chemin pour chargement ultérieur
+                preview_label.setProperty("image_path", media['preview_path'])
+                preview_label.setText("(Chargement...)")
+            elif media['nom'].endswith(('.mp4', '.mov')):
+                preview_label.setText("🎥 Voir")
+                
+            preview_label.mousePressEvent = lambda event, path=media['preview_path']: self.show_preview(path)
+            self.table.setCellWidget(row, 3, preview_label)
+
+            # Colonne Actions
+            action_widget = QWidget()
+            action_layout = QHBoxLayout(action_widget)
+            action_layout.setContentsMargins(8, 2, 8, 2)
+            action_layout.setSpacing(10)
+
+            # Fonction pour créer les boutons
+            def create_button(emoji, tooltip, color, hover_color, callback):
+                btn = QToolButton()
+                btn.setText(emoji)
+                btn.setToolTip(tooltip)
+                btn.setCursor(Qt.PointingHandCursor)
+                btn.setStyleSheet(f"""
+                    QToolButton {{
+                        background-color: {color};
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px;
+                        font-size: 18px;
+                    }}
+                    QToolButton:hover {{
+                        background-color: {hover_color};
+                        box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+                    }}
+                """)
+                btn.clicked.connect(lambda _, m=media: callback(m))
+                return btn
+
+            # Création des boutons
+            buttons = [
+                ("📅", "Planifier la publication", "#9b59b6", "#8e44ad", self.schedule_publication),
+                ("🤖", "Envoyer au robot", "#3498db", "#2980b9", self.send_to_robot),
+                ("🗑️", "Supprimer", "#e74c3c", "#c0392b", self.delete_media)
+            ]
+            
+            for params in buttons:
+                action_layout.addWidget(create_button(*params))
+
+            self.table.setCellWidget(row, 4, action_widget)
+        
+        # Configurer le chargement paresseux
+        self.table.verticalScrollBar().valueChanged.connect(self.lazy_load_images)
+        # Charger les images visibles initialement
+        QTimer.singleShot(100, self.lazy_load_images)
+        
+        # Ajustement automatique des hauteurs de ligne
+        self.table.resizeRowsToContents()
+        self.table.model().dataChanged.connect(lambda: self.table.resizeRowsToContents())
+
+    def lazy_load_images(self):
+        """Charge les images uniquement pour les lignes visibles"""
+        visible_rect = self.table.viewport().rect()
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, 3) or self.table.cellWidget(row, 3)
+            if isinstance(item, QLabel) and item.property("image_path"):
+                # Vérifier si la ligne est visible
+                row_rect = self.table.visualItemRect(self.table.item(row, 0) or self.table.item(row, 1))
+                if visible_rect.intersects(row_rect):
+                    path = item.property("image_path")
+                    pixmap = QPixmap(path).scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    item.setPixmap(pixmap)
+                    item.setProperty("image_path", None)  # Pour ne pas recharger
+                    
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QLineEdit, QDialogButtonBox, QLabel, QMessageBox
 )
@@ -4935,3 +5286,4 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     app.exec_()
+

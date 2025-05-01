@@ -1,0 +1,12 @@
+
+propose moiun modaltresbien disigner quisouvre ondiraituntruc quisouvre duhaut vers le bas duene maniere le plus elegante possible  le modal doit eter developer en pyqt  avec  une persistance sur py qtet ca affiche un tablea a deux entree la premiere colone  contier une est entree suivete media un deux trois etc... etla deuxieme ccolone contient les description ccorresponsdant les media sont numerote d un dix et les desriptionmet une desription par defaut mais que lutilisateur doit etre capable de  ecrire une description une fois quil ouvre ce moda gerre il ecrit la description quil veu et que ca enregistre autoamatiquement et enbas du table il ye un tex arer ayant pour titre prompt quipermet dafficher un promp et aussi lon pueule modifier directement dans le text area enfin faitde sorte que les truc soit le plusstulisee possible avecc la meilleur  dexperience utilisateur et unsimplicite san pareil vas y
+merci apres le prompt ajoute aussi une zonne de text destinnee a garder la description par defaut et donne moi une fonction capable de retourner la valeur de la zonne de texte 
+oui cest bienmaistupeut mieux faire lemodaldoit parexempledonelimpressionquisortdu buttonqon acliquer pour le demarrer aussi que la parte ou lonredigeele  prompdoitpouvoiretrepersistant etqueenrediagene  deans letext arere calenregistreautomatiquemeent egalement pdour le style lde disignet luixdoivent etre au top je sais que tu peu mieu faire situ as compris la logique metier exprimme ton genie
+cest bon mais  tu peu mieu faire en faitcest cool pour lapartie depersistance promt et la moification instantane mais celadevair etrela meme chaoe pour la colonne description  et en terme de disign  de uix et d elegance tu peu clairement faire d effort enplus le buton qui permet de louvrir doit aussi permetttre de le fermer en donnant limpression de l avaller comme il l a ouvert
+ca doit etre un modal simple que je pourrait appelle dans une autre classe dont le button est deja pret 
+
+
+
+
+
+
