@@ -676,7 +676,7 @@ class RichTextDelegate(QStyledItemDelegate):
         size.setHeight(size.height() * 2)  # Double hauteur pour les descriptions
         return size
 from PyQt5.QtWidgets import QToolButton
-from facebooksmodule.notemedia import WorkingPremiumModal
+from facebooksmodule.notemedia import MediaEditorModal
 
 
 class MediaTable(QWidget):
@@ -687,6 +687,7 @@ class MediaTable(QWidget):
         self.media_list = self.media_manager.load_media_from_db(self.user_choice)
         self.page_size = 10
         self.current_page = 0
+        self.total_pages = 0
         # Couleurs modernes
         self.primary_color = "#3498db"
         self.secondary_color = "#2ecc71"
@@ -695,6 +696,26 @@ class MediaTable(QWidget):
         self.accent_color = "#e74c3c"
         # Initialize UI
         self.init_ui()
+        self.media_editor = MediaEditorModal(self)
+
+    def toggle_modal(self):
+        """Fonction à connecter au bouton pour ouvrir/fermer le modal avec animation"""
+        if not hasattr(self, '_modal'):
+            # Création du modal seulement au premier appel
+            self._modal = ElegantModal(self)
+            # Positionnement initial caché
+            self._modal.hide()
+        
+        if self._modal.isVisible():
+            # Fermer avec animation
+            self._modal.hide_modal()
+            # Changer l'icône/text du bouton si nécessaire
+            self.robot_note_action.setText("Ouvrir le Modal")
+        else:
+            # Ouvrir avec animation
+            self._modal.show_modal(self.robot_note_action)
+            # Changer l'icône/text du bouton si nécessaire
+            self.robot_note_action.setText("Fermer le Modal")
     def create_tool_button(self, text, color):
         """Crée un bouton d'outil stylisé"""
         button = QPushButton(text)
@@ -1025,8 +1046,7 @@ class MediaTable(QWidget):
         self.table.setTabKeyNavigation(True)
         
         self.populate_table()
-    def total_pages(self):
-        pass        
+        
     def iinit_ui(self):
         """Initialise l'interface utilisateur avec un design moderne"""
         self.setStyleSheet(f"""
@@ -1362,7 +1382,7 @@ class MediaTable(QWidget):
         # Import Media action
         import_media_action = QAction("📥 Import Media", self)
         import_media_action.triggered.connect(self.import_media)
-        menu.addAction(import_media_action)
+        # menu.addAction(import_media_action)
         # Add Media action
         add_media_action = QAction("➕ Add Media", self)
         add_media_action.triggered.connect(self.open_add_media_dialog)
@@ -1433,13 +1453,24 @@ class MediaTable(QWidget):
 
 
 
-        robot_management_action = QAction("📋 " + self.tr("Notes"), self)
-        robot_management_action.triggered.connect(self.open_premium_modal)
-        menu.addAction(robot_management_action)
+        self.robot_note_action = QAction("📋 " + self.tr("Notes"), self)
+        self.robot_note_action.triggered.connect(self.show_media_editor)
+        menu.addAction(self.robot_note_action)
       
         return menu
 
-
+    def show_media_editor(self):
+        """Affiche l'éditeur de médias"""
+        self.media_editor.show_modal()
+    
+    # Exemple d'accès aux données
+    def get_current_prompt(self):
+        return self.media_editor.get_prompt()
+    
+    def get_current_descriptions(self):
+        return self.media_editor.get_media_descriptions()
+    def default_desc(self):
+        return self.media_editor.get_default_description()
     def open_add_media_dialog(self):
         """Open a dialog to add a new media."""
         dialog = AddMediaDialog(self)
@@ -1628,6 +1659,7 @@ class MediaTable(QWidget):
         # Renommer le fichier
         new_name = f"{next_number}{os.path.splitext(file_name)[1]}"
         destination_path = os.path.join(media_type_folder, new_name)
+        desc = self.default_desc()  # Récupère et stocke la description
 
         # Copier le fichier dans le dossier média
         shutil.copy(file_path, destination_path)
@@ -1635,7 +1667,7 @@ class MediaTable(QWidget):
         # Créer un nouvel objet média
         new_media = {
             'nom': new_name,
-            'description': 'Nouveau média',
+            'description': desc,
             'preview_path': destination_path,
             'categorie': 'Default'
         }
@@ -4701,577 +4733,1632 @@ class UpdateRobotDialog(QDialog):
         event.accept()
 
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QAbstractItemView, QMessageBox, QHBoxLayout
-from PyQt5.QtGui import QIcon
-
-class ManageCategoriesDialog(QDialog):
-    def __init__(self, media_manager, parent=None):
+class UpdateRobotDialognext(QDialog):
+    """
+    Boîte de dialogue pour envoyer des données au robot avec sélection des catégories.
+    Design moderne avec fonctionnalités avancées et feedback visuel.
+    """
+    
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.media_manager = media_manager
-        self.setWindowTitle("Gérer les catégories")
-        self.setWindowIcon(QIcon("icons/category.png"))  # Ajouter une icône
-        self.setFixedSize(600, 400)  # Taille fixe pour une meilleure apparence
+        self.setWindowTitle("Envoyer des données au Robot")
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setMinimumSize(600, 650)  # Taille responsive
+        
+        # Connexion à la base de données
+        self.db_path = Path(DB_PATH)
+        self.conn = None
+        self.cursor = None
+        self._connect_db()
+        
+        # Configuration de l'interface
+        self._setup_ui()
+        self._apply_styles()
+        
+        # Chargement initial des données
+        self.load_categories()
 
-        # Styles CSS modernes
+    def _connect_db(self):
+        """Établit la connexion à la base de données avec gestion d'erreur."""
+        try:
+            self.conn = sqlite3.connect(str(self.db_path))
+            self.cursor = self.conn.cursor()
+            self._check_tables()
+        except sqlite3.Error as e:
+            QMessageBox.critical(
+                self, 
+                "Erreur de base de données", 
+                f"Impossible de se connecter à la base de données:\n{str(e)}"
+            )
+            self.reject()
+
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+
+        # Titre avec icône
+        title_layout = QHBoxLayout()
+        title_icon = QLabel()
+        title_icon.setPixmap(QIcon("icons/robot.png").pixmap(32, 32))
+        title_layout.addWidget(title_icon)
+        
+        title_label = QLabel("Envoyer des données au Robot")
+        title_label.setStyleSheet("font-size: 18px; font-weight: bold;")
+        title_layout.addWidget(title_label)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
+
+        # Sélection des catégories de médias
+        media_group = QVBoxLayout()
+        media_group.setSpacing(8)
+        
+        media_label = QLabel("Catégories de médias:")
+        media_label.setStyleSheet("font-weight: bold;")
+        media_group.addWidget(media_label)
+        
+        self.media_category_list = QListWidget()
+        self.media_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.media_category_list.setMinimumHeight(150)
+        media_group.addWidget(self.media_category_list)
+        
+        # Bouton sélection/désélection
+        media_buttons = QHBoxLayout()
+        select_all_media = QPushButton("Tout sélectionner")
+        select_all_media.clicked.connect(lambda: self._select_all(self.media_category_list))
+        media_buttons.addWidget(select_all_media)
+        
+        deselect_all_media = QPushButton("Tout désélectionner")
+        deselect_all_media.clicked.connect(lambda: self._deselect_all(self.media_category_list))
+        media_buttons.addWidget(deselect_all_media)
+        media_group.addLayout(media_buttons)
+        
+        main_layout.addLayout(media_group)
+
+        # Séparateur
+        separator = QLabel()
+        separator.setStyleSheet("background-color: #e2e8f0; height: 1px;")
+        main_layout.addWidget(separator)
+
+        # Sélection des catégories de groupes
+        group_layout = QVBoxLayout()
+        group_layout.setSpacing(8)
+        
+        group_label = QLabel("Catégories de groupes:")
+        group_label.setStyleSheet("font-weight: bold;")
+        group_layout.addWidget(group_label)
+        
+        self.group_category_list = QListWidget()
+        self.group_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.group_category_list.setMinimumHeight(150)
+        group_layout.addWidget(self.group_category_list)
+        
+        # Bouton sélection/désélection
+        group_buttons = QHBoxLayout()
+        select_all_groups = QPushButton("Tout sélectionner")
+        select_all_groups.clicked.connect(lambda: self._select_all(self.group_category_list))
+        group_buttons.addWidget(select_all_groups)
+        
+        deselect_all_groups = QPushButton("Tout désélectionner")
+        deselect_all_groups.clicked.connect(lambda: self._deselect_all(self.group_category_list))
+        group_buttons.addWidget(deselect_all_groups)
+        group_layout.addLayout(group_buttons)
+        
+        main_layout.addLayout(group_layout)
+
+        # Boutons d'action
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+        
+        self.cancel_button = QPushButton("Annuler")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+        
+        self.send_button = QPushButton("Envoyer au Robot")
+        self.send_button.setIcon(QIcon("icons/send.png"))
+        self.send_button.clicked.connect(self._send_to_robot)
+        button_layout.addWidget(self.send_button)
+        
+        main_layout.addLayout(button_layout)
+
+        self.setLayout(main_layout)
+
+    def _apply_styles(self):
+        """Applique les styles CSS modernes avec thème robotique."""
         self.setStyleSheet("""
             QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
+                background-color: #f8fafc;
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
-            QTableWidget {
-                background-color: white;
-                border: 1px solid #ccc;
+            
+            QListWidget {
+                font-size: 14px;
+                border: 1px solid #cbd5e1;
                 border-radius: 6px;
-                font-size: 14px;
+                background-color: white;
+                padding: 5px;
+                outline: none;
             }
-            QHeaderView::section {
-                background-color: #007BFF;
-                color: white;
-                padding: 10px;
-                font-size: 14px;
-                font-weight: bold;
+            
+            QListWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #f1f5f9;
             }
+            
+            QListWidget::item:selected {
+                background-color: #e0e7ff;
+                color: #1e40af;
+                border-radius: 4px;
+            }
+            
             QPushButton {
                 padding: 10px 20px;
                 font-size: 14px;
+                font-weight: 500;
                 border-radius: 6px;
-                background-color: #007BFF;
+                min-width: 120px;
+                transition: all 0.2s;
+            }
+            
+            #send_button {
+                background-color: #4f46e5;
                 color: white;
-                margin: 5px;
+                border: none;
             }
-            QPushButton:hover {
-                background-color: #0056b3;
+            
+            #send_button:hover {
+                background-color: #4338ca;
             }
-            QPushButton:pressed {
-                background-color: #003f8a;
+            
+            #send_button:pressed {
+                background-color: #3730a3;
+            }
+            
+            #cancel_button {
+                background-color: #f1f5f9;
+                color: #64748b;
+                border: 1px solid #cbd5e1;
+            }
+            
+            #cancel_button:hover {
+                background-color: #e2e8f0;
+            }
+            
+            #cancel_button:pressed {
+                background-color: #cbd5e1;
             }
         """)
+        
+        self.send_button.setObjectName("send_button")
+        self.cancel_button.setObjectName("cancel_button")
 
-        # Layout
-        layout = QVBoxLayout()
+    def _check_tables(self):
+        """Vérifie si les tables nécessaires existent."""
+        tables = ["category", "media", "media_type", "groups"]
+        for table in tables:
+            self.cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'")
+            if not self.cursor.fetchone():
+                raise sqlite3.OperationalError(f"Table {table} manquante")
 
-        # Tableau des catégories
+    def load_categories(self):
+        """Charge les catégories depuis la base de données."""
+        try:
+            self.cursor.execute("SELECT id, name, label FROM category ORDER BY name")
+            categories = self.cursor.fetchall()
+            
+            for cat_id, name, label in categories:
+                display_text = f"{label} ({name})" if label else name
+                
+                # Catégories médias
+                item = QListWidgetItem(display_text)
+                item.setData(Qt.UserRole, cat_id)
+                self.media_category_list.addItem(item)
+                
+                # Catégories groupes
+                item = QListWidgetItem(display_text)
+                item.setData(Qt.UserRole, cat_id)
+                self.group_category_list.addItem(item)
+                
+        except sqlite3.Error as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur lors du chargement:\n{str(e)}")
+
+    def _select_all(self, list_widget):
+        """Sélectionne tous les éléments d'une liste."""
+        for i in range(list_widget.count()):
+            list_widget.item(i).setSelected(True)
+
+    def _deselect_all(self, list_widget):
+        """Désélectionne tous les éléments d'une liste."""
+        list_widget.clearSelection()
+
+    def _send_to_robot(self):
+        """Gère l'envoi des données au robot avec validation."""
+        media_cats = [item.data(Qt.UserRole) for item in self.media_category_list.selectedItems()]
+        group_cats = [item.data(Qt.UserRole) for item in self.group_category_list.selectedItems()]
+
+        if not media_cats and not group_cats:
+            QMessageBox.warning(self, "Sélection vide", "Veuillez sélectionner au moins une catégorie")
+            return
+
+        # Confirmation avant envoi
+        confirm = QMessageBox.question(
+            self,
+            "Confirmation",
+            f"Envoyer {len(media_cats)} catégorie(s) média et {len(group_cats)} catégorie(s) groupe ?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if confirm == QMessageBox.No:
+            return
+
+        # Récupération des données
+        try:
+            media_data = self._get_media_data(media_cats) if media_cats else []
+            group_data = self._get_group_data(group_cats) if group_cats else []
+            
+            # Envoi au robot (simulé ici)
+            success = self._transfer_data(media_data, group_data)
+            
+            if success:
+                QMessageBox.information(
+                    self,
+                    "Succès",
+                    f"Données envoyées avec succès:\n"
+                    f"- {len(media_data)} médias\n"
+                    f"- {len(group_data)} groupes",
+                    QMessageBox.Ok
+                )
+                self.accept()
+            else:
+                QMessageBox.warning(self, "Erreur", "Échec de l'envoi des données")
+                
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur lors de l'envoi:\n{str(e)}")
+
+    def _get_media_data(self, category_ids):
+        """Récupère les données médias pour les catégories sélectionnées."""
+        query = """
+            SELECT m.id, m.nom, m.description, m.preview_path, mt.type, c.name as category
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            JOIN category c ON m.category_id = c.id
+            WHERE m.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+
+    def _get_group_data(self, category_ids):
+        """Récupère les données groupes pour les catégories sélectionnées."""
+        query = """
+            SELECT g.id, g.link, g.remarks, g.description, g.keywords, c.name as category
+            FROM groups g
+            JOIN category c ON g.category_id = c.id
+            WHERE g.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+
+    def _transfer_data(self, media_data, group_data):
+        """
+        Simule le transfert des données au robot.
+        En production, remplacer par l'appel réel à FileTransferApp.
+        """
+        print(f"Transfert de {len(media_data)} médias et {len(group_data)} groupes")
+        # Ici vous intégreriez FileTransferApp et FileTransferApp2
+        return True  # Simule un succès
+
+    def closeEvent(self, event):
+        """Ferme proprement la connexion à la base de données."""
+        if self.conn:
+            self.conn.close()
+        event.accept()
+
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QAbstractItemView, QMessageBox, QHBoxLayout
+from PyQt5.QtGui import QIcon
+
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QTableWidget, QAbstractItemView,
+                             QPushButton, QHBoxLayout, QTableWidgetItem, QMessageBox)
+from PyQt5.QtGui import QIcon
+
+
+class ManageCategoriesDialog(QDialog):
+    """
+    Boîte de dialogue pour gérer les catégories de médias avec une interface moderne.
+    Permet d'ajouter, supprimer et visualiser les catégories.
+    """
+    
+    def __init__(self, media_manager, parent=None):
+        super().__init__(parent)
+        self.media_manager = media_manager
+        
+        # Configuration de la fenêtre
+        self._setup_ui()
+        self._apply_styles()
+        
+        # Remplissage initial des catégories
+        self.populate_categories()
+
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
+        self.setWindowTitle("Gestion des catégories")
+        self.setWindowIcon(QIcon("icons/category.png"))
+        self.setFixedSize(800, 500)  # Taille légèrement augmentée pour meilleure lisibilité
+
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+
+        # Configuration du tableau
         self.category_list = QTableWidget(self)
         self.category_list.setColumnCount(4)
         self.category_list.setHorizontalHeaderLabels(['ID', 'Nom', 'Libellé', 'Description'])
         self.category_list.setSelectionBehavior(QAbstractItemView.SelectRows)
-        layout.addWidget(self.category_list)
+        self.category_list.setSelectionMode(QAbstractItemView.SingleSelection)
+        
+        # Ajustement des colonnes
+        self.category_list.horizontalHeader().setStretchLastSection(True)
+        self.category_list.setColumnWidth(0, 80)  # ID
+        self.category_list.setColumnWidth(1, 150)  # Nom
+        
+        main_layout.addWidget(self.category_list)
 
-        # Boutons pour ajouter/supprimer
+        # Boutons d'action
         button_layout = QHBoxLayout()
-        self.add_button = QPushButton('Ajouter', self)
-        self.add_button.setIcon(QIcon("icons/add.png"))  # Ajouter une icône
+        button_layout.setSpacing(15)
+
+        self.add_button = QPushButton(' Ajouter', self)
+        self.add_button.setIcon(QIcon("icons/add.png"))
         self.add_button.clicked.connect(self.add_category)
-        button_layout.addWidget(self.add_button)
-
-        self.delete_button = QPushButton('Supprimer', self)
-        self.delete_button.setIcon(QIcon("icons/delete.png"))  # Ajouter une icône
+        
+        self.delete_button = QPushButton(' Supprimer', self)
+        self.delete_button.setIcon(QIcon("icons/delete.png"))
         self.delete_button.clicked.connect(self.delete_category)
+        
+        button_layout.addWidget(self.add_button)
         button_layout.addWidget(self.delete_button)
+        button_layout.addStretch()  # Pousse les boutons à gauche
 
-        layout.addLayout(button_layout)
+        main_layout.addLayout(button_layout)
+        self.setLayout(main_layout)
 
-        self.setLayout(layout)
-        self.populate_categories()
+    def _apply_styles(self):
+        """Applique les styles CSS modernes."""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            
+            QTableWidget {
+                background-color: white;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                font-size: 14px;
+                selection-background-color: #e3f2fd;
+                selection-color: #000;
+                gridline-color: #e5e7eb;
+            }
+            
+            QHeaderView::section {
+                background-color: #3b82f6;
+                color: white;
+                padding: 12px;
+                font-size: 14px;
+                font-weight: 500;
+                border: none;
+                border-radius: 0;
+            }
+            
+            QPushButton {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 6px;
+                border: none;
+                min-width: 100px;
+            }
+            
+            QPushButton:hover {
+                opacity: 0.9;
+            }
+            
+            #add_button {
+                background-color: #10b981;
+                color: white;
+            }
+            
+            #add_button:hover {
+                background-color: #0d9f6e;
+            }
+            
+            #delete_button {
+                background-color: #ef4444;
+                color: white;
+            }
+            
+            #delete_button:hover {
+                background-color: #dc2626;
+            }
+            
+            QMessageBox {
+                background-color: white;
+            }
+        """)
+        
+        # Application des noms d'objets pour le style spécifique
+        self.add_button.setObjectName("add_button")
+        self.delete_button.setObjectName("delete_button")
 
     def populate_categories(self):
-        """Remplit la liste des catégories."""
+        """Remplit la liste des catégories avec les données actuelles."""
         categories = self.media_manager.load_categories()
         self.category_list.setRowCount(len(categories))
+        self.category_list.setSortingEnabled(False)  # Désactive le tri pendant le remplissage
 
         for row, category in enumerate(categories):
-            id_item = QTableWidgetItem(str(category['id']))
-            self.category_list.setItem(row, 0, id_item)
+            items = [
+                QTableWidgetItem(str(category['id'])),
+                QTableWidgetItem(category['name']),
+                QTableWidgetItem(category.get('label', '')),
+                QTableWidgetItem(category.get('description', ''))
+            ]
+            
+            # Désactivation de l'édition directe
+            for item in items:
+                item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                
+            for col, item in enumerate(items):
+                self.category_list.setItem(row, col, item)
 
-            name_item = QTableWidgetItem(category['name'])
-            self.category_list.setItem(row, 1, name_item)
-
-            label_item = QTableWidgetItem(category.get('label', ''))
-            self.category_list.setItem(row, 2, label_item)
-
-            description_item = QTableWidgetItem(category.get('description', ''))
-            self.category_list.setItem(row, 3, description_item)
+        self.category_list.setSortingEnabled(True)  # Réactive le tri
+        self.category_list.sortByColumn(0, Qt.AscendingOrder)  # Trie par ID
 
     def add_category(self):
-        """Ajoute une nouvelle catégorie."""
+        """Ouvre une boîte de dialogue pour ajouter une nouvelle catégorie."""
         dialog = AddCategoryDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             name, label, description = dialog.get_category_data()
-            if name:  # Validation du nom
+            if not name.strip():
+                QMessageBox.warning(
+                    self, 
+                    'Champ requis', 
+                    'Le nom de la catégorie est obligatoire.',
+                    QMessageBox.Ok
+                )
+                return
+                
+            try:
                 self.media_manager.add_category(name, label, description)
                 self.populate_categories()
-            else:
-                QMessageBox.warning(self, 'Erreur', 'Le nom de la catégorie ne peut pas être vide.')
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Erreur',
+                    f"Une erreur est survenue :\n{str(e)}",
+                    QMessageBox.Ok
+                )
 
     def delete_category(self):
-        """Supprime la catégorie sélectionnée."""
+        """Supprime la catégorie sélectionnée après confirmation."""
         selected_row = self.category_list.currentRow()
-        if selected_row >= 0:
-            category_id = int(self.category_list.item(selected_row, 0).text())
-            if self.media_manager.has_media_in_category(category_id):
-                QMessageBox.warning(self, 'Erreur', 'Cette catégorie contient des médias. Veuillez d\'abord supprimer les médias associés.')
-            else:
-                confirm = QMessageBox.question(
-                    self, 'Confirmer', 'Êtes-vous sûr de vouloir supprimer cette catégorie ?',
-                    QMessageBox.Yes | QMessageBox.No
+        if selected_row < 0:
+            QMessageBox.information(
+                self,
+                'Aucune sélection',
+                'Veuillez sélectionner une catégorie à supprimer.',
+                QMessageBox.Ok
+            )
+            return
+            
+        category_id = int(self.category_list.item(selected_row, 0).text())
+        
+        if self.media_manager.has_media_in_category(category_id):
+            QMessageBox.warning(
+                self, 
+                'Opération impossible', 
+                'Cette catégorie contient des médias.\nVeuillez d\'abord supprimer les médias associés.',
+                QMessageBox.Ok
+            )
+            return
+            
+        confirm = QMessageBox.question(
+            self,
+            'Confirmation',
+            'Êtes-vous sûr de vouloir supprimer définitivement cette catégorie ?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if confirm == QMessageBox.Yes:
+            try:
+                self.media_manager.delete_category(category_id)
+                self.populate_categories()
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Erreur',
+                    f"Échec de la suppression :\n{str(e)}",
+                    QMessageBox.Ok
                 )
-                if confirm == QMessageBox.Yes:
-                    self.media_manager.delete_category(category_id)
-                    self.populate_categories()
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QDialogButtonBox, QMessageBox
 from PyQt5.QtGui import QIcon
 
-class AddCategoryDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Ajouter une catégorie")
-        self.setWindowIcon(QIcon("icons/add.png"))  # Ajouter une icône
-        self.setFixedSize(400, 200)  # Taille fixe pour une meilleure apparence
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, 
+                             QDialogButtonBox, QMessageBox)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 
-        # Styles CSS modernes
+
+class AddCategoryDialog(QDialog):
+    """
+    Boîte de dialogue pour ajouter une nouvelle catégorie avec validation des entrées.
+    """
+    
+    def __init__(self, parent=None):
+        super().__init__(parent, Qt.WindowCloseButtonHint | Qt.WindowTitleHint)
+        self._setup_ui()
+        self._apply_styles()
+        
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
+        self.setWindowTitle("Nouvelle catégorie")
+        self.setWindowIcon(QIcon("icons/add.png"))
+        self.setFixedSize(450, 250)  # Taille légèrement augmentée
+        
+        # Layout principal avec marges
+        layout = QVBoxLayout()
+        layout.setContentsMargins(25, 25, 25, 20)
+        layout.setSpacing(15)
+        
+        # Configuration des champs de saisie
+        self._setup_input_fields(layout)
+        
+        # Configuration des boutons
+        self._setup_buttons(layout)
+        
+        self.setLayout(layout)
+    
+    def _setup_input_fields(self, layout):
+        """Configure les champs de saisie."""
+        # Champ nom (obligatoire)
+        self.name_input = QLineEdit(self)
+        self.name_input.setPlaceholderText("Nom * (requis)")
+        self.name_input.setToolTip("Le nom identifiant de la catégorie (champ obligatoire)")
+        self.name_input.setClearButtonEnabled(True)
+        
+        # Champ libellé
+        self.label_input = QLineEdit(self)
+        self.label_input.setPlaceholderText("Libellé (affichage)")
+        self.label_input.setToolTip("Nom affiché pour la catégorie (optionnel)")
+        self.label_input.setClearButtonEnabled(True)
+        
+        # Champ description
+        self.description_input = QLineEdit(self)
+        self.description_input.setPlaceholderText("Description")
+        self.description_input.setToolTip("Description détaillée de la catégorie (optionnel)")
+        self.description_input.setClearButtonEnabled(True)
+        
+        # Ajout des champs au layout
+        layout.addWidget(self.name_input)
+        layout.addWidget(self.label_input)
+        layout.addWidget(self.description_input)
+    
+    def _setup_buttons(self, layout):
+        """Configure les boutons de dialogue."""
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, 
+            Qt.Horizontal, 
+            self
+        )
+        
+        # Personnalisation des boutons
+        ok_button = button_box.button(QDialogButtonBox.Ok)
+        ok_button.setIcon(QIcon("icons/check.png"))
+        ok_button.setText("Valider")
+        ok_button.setObjectName("okButton")
+        
+        cancel_button = button_box.button(QDialogButtonBox.Cancel)
+        cancel_button.setIcon(QIcon("icons/cancel.png"))
+        cancel_button.setObjectName("cancelButton")
+        
+        # Connexions des signaux
+        button_box.accepted.connect(self.validate_and_accept)
+        button_box.rejected.connect(self.reject)
+        
+        layout.addWidget(button_box)
+    
+    def _apply_styles(self):
+        """Applique les styles CSS modernes."""
         self.setStyleSheet("""
             QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
+                background-color: #f8fafc;
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
+            
             QLineEdit {
-                padding: 10px;
+                padding: 12px;
                 font-size: 14px;
-                border: 1px solid #ccc;
+                border: 1px solid #e2e8f0;
                 border-radius: 6px;
-                margin-bottom: 10px;
+                background-color: white;
+                selection-background-color: #3b82f6;
+                selection-color: white;
             }
+            
             QLineEdit:focus {
-                border: 2px solid #007BFF;
+                border: 1px solid #3b82f6;
+                background-color: #f0f7ff;
             }
+            
+            QLineEdit[required="true"] {
+                border-left: 3px solid #3b82f6;
+            }
+            
             QPushButton {
                 padding: 10px 20px;
                 font-size: 14px;
+                font-weight: 500;
                 border-radius: 6px;
-                background-color: #007BFF;
+                border: none;
+                min-width: 90px;
+            }
+            
+            #okButton {
+                background-color: #10b981;
                 color: white;
             }
-            QPushButton:hover {
-                background-color: #0056b3;
+            
+            #okButton:hover {
+                background-color: #0d9f6e;
             }
-            QPushButton:pressed {
-                background-color: #003f8a;
+            
+            #okButton:pressed {
+                background-color: #047857;
+            }
+            
+            #cancelButton {
+                background-color: #f1f5f9;
+                color: #64748b;
+                border: 1px solid #cbd5e1;
+            }
+            
+            #cancelButton:hover {
+                background-color: #e2e8f0;
+            }
+            
+            #cancelButton:pressed {
+                background-color: #cbd5e1;
+            }
+            
+            QToolTip {
+                background-color: #1e293b;
+                color: white;
+                padding: 5px;
+                border-radius: 4px;
+                font-size: 12px;
             }
         """)
-
-        # Layout
-        layout = QVBoxLayout()
-
-        # Champ de saisie pour le nom
-        self.name_input = QLineEdit(self)
-        self.name_input.setPlaceholderText("Nom de la catégorie")
-        layout.addWidget(self.name_input)
-
-        # Champ de saisie pour le libellé
-        self.label_input = QLineEdit(self)
-        self.label_input.setPlaceholderText("Libellé de la catégorie")
-        layout.addWidget(self.label_input)
-
-        # Champ de saisie pour la description
-        self.description_input = QLineEdit(self)
-        self.description_input.setPlaceholderText("Description de la catégorie")
-        layout.addWidget(self.description_input)
-
-        # Boutons Ok et Annuler
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        button_box.button(QDialogButtonBox.Ok).setIcon(QIcon("icons/check.png"))  # Icône pour Ok
-        button_box.button(QDialogButtonBox.Cancel).setIcon(QIcon("icons/cancel.png"))  # Icône pour Annuler
-        button_box.accepted.connect(self.validate_and_accept)
-        button_box.rejected.connect(self.reject)
-        layout.addWidget(button_box)
-
-        self.setLayout(layout)
-
+        
+        # Marquer le champ nom comme requis pour le style
+        self.name_input.setProperty("required", "true")
+        self.name_input.style().polish(self.name_input)
+    
     def validate_and_accept(self):
-        """Valide la saisie avant d'accepter."""
+        """Valide les entrées avant d'accepter."""
         name = self.name_input.text().strip()
+        
         if not name:
-            QMessageBox.warning(self, 'Erreur', 'Le nom de la catégorie ne peut pas être vide.')
+            self._show_error("Champ requis", "Le nom de la catégorie est obligatoire.")
+            self.name_input.setFocus()
             return
+        
+        if len(name) > 50:
+            self._show_error("Nom trop long", "Le nom ne doit pas dépasser 50 caractères.")
+            return
+            
         self.accept()
-
+    
+    def _show_error(self, title, message):
+        """Affiche un message d'erreur stylisé."""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+            }
+            QLabel {
+                color: #1e293b;
+            }
+        """)
+        msg.exec_()
+    
     def get_category_data(self):
-        """Retourne les données de la catégorie."""
+        """
+        Retourne les données saisies sous forme de tuple.
+        Returns:
+            tuple: (nom, libellé, description)
+        """
         return (
             self.name_input.text().strip(),
             self.label_input.text().strip(),
             self.description_input.text().strip()
-        )
-    
+        ) 
     
 
 
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QAbstractItemView, QMessageBox, QHBoxLayout
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QTableWidget, QAbstractItemView,
+                             QPushButton, QHBoxLayout, QTableWidgetItem, QMessageBox)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+
 
 class ManageTypesDialog(QDialog):
+    """
+    Boîte de dialogue pour gérer les types de médias avec une interface moderne.
+    Permet d'ajouter, supprimer et visualiser les types de médias.
+    """
+    
     def __init__(self, media_manager, parent=None):
         super().__init__(parent)
         self.media_manager = media_manager
-        self.setWindowTitle("Gérer les types de médias")
-        self.setWindowIcon(QIcon("icons/types.png"))  # Ajouter une icône
-        self.setFixedSize(800, 500)  # Taille fixe pour une meilleure apparence
+        
+        # Configuration de la fenêtre
+        self._setup_ui()
+        self._apply_styles()
+        
+        # Remplissage initial des types
+        self.populate_types()
 
-        # Styles CSS modernes
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
-            }
-            QTableWidget {
-                background-color: white;
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                font-size: 14px;
-            }
-            QHeaderView::section {
-                background-color: #007BFF;
-                color: white;
-                padding: 10px;
-                font-size: 14px;
-                font-weight: bold;
-            }
-            QPushButton {
-                padding: 10px 20px;
-                font-size: 14px;
-                border-radius: 6px;
-                background-color: #007BFF;
-                color: white;
-                margin: 5px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-            QPushButton:pressed {
-                background-color: #003f8a;
-            }
-        """)
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
+        self.setWindowTitle("Gestion des types de médias")
+        self.setWindowIcon(QIcon("icons/types.png"))
+        self.setFixedSize(900, 600)  # Taille optimisée pour l'affichage
 
-        # Layout
-        layout = QVBoxLayout()
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
 
-        # Tableau des types de médias
+        # Configuration du tableau
         self.type_list = QTableWidget(self)
         self.type_list.setColumnCount(4)
         self.type_list.setHorizontalHeaderLabels(['ID', 'Type', 'Libellé', 'Description'])
         self.type_list.setSelectionBehavior(QAbstractItemView.SelectRows)
-        layout.addWidget(self.type_list)
+        self.type_list.setSelectionMode(QAbstractItemView.SingleSelection)
+        
+        # Optimisation de l'affichage du tableau
+        self.type_list.horizontalHeader().setStretchLastSection(True)
+        self.type_list.setColumnWidth(0, 80)  # ID
+        self.type_list.setColumnWidth(1, 150)  # Type
+        self.type_list.verticalHeader().setVisible(False)
+        
+        main_layout.addWidget(self.type_list)
 
-        # Boutons pour ajouter/supprimer
+        # Boutons d'action
         button_layout = QHBoxLayout()
-        self.add_button = QPushButton('Ajouter', self)
-        self.add_button.setIcon(QIcon("icons/add.png"))  # Ajouter une icône
+        button_layout.setSpacing(15)
+
+        self.add_button = QPushButton(' Ajouter un type', self)
+        self.add_button.setIcon(QIcon("icons/add.png"))
         self.add_button.clicked.connect(self.add_type)
-        button_layout.addWidget(self.add_button)
-
-        self.delete_button = QPushButton('Supprimer', self)
-        self.delete_button.setIcon(QIcon("icons/delete.png"))  # Ajouter une icône
+        
+        self.delete_button = QPushButton(' Supprimer', self)
+        self.delete_button.setIcon(QIcon("icons/delete.png"))
         self.delete_button.clicked.connect(self.delete_type)
+        
+        button_layout.addWidget(self.add_button)
         button_layout.addWidget(self.delete_button)
+        button_layout.addStretch()  # Pousse les boutons à gauche
 
-        layout.addLayout(button_layout)
+        main_layout.addLayout(button_layout)
+        self.setLayout(main_layout)
 
-        self.setLayout(layout)
-        self.populate_types()
-
-    def populate_types(self):
-        """Remplit la liste des types de médias."""
-        types = self.media_manager.load_types()
-        self.type_list.setRowCount(len(types))
-
-        for row, type_ in enumerate(types):
-            id_item = QTableWidgetItem(str(type_['id']))
-            self.type_list.setItem(row, 0, id_item)
-
-            type_item = QTableWidgetItem(type_['type'])
-            self.type_list.setItem(row, 1, type_item)
-
-            label_item = QTableWidgetItem(type_.get('label', ''))
-            self.type_list.setItem(row, 2, label_item)
-
-            description_item = QTableWidgetItem(type_.get('description', ''))
-            self.type_list.setItem(row, 3, description_item)
-
-    def add_type(self):
-        """Ajoute un nouveau type de média."""
-        dialog = AddTypeDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
-            type_, label, description = dialog.get_type_data()
-            if type_:  # Validation du type
-                self.media_manager.add_type(type_, label, description)
-                self.populate_types()
-            else:
-                QMessageBox.warning(self, 'Erreur', 'Le type de média ne peut pas être vide.')
-
-    def delete_type(self):
-        """Supprime le type de média sélectionné."""
-        selected_row = self.type_list.currentRow()
-        if selected_row >= 0:
-            type_id = int(self.type_list.item(selected_row, 0).text())
-            if self.media_manager.has_media_in_type(type_id):
-                QMessageBox.warning(self, 'Erreur', 'Ce type contient des médias. Veuillez d\'abord supprimer les médias associés.')
-            else:
-                confirm = QMessageBox.question(
-                    self, 'Confirmer', 'Êtes-vous sûr de vouloir supprimer ce type ?',
-                    QMessageBox.Yes | QMessageBox.No
-                )
-                if confirm == QMessageBox.Yes:
-                    self.media_manager.delete_type(type_id)
-                    self.populate_types()
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QDialogButtonBox, QMessageBox
-from PyQt5.QtGui import QIcon
-
-class AddTypeDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Ajouter un type de média")
-        self.setWindowIcon(QIcon("icons/add.png"))  # Ajouter une icône
-        self.setFixedSize(400, 200)  # Taille fixe pour une meilleure apparence
-
-        # Styles CSS modernes
+    def _apply_styles(self):
+        """Applique les styles CSS modernes."""
         self.setStyleSheet("""
             QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
-            QLineEdit {
-                padding: 10px;
+            
+            QTableWidget {
+                background-color: white;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
                 font-size: 14px;
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                margin-bottom: 10px;
+                selection-background-color: #e3f2fd;
+                selection-color: #000;
+                gridline-color: #e5e7eb;
             }
-            QLineEdit:focus {
-                border: 2px solid #007BFF;
+            
+            QHeaderView::section {
+                background-color: #7c3aed;
+                color: white;
+                padding: 12px;
+                font-size: 14px;
+                font-weight: 500;
+                border: none;
+                border-radius: 0;
             }
+            
             QPushButton {
                 padding: 10px 20px;
                 font-size: 14px;
+                font-weight: 500;
                 border-radius: 6px;
-                background-color: #007BFF;
+                border: none;
+                min-width: 120px;
+            }
+            
+            QPushButton:hover {
+                opacity: 0.9;
+            }
+            
+            #add_button {
+                background-color: #10b981;
                 color: white;
             }
-            QPushButton:hover {
-                background-color: #0056b3;
+            
+            #add_button:hover {
+                background-color: #0d9f6e;
             }
-            QPushButton:pressed {
-                background-color: #003f8a;
+            
+            #delete_button {
+                background-color: #ef4444;
+                color: white;
+            }
+            
+            #delete_button:hover {
+                background-color: #dc2626;
+            }
+            
+            QMessageBox {
+                background-color: white;
             }
         """)
+        
+        # Application des noms d'objets pour le style spécifique
+        self.add_button.setObjectName("add_button")
+        self.delete_button.setObjectName("delete_button")
 
-        # Layout
+    def populate_types(self):
+        """Remplit la liste des types avec les données actuelles."""
+        types = self.media_manager.load_types()
+        self.type_list.setRowCount(len(types))
+        self.type_list.setSortingEnabled(False)  # Désactive le tri pendant le remplissage
+
+        for row, type_ in enumerate(types):
+            items = [
+                QTableWidgetItem(str(type_['id'])),
+                QTableWidgetItem(type_['type']),
+                QTableWidgetItem(type_.get('label', '')),
+                QTableWidgetItem(type_.get('description', ''))
+            ]
+            
+            # Désactivation de l'édition directe
+            for item in items:
+                item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                
+            for col, item in enumerate(items):
+                self.type_list.setItem(row, col, item)
+
+        self.type_list.setSortingEnabled(True)  # Réactive le tri
+        self.type_list.sortByColumn(0, Qt.AscendingOrder)  # Trie par ID
+
+    def add_type(self):
+        """Ouvre une boîte de dialogue pour ajouter un nouveau type."""
+        dialog = AddTypeDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            type_, label, description = dialog.get_type_data()
+            if not type_.strip():
+                QMessageBox.warning(
+                    self, 
+                    'Champ requis', 
+                    'Le type de média ne peut pas être vide.',
+                    QMessageBox.Ok
+                )
+                return
+                
+            try:
+                self.media_manager.add_type(type_, label, description)
+                self.populate_types()
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Erreur',
+                    f"Une erreur est survenue :\n{str(e)}",
+                    QMessageBox.Ok
+                )
+
+    def delete_type(self):
+        """Supprime le type sélectionné après confirmation."""
+        selected_row = self.type_list.currentRow()
+        if selected_row < 0:
+            QMessageBox.information(
+                self,
+                'Aucune sélection',
+                'Veuillez sélectionner un type à supprimer.',
+                QMessageBox.Ok
+            )
+            return
+            
+        type_id = int(self.type_list.item(selected_row, 0).text())
+        
+        if self.media_manager.has_media_in_type(type_id):
+            QMessageBox.warning(
+                self, 
+                'Opération impossible', 
+                'Ce type contient des médias.\nVeuillez d\'abord supprimer les médias associés.',
+                QMessageBox.Ok
+            )
+            return
+            
+        confirm = QMessageBox.question(
+            self,
+            'Confirmation',
+            'Êtes-vous sûr de vouloir supprimer définitivement ce type ?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if confirm == QMessageBox.Yes:
+            try:
+                self.media_manager.delete_type(type_id)
+                self.populate_types()
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Erreur',
+                    f"Échec de la suppression :\n{str(e)}",
+                    QMessageBox.Ok
+                )
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QDialogButtonBox, QMessageBox
+from PyQt5.QtGui import QIcon
+
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, 
+                             QDialogButtonBox, QMessageBox)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+
+
+class AddTypeDialog(QDialog):
+    """
+    Boîte de dialogue pour ajouter un nouveau type de média avec validation des entrées.
+    Style moderne cohérent avec l'application.
+    """
+    
+    def __init__(self, parent=None):
+        super().__init__(parent, Qt.WindowCloseButtonHint | Qt.WindowTitleHint)
+        self._setup_ui()
+        self._apply_styles()
+        
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
+        self.setWindowTitle("Nouveau type de média")
+        self.setWindowIcon(QIcon("icons/add.png"))
+        self.setFixedSize(450, 280)  # Taille légèrement augmentée
+        
+        # Layout principal avec marges
         layout = QVBoxLayout()
-
-        # Champ de saisie pour le type
+        layout.setContentsMargins(25, 25, 25, 20)
+        layout.setSpacing(15)
+        
+        # Configuration des champs de saisie
+        self._setup_input_fields(layout)
+        
+        # Configuration des boutons
+        self._setup_buttons(layout)
+        
+        self.setLayout(layout)
+    
+    def _setup_input_fields(self, layout):
+        """Configure les champs de saisie avec des tooltips explicatifs."""
+        # Champ type (obligatoire)
         self.type_input = QLineEdit(self)
-        self.type_input.setPlaceholderText("Type de média")
-        layout.addWidget(self.type_input)
-
-        # Champ de saisie pour le libellé
+        self.type_input.setPlaceholderText("Type * (requis)")
+        self.type_input.setToolTip("Identifiant technique du type (ex: 'image', 'video')")
+        self.type_input.setClearButtonEnabled(True)
+        self.type_input.setProperty("required", "true")
+        
+        # Champ libellé
         self.label_input = QLineEdit(self)
-        self.label_input.setPlaceholderText("Libellé du type")
-        layout.addWidget(self.label_input)
-
-        # Champ de saisie pour la description
+        self.label_input.setPlaceholderText("Libellé (affichage)")
+        self.label_input.setToolTip("Nom affiché pour le type (ex: 'Image', 'Vidéo')")
+        self.label_input.setClearButtonEnabled(True)
+        
+        # Champ description
         self.description_input = QLineEdit(self)
-        self.description_input.setPlaceholderText("Description du type")
+        self.description_input.setPlaceholderText("Description")
+        self.description_input.setToolTip("Description détaillée du type de média")
+        self.description_input.setClearButtonEnabled(True)
+        
+        # Ajout des champs au layout
+        layout.addWidget(self.type_input)
+        layout.addWidget(self.label_input)
         layout.addWidget(self.description_input)
-
-        # Boutons Ok et Annuler
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        button_box.button(QDialogButtonBox.Ok).setIcon(QIcon("icons/check.png"))  # Icône pour Ok
-        button_box.button(QDialogButtonBox.Cancel).setIcon(QIcon("icons/cancel.png"))  # Icône pour Annuler
+    
+    def _setup_buttons(self, layout):
+        """Configure les boutons de dialogue avec style personnalisé."""
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, 
+            Qt.Horizontal, 
+            self
+        )
+        
+        # Personnalisation des boutons
+        ok_button = button_box.button(QDialogButtonBox.Ok)
+        ok_button.setIcon(QIcon("icons/check.png"))
+        ok_button.setText("Valider")
+        ok_button.setObjectName("okButton")
+        
+        cancel_button = button_box.button(QDialogButtonBox.Cancel)
+        cancel_button.setIcon(QIcon("icons/cancel.png"))
+        cancel_button.setObjectName("cancelButton")
+        
+        # Connexions des signaux
         button_box.accepted.connect(self.validate_and_accept)
         button_box.rejected.connect(self.reject)
+        
         layout.addWidget(button_box)
-
-        self.setLayout(layout)
-
+    
+    def _apply_styles(self):
+        """Applique les styles CSS modernes avec une touche violette."""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f8fafc;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            
+            QLineEdit {
+                padding: 12px;
+                font-size: 14px;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                background-color: white;
+                selection-background-color: #7c3aed;
+                selection-color: white;
+            }
+            
+            QLineEdit:focus {
+                border: 1px solid #7c3aed;
+                background-color: #f5f3ff;
+            }
+            
+            QLineEdit[required="true"] {
+                border-left: 3px solid #7c3aed;
+            }
+            
+            QPushButton {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 6px;
+                border: none;
+                min-width: 90px;
+            }
+            
+            #okButton {
+                background-color: #7c3aed;
+                color: white;
+            }
+            
+            #okButton:hover {
+                background-color: #6d28d9;
+            }
+            
+            #okButton:pressed {
+                background-color: #5b21b6;
+            }
+            
+            #cancelButton {
+                background-color: #f1f5f9;
+                color: #64748b;
+                border: 1px solid #cbd5e1;
+            }
+            
+            #cancelButton:hover {
+                background-color: #e2e8f0;
+            }
+            
+            #cancelButton:pressed {
+                background-color: #cbd5e1;
+            }
+            
+            QToolTip {
+                background-color: #1e293b;
+                color: white;
+                padding: 5px;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+        """)
+        
+        # Actualise le style pour prendre en compte les propriétés
+        self.type_input.style().polish(self.type_input)
+    
     def validate_and_accept(self):
-        """Valide la saisie avant d'accepter."""
-        type_ = self.type_input.text().strip()
-        if not type_:
-            QMessageBox.warning(self, 'Erreur', 'Le type de média ne peut pas être vide.')
+        """Valide les entrées avant d'accepter."""
+        type_text = self.type_input.text().strip()
+        
+        if not type_text:
+            self._show_error("Champ requis", "Le type de média est obligatoire.")
+            self.type_input.setFocus()
             return
+        
+        if not type_text.islower() or ' ' in type_text:
+            self._show_error("Format incorrect", 
+                            "Le type doit être en minuscules sans espaces (ex: 'video', 'audio').")
+            return
+            
+        if len(type_text) > 30:
+            self._show_error("Trop long", 
+                            "Le type ne doit pas dépasser 30 caractères.")
+            return
+            
         self.accept()
-
+    
+    def _show_error(self, title, message):
+        """Affiche un message d'erreur stylisé."""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(title)
+        msg.setText(message)
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+            }
+            QLabel {
+                color: #1e293b;
+            }
+        """)
+        msg.exec_()
+    
     def get_type_data(self):
-        """Retourne les données saisies par l'utilisateur."""
+        """
+        Retourne les données saisies sous forme de tuple.
+        Returns:
+            tuple: (type, libellé, description)
+        """
         return (
-            self.type_input.text().strip(),
+            self.type_input.text().strip().lower(),
             self.label_input.text().strip(),
             self.description_input.text().strip()
         )
-
-
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QAbstractItemView, QMessageBox, QHBoxLayout
 from PyQt5.QtGui import QIcon
 
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QTableWidget, QAbstractItemView,
+                            QPushButton, QHBoxLayout, QTableWidgetItem, QMessageBox)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
+
+
 class ManageArchivesDialog(QDialog):
+    """
+    Boîte de dialogue pour gérer les médias archivés avec une interface moderne.
+    Permet de restaurer ou supprimer définitivement des médias archivés.
+    """
+    
     def __init__(self, media_manager, user_choice, parent=None):
         super().__init__(parent)
         self.media_manager = media_manager
         self.user_choice = user_choice
-        self.setWindowTitle("Gérer les archives")
-        self.setWindowIcon(QIcon("icons/archive.png"))  # Ajouter une icône
-        self.setFixedSize(800, 500)  # Taille fixe pour une meilleure apparence
+        
+        # Configuration de la fenêtre
+        self._setup_ui()
+        self._apply_styles()
+        
+        # Remplissage initial des archives
+        self.populate_archives()
 
-        # Styles CSS modernes
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
+        self.setWindowTitle("Gestion des archives")
+        self.setWindowIcon(QIcon("icons/archive.png"))
+        self.setFixedSize(900, 600)  # Taille optimisée
+
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
+
+        # Configuration du tableau
+        self.archive_list = QTableWidget(self)
+        self.archive_list.setColumnCount(5)  # Ajout d'une colonne pour la date d'archivage
+        self.archive_list.setHorizontalHeaderLabels(['ID', 'Nom', 'Description', 'Catégorie', 'Archivé le'])
+        self.archive_list.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.archive_list.setSelectionMode(QAbstractItemView.SingleSelection)
+        
+        # Optimisation de l'affichage du tableau
+        self.archive_list.horizontalHeader().setStretchLastSection(True)
+        self.archive_list.setColumnWidth(0, 80)  # ID
+        self.archive_list.setColumnWidth(1, 200)  # Nom
+        self.archive_list.verticalHeader().setVisible(False)
+        
+        main_layout.addWidget(self.archive_list)
+
+        # Boutons d'action
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(15)
+
+        self.restore_button = QPushButton(' Restaurer', self)
+        self.restore_button.setIcon(QIcon("icons/restore.png"))
+        self.restore_button.clicked.connect(self.restore_media)
+        
+        self.delete_button = QPushButton(' Supprimer définitivement', self)
+        self.delete_button.setIcon(QIcon("icons/delete_forever.png"))  # Icône différente pour suppression permanente
+        self.delete_button.clicked.connect(self.delete_media)
+        
+        button_layout.addWidget(self.restore_button)
+        button_layout.addWidget(self.delete_button)
+        button_layout.addStretch()  # Pousse les boutons à gauche
+
+        main_layout.addLayout(button_layout)
+        self.setLayout(main_layout)
+
+    def _apply_styles(self):
+        """Applique les styles CSS modernes avec thème orange/rouge."""
         self.setStyleSheet("""
             QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
+                background-color: #fff7ed;
+                font-family: 'Segoe UI', Arial, sans-serif;
             }
+            
             QTableWidget {
                 background-color: white;
-                border: 1px solid #ccc;
-                border-radius: 6px;
+                border: 1px solid #f3e8d3;
+                border-radius: 8px;
                 font-size: 14px;
+                selection-background-color: #ffedd5;
+                selection-color: #000;
+                gridline-color: #f3e8d3;
             }
+            
             QHeaderView::section {
-                background-color: #007BFF;
+                background-color: #f97316;
                 color: white;
-                padding: 10px;
+                padding: 12px;
                 font-size: 14px;
-                font-weight: bold;
+                font-weight: 500;
+                border: none;
+                border-radius: 0;
             }
+            
             QPushButton {
                 padding: 10px 20px;
                 font-size: 14px;
+                font-weight: 500;
                 border-radius: 6px;
-                background-color: #007BFF;
-                color: white;
-                margin: 5px;
+                border: none;
+                min-width: 120px;
             }
+            
             QPushButton:hover {
-                background-color: #0056b3;
+                opacity: 0.9;
             }
-            QPushButton:pressed {
-                background-color: #003f8a;
+            
+            #restore_button {
+                background-color: #22c55e;
+                color: white;
+            }
+            
+            #restore_button:hover {
+                background-color: #16a34a;
+            }
+            
+            #delete_button {
+                background-color: #ef4444;
+                color: white;
+            }
+            
+            #delete_button:hover {
+                background-color: #dc2626;
+            }
+            
+            QMessageBox {
+                background-color: white;
             }
         """)
-
-        # Layout
-        layout = QVBoxLayout()
-
-        # Tableau des archives
-        self.archive_list = QTableWidget(self)
-        self.archive_list.setColumnCount(4)
-        self.archive_list.setHorizontalHeaderLabels(['ID', 'Nom', 'Description', 'Catégorie'])
-        self.archive_list.setSelectionBehavior(QAbstractItemView.SelectRows)
-        layout.addWidget(self.archive_list)
-
-        # Boutons pour restaurer/supprimer
-        button_layout = QHBoxLayout()
-        self.restore_button = QPushButton('Restaurer', self)
-        self.restore_button.setIcon(QIcon("icons/restore.png"))  # Ajouter une icône
-        self.restore_button.clicked.connect(self.restore_media)
-        button_layout.addWidget(self.restore_button)
-
-        self.delete_button = QPushButton('Supprimer définitivement', self)
-        self.delete_button.setIcon(QIcon("icons/delete.png"))  # Ajouter une icône
-        self.delete_button.clicked.connect(self.delete_media)
-        button_layout.addWidget(self.delete_button)
-
-        layout.addLayout(button_layout)
-
-        self.setLayout(layout)
-        self.populate_archives()
+        
+        # Application des noms d'objets pour le style spécifique
+        self.restore_button.setObjectName("restore_button")
+        self.delete_button.setObjectName("delete_button")
 
     def populate_archives(self):
-        """Remplit la liste des archives."""
+        """Remplit la liste des archives avec les données actuelles."""
         archives = self.media_manager.load_archives(self.user_choice)
         self.archive_list.setRowCount(len(archives))
+        self.archive_list.setSortingEnabled(False)  # Désactive le tri pendant le remplissage
 
         for row, archive in enumerate(archives):
-            id_item = QTableWidgetItem(str(archive['id']))
-            self.archive_list.setItem(row, 0, id_item)
+            items = [
+                QTableWidgetItem(str(archive['id'])),
+                QTableWidgetItem(archive['nom']),
+                QTableWidgetItem(archive.get('description', '')),
+                QTableWidgetItem(archive.get('categorie', '')),
+                QTableWidgetItem(archive.get('archived_date', 'Inconnue'))
+            ]
+            
+            # Désactivation de l'édition directe
+            for item in items:
+                item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                
+            for col, item in enumerate(items):
+                self.archive_list.setItem(row, col, item)
 
-            nom_item = QTableWidgetItem(archive['nom'])
-            self.archive_list.setItem(row, 1, nom_item)
-
-            description_item = QTableWidgetItem(archive['description'])
-            self.archive_list.setItem(row, 2, description_item)
-
-            categorie_item = QTableWidgetItem(archive.get('categorie', ''))
-            self.archive_list.setItem(row, 3, categorie_item)
+        self.archive_list.setSortingEnabled(True)  # Réactive le tri
+        self.archive_list.sortByColumn(4, Qt.DescendingOrder)  # Trie par date d'archivage récente
 
     def restore_media(self):
-        """Restaure le média sélectionné."""
+        """Restaure le média sélectionné après confirmation."""
         selected_row = self.archive_list.currentRow()
-        if selected_row >= 0:
-            media_id = int(self.archive_list.item(selected_row, 0).text())
-            self.media_manager.restore_media(media_id, self.user_choice)
-            self.populate_archives()
+        if selected_row < 0:
+            QMessageBox.information(
+                self,
+                'Aucune sélection',
+                'Veuillez sélectionner un média à restaurer.',
+                QMessageBox.Ok
+            )
+            return
+            
+        media_id = int(self.archive_list.item(selected_row, 0).text())
+        media_name = self.archive_list.item(selected_row, 1).text()
+        
+        confirm = QMessageBox.question(
+            self,
+            'Confirmation de restauration',
+            f'Êtes-vous sûr de vouloir restaurer "{media_name}" ?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if confirm == QMessageBox.Yes:
+            try:
+                self.media_manager.restore_media(media_id, self.user_choice)
+                self.populate_archives()
+                QMessageBox.information(
+                    self,
+                    'Restauration réussie',
+                    f'Le média "{media_name}" a été restauré avec succès.',
+                    QMessageBox.Ok
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Erreur',
+                    f"Échec de la restauration :\n{str(e)}",
+                    QMessageBox.Ok
+                )
 
     def delete_media(self):
-        """Supprime définitivement le média sélectionné."""
+        """Supprime définitivement le média sélectionné après confirmation."""
         selected_row = self.archive_list.currentRow()
-        if selected_row >= 0:
-            media_id = int(self.archive_list.item(selected_row, 0).text())
-            # confirm = QMessageBox.question(
-            #     self, 'Confirmation', "Êtes-vous sûr de vouloir supprimer définitivement ce média ?",
-            #     QMessageBox.Yes | QMessageBox.No
-            # )
-            # if confirm == QMessageBox.Yes:
-            self.media_manager.delete_media(media_id)
-            self.populate_archives()
-
-
+        if selected_row < 0:
+            QMessageBox.information(
+                self,
+                'Aucune sélection',
+                'Veuillez sélectionner un média à supprimer.',
+                QMessageBox.Ok
+            )
+            return
+            
+        media_id = int(self.archive_list.item(selected_row, 0).text())
+        media_name = self.archive_list.item(selected_row, 1).text()
+        
+        # Boîte de dialogue de confirmation plus détaillée
+        confirm_box = QMessageBox(self)
+        confirm_box.setIcon(QMessageBox.Warning)
+        confirm_box.setWindowTitle('Confirmation de suppression')
+        confirm_box.setText(f'Suppression définitive de "{media_name}"')
+        confirm_box.setInformativeText('Cette action est irréversible. Continuer ?')
+        confirm_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm_box.setDefaultButton(QMessageBox.No)
+        
+        # Style personnalisé pour la boîte de confirmation
+        confirm_box.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+            }
+            QLabel {
+                color: #1e293b;
+            }
+        """)
+        
+        if confirm_box.exec_() == QMessageBox.Yes:
+            try:
+                self.media_manager.delete_media(media_id)
+                self.populate_archives()
+                QMessageBox.information(
+                    self,
+                    'Suppression réussie',
+                    f'Le média "{media_name}" a été définitivement supprimé.',
+                    QMessageBox.Ok
+                )
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    'Erreur',
+                    f"Échec de la suppression :\n{str(e)}",
+                    QMessageBox.Ok
+                )
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLabel, QPushButton)
+from PyQt5.QtGui import QIcon, QPixmap, QMovie
+from PyQt5.QtCore import Qt, QSize
+
+
 class PreviewDialog(QDialog):
+    """
+    Boîte de dialogue d'aperçu des médias avec support pour images et vidéos.
+    Style moderne avec animations et interactions améliorées.
+    """
+    
     def __init__(self, media_path, description, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, Qt.WindowCloseButtonHint | Qt.WindowTitleHint)
+        self.media_path = media_path
+        self.description = description
+        self.movie = None  # Pour les GIFs
+        
+        # Configuration de la fenêtre
+        self._setup_ui()
+        self._apply_styles()
+        self._load_media()
+
+    def _setup_ui(self):
+        """Configure l'interface utilisateur."""
         self.setWindowTitle("Aperçu du média")
-        self.setWindowIcon(QIcon("icons/preview.png"))  # Ajouter une icône
-        self.setFixedSize(500, 500)  # Taille fixe pour une meilleure apparence
-
-        # Styles CSS modernes
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
-            }
-            QLabel {
-                font-size: 14px;
-                color: #333;
-                margin-bottom: 10px;
-            }
-        """)
-
-        # Layout
+        self.setWindowIcon(QIcon("icons/preview.png"))
+        self.setMinimumSize(600, 600)  # Taille minimale responsive
+        
+        # Layout principal avec marges
         layout = QVBoxLayout()
-
-        # Description du média
-        self.description_label = QLabel(description, self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+        
+        # Description du média avec style
+        self.description_label = QLabel(self.description, self)
         self.description_label.setAlignment(Qt.AlignCenter)
+        self.description_label.setWordWrap(True)
         layout.addWidget(self.description_label)
-
-        # Aperçu du média
-        if media_path.endswith(('.png', '.jpg', '.jpeg')):
-            self.preview_label = QLabel(self)
-            pixmap = QPixmap(media_path).scaled(400, 400, Qt.KeepAspectRatio)
-            self.preview_label.setPixmap(pixmap)
-            self.preview_label.setAlignment(Qt.AlignCenter)
-            layout.addWidget(self.preview_label)
-        else:
-            self.preview_label = QLabel("Aperçu vidéo non disponible.", self)
-            self.preview_label.setAlignment(Qt.AlignCenter)
-            layout.addWidget(self.preview_label)
-
+        
+        # Zone d'aperçu avec cadre
+        self.preview_container = QLabel(self)
+        self.preview_container.setAlignment(Qt.AlignCenter)
+        self.preview_container.setStyleSheet("background-color: #f0f0f0; border-radius: 8px;")
+        layout.addWidget(self.preview_container, 1)  # Facteur d'expansion
+        
+        # Bouton de fermeture
+        self.close_button = QPushButton("Fermer", self)
+        self.close_button.clicked.connect(self.close)
+        layout.addWidget(self.close_button, 0, Qt.AlignRight)
+        
         self.setLayout(layout)
 
+    def _apply_styles(self):
+        """Applique les styles CSS modernes."""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f8fafc;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            
+            QLabel {
+                font-size: 15px;
+                color: #334155;
+            }
+            
+            #description_label {
+                font-size: 16px;
+                font-weight: 500;
+                color: #1e293b;
+                padding: 10px;
+                background-color: #f1f5f9;
+                border-radius: 6px;
+            }
+            
+            QPushButton {
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: 500;
+                border-radius: 6px;
+                background-color: #3b82f6;
+                color: white;
+                min-width: 100px;
+            }
+            
+            QPushButton:hover {
+                background-color: #2563eb;
+            }
+            
+            QPushButton:pressed {
+                background-color: #1d4ed8;
+            }
+        """)
+        
+        self.description_label.setObjectName("description_label")
+
+    def _load_media(self):
+        """Charge et affiche le média selon son type."""
+        if self.media_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+            self._show_image()
+        elif self.media_path.lower().endswith('.gif'):
+            self._show_gif()
+        elif self.media_path.lower().endswith(('.mp4', '.avi', '.mov')):
+            self._show_video_placeholder()
+        else:
+            self._show_unknown_format()
+
+    def _show_image(self):
+        """Affiche une image avec redimensionnement intelligent."""
+        pixmap = QPixmap(self.media_path)
+        
+        # Redimensionnement proportionnel
+        container_size = self.preview_container.size()
+        scaled_pixmap = pixmap.scaled(
+            container_size.width() - 40, 
+            container_size.height() - 40,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
+        
+        self.preview_container.setPixmap(scaled_pixmap)
+
+    def _show_gif(self):
+        """Affiche une animation GIF."""
+        self.movie = QMovie(self.media_path)
+        self.movie.setScaledSize(QSize(
+            self.preview_container.width() - 40,
+            self.preview_container.height() - 40
+        ))
+        self.preview_container.setMovie(self.movie)
+        self.movie.start()
+
+    def _show_video_placeholder(self):
+        """Affiche un placeholder pour les vidéos avec icône."""
+        placeholder = QLabel(self.preview_container)
+        placeholder.setAlignment(Qt.AlignCenter)
+        placeholder.setPixmap(QIcon("icons/video.png").pixmap(128, 128))
+        
+        text = QLabel("Prévisualisation vidéo non supportée", self.preview_container)
+        text.setAlignment(Qt.AlignCenter)
+        text.setStyleSheet("font-size: 16px; color: #64748b; margin-top: 10px;")
+        
+        layout = QVBoxLayout(self.preview_container)
+        layout.addWidget(placeholder)
+        layout.addWidget(text)
+        layout.setAlignment(Qt.AlignCenter)
+
+    def _show_unknown_format(self):
+        """Affiche un message pour les formats non reconnus."""
+        self.preview_container.setText("Format de média non supporté")
+        self.preview_container.setStyleSheet("""
+            font-size: 16px;
+            color: #ef4444;
+        """)
+
+    def resizeEvent(self, event):
+        """Redimensionne le média lors du resize de la fenêtre."""
+        super().resizeEvent(event)
+        if self.movie:
+            self.movie.setScaledSize(QSize(
+                self.preview_container.width() - 40,
+                self.preview_container.height() - 40
+            ))
+        elif hasattr(self, 'pixmap'):
+            self._show_image()
 
 # Application principale
 class MainWindow(QMainWindow):
