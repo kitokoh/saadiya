@@ -1156,10 +1156,11 @@ class Browser(QMainWindow):
         self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
    
     def open_grups_window(self):
-        from ModulesUI.whasapping.group_manager import ContactTable
+        from facebooksmodule.group_manager import GroupTable
+
 
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("contacts")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("groups")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1169,11 +1170,11 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'contacts') or self.contacts is None:
-            self.contacts = ContactTable(parent=self)  # Create the instance only once
+        if not hasattr(self, 'groups') or self.groups is None:
+            self.groups = GroupTable(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.groups, tab_name, "resources/icons/multi_fb.ico")
    
       
     def add_media_page(self):
