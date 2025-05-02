@@ -845,7 +845,17 @@ def init_db():
             date_suppression TIMESTAMP
         )
     ''')
-
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS category_group (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            label TEXT,
+            description TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP
+        )
+    ''')
     # Table pour les réseaux sociaux
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS reseaux_sociaux (
@@ -924,10 +934,10 @@ def init_db():
             name TEXT NOT NULL,
             link TEXT NOT NULL,
             remarks TEXT,
-            category_id INTEGER,
+            category_group_id INTEGER,
             description TEXT,
             keywords TEXT,
-            FOREIGN KEY(category_id) REFERENCES category(id)
+            FOREIGN KEY(category_id) REFERENCES category_group(id)
         )
     ''')
 
@@ -1020,7 +1030,7 @@ def init_db():
         ('Group2', 'http://example.com/group2', 'Remarks 2', 1, 'Description 2', 'Keywords2')
     ]
     cursor.executemany('''
-        INSERT OR IGNORE INTO groups (name, link, remarks, category_id, description, keywords)
+        INSERT OR IGNORE INTO groups (name, link, remarks, category_group_id, description, keywords)
         VALUES (?, ?, ?, ?, ?, ?)
     ''', groups)
 
@@ -1045,7 +1055,7 @@ def load_groups(robot_id=None):
         cursor.execute('SELECT * FROM groups')
     groups = cursor.fetchall()
     conn.close()
-    return [dict(zip(['id', 'name', 'link', 'remarks', 'category_id', 'description', 'keywords'], group)) for group in groups]
+    return [dict(zip(['id', 'name', 'link', 'remarks', 'category_group_id', 'description', 'keywords'], group)) for group in groups]
 
 def load_robots():
     """Charge les robots depuis la base de données SQLite."""
@@ -1070,9 +1080,9 @@ def save_group(group):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO groups (name, link, remarks, category_id, description, keywords)
+        INSERT INTO groups (name, link, remarks, category_group_id, description, keywords)
         VALUES (?, ?, ?, ?, ?, ?)
-    ''', (group['name'], group['link'], group['remarks'], group['category_id'], group['description'], group.get('keywords', '')))
+    ''', (group['name'], group['link'], group['remarks'], group['category_group_id'], group['description'], group.get('keywords', '')))
     conn.commit()
     conn.close()
 
@@ -1082,9 +1092,9 @@ def update_group(group):
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE groups
-        SET name = ?, link = ?, remarks = ?, category_id = ?, description = ?, keywords = ?
+        SET name = ?, link = ?, remarks = ?, category_group_id = ?, description = ?, keywords = ?
         WHERE id = ?
-    ''', (group['name'], group['link'], group['remarks'], group['category_id'], group['description'], group.get('keywords', ''), group['id']))
+    ''', (group['name'], group['link'], group['remarks'], group['category_group_id'], group['description'], group.get('keywords', ''), group['id']))
     conn.commit()
     conn.close()
 
@@ -1549,13 +1559,13 @@ class AddGroupDialog(QDialog):
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO groups (name, link, remarks, category_id, description, keywords)
+            INSERT INTO groups (name, link, remarks, category_group_id, description, keywords)
             VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             group['name'],
             group['link'],
             group['remarks'],
-            group['category_id'],
+            group['category_group_id'],
             group['description'],
             group['keywords']
         ))
@@ -2270,12 +2280,12 @@ class GroupTable(QWidget):
         conn.commit()
         conn.close()
 
-    def update_group_category(self, row, category_id):
+    def update_group_category(self, row, category_group_id):
         """Met à jour la catégorie du groupe dans la base de données."""
         group_id = self.filtered_groups[row]['id']
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute('UPDATE groups SET category_id = ? WHERE id = ?', (category_id, group_id))
+        cursor.execute('UPDATE groups SET category_group_id = ? WHERE id = ?', (category_group_id, group_id))
         conn.commit()
         conn.close()
 
@@ -2289,12 +2299,12 @@ class GroupTable(QWidget):
         conn.close()
         return categories
 
-    def update_group_category(self, row, category_id):
+    def update_group_category(self, row, category_group_id):
         """Met à jour la catégorie du groupe dans la base de données."""
         group_id = self.filtered_groups[row]['id']
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute('UPDATE groups SET category_id = ? WHERE id = ?', (category_id, group_id))
+        cursor.execute('UPDATE groups SET category_group_id = ? WHERE id = ?', (category_group_id, group_id))
         conn.commit()
         conn.close()
 
@@ -2305,13 +2315,13 @@ class GroupTable(QWidget):
         print(group)  # Pour déboguer
 
         # Récupérer l'ID de la catégorie
-        category_id = group.get('category_id', 'N/A')
+        category_group_id = group.get('category_group_id', 'N/A')
 
         # Afficher les détails du groupe
         QMessageBox.information(
             self,
             "Group Details",
-            f"Name: {group['name']}\nLink: {group['link']}\nCategory ID: {category_id}"
+            f"Name: {group['name']}\nLink: {group['link']}\nCategory ID: {category_group_id}"
         )
 
     def update_pagination_buttons(self):
@@ -2434,13 +2444,13 @@ class GroupTable(QWidget):
         cursor = conn.cursor()
         cursor.execute('''
             UPDATE groups
-            SET name = ?, link = ?, remarks = ?, category_id = ?, description = ?, keywords = ?
+            SET name = ?, link = ?, remarks = ?, category_group_id = ?, description = ?, keywords = ?
             WHERE id = ?
         ''', (
             group['name'],
             group['link'],
             group['remarks'],
-            group['category_id'],
+            group['category_group_id'],
             group['description'],
             group['keywords'],
             group['id']
