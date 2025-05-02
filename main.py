@@ -841,6 +841,23 @@ class Browser(QMainWindow):
         # Add the existing instance to the new tab
         self.add_custom_tab(self.telecommande, tab_name, "resources/icons/multi_fb.ico")
 
+    def open_manuelle_window(self):
+        from manuelleRobot.open import DescriptionManager
+        tab_name = self.tr("Manu")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, 'Manu') or self.Manu is None:
+            self.Manu = DescriptionManager(parent=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.Manu, tab_name, "resources/icons/multi_fb.ico")
     def open_telecommande_window(self):
         tab_name = self.tr("Remote Control")  # Tab name (matches the label used in add_custom_tab)
 
@@ -857,6 +874,9 @@ class Browser(QMainWindow):
 
         # Add the existing instance to the new tab
         self.add_custom_tab(self.telecommande, tab_name, "resources/icons/multi_fb.ico")
+   
+     
+   
     def open_sheduling_window(self):
         tab_name = self.tr("shedulings")  # Tab name (matches the label used in add_custom_tab)
 
@@ -1368,8 +1388,9 @@ class Browser(QMainWindow):
 
                 ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
                  ("🌍", self.tr("Grups"), "grups", self.open_grups_window, self.tr("liste de mes grops"), []),
-
                 ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
+
+                ("🛠️", self.tr("Manuelle"), "Manuelle", self.open_manuelle_window, self.tr("Remote control"), []),
                 # ("📝", self.tr("Edit PDF"), "edit_pdf", self.open_editpdf_window, self.tr("Modify PDF documents"), []),
                 # ("💧", self.tr("Watermarks"), "watermarks", self.open_watermark_window, self.tr("Add/remove watermarks"), []),
                 # ("📝", self.tr("Remove BG"), "remove_bg", self.open_removebg_window, self.tr("Remove Background"), []),

@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QTableWidget,
 from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, QSize
 from PyQt5.QtGui import QFont, QColor, QPalette, QIcon, QLinearGradient, QPainter, QPen
 from PyQt5.QtWidgets import QApplication
-
+from imports import DB_PATH_notes
 class GradientFrame(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -52,7 +52,7 @@ class MediaEditorModal(QWidget):
         
     def setup_database(self):
         """Initialise la base de données SQLite"""
-        self.conn = sqlite3.connect('media_database.db')
+        self.conn = sqlite3.connect(DB_PATH_notes)
         self.cursor = self.conn.cursor()
         
         # Créer la table si elle n'existe pas
@@ -403,6 +403,183 @@ class MediaEditorModal(QWidget):
             description = self.media_table.item(row, 1).text()
             descriptions.append((media_name, description))
         return descriptions
+    
+    def closeEvent(self, event):
+        """Ferme proprement la connexion à la base de données"""
+        self.conn.close()
+        super().closeEvent(event)
+
+
+
+
+
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTextEdit, 
+                            QPushButton, QFrame, QHBoxLayout)
+from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve
+from PyQt5.QtGui import QFont, QColor, QPalette, QIcon, QLinearGradient, QPainter
+
+class DefaultDescriptionModal(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_database()
+        self.init_ui()
+        self.setup_animations()
+        self.load_default_description()
+        
+    def setup_database(self):
+        """Initialise la connexion à la base de données existante"""
+        self.conn = sqlite3.connect(DB_PATH_notes)
+        self.cursor = self.conn.cursor()
+    
+    def init_ui(self):
+        """Initialise l'interface simplifiée"""
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setFixedSize(600, 400)
+        
+        # Conteneur principal
+        self.main_frame = QFrame(self)
+        self.main_frame.setObjectName("mainFrame")
+        self.main_frame.setStyleSheet('''
+            #mainFrame {
+                background: #ffffff;
+                border-radius: 12px;
+                border: none;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            }
+        ''')
+        
+        # Layout principal
+        main_layout = QVBoxLayout(self.main_frame)
+        main_layout.setContentsMargins(25, 25, 25, 25)
+        main_layout.setSpacing(20)
+        
+        # Titre explicatif
+        self.title_label = QLabel("DESCRIPTION PAR DÉFAUT")
+        self.title_label.setStyleSheet('''
+            QLabel {
+                font-size: 18px;
+                font-weight: 700;
+                color: #2d3748;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #e2e8f0;
+            }
+        ''')
+        
+        # Message d'information
+        self.info_label = QLabel("Ceci est la description par défaut qui sera utilisée comme modèle.")
+        self.info_label.setStyleSheet('''
+            QLabel {
+                font-size: 14px;
+                color: #4a5568;
+                font-style: italic;
+            }
+        ''')
+        
+        # Zone d'édition
+        self.desc_edit = QTextEdit()
+        self.desc_edit.setStyleSheet('''
+            QTextEdit {
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 15px;
+                font-size: 14px;
+                min-height: 200px;
+                background: #ffffff;
+            }
+            QTextEdit:focus {
+                border: 2px solid #667eea;
+            }
+        ''')
+        self.desc_edit.textChanged.connect(self.save_default_description)
+        
+        # Bouton Fermer
+        self.close_btn = QPushButton("Fermer")
+        self.close_btn.setStyleSheet('''
+            QPushButton {
+                background-color: #667eea;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #5a67d8;
+            }
+        ''')
+        self.close_btn.clicked.connect(self.hide_modal)
+        
+        # Assemblage
+        main_layout.addWidget(self.title_label)
+        main_layout.addWidget(self.info_label)
+        main_layout.addWidget(self.desc_edit, 1)
+        
+        # Layout bouton (centré)
+        btn_layout = QHBoxLayout()
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.close_btn)
+        btn_layout.addStretch()
+        
+        main_layout.addLayout(btn_layout)
+        
+        self.setLayout(QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addWidget(self.main_frame)
+    
+    def setup_animations(self):
+        """Configure les animations d'ouverture/fermeture"""
+        self.opacity_anim = QPropertyAnimation(self, b"windowOpacity")
+        self.opacity_anim.setDuration(300)
+        
+        self.scale_anim = QPropertyAnimation(self.main_frame, b"geometry")
+        self.scale_anim.setDuration(350)
+        self.scale_anim.setEasingCurve(QEasingCurve.OutBack)
+    
+    def show_modal(self):
+        """Affiche le modal avec animation"""
+        screen_geo = QApplication.desktop().screenGeometry()
+        self.move(screen_geo.center() - self.rect().center())
+        
+        self.setWindowOpacity(0)
+        self.main_frame.setGeometry(0, 0, 10, 10)
+        self.show()
+        
+        self.scale_anim.setStartValue(self.main_frame.geometry())
+        self.scale_anim.setEndValue(self.main_frame.rect())
+        self.opacity_anim.setStartValue(0)
+        self.opacity_anim.setEndValue(1)
+        
+        self.scale_anim.start()
+        self.opacity_anim.start()
+    
+    def hide_modal(self):
+        """Ferme le modal avec animation"""
+        self.scale_anim.setDirection(QPropertyAnimation.Backward)
+        self.opacity_anim.setDirection(QPropertyAnimation.Backward)
+        
+        def on_finished():
+            self.hide()
+            self.scale_anim.setDirection(QPropertyAnimation.Forward)
+            self.opacity_anim.setDirection(QPropertyAnimation.Forward)
+        
+        self.scale_anim.finished.connect(on_finished)
+        self.scale_anim.start()
+        self.opacity_anim.start()
+    
+    def load_default_description(self):
+        """Charge la description depuis la base de données"""
+        self.cursor.execute('SELECT default_description FROM media_descriptions LIMIT 1')
+        result = self.cursor.fetchone()
+        if result and result[0]:
+            self.desc_edit.setPlainText(result[0])
+    
+    def save_default_description(self):
+        """Sauvegarde automatiquement les modifications"""
+        default_desc = self.desc_edit.toPlainText()
+        self.cursor.execute('UPDATE media_descriptions SET default_description = ?', (default_desc,))
+        self.conn.commit()
     
     def closeEvent(self, event):
         """Ferme proprement la connexion à la base de données"""

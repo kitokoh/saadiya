@@ -1,0 +1,924 @@
+ce code fonctionne tres bien jairais faire de sorte que en changer de robot genre sil ya par exemple robot2  alor le contenu du text area contennt la description change donc je vais te demander de creer un nouveau table nomme autredescrption qui contiendra les descript des robot2  et jusqua la table actuelle garde la description du robot1 mais s il ya plut d un robot  alors le contenu du deuxieme et vers le haut seront ddans la table autredescription donc cette table va avor un champ pour la description et un autr e pour le robot correspondant  et donc si je selectionne robot2 par exemple automatiquemt il pend et afffiche la description correspondant stocker dans cette nouvelle table pour le reste ne toutche surtout pas a ce qui fonctionne deja la logique actuelle est parfaite et si possible alors je te demandrais de me donne le code complet incualant cette nouvelle idee 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+propose moiun modaltresbien disigner quisouvre ondiraituntruc quisouvre duhaut vers le bas duene maniere le plus elegante possible  le modal doit eter developer en pyqt  avec  une persistance sur py qtet ca affiche un tablea a deux entree la premiere colone  contier une est entree suivete media un deux trois etc... etla deuxieme ccolone contient les description ccorresponsdant les media sont numerote d un dix et les desriptionmet une desription par defaut mais que lutilisateur doit etre capable de  ecrire une description une fois quil ouvre ce moda gerre il ecrit la description quil veu et que ca enregistre autoamatiquement et enbas du table il ye un tex arer ayant pour titre prompt quipermet dafficher un promp et aussi lon pueule modifier directement dans le text area enfin faitde sorte que les truc soit le plusstulisee possible avecc la meilleur  dexperience utilisateur et unsimplicite san pareil vas y
+merci apres le prompt ajoute aussi une zonne de text destinnee a garder la description par defaut et donne moi une fonction capable de retourner la valeur de la zonne de texte 
+oui cest bienmaistupeut mieux faire lemodaldoit parexempledonelimpressionquisortdu buttonqon acliquer pour le demarrer aussi que la parte ou lonredigeele  prompdoitpouvoiretrepersistant etqueenrediagene  deans letext arere calenregistreautomatiquemeent egalement pdour le style lde disignet luixdoivent etre au top je sais que tu peu mieu faire situ as compris la logique metier exprimme ton genie
+cest bon mais  tu peu mieu faire en faitcest cool pour lapartie depersistance promt et la moification instantane mais celadevair etrela meme chaoe pour la colonne description  et en terme de disign  de uix et d elegance tu peu clairement faire d effort enplus le buton qui permet de louvrir doit aussi permetttre de le fermer en donnant limpression de l avaller comme il l a ouvert
+ca doit etre un modal simple que je pourrait appelle dans une autre classe dont le button est deja pret 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class GroupTable(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.all_groups = load_groups()  # All groups loaded initially
+        self.filtered_groups = self.all_groups  # Groups after filtering
+        self.visible_columns = ['Select', 'Name', 'Link', 'Remarks', 'Category', 'Description', 'Verification', 'Actions']
+        self.items_per_page = 25
+        self.current_page = 1
+
+        # Main layout
+        layout = QVBoxLayout(self)
+
+        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
+        layout.addWidget(header)
+
+        # Top layout for buttons, search bar, and dropdowns
+        top_layout = QHBoxLayout()
+
+        # Action button with dropdown menu
+        self.action_button = QPushButton("⚡ Action", self)
+        self.action_menu = QMenu(self)
+
+        # Actions for the Action menu
+        self.import_action = QAction("📥 " + self.tr("Import Groups"), self)
+        self.export_action = QAction("📤 " + self.tr("Export Groups"), self)
+        self.reload_action = QAction("🔄 " + self.tr("Reload Groups"), self)
+        self.delete_selected_action = QAction("❌ " + self.tr("Delete Selected"), self)
+        self.delete_all_action = QAction("🗑️ " + self.tr("Delete All"), self)
+        self.add_group_action = QAction("➕ " + self.tr("Add Group"), self)
+
+        # Connect actions
+        self.import_action.triggered.connect(self.import_groups)
+        self.export_action.triggered.connect(self.export_groups)
+        self.reload_action.triggered.connect(self.open_load_groups_dialog)
+        self.delete_selected_action.triggered.connect(self.delete_selected_groups)
+        self.delete_all_action.triggered.connect(self.delete_all_groups)
+        self.add_group_action.triggered.connect(self.open_add_group_dialog)
+
+        # Add actions to the Action menu
+        self.action_menu.addAction(self.import_action)
+        self.action_menu.addAction(self.export_action)
+        self.action_menu.addAction(self.reload_action)
+        self.action_menu.addSeparator()
+        self.action_menu.addAction(self.delete_selected_action)
+        self.action_menu.addAction(self.delete_all_action)
+        self.action_menu.addSeparator()
+        self.action_menu.addAction(self.add_group_action)
+
+        self.action_button.setMenu(self.action_menu)
+        self.action_button.setStyleSheet("""
+            QPushButton {
+                padding: 10px 18px;
+                font-size: 14px;
+                font-weight: bold;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+            QPushButton:pressed {
+                background-color: #003d80;
+            }
+        """)
+        
+        top_layout.addWidget(self.action_button)
+
+        # Settings button with dropdown menu
+        self.settings_button = QPushButton("⚙️ Settings", self)
+        self.settings_button.setStyleSheet("""
+            QPushButton {
+                padding: 10px 18px;
+                font-size: 14px;
+                font-weight: bold;
+                background-color: #6c757d;
+                color: white;
+                border: none;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #5a6268;
+            }
+            QPushButton:pressed {
+                background-color: #343a40;
+            }
+        """)
+        self.settings_menu = QMenu(self)
+
+        # Actions for the Settings menu
+        self.category_management_action = QAction("📂 " + self.tr("Category Management"), self)
+        self.social_network_management_action = QAction("🌐 " + self.tr("Social Network Management"), self)
+        
+        
+        self.media_type_management_action = QAction("🎥 " + self.tr("Media Type Management"), self)
+
+
+# Replace this line:
+# top_layout.addWidget(self.archive_management_action)
+
+        # # With the following:
+        # self.archive_management_button = QPushButton("📂 Archive Management", self)
+        # self.archive_management_button.setStyleSheet("""
+        #     padding: 8px 16px;
+        #     font-size: 14px;
+        #     background-color: #6c757d;
+        #     color: white;
+        #     border-radius: 6px;
+        # """)
+        # self.archive_management_button.clicked.connect(self.archive_management_action.trigger)  # Connect the action
+        # #top_layout.addWidget(archive_management_button)
+
+      
+        self.robot_management_action = QAction("🔄 " + self.tr("Robot Management"), self)
+        self.update_active_robot = QAction("🤖 " + self.tr("Activate Robot "), self)
+
+        # Connect actions
+        self.category_management_action.triggered.connect(self.open_category_management_dialog)
+        self.social_network_management_action.triggered.connect(self.open_social_network_management_dialog)
+        self.media_type_management_action.triggered.connect(self.open_media_type_management_dialog)
+        self.robot_management_action.triggered.connect(self.open_robot_management_dialog)
+        self.update_active_robot.triggered.connect(self.open_update_robot_dialog)
+
+        # Add actions to the Settings menu
+        self.settings_menu.addAction(self.category_management_action)
+        self.settings_menu.addAction(self.social_network_management_action)
+        self.settings_menu.addAction(self.media_type_management_action)
+        self.settings_menu.addAction(self.robot_management_action)
+        self.settings_menu.addAction(self.update_active_robot)
+
+        self.settings_button.setMenu(self.settings_menu)
+        top_layout.addWidget(self.settings_button)
+
+        # Update Robot button
+        self.update_robot_button = QPushButton("🤖 " + self.tr("Update Robot"), self)
+        self.update_robot_button.clicked.connect(self.open_update_robot_dialog)
+        self.update_robot_button.setStyleSheet("""
+            QPushButton {
+                padding: 10px 18px;
+                font-size: 14px;
+                font-weight: bold;
+                background-color: #17a2b8;
+                color: white;
+                border: none;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #117a8b;
+            }
+            QPushButton:pressed {
+                background-color: #0d5c73;
+            }
+        """)
+        top_layout.addWidget(self.update_robot_button)
+
+        # Spacer to push the search bar to the center
+        top_layout.addStretch()
+
+        # Search bar
+        self.search_field = QLineEdit(self)
+        self.search_field.setPlaceholderText(self.tr("🔍 Search groups..."))
+        self.search_field.textChanged.connect(self.filter_table)
+        self.search_field.setStyleSheet("""
+            QLineEdit {
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                background-color: white;
+            }
+            QLineEdit:focus {
+                border: 1px solid #007BFF;
+                box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            }
+        """)
+        top_layout.addWidget(self.search_field)
+
+        # Filter by Robot button
+        self.filter_robot_button = QPushButton("🤖 " + self.tr("Filter by Robot"), self)
+        self.filter_robot_button.setStyleSheet("""
+            QPushButton {
+                padding: 10px 18px;
+                font-size: 14px;
+                font-weight: bold;
+                background-color: #6c757d;
+                color: white;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #5a6268;
+            }
+            QPushButton:pressed {
+                background-color: #343a40;
+            }
+        """)
+        self.filter_robot_button.clicked.connect(self.open_filter_robot_dialog)
+        top_layout.addWidget(self.filter_robot_button)
+
+        # Add the top layout to the main layout
+        layout.addLayout(top_layout)
+
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(len(self.visible_columns))
+        self.table.setHorizontalHeaderLabels(self.visible_columns)
+
+        # Activer le redimensionnement manuel des colonnes
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+
+        # Définir des largeurs par défaut pour les colonnes
+        self.table.setColumnWidth(0, 50)   # Colonne "Select"
+        self.table.setColumnWidth(1, 150)  # Colonne "Name"
+        self.table.setColumnWidth(2, 250)  # Colonne "Link"
+        self.table.setColumnWidth(3, 100)  # Colonne "Remarks"
+        self.table.setColumnWidth(4, 120)  # Colonne "Category"
+        self.table.setColumnWidth(5, 200)  # Colonne "Description"
+        self.table.setColumnWidth(6, 100)  # Colonne "Verification"
+        self.table.setColumnWidth(7, 100)  # Colonne "Actions"
+
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setEditTriggers(QTableWidget.AllEditTriggers)
+        self.table.cellChanged.connect(self.on_cell_changed)
+      # Activer le redimensionnement manuel des lignes
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Interactive)
+
+
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setStyleSheet(self.table_styles())
+
+        layout.addWidget(self.table)
+
+        # Column visibility checkboxes
+        self.checkboxes_layout = QHBoxLayout()
+        for index, col_name in enumerate(self.visible_columns):
+            checkbox = QCheckBox(self.tr(col_name))
+            checkbox.setChecked(True)
+            checkbox.stateChanged.connect(lambda state, idx=index: self.update_visible_columns(idx, state))
+            self.checkboxes_layout.addWidget(checkbox)
+        layout.addLayout(self.checkboxes_layout)
+
+        # Pagination
+        self.pagination_layout = QHBoxLayout()
+        self.prev_button = QPushButton("⬅️ " + self.tr("Previous"), self)
+        self.prev_button.clicked.connect(self.previous_page)
+        self.pagination_layout.addWidget(self.prev_button)
+
+        self.pagination_label = QLabel(self.tr(f"Page {self.current_page}"), self)
+        self.pagination_layout.addWidget(self.pagination_label)
+
+        self.next_button = QPushButton("➡️ " + self.tr("Next"), self)
+        self.next_button.clicked.connect(self.next_page)
+        self.pagination_layout.addWidget(self.next_button)
+
+        layout.addLayout(self.pagination_layout)
+
+        # Initialization
+        self.update_pagination_buttons()
+        self.populate_table()
+        # Ajouter le footer
+        footer = FooterSection(self)
+        layout.addWidget(footer)
+    def manage_archives(self):
+        """Open a dialog to manage archives."""
+        # dialog = ManageArchivesDialog(self.media_manager, self.user_choice, self)
+        # dialog.exec_()
+        pass
+    def delete_selected_groups(self):
+        pass
+    def delete_all_groups(self):
+     pass
+    def open_social_network_management_dialog(self):
+        pass
+    def table_styles2(self):
+        """Returns CSS styles for the table."""
+        return """
+            QTableWidget {
+                font-size: 14px;
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+            }
+            QHeaderView::section {
+                background-color: #007BFF;
+                color: white;
+                padding: 10px;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            QTableWidget::item {
+                padding: 8px;
+            }
+            QTableWidget::item:selected {
+                background-color: #007BFF;
+                color: white;
+            }
+        """
+
+    def update_visible_columns(self, index, state):
+        self.table.setColumnHidden(index, not state)
+
+
+    def open_filter_robot_dialog(self):
+        """Ouvre une boîte de dialogue pour filtrer les groupes par robot."""
+        dialog = FilterByRobotDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            robot_id = dialog.selected_robot_id
+            if robot_id:
+                self.filtered_groups = load_groups(robot_id)
+            else:
+                self.filtered_groups = self.all_groups
+            self.current_page = 1
+            self.update_pagination_buttons()
+            self.populate_table()
+
+    def open_category_management_dialog(self):
+        """Ouvre une boîte de dialogue pour gérer les catégories."""
+        dialog = CategoryManagementDialog(self)
+        dialog.exec_()
+
+    def open_reseau_social_management_dialog(self):
+        """Ouvre une boîte de dialogue pour gérer les réseaux sociaux."""
+        dialog = ReseauSocialManagementDialog(self)
+        dialog.exec_()
+
+    def open_media_type_management_dialog(self):
+        """Ouvre une boîte de dialogue pour gérer les types de médias."""
+        dialog = MediaTypeManagementDialog(self)
+        dialog.exec_()
+
+    def open_robot_management_dialog(self):
+        """Ouvre une boîte de dialogue pour gérer les robots."""
+        dialog = RobotManagementDialog(self)
+        dialog.exec_()
+
+    def create_button(self, text, color, callback):
+        button = QPushButton(text, self)
+        button.setStyleSheet(f"background-color: {color}; color: white; padding: 5px 10px;")
+        button.clicked.connect(callback)
+        return button
+
+    def table_styles(self):
+        return """
+            QTableWidget {
+                font-size: 14px;
+            }
+            QHeaderView::section {
+                background-color: #007BFF;
+                color: white;
+                padding: 10px;
+            }
+        """
+    def populate_table(self):
+        start_index = (self.current_page - 1) * self.items_per_page
+        end_index = start_index + self.items_per_page
+        visible_groups = self.filtered_groups[start_index:end_index]
+
+        self.table.setRowCount(len(visible_groups))
+        for row, group in enumerate(visible_groups):
+            # Checkbox pour la sélection
+            checkbox = QCheckBox()
+            self.table.setCellWidget(row, 0, checkbox)
+
+            # Colonnes modifiables
+            for col, key in enumerate(['name', 'link', 'remarks', 'description']):
+                item = QTableWidgetItem(group.get(key, ''))
+                self.table.setItem(row, col + 1, item)
+
+            # Colonne "Category" avec QComboBox
+            category_combo = QComboBox()
+            categories = load_categories()  # Charger les catégories depuis la base de données
+            for category in categories:
+                category_combo.addItem(category['name'], category['id'])
+            index = category_combo.findData(group.get('category_id'))
+            if index >= 0:
+                category_combo.setCurrentIndex(index)
+            category_combo.currentIndexChanged.connect(lambda idx, r=row: self.update_group_category(r, category_combo.itemData(idx)))
+            self.table.setCellWidget(row, 4, category_combo)  # "Category" est à l'index 4
+
+            # Bouton "Verify"
+            verify_button = QPushButton('Verify', self)
+            verify_button.clicked.connect(lambda _, link=group.get('link', ''): self.open_link_in_browser(link))
+            self.table.setCellWidget(row, 6, verify_button)  # "Verification" est à l'index 6
+
+            # Bouton "Actions" avec menu déroulant
+            action_button = QPushButton('Actions', self)
+            action_menu = QMenu(self)
+            action_button.setStyleSheet("""
+                QPushButton {
+                    padding: 10px 18px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    background-color: #007BFF;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                }
+                QPushButton:hover {
+                    background-color: #0056b3;
+                }
+                QPushButton:pressed {
+                    background-color: #003d80;
+                }
+            """)
+            
+            show_action = QAction('Show', self)
+            edit_action = QAction('Edit', self)
+            delete_action = QAction('Delete', self)
+            assign_action = QAction('Assign to Robot', self)
+
+            show_action.triggered.connect(lambda _, r=row: self.show_group(r))
+            edit_action.triggered.connect(lambda _, r=row: self.edit_group(r))
+            delete_action.triggered.connect(lambda _, r=row: self.delete_group(r))
+            assign_action.triggered.connect(lambda _, r=row: self.assign_group_to_robot(r))
+
+            action_menu.addAction(show_action)
+            action_menu.addAction(edit_action)
+            action_menu.addAction(delete_action)
+            action_menu.addAction(assign_action)
+            action_button.setMenu(action_menu)
+            self.table.setCellWidget(row, 7, action_button)  # "Actions" est à l'index 7
+
+        # Connecter le signal cellChanged pour mettre à jour la base de données
+        self.table.cellChanged.connect(self.on_cell_changed)
+
+    def on_cell_changed(self, row, column):
+        """Slot appelé lorsqu'une cellule est modifiée."""
+        group_id = self.filtered_groups[row]['id']
+        new_value = self.table.item(row, column).text()
+
+        if column == 1:  # Colonne "Name"
+            self.update_group_name(group_id, new_value)
+        elif column == 2:  # Colonne "Link"
+            self.update_group_link(group_id, new_value)
+        elif column == 3:  # Colonne "Remarks"
+            self.update_group_remarks(group_id, new_value)
+        elif column == 5:  # Colonne "Description"
+            self.update_group_description(group_id, new_value)
+
+    def update_group_name(self, group_id, new_name):
+        """Met à jour le nom du groupe dans la base de données."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET name = ? WHERE id = ?', (new_name, group_id))
+        conn.commit()
+        conn.close()
+
+    def update_group_link(self, group_id, new_link):
+        """Met à jour le lien du groupe dans la base de données."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET link = ? WHERE id = ?', (new_link, group_id))
+        conn.commit()
+        conn.close()
+
+    def update_group_remarks(self, group_id, new_remarks):
+        """Met à jour les remarques du groupe dans la base de données."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET remarks = ? WHERE id = ?', (new_remarks, group_id))
+        conn.commit()
+        conn.close()
+
+    def update_group_description(self, group_id, new_description):
+        """Met à jour la description du groupe dans la base de données."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET description = ? WHERE id = ?', (new_description, group_id))
+        conn.commit()
+        conn.close()
+
+    def update_group_category(self, row, category_group_id):
+        """Met à jour la catégorie du groupe dans la base de données."""
+        group_id = self.filtered_groups[row]['id']
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET category_group_id = ? WHERE id = ?', (category_group_id, group_id))
+        conn.commit()
+        conn.close()
+
+
+
+    def update_group_category(self, row, category_group_id):
+        """Met à jour la catégorie du groupe dans la base de données."""
+        group_id = self.filtered_groups[row]['id']
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET category_group_id = ? WHERE id = ?', (category_group_id, group_id))
+        conn.commit()
+        conn.close()
+
+
+    def show_group(self, row):
+        """Affiche les détails du groupe."""
+        group = self.filtered_groups[row]
+        print(group)  # Pour déboguer
+
+        # Récupérer l'ID de la catégorie
+        category_group_id = group.get('category_group_id', 'N/A')
+
+        # Afficher les détails du groupe
+        QMessageBox.information(
+            self,
+            "Group Details",
+            f"Name: {group['name']}\nLink: {group['link']}\nCategory ID: {category_group_id}"
+        )
+
+    def update_pagination_buttons(self):
+        self.prev_button.setEnabled(self.current_page > 1)
+        self.next_button.setEnabled(self.current_page * self.items_per_page < len(self.filtered_groups))
+
+    def filter_table(self):
+        search_text = self.search_field.text().lower()
+        self.filtered_groups = [group for group in self.all_groups if search_text in group.get('name', '').lower()]
+        self.current_page = 1
+        self.update_pagination_buttons()
+        self.populate_table()
+
+    def next_page(self):
+        if (self.current_page * self.items_per_page) < len(self.filtered_groups):
+            self.current_page += 1
+            self.populate_table()
+            self.update_pagination_buttons()
+
+    def previous_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.populate_table()
+            self.update_pagination_buttons()
+
+    def open_link_in_browser(self, link):
+        if link:
+            QDesktopServices.openUrl(QUrl(link))
+
+    def open_load_groups_dialog(self):
+        dialog = LoadGroupsDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.all_groups = load_groups()
+            self.filtered_groups = self.all_groups
+            self.populate_table()
+
+    def import_groups(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getOpenFileName(self, "Import Groups", "", "CSV Files (*.csv);;All Files (*)", options=options)
+        if file_name:
+            try:
+                with open(file_name, 'r') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        save_group(row)
+                self.all_groups = load_groups()
+                self.filtered_groups = self.all_groups
+                self.populate_table()
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error during import: {e}")
+
+    def export_groups(self):
+        options = QFileDialog.Options()
+        file_name, _ = QFileDialog.getSaveFileName(self, "Export Groups", "", "CSV Files (*.csv);;All Files (*)", options=options)
+        if file_name:
+            try:
+                with open(file_name, 'w', newline='') as f:
+                    writer = csv.DictWriter(f, fieldnames=self.all_groups[0].keys())
+                    writer.writeheader()
+                    writer.writerows(self.all_groups)
+                QMessageBox.information(self, "Success", "Export successful.")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error during export: {e}")
+
+    def open_add_group_dialog(self):
+        dialog = AddGroupDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.all_groups = load_groups()
+            self.filtered_groups = self.all_groups
+            self.populate_table()
+
+    def edit_group(self, row):
+        # Récupérer le groupe à éditer
+        group = self.filtered_groups[row]
+
+        # Ouvrir la boîte de dialogue d'édition
+        dialog = AddGroupDialog(self)
+        dialog.name_input.setText(group.get('name', ''))
+        dialog.link_input.setText(group.get('link', ''))
+        dialog.remarks_input.setText(group.get('remarks', ''))
+        dialog.description_input.setText(group.get('description', ''))
+        dialog.keywords_input.setText(group.get('keywords', ''))
+
+        # Définir la catégorie sélectionnée dans le QComboBox
+        category_name = group.get('category', '')
+        if category_name:
+            index = dialog.category_combo.findText(category_name)
+            if index >= 0:
+                dialog.category_combo.setCurrentIndex(index)
+
+        # Si la boîte de dialogue est validée
+        if dialog.exec_() == QDialog.Accepted:
+            # Récupérer les nouvelles valeurs
+            updated_group = {
+                'id': group['id'],  # Conserver l'ID du groupe
+                'name': dialog.name_input.text().strip(),
+                'link': dialog.link_input.text().strip(),
+                'remarks': dialog.remarks_input.text().strip(),
+                'category_id': dialog.category_combo.currentData(),  # Récupérer l'ID de la catégorie sélectionnée
+                'description': dialog.description_input.text().strip(),
+                'keywords': dialog.keywords_input.text().strip()
+            }
+
+            # Mettre à jour le groupe dans la base de données
+            self.update_group(updated_group)
+
+            # Recharger les groupes et mettre à jour l'affichage
+            self.all_groups = load_groups()
+            self.filtered_groups = self.all_groups
+            self.populate_table()
+    def delete_group(self, row):
+        group = self.filtered_groups[row]
+        delete_group(group['id'])
+        self.all_groups = load_groups()
+        self.filtered_groups = self.all_groups
+        self.populate_table()
+    def update_group(self, group):
+        """Met à jour un groupe dans la base de données."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            UPDATE groups
+            SET name = ?, link = ?, remarks = ?, category_group_id = ?, description = ?, keywords = ?
+            WHERE id = ?
+        ''', (
+            group['name'],
+            group['link'],
+            group['remarks'],
+            group['category_group_id'],
+            group['description'],
+            group['keywords'],
+            group['id']
+        ))
+        conn.commit()
+        conn.close()
+    def assign_group_to_robot(self, row):
+        group = self.filtered_groups[row]
+        dialog = AssignGroupToRobotDialog(group['id'], self)
+        dialog.exec_()
+
+    def open_update_robot_dialog(self):
+        dialog = UpdateRobotDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.all_groups = load_groups()
+            self.filtered_groups = self.all_groups
+            self.populate_table()
+
+    def open_settings_dialog(self):
+        dialog = SettingsDialog(self)
+        dialog.exec_()
+ ca fonctionne bien  mais je veux que tu me retire la colone description de la table disigne le pour e mieu fai de sorte que lon peu ajouter une ligne comme sur exelle genre en cliquant sur lplus on on une nouvlee ligne et au demarage toujour un dizaine de ligne disponible et fait de sorte que lutilsateur en ecrivant directement sur les celulele ca enregigre dan la base de donne je vais te donnee la structure globla de ma base de donne mais concentre toi sur ce qui concerne cette partie de code ce qui fait que le button modifier pesent dans action na plus sa place de meme que show alors tu laise jute assign et delete dans action le disign doit etre au top les colone eux doivent touour rester dans liste deroulante le style et lexerience utilisateur doivent etre au top egalement et donne un truc complet voica mon shema 
+def init_db():
+    """Initialise la base de données SQLite avec des tables et des données par défaut."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Table pour les catégories
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS category (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            label TEXT,
+            description TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS category_group (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            label TEXT,
+            description TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP
+        )
+    ''')
+    # Table pour les réseaux sociaux
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reseaux_sociaux (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            description TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP
+        )
+    ''')
+
+    # Table pour les types de médias
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS media_type (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL UNIQUE,
+            label TEXT,
+            description TEXT,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP
+        )
+    ''')
+
+    # Table pour les médias
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS media (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom TEXT NOT NULL,
+            description TEXT,
+            preview_path TEXT NOT NULL,
+            type_id INTEGER NOT NULL,
+            category_id INTEGER,
+            date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP,
+            est_supprime BOOLEAN DEFAULT 0,
+            FOREIGN KEY (type_id) REFERENCES media_type(id),
+            FOREIGN KEY (category_id) REFERENCES category(id)
+        )
+    ''')
+
+    # Table pour les robots
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS robots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            label TEXT,
+            description TEXT,
+            creation_date TEXT,
+            category TEXT,
+            status TEXT,
+            reseau_social_id INTEGER,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP,
+            FOREIGN KEY(reseau_social_id) REFERENCES reseaux_sociaux(id)
+        )
+    ''')
+
+    # Table de liaison entre robots et types de médias
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS robot_media_type (
+            robot_id INTEGER,
+            media_type_id INTEGER,
+            FOREIGN KEY(robot_id) REFERENCES robots(id),
+            FOREIGN KEY(media_type_id) REFERENCES media_type(id)
+        )
+    ''')
+
+    # Table pour les groupes
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS groups (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            link TEXT NOT NULL,
+            remarks TEXT,
+            category_group_id INTEGER,
+            description TEXT,
+            keywords TEXT,
+            FOREIGN KEY(category_group_id) REFERENCES category_group(id)
+        )
+    ''')
+
+    # Table de liaison entre groupes et robots
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS group_robot (
+            group_id INTEGER,
+            robot_id INTEGER,
+            FOREIGN KEY(group_id) REFERENCES groups(id),
+            FOREIGN KEY(robot_id) REFERENCES robots(id)
+        )
+    ''')
+
+    # Table pour les identifiants
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS identifiant (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            reseau_social_id INTEGER,
+            robot_id INTEGER,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP,
+            FOREIGN KEY(reseau_social_id) REFERENCES reseaux_sociaux(id),
+            FOREIGN KEY(robot_id) REFERENCES robots(id)
+        )
+    ''')
+
+
+    # Table pour les archives
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS archive (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            robot_id INTEGER,
+            reseau_social_id INTEGER,
+            filename TEXT NOT NULL,
+            content TEXT NOT NULL,
+            date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            date_modification TIMESTAMP,
+            date_suppression TIMESTAMP,
+            version INTEGER DEFAULT 1,
+            FOREIGN KEY(robot_id) REFERENCES robots(id),
+            FOREIGN KEY(reseau_social_id) REFERENCES reseaux_sociaux(id)
+        )
+    ''')
+
+    # Insertion des données par défaut
+
+    # Catégories par défaut
+    cursor.execute('''
+        INSERT OR IGNORE INTO category (name, label, description)
+        VALUES (?, ?, ?)
+    ''', ('Default', 'Default Category', 'Default category description'))
+
+    # Réseaux sociaux par défaut
+    reseaux_sociaux = [
+        ('Facebook', 'Réseau social Facebook'),
+        ('WhatsApp', 'Application de messagerie WhatsApp'),
+        ('Twitter', 'Réseau social Twitter')
+    ]
+    cursor.executemany('''
+        INSERT OR IGNORE INTO reseaux_sociaux (name, description)
+        VALUES (?, ?)
+    ''', reseaux_sociaux)
+
+    # Types de médias par défaut
+    media_types = [
+        ('Image', 'Image', 'Type de média pour les images'),
+        ('Video', 'Vidéo', 'Type de média pour les vidéos')
+    ] + [(f'media{i}', f'Media {i}', f'Description for Media {i}') for i in range(1, 11)]
+    cursor.executemany('''
+        INSERT OR IGNORE INTO media_type (type, label, description)
+        VALUES (?, ?, ?)
+    ''', media_types)
+
+    # Robots par défaut
+    robots = [
+        ('Robot1', 'Robot 1', 'Description Robot 1', '2023-01-01', 'Category1', 'Active', 1),
+        ('Robot2', 'Robot 2', 'Description Robot 2', '2023-01-01', 'Category2', 'Inactive', 2)
+    ]
+    cursor.executemany('''
+        INSERT OR IGNORE INTO robots (name, label, description, creation_date, category, status, reseau_social_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', robots)
+
+    # Groupes par défaut
+    groups = [
+        ('Group1', 'http://example.com/group1', 'Remarks 1', 1, 'Description 1', 'Keywords1'),
+        ('Group2', 'http://example.com/group2', 'Remarks 2', 1, 'Description 2', 'Keywords2')
+    ]
+    cursor.executemany('''
+        INSERT OR IGNORE INTO groups (name, link, remarks, category_group_id, description, keywords)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', groups)
+
+    conn.commit()
+    conn.close()
+
+
+
+

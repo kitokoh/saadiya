@@ -15,6 +15,7 @@ from PyQt5.QtGui import QPalette, QColor  # Pour PyQt5
 # OU
 #from test import ManageArchivesDialog
 from PyQt5.QtGui import QPixmap
+import math
 
 from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWidgets import QComboBox, QLineEdit, QDateTimeEdit, QMessageBox
@@ -446,39 +447,45 @@ class CategoryManagementDialog(QDialog):
 
             # Colonne Actions
             action_button_layout = QHBoxLayout()
-            action_button_layout.setStyleSheet("""
-            QPushButton {
-                padding: 10px 18px;
-                font-size: 14px;
-                font-weight: bold;
-                background-color: #007BFF;
-                color: white;
-                border: none;
-                border-radius: 8px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-            QPushButton:pressed {
-                background-color: #003d80;
-            }
-        """)
-        
+            
             edit_button = QPushButton("Edit", self)
-            edit_button.setIcon(QIcon("icons/edit.png"))  # Ajouter une icône
-            edit_button.setStyleSheet("padding: 5px; font-size: 12px; background-color: #FFC107; color: black;")
+            edit_button.setIcon(QIcon("icons/edit.png"))
+            edit_button.setStyleSheet("""
+                QPushButton {
+                    padding: 5px;
+                    font-size: 12px;
+                    background-color: #FFC107;
+                    color: black;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #e0a800;
+                }
+            """)
             edit_button.clicked.connect(lambda _, r=row: self.edit_category(r))
             action_button_layout.addWidget(edit_button)
 
             delete_button = QPushButton("Delete", self)
-            delete_button.setIcon(QIcon("icons/delete.png"))  # Ajouter une icône
-            delete_button.setStyleSheet("padding: 5px; font-size: 12px; background-color: #f44336; color: white;")
+            delete_button.setIcon(QIcon("icons/delete.png"))
+            delete_button.setStyleSheet("""
+                QPushButton {
+                    padding: 5px;
+                    font-size: 12px;
+                    background-color: #f44336;
+                    color: white;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #d32f2f;
+                }
+            """)
             delete_button.clicked.connect(lambda _, r=row: self.delete_category(r))
             action_button_layout.addWidget(delete_button)
 
             action_widget = QWidget()
             action_widget.setLayout(action_button_layout)
             self.table.setCellWidget(row, 4, action_widget)
+
 
     def add_category(self):
         """Ouvre une boîte de dialogue pour ajouter une catégorie."""
@@ -787,22 +794,6 @@ class ReseauSocialManagementDialog(QDialog):
             self.load_reseaux_sociaux()
 
 
-# class AddReseauSocialDialog(QDialog):
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#         self.setWindowTitle("Add Reseau Social")
-#         self.setFixedSize(400, 300)
-
-#         # Layout
-#         layout = QVBoxLayout(self)
-
-#         # Input fields
-#         self.name_input = QLineEdit(self)
-#         self.name_input.setPlaceholderText("Name")
-#         layout.addWidget(self.name_input)
-
-#         self.description en me donnant tout les modal sous setting pour rappel voic mon db # Initialisation de la base de données
-
 
 
 
@@ -937,7 +928,7 @@ def init_db():
             category_group_id INTEGER,
             description TEXT,
             keywords TEXT,
-            FOREIGN KEY(category_id) REFERENCES category_group(id)
+            FOREIGN KEY(category_group_id) REFERENCES category_group(id)
         )
     ''')
 
@@ -1105,24 +1096,7 @@ def delete_group(group_id):
     cursor.execute('DELETE FROM groups WHERE id = ?', (group_id,))
     conn.commit()
     conn.close()
-# def delete_group1(self, row):
-#     group = self.filtered_groups[row]
-#     dialog = ConfirmationDialog(self, title="Delete Group", message="Are you sure you want to delete this group?")
-#     if dialog.exec_() == QDialog.Accepted:
-#         delete_group(group['id'])
-#         self.all_groups = load_groups()
-#         self.filtered_groups = self.all_groups
-#         self.populate_table()
-# def save_robot(robot):
-#     """Sauvegarde un robot dans la base de données SQLite."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         INSERT INTO robots (name, label, description, creation_date, category, status, reseau_social_id)
-#         VALUES (?, ?, ?, ?, ?, ?, ?)
-#     ''', (robot['name'], robot.get('label', ''), robot['description'], robot['creation_date'], robot['category'], robot['status'], robot.get('reseau_social_id', None)))
-#     conn.commit()
-#     conn.close()
+
 
 def save_robot(robot):
     """Sauvegarde un robot dans la base de données SQLite."""
@@ -2290,14 +2264,6 @@ class GroupTable(QWidget):
         conn.close()
 
 
-    def load_categories1(self):
-        """Charge les catégories depuis la base de données."""
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute('SELECT id, name FROM categories')
-        categories = [{'id': row[0], 'name': row[1]} for row in cursor.fetchall()]
-        conn.close()
-        return categories
 
     def update_group_category(self, row, category_group_id):
         """Met à jour la catégorie du groupe dans la base de données."""
@@ -2473,6 +2439,608 @@ class GroupTable(QWidget):
         dialog = SettingsDialog(self)
         dialog.exec_()
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# class GroupTable(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.all_groups = load_groups()  # All groups loaded initially
+        self.filtered_groups = self.all_groups  # Groups after filtering
+        self.visible_columns = ['Select', 'Name', 'Link', 'Remarks', 'Category', 'Verification', 'Actions']
+        self.items_per_page = 25
+        self.current_page = 1
+        self.editing_row = -1  # Track which row is being edited
+
+        # Main layout
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(15)
+
+        # Header section
+        header = HeaderSection(self, title="FBK GRUP MANAGEMENT", app_name="Nova360 AI", slogan="AI Marketing Automation Solution")
+        layout.addWidget(header)
+
+        # Top control panel
+        self.setup_top_controls(layout)
+
+        # Table setup
+        self.setup_table(layout)
+
+        # Column visibility checkboxes
+        self.setup_column_visibility(layout)
+
+        # Pagination controls
+        self.setup_pagination(layout)
+
+        # Footer section
+        footer = FooterSection(self)
+        layout.addWidget(footer)
+
+        # Initialization
+        self.update_pagination_buttons()
+        self.populate_table()
+
+    def setup_top_controls(self, layout):
+        """Configure the top control panel with buttons and search."""
+        top_layout = QHBoxLayout()
+        top_layout.setSpacing(15)
+
+        # Action button with dropdown menu
+        self.action_button = QPushButton("⚡ Action", self)
+        self.action_button.setFixedHeight(40)
+        self.setup_action_menu()
+        top_layout.addWidget(self.action_button)
+
+        # Settings button with dropdown menu
+        self.settings_button = QPushButton("⚙️ Settings", self)
+        self.settings_button.setFixedHeight(40)
+        self.setup_settings_menu()
+        top_layout.addWidget(self.settings_button)
+
+        # Update Robot button
+        self.update_robot_button = QPushButton("🤖 Update Robot", self)
+        self.update_robot_button.setFixedHeight(40)
+        self.update_robot_button.clicked.connect(self.open_update_robot_dialog)
+        top_layout.addWidget(self.update_robot_button)
+
+        # Spacer to push the search bar to the center
+        top_layout.addStretch()
+
+        # Search bar
+        self.search_field = QLineEdit(self)
+        self.search_field.setPlaceholderText("🔍 Search groups...")
+        self.search_field.textChanged.connect(self.filter_table)
+        self.search_field.setFixedHeight(40)
+        self.search_field.setMinimumWidth(300)
+        top_layout.addWidget(self.search_field)
+
+        # Filter by Robot button
+        self.filter_robot_button = QPushButton("🤖 Filter by Robot", self)
+        self.filter_robot_button.setFixedHeight(40)
+        self.filter_robot_button.clicked.connect(self.open_filter_robot_dialog)
+        top_layout.addWidget(self.filter_robot_button)
+
+        # Add to main layout
+        layout.addLayout(top_layout)
+
+    def setup_action_menu(self):
+        """Configure the action dropdown menu."""
+        self.action_menu = QMenu(self)
+
+        actions = [
+            ("📥 Import Groups", self.import_groups),
+            ("📤 Export Groups", self.export_groups),
+            ("🔄 Reload Groups", self.open_load_groups_dialog),
+            ("❌ Delete Selected", self.delete_selected_groups),
+            ("🗑️ Delete All", self.delete_all_groups),
+            ("➕ Add Group", self.add_new_row)
+        ]
+
+        for text, callback in actions:
+            action = QAction(text, self)
+            action.triggered.connect(callback)
+            self.action_menu.addAction(action)
+
+        self.action_button.setMenu(self.action_menu)
+        self.style_button(self.action_button, "#007BFF")
+
+    def setup_settings_menu(self):
+        """Configure the settings dropdown menu."""
+        self.settings_menu = QMenu(self)
+
+        settings = [
+            ("📂 Category Management", self.open_category_management_dialog),
+            ("🌐 Social Network Management", self.open_social_network_management_dialog),
+            ("🎥 Media Type Management", self.open_media_type_management_dialog),
+            ("🔄 Robot Management", self.open_robot_management_dialog),
+            ("🤖 Activate Robot", self.open_update_robot_dialog)
+        ]
+
+        for text, callback in settings:
+            action = QAction(text, self)
+            action.triggered.connect(callback)
+            self.settings_menu.addAction(action)
+
+        self.settings_button.setMenu(self.settings_menu)
+        self.style_button(self.settings_button, "#6c757d")
+
+    def setup_table(self, layout):
+        """Configure the main table widget."""
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(len(self.visible_columns))
+        self.table.setHorizontalHeaderLabels(self.visible_columns)
+        
+        # Table properties
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setEditTriggers(QTableWidget.AllEditTriggers)
+        self.table.cellChanged.connect(self.on_cell_changed)
+        
+        # Column widths
+        self.table.setColumnWidth(0, 50)   # Select
+        self.table.setColumnWidth(1, 200)  # Name
+        self.table.setColumnWidth(2, 300)  # Link
+        self.table.setColumnWidth(3, 150)  # Remarks
+        self.table.setColumnWidth(4, 150)  # Category
+        self.table.setColumnWidth(5, 100)  # Verification
+        self.table.setColumnWidth(6, 120)  # Actions
+        
+        # Enable sorting
+        self.table.setSortingEnabled(True)
+        
+        # Style the table
+        self.table.setStyleSheet(self.table_styles())
+        
+        # Add empty rows for Excel-like experience
+        self.table.setRowCount(10)  # Start with 10 empty rows
+        
+        layout.addWidget(self.table)
+
+    def setup_column_visibility(self, layout):
+        """Setup the column visibility checkboxes."""
+        self.checkboxes_layout = QHBoxLayout()
+        self.checkboxes_layout.setSpacing(10)
+        
+        for index, col_name in enumerate(self.visible_columns):
+            checkbox = QCheckBox(col_name)
+            checkbox.setChecked(True)
+            checkbox.stateChanged.connect(lambda state, idx=index: self.table.setColumnHidden(idx, not state))
+            self.checkboxes_layout.addWidget(checkbox)
+            
+        layout.addLayout(self.checkboxes_layout)
+
+    def setup_pagination(self, layout):
+        """Setup the pagination controls."""
+        self.pagination_layout = QHBoxLayout()
+        self.pagination_layout.setAlignment(Qt.AlignCenter)
+        
+        self.prev_button = QPushButton("⬅️ Previous")
+        self.prev_button.clicked.connect(self.previous_page)
+        self.style_button(self.prev_button, "#6c757d")
+        
+        self.pagination_label = QLabel(f"Page {self.current_page}")
+        self.pagination_label.setAlignment(Qt.AlignCenter)
+        self.pagination_label.setStyleSheet("font-weight: bold;")
+        
+        self.next_button = QPushButton("➡️ Next")
+        self.next_button.clicked.connect(self.next_page)
+        self.style_button(self.next_button, "#6c757d")
+        
+        self.pagination_layout.addWidget(self.prev_button)
+        self.pagination_layout.addWidget(self.pagination_label)
+        self.pagination_layout.addWidget(self.next_button)
+        
+        layout.addLayout(self.pagination_layout)
+
+    def style_button(self, button, color):
+        """Apply consistent styling to buttons."""
+        button.setStyleSheet(f"""
+            QPushButton {{
+                padding: 8px 16px;
+                font-size: 14px;
+                font-weight: bold;
+                background-color: {color};
+                color: white;
+                border: none;
+                border-radius: 6px;
+            }}
+            QPushButton:hover {{
+                background-color: {self.darken_color(color)};
+            }}
+            QPushButton:pressed {{
+                background-color: {self.darken_color(color, 20)};
+            }}
+        """)
+
+    def darken_color(self, hex_color, percent=10):
+        """Darken a hex color by a given percentage."""
+        hex_color = hex_color.lstrip('#')
+        rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+        darkened = tuple(max(0, int(c * (100 - percent) / 100)) for c in rgb)
+        return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
+
+    def table_styles(self):
+        """Return CSS styles for the table."""
+        return """
+            QTableWidget {
+                font-size: 14px;
+                background-color: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                gridline-color: #e0e0e0;
+            }
+            QHeaderView::section {
+                background-color: #007BFF;
+                color: white;
+                padding: 8px;
+                font-size: 14px;
+                font-weight: bold;
+                border: none;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            QTableWidget::item:selected {
+                background-color: #007BFF;
+                color: white;
+            }
+            QTableWidget QScrollBar:vertical {
+                width: 12px;
+            }
+            QTableWidget QScrollBar:horizontal {
+                height: 12px;
+            }
+        """
+
+    def populate_table(self):
+        """Populate the table with data."""
+        self.table.cellChanged.disconnect()  # Disconnect while populating
+        
+        start_index = (self.current_page - 1) * self.items_per_page
+        end_index = start_index + self.items_per_page
+        visible_groups = self.filtered_groups[start_index:end_index]
+        
+        # Keep 10 empty rows at the end for new entries
+        total_rows = len(visible_groups) + 10
+        self.table.setRowCount(total_rows)
+        
+        for row, group in enumerate(visible_groups):
+            # Checkbox for selection
+            checkbox = QCheckBox()
+            checkbox.setStyleSheet("margin-left: 10px;")
+            self.table.setCellWidget(row, 0, checkbox)
+
+            # Editable columns
+            for col, key in enumerate(['name', 'link', 'remarks'], start=1):
+                item = QTableWidgetItem(group.get(key, ''))
+                self.table.setItem(row, col, item)
+
+            # Category combobox
+            category_combo = QComboBox()
+            categories = load_categories()
+            for category in categories:
+                category_combo.addItem(category['name'], category['id'])
+            
+            current_category = group.get('category_id')
+            if current_category:
+                index = category_combo.findData(current_category)
+                if index >= 0:
+                    category_combo.setCurrentIndex(index)
+            
+            category_combo.currentIndexChanged.connect(
+                lambda idx, r=row: self.update_group_category(r, category_combo.itemData(idx)))
+            self.table.setCellWidget(row, 4, category_combo)
+
+            # Verify button
+            verify_button = QPushButton('Verify')
+            verify_button.setStyleSheet(self.verify_button_style())
+            verify_button.clicked.connect(lambda _, link=group.get('link', ''): self.open_link_in_browser(link))
+            self.table.setCellWidget(row, 5, verify_button)
+
+            # Actions button with menu
+            action_button = QPushButton('Actions ▼')
+            action_button.setStyleSheet(self.action_button_style())
+            
+            action_menu = QMenu(self)
+            assign_action = QAction('Assign to Robot', self)
+            delete_action = QAction('Delete', self)
+            
+            assign_action.triggered.connect(lambda _, r=row: self.assign_group_to_robot(r))
+            delete_action.triggered.connect(lambda _, r=row: self.delete_group(r))
+            
+            action_menu.addAction(assign_action)
+            action_menu.addAction(delete_action)
+            action_button.setMenu(action_menu)
+            
+            self.table.setCellWidget(row, 6, action_button)
+
+        # Set up empty rows for new entries
+        for row in range(len(visible_groups), total_rows):
+            # Checkbox for selection
+            checkbox = QCheckBox()
+            checkbox.setStyleSheet("margin-left: 10px;")
+            self.table.setCellWidget(row, 0, checkbox)
+
+            # Empty items for editable columns
+            for col in range(1, 4):
+                self.table.setItem(row, col, QTableWidgetItem(""))
+
+            # Category combobox for empty rows
+            category_combo = QComboBox()
+            categories = load_categories()
+            for category in categories:
+                category_combo.addItem(category['name'], category['id'])
+            self.table.setCellWidget(row, 4, category_combo)
+
+            # Verify button (disabled for empty rows)
+            verify_button = QPushButton('Verify')
+            verify_button.setStyleSheet(self.verify_button_style(disabled=True))
+            verify_button.setEnabled(False)
+            self.table.setCellWidget(row, 5, verify_button)
+
+            # Add button for empty rows
+            add_button = QPushButton('➕ Add')
+            add_button.setStyleSheet(self.add_button_style())
+            add_button.clicked.connect(lambda _, r=row: self.save_new_row(r))
+            self.table.setCellWidget(row, 6, add_button)
+
+        # Update pagination label
+        self.pagination_label.setText(f"Page {self.current_page} of {max(1, math.ceil(len(self.filtered_groups)/self.items_per_page))}")
+        
+        # Reconnect cell changed signal
+        self.table.cellChanged.connect(self.on_cell_changed)
+
+    def verify_button_style(self, disabled=False):
+        """Return style for verify button."""
+        base_style = """
+            QPushButton {
+                padding: 6px 12px;
+                font-size: 13px;
+                background-color: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #218838;
+            }
+            QPushButton:pressed {
+                background-color: #1e7e34;
+            }
+        """
+        if disabled:
+            return base_style + """
+                QPushButton {
+                    background-color: #cccccc;
+                }
+                QPushButton:hover {
+                    background-color: #cccccc;
+                }
+            """
+        return base_style
+
+    def action_button_style(self):
+        """Return style for action button."""
+        return """
+            QPushButton {
+                padding: 6px 12px;
+                font-size: 13px;
+                background-color: #007BFF;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #0069d9;
+            }
+            QPushButton:pressed {
+                background-color: #005cbf;
+            }
+        """
+
+    def add_button_style(self):
+        """Return style for add button."""
+        return """
+            QPushButton {
+                padding: 6px 12px;
+                font-size: 13px;
+                background-color: #17a2b8;
+                color: white;
+                border: none;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #138496;
+            }
+            QPushButton:pressed {
+                background-color: #117a8b;
+            }
+        """
+
+    def on_cell_changed(self, row, column):
+        """Handle cell changes and save to database."""
+        # Skip if we're in an empty row or not editing a relevant column
+        if row >= len(self.filtered_groups) or column not in [1, 2, 3]:
+            return
+            
+        group_id = self.filtered_groups[row]['id']
+        new_value = self.table.item(row, column).text()
+        
+        update_functions = {
+            1: self.update_group_name,
+            2: self.update_group_link,
+            3: self.update_group_remarks
+        }
+        
+        if column in update_functions:
+            update_functions[column](group_id, new_value)
+
+    def add_new_row(self):
+        """Add a new empty row at the end of the table."""
+        current_rows = self.table.rowCount()
+        self.table.setRowCount(current_rows + 1)
+        
+        # Add checkbox
+        checkbox = QCheckBox()
+        checkbox.setStyleSheet("margin-left: 10px;")
+        self.table.setCellWidget(current_rows, 0, checkbox)
+        
+        # Add empty items
+        for col in range(1, 4):
+            self.table.setItem(current_rows, col, QTableWidgetItem(""))
+        
+        # Add category combo
+        category_combo = QComboBox()
+        categories = load_categories()
+        for category in categories:
+            category_combo.addItem(category['name'], category['id'])
+        self.table.setCellWidget(current_rows, 4, category_combo)
+        
+        # Add disabled verify button
+        verify_button = QPushButton('Verify')
+        verify_button.setStyleSheet(self.verify_button_style(disabled=True))
+        verify_button.setEnabled(False)
+        self.table.setCellWidget(current_rows, 5, verify_button)
+        
+        # Add add button
+        add_button = QPushButton('➕ Add')
+        add_button.setStyleSheet(self.add_button_style())
+        add_button.clicked.connect(lambda _, r=current_rows: self.save_new_row(r))
+        self.table.setCellWidget(current_rows, 6, add_button)
+        
+        # Scroll to the new row
+        self.table.scrollToBottom()
+
+    def save_new_row(self, row):
+        """Save a new row to the database."""
+        name = self.table.item(row, 1).text() if self.table.item(row, 1) else ""
+        link = self.table.item(row, 2).text() if self.table.item(row, 2) else ""
+        remarks = self.table.item(row, 3).text() if self.table.item(row, 3) else ""
+        category_combo = self.table.cellWidget(row, 4)
+        category_id = category_combo.currentData() if category_combo else None
+        
+        if not name or not link:
+            QMessageBox.warning(self, "Error", "Name and Link are required fields!")
+            return
+            
+        new_group = {
+            'name': name,
+            'link': link,
+            'remarks': remarks,
+            'category_group_id': category_id
+        }
+        
+        # Save to database
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO groups (name, link, remarks, category_group_id)
+            VALUES (?, ?, ?, ?)
+        ''', (new_group['name'], new_group['link'], new_group['remarks'], new_group['category_group_id']))
+        conn.commit()
+        conn.close()
+        
+        # Reload data
+        self.all_groups = load_groups()
+        self.filtered_groups = self.all_groups
+        self.populate_table()
+        
+        QMessageBox.information(self, "Success", "Group added successfully!")
+
+    # ... (keep all your existing update_group_* methods as they are)
+
+    def update_group_category(self, row, category_group_id):
+        """Update group category in database."""
+        if row >= len(self.filtered_groups):
+            return
+            
+        group_id = self.filtered_groups[row]['id']
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('UPDATE groups SET category_group_id = ? WHERE id = ?', (category_group_id, group_id))
+        conn.commit()
+        conn.close()
+
+    def delete_group(self, row):
+        """Delete a group from the database."""
+        if row >= len(self.filtered_groups):
+            return
+            
+        group_id = self.filtered_groups[row]['id']
+        
+        reply = QMessageBox.question(
+            self, 'Delete Group', 
+            'Are you sure you want to delete this group?',
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            delete_group(group_id)
+            self.all_groups = load_groups()
+            self.filtered_groups = self.all_groups
+            self.populate_table()
+
+    def assign_group_to_robot(self, row):
+        """Assign group to a robot."""
+        if row >= len(self.filtered_groups):
+            return
+            
+        group = self.filtered_groups[row]
+        dialog = AssignGroupToRobotDialog(group['id'], self)
+        dialog.exec_()
+
+    def filter_table(self):
+        """Filter the table based on search text."""
+        search_text = self.search_field.text().lower()
+        self.filtered_groups = [
+            group for group in self.all_groups 
+            if search_text in group.get('name', '').lower() or 
+               search_text in group.get('link', '').lower() or 
+               search_text in group.get('remarks', '').lower()
+        ]
+        self.current_page = 1
+        self.update_pagination_buttons()
+        self.populate_table()
+
+    def update_pagination_buttons(self):
+        """Update pagination buttons state."""
+        self.prev_button.setEnabled(self.current_page > 1)
+        self.next_button.setEnabled(self.current_page * self.items_per_page < len(self.filtered_groups))
+
+    def next_page(self):
+        """Go to next page."""
+        if (self.current_page * self.items_per_page) < len(self.filtered_groups):
+            self.current_page += 1
+            self.populate_table()
+            self.update_pagination_buttons()
+
+    def previous_page(self):
+        """Go to previous page."""
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.populate_table()
+            self.update_pagination_buttons()
+
+    def open_link_in_browser(self, link):
+        """Open group link in default browser."""
+        if link:
+            QDesktopServices.openUrl(QUrl(link))
+
+    # ... (keep all your existing dialog methods as they are)
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 )
