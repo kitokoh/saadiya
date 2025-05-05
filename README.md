@@ -1,3 +1,7 @@
+('C:\Users\cheic\AppData\Local\Programs\Python\Python311\DLLs\liblzma.dll', '.'),
+
+
+
 ne code rien du tout ameliore juste lecritue du text en terme de vocabulaire grammaire coorige l ortogramme 
 
 01Page1

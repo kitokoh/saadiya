@@ -485,6 +485,47 @@ class Browser(QMainWindow):
         # Charger les données en arrière-plan
         QTimer.singleShot(1000, lambda: self.load_statistics_content(new_tab_index))
 
+    def open_accueil_window(self):
+        from Installsweb.installdisign import InstallerPage
+        tab_name = self.tr("Home")
+
+        # Vérifie si l’onglet existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Crée l’interface de l’installeur
+        installer_page = MainWindow1(main_app=self)
+
+        # Ajoute l’onglet
+        new_tab_index = self.add_custom_ta(installer_page, tab_name, "resources/icons/installer.ico")
+        if new_tab_index is None:
+            raise RuntimeError("Failed to add a new tab.")
+
+        self.tab_widget.setCurrentIndex(new_tab_index)
+
+
+    def open_accueil_window1(self):
+        from Installsweb.installdisign import InstallerPage
+        tab_name = self.tr("Installer Premium")
+
+        # Vérifie si l’onglet existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Crée l’interface de l’installeur
+        installer_page = InstallerPage(self)
+
+        # Ajoute l’onglet
+        new_tab_index = self.add_custom_ta(installer_page, tab_name, "resources/icons/installer.ico")
+        if new_tab_index is None:
+            raise RuntimeError("Failed to add a new tab.")
+
+        self.tab_widget.setCurrentIndex(new_tab_index)
+
     def open_installer_window(self):
         from Installsweb.installdisign import InstallerPage
         tab_name = self.tr("Installer Premium")
@@ -873,7 +914,7 @@ class Browser(QMainWindow):
         self.tab_widget.setTabText(index, label)
         self.tab_widget.setCurrentIndex(index)
 
-    def open_accueil_window(self):
+    def open_accueil_window1(self):
         tab_name = self.tr("Accueil")
 
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -901,6 +942,7 @@ class Browser(QMainWindow):
 
             self.loader_thread.finished.connect(lambda app: self.update_tab_content(tab_name, self.nova360pro, progress_dialog))
         self.loader_thread.start()
+
 
     def update_tab_content(self, tab_name, app_instance, dialog):
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -2036,6 +2078,8 @@ class Browser(QMainWindow):
             
             # Settings section
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
+                ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
+
                 ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("Add app"), []),
                 ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
