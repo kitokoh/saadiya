@@ -2977,210 +2977,138 @@ class MediaTable(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)  # Espacement réduit mais présent pour une meilleure hiérarchie
         
-        # ----------------------------
-        # Header amélioré
-        # ----------------------------
-        self.header = QWidget()
-        self.header.setFixedHeight(70)  # Hauteur encore plus réduite pour gagner de l'espace
-        self.header.setStyleSheet(f"""
+        top_bar = QWidget()
+        top_bar.setFixedHeight(70)
+        top_bar.setStyleSheet(f"""
             QWidget {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {self.primary_color}, stop:1 {self.secondary_color});
-                border-bottom: 2px solid {self.dark_color};
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1F2937, stop:1 #4B5563);
+                border-bottom: 2px solid #3B82F6;
+                border-radius: 12px;
             }}
         """)
-        
-        header_layout = QHBoxLayout(self.header)
-        header_layout.setContentsMargins(15, 5, 15, 5)
-        header_layout.setSpacing(10)
-        
-        # Logo et titre avec alignement parfait
-        title_container = QWidget()
-        title_layout = QHBoxLayout(title_container)
-        title_layout.setContentsMargins(0, 0, 0, 0)
-        title_layout.setSpacing(10)
-        
-        self.logo_label = QLabel()
-        logo_pixmap = QPixmap("icons/logo.png").scaled(30, 30, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.logo_label.setPixmap(logo_pixmap)
-        self.logo_label.setAlignment(Qt.AlignVCenter)
-        
-        self.title_label = QLabel("FBK GROUP MANAGEMENT")
-        self.title_label.setStyleSheet(f"""
-            QLabel {{
-                color: white;
-                font-size: 18px;
-                font-weight: bold;
-                margin: 0;
-            }}
-        """)
-        self.title_label.setAlignment(Qt.AlignVCenter)
-        
-        title_layout.addWidget(self.logo_label)
-        title_layout.addWidget(self.title_label)
-        title_layout.addStretch()
-        
-        header_layout.addWidget(title_container)
-        header_layout.addStretch()
-        
-        layout.addWidget(self.header)
 
-        # ----------------------------
-        # Barre d'outils améliorée
-        # ----------------------------
-        toolbar = QWidget()
-        toolbar.setStyleSheet(f"""
-            QWidget {{
-                background-color: white;
-                border-radius: 0;
-                padding: 10px 15px;
-                border-bottom: 1px solid #ddd;
-            }}
+        top_layout = QHBoxLayout(top_bar)
+        top_layout.setContentsMargins(20, 10, 20, 10)
+        top_layout.setSpacing(15)
+
+        # ---- Logo + Titre (gauche) ----
+        logo_title = QWidget()
+        logo_layout = QHBoxLayout(logo_title)
+        logo_layout.setContentsMargins(0, 0, 0, 0)
+        logo_layout.setSpacing(10)
+
+        self.logo_label = QLabel()
+        self.logo_label.setPixmap(QPixmap("icons/logo.png").scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+        self.title_label = QLabel("📁 FBK GROUP MANAGEMENT")
+        self.title_label.setStyleSheet("""
+            QLabel {
+                color: #E5E7EB;
+                font-size: 20px;
+                font-weight: 600;
+                font-family: "Segoe UI", sans-serif;
+            }
         """)
-        
-        toolbar_layout = QHBoxLayout(toolbar)
-        toolbar_layout.setContentsMargins(5, 5, 5, 5)
-        toolbar_layout.setSpacing(10)
-        
-        # Barre de recherche avec effet au focus amélioré
+
+        logo_layout.addWidget(self.logo_label)
+        logo_layout.addWidget(self.title_label)
+
+        # ---- Recherche + Combo (centre) ----
+        search_group = QWidget()
+        search_layout = QHBoxLayout(search_group)
+        search_layout.setContentsMargins(0, 0, 0, 0)
+        search_layout.setSpacing(0)
+
         self.search_field = QLineEdit()
         self.search_field.setPlaceholderText("🔍 Rechercher...")
-        self.search_field.setClearButtonEnabled(True)
-        self.search_field.setStyleSheet(f"""
-            QLineEdit {{
-                padding: 8px 15px;
+        self.search_field.setStyleSheet("""
+            QLineEdit {
+                padding: 8px 20px;
                 font-size: 14px;
-                border: 1px solid #ddd;
-                border-radius: 20px;
-                background-color: white;
-                min-width: 250px;
-            }}
-            QLineEdit:hover {{
-                border: 1px solid {self.primary_color};
-            }}
-            QLineEdit:focus {{
-                border: 2px solid {self.primary_color};
-                padding: 7px 14px;  /* Compensation pour la bordure plus épaisse */
-            }}
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-right: none;
+                border-radius: 18px 0 0 18px;
+                background: rgba(255, 255, 255, 0.05);
+                color: #E5E7EB;
+            }
+            QLineEdit::placeholder {
+                color: #9CA3AF;
+            }
         """)
-        self.search_field.textChanged.connect(self.filter_table)
-        
-        # Sélecteur d'instance avec icône
+
         self.instance_combo = QComboBox()
         self.instance_combo.addItems([f"media{i}" for i in range(1, 11)])
-        self.instance_combo.setCurrentText(self.user_choice)
-        self.instance_combo.setCurrentIndex(0)
-        self.instance_combo.currentIndexChanged.connect(self.on_instance_changed)
-        self.instance_combo.setStyleSheet(f"""
-            QComboBox {{
-                padding: 8px 15px 8px 10px;
-                font-size: 14px;
-                border: 1px solid #ddd;
-                border-radius: 20px;
-                background-color: white;
-            }}
-            QComboBox:hover {{
-                border: 1px solid {self.primary_color};
-            }}
-            QComboBox:focus {{
-                border: 2px solid {self.primary_color};
-                padding: 7px 14px 7px 9px;
-            }}
-            QComboBox::drop-down {{
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                width: 25px;
-                border-left-width: 1px;
-                border-left-color: #ddd;
-                border-left-style: solid;
-                border-top-right-radius: 20px;
-                border-bottom-right-radius: 20px;
-            }}
-            QComboBox::down-arrow {{
-                image: url(icons/down-arrow.png);
-                width: 12px;
-                height: 12px;
-            }}
-        """)
-        
-        # Boutons d'action avec effets visuels améliorés
-        button_style = """
-            QPushButton {{
+        self.instance_combo.setStyleSheet("""
+            QComboBox {
                 padding: 8px 15px;
                 font-size: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-left: none;
+                border-radius: 0 18px 18px 0;
+                background: rgba(255, 255, 255, 0.05);
+                color: #E5E7EB;
+            }
+            QComboBox QAbstractItemView {
+                background: #1F2937;
+                color: white;
+                selection-background-color: #374151;
+            }
+        """)
+
+        search_layout.addWidget(self.search_field)
+        search_layout.addWidget(self.instance_combo)
+
+        # ---- Boutons (droite) ----
+        buttons_container = QWidget()
+        buttons_layout = QHBoxLayout(buttons_container)
+        buttons_layout.setContentsMargins(0, 0, 0, 0)
+        buttons_layout.setSpacing(10)
+
+        button_style = """
+            QPushButton {
+                padding: 8px 18px;
+                font-size: 14px;
+                font-weight: 500;
                 border-radius: 20px;
                 border: none;
                 color: white;
-                background-color: {0};
-                min-width: 120px;
-            }}
-            QPushButton:hover {{
-                background-color: {1};
-                transform: translateY(-1px);
-            }}
-            QPushButton:pressed {{
-                transform: translateY(1px);
-            }}
+                font-family: "Segoe UI", sans-serif;
+            }
+            QPushButton:hover {
+                opacity: 0.92;
+            }
         """
 
-        self.add_note_button = QPushButton("📋 Ajouter Note")
-        self.add_note_button.setStyleSheet(button_style.format(
-            self.secondary_color, 
-            QColor(self.secondary_color).darker(110).name()
-        ))
-        self.add_note_button.clicked.connect(self.import_media)
-        
-        self.add_maj_button = QPushButton("↺")
-        self.add_maj_button.setStyleSheet(button_style.format(
-            self.secondary_color, 
-            QColor(self.secondary_color).darker(110).name()
-        ))
-        self.add_maj_button.clicked.connect(self.import_media)
-        
-
         self.add_media_button = QPushButton("➕ Ajouter média")
-        self.add_media_button.setStyleSheet(button_style.format(
-            self.secondary_color, 
-            QColor(self.secondary_color).darker(110).name()
-        ))
+        self.add_media_button.setStyleSheet(button_style + "background: #10B981;")
         self.add_media_button.clicked.connect(self.import_media)
-        
+
         self.action_button = QPushButton("📋 Actions")
-        self.action_button.setStyleSheet(button_style.format(
-            self.primary_color,
-            QColor(self.primary_color).darker(110).name()
-        ))
+        self.action_button.setStyleSheet(button_style + "background: #3B82F6;")
         self.action_button.setMenu(self.create_action_menu())
-        
+
         self.settings_button = QPushButton("⚙️ Paramètres")
-        self.settings_button.setStyleSheet(button_style.format(
-            "#7f8c8d",
-            QColor("#7f8c8d").darker(110).name()
-        ))
+        self.settings_button.setStyleSheet(button_style + "background: #6B7280;")
         self.settings_button.setMenu(self.create_settings_menu())
-        
+
         self.update_robot_button = QPushButton("🤖 Envoyer au robot")
-        self.update_robot_button.setStyleSheet(button_style.format(
-            self.accent_color,
-            QColor(self.accent_color).darker(110).name()
-        ))
+        self.update_robot_button.setStyleSheet(button_style + "background: #F59E0B;")
         self.update_robot_button.clicked.connect(self.show_update_modal)
-        
-        # Ajout des éléments avec ordre logique et espacement
-        toolbar_layout.addWidget(self.search_field)
-        toolbar_layout.addWidget(self.instance_combo)
-        toolbar_layout.addStretch()
-        toolbar_layout.addWidget(self.add_media_button)
-        # toolbar_layout.addWidget(self.add_note_button)
-        # toolbar_layout.addWidget(self.add_maj_button)
 
-        toolbar_layout.addWidget(self.action_button)
-        toolbar_layout.addWidget(self.settings_button)
-        toolbar_layout.addWidget(self.update_robot_button)
-        
-        layout.addWidget(toolbar)
+        buttons_layout.addWidget(self.add_media_button)
+        buttons_layout.addWidget(self.action_button)
+        buttons_layout.addWidget(self.settings_button)
+        buttons_layout.addWidget(self.update_robot_button)
 
-        # ----------------------------
+        # ---- Intégration finale ----
+        top_layout.addWidget(logo_title)
+        top_layout.addStretch()
+        top_layout.addWidget(search_group)
+        top_layout.addStretch()
+        top_layout.addWidget(buttons_container)
+
+        layout.addWidget(top_bar)
+
         # Tableau amélioré
         # ----------------------------
         self.table = QTableWidget()
@@ -4509,6 +4437,8 @@ class FileTransferApp2:
         """Ferme la connexion à la base de données."""
         self.conn.close()
 
+
+
 from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QPushButton, QListWidget, QListWidgetItem, QLabel, QMessageBox
 )
@@ -4526,19 +4456,18 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 
+
+
 class UpdateRobotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Envoyer au Robot")
-        self.setWindowIcon(QIcon("icons/update.png"))  # Ajouter une icône
-        self.setFixedSize(500, 400)  # Taille fixe pour une meilleure apparence
+        self.setWindowIcon(QIcon("icons/update.png"))
+        self.setFixedSize(500, 400)
 
         # Connexion à la base de données
         self.conn = sqlite3.connect(DB_PATH)
         self.cursor = self.conn.cursor()
-
-        # Vérifier si les tables existent
-        self.check_tables()
 
         # Styles CSS modernes
         self.setStyleSheet("""
@@ -4595,54 +4524,39 @@ class UpdateRobotDialog(QDialog):
         self.load_media_categories()
         layout.addWidget(self.media_category_list)
 
-        # Sélection des catégories de groupes
+        # Sélection des catégories de groupes (MODIFIÉ pour utiliser category_group)
         self.group_category_label = QLabel("Sélectionnez une ou plusieurs catégories de groupes:")
         layout.addWidget(self.group_category_label)
 
         self.group_category_list = QListWidget()
         self.group_category_list.setSelectionMode(QListWidget.MultiSelection)
-        self.load_group_categories()
+        self.load_group_categories()  # Cette méthode va maintenant utiliser category_group
         layout.addWidget(self.group_category_list)
 
         # Bouton pour envoyer au robot
         self.send_button = QPushButton("Envoyer au Robot", self)
-        self.send_button.setIcon(QIcon("icons/robot.png"))  # Ajouter une icône
+        self.send_button.setIcon(QIcon("icons/robot.png"))
         self.send_button.clicked.connect(self.send_to_robot)
         layout.addWidget(self.send_button)
 
         self.setLayout(layout)
 
-    def check_tables(self):
-        """Vérifie si les tables nécessaires existent dans la base de données."""
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS category (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                label TEXT,
-                description TEXT,
-                date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                date_modification TIMESTAMP,
-                date_suppression TIMESTAMP
-            )
-        """)
-        self.conn.commit()
-
     def load_media_categories(self):
-        """Charge les catégories de médias depuis la base de données."""
+        """Charge les catégories de médias depuis la table 'category'"""
         self.cursor.execute("SELECT id, name FROM category")
         media_categories = self.cursor.fetchall()
         for category in media_categories:
             item = QListWidgetItem(category[1])
-            item.setData(Qt.UserRole, category[0])  # Stocker l'ID de la catégorie
+            item.setData(Qt.UserRole, category[0])
             self.media_category_list.addItem(item)
 
     def load_group_categories(self):
-        """Charge les catégories de groupes depuis la base de données."""
-        self.cursor.execute("SELECT id, name FROM category")
+        """Charge les catégories de groupes depuis la table 'category_group' (MODIFIÉ)"""
+        self.cursor.execute("SELECT id, name FROM category_group")
         group_categories = self.cursor.fetchall()
         for category in group_categories:
             item = QListWidgetItem(category[1])
-            item.setData(Qt.UserRole, category[0])  # Stocker l'ID de la catégorie
+            item.setData(Qt.UserRole, category[0])
             self.group_category_list.addItem(item)
 
     def send_to_robot(self):
@@ -4670,6 +4584,9 @@ class UpdateRobotDialog(QDialog):
 
     def get_media_data(self, category_ids):
         """Récupère les données des médias pour les catégories sélectionnées."""
+        if not category_ids:
+            return []
+            
         query = """
             SELECT m.id, m.nom, m.description, m.preview_path, mt.type
             FROM media m
@@ -4680,11 +4597,14 @@ class UpdateRobotDialog(QDialog):
         return self.cursor.fetchall()
 
     def get_group_data(self, category_ids):
-        """Récupère les données des groupes pour les catégories sélectionnées."""
+        """Récupère les données des groupes pour les catégories sélectionnées (MODIFIÉ)."""
+        if not category_ids:
+            return []
+            
         query = """
-            SELECT g.id, g.link, g.remarks, g.description, g.keywords
+            SELECT g.id, g.name, g.link, g.remarks, g.description, g.keywords
             FROM groups g
-            WHERE g.category_id IN ({})
+            WHERE g.category_group_id IN ({})
         """.format(",".join("?" * len(category_ids)))
         self.cursor.execute(query, category_ids)
         return self.cursor.fetchall()
@@ -4692,12 +4612,7 @@ class UpdateRobotDialog(QDialog):
     def send_data_to_robot(self, media_data, group_data):
         """
         Envoie les données sélectionnées au robot en utilisant FileTransferApp et FileTransferApp2.
-        
-        Args:
-            media_data (list): Liste des données de médias sélectionnées.
-            group_data (list): Liste des données de groupes sélectionnées.
         """
-        # Organiser les données dans un format structuré
         combined_content = {
             "posts": [],
             "groups": []
@@ -4706,31 +4621,4141 @@ class UpdateRobotDialog(QDialog):
         # Ajouter les données de médias
         for media in media_data:
             combined_content["posts"].append({
-                "text": media[1],  # Nom du média
-                "image": media[3]  # Chemin de l'image
+                "id": media[0],
+                "name": media[1],
+                "description": media[2],
+                "preview_path": media[3],
+                "type": media[4]
+            })
+
+        # Ajouter les données de groupes (MODIFIÉ selon la structure de votre table groups)
+        for group in group_data:
+            combined_content["groups"].append({
+                "id": group[0],
+                "name": group[1],
+                "link": group[2],
+                "remarks": group[3],
+                "description": group[4],
+                "keywords": group[5]
+            })
+
+        # Envoyer les données
+        transfer_app = FileTransferApp()
+        transfer_app.start_process(combined_content)
+
+        transfer_app2 = FileTransferApp2()
+        transfer_app2.start_process(combined_content)
+
+    def closeEvent(self, event):
+        """Ferme la connexion à la base de données."""
+        self.conn.close()
+        event.accept()
+
+
+
+
+
+
+import os
+import sqlite3
+import ctypes
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLabel, QListWidget, QListWidgetItem, 
+                            QPushButton, QMessageBox, QComboBox, QHBoxLayout)
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QCoreApplication
+
+class UpdateRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Envoyer au Robot"))
+        self.setWindowIcon(QIcon("icons/update.png"))
+        self.setFixedSize(600, 500)
+        
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+        
+        # Détection des réseaux sociaux et robots disponibles
+        self.social_networks = self.detect_social_networks()
+        
+        # Styles CSS modernes
+        self.setup_styles()
+        
+        # Layout principal
+        layout = QVBoxLayout()
+        
+        # Ajout des contrôles pour la sélection du réseau social et du robot
+        self.setup_network_robot_selection(layout)
+        
+        # Sélection des catégories
+        self.setup_category_selection(layout)
+        
+        # Bouton d'envoi
+        self.setup_send_button(layout)
+        
+        self.setLayout(layout)
+    
+    def setup_styles(self):
+        """Configure les styles CSS"""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f9f9f9;
+                border-radius: 12px;
+                border: 1px solid #ddd;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 8px;
+                background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #007BFF, stop:1 #0056b3);
+                color: white;
+                margin: 4px;
+                border: none;
+                box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            }
+            QPushButton:hover {
+                background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0056b3, stop:1 #003f8a);
+            }
+            QPushButton:pressed {
+                background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #003f8a, stop:1 #002b60);
+            }
+            QListWidget {
+                font-size: 14px;
+                padding: 8px;
+                border: 1px solid #ced4da;
+                border-radius: 6px;
+                background-color: white;
+            }
+            QLabel {
+                font-size: 14px;
+                color: #444;
+                margin-bottom: 4px;
+            }
+            QComboBox {
+                padding: 6px;
+                font-size: 14px;
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+            }
+        """)
+    
+    def detect_social_networks(self):
+        """Détecte les réseaux sociaux disponibles et leurs robots"""
+        social_networks = {}
+        base_path = "C:\\"
+        
+        # Dictionnaire des dossiers à vérifier et leurs noms affichés
+        network_folders = {
+            "bon": "Facebook",
+            "wabon": "WhatsApp",
+            "instabon": "Instagram",
+            "inbon": "LinkedIn",
+            "ytbon": "YouTube"
+        }
+        
+        for folder, display_name in network_folders.items():
+            network_path = os.path.join(base_path, folder)
+            if os.path.exists(network_path):
+                robots = []
+                # Recherche des sous-dossiers robot1, robot2, etc.
+                for item in os.listdir(network_path):
+                    if os.path.isdir(os.path.join(network_path, item)) and item.startswith("robot"):
+                        robots.append(item)
+                
+                if robots:
+                    social_networks[network_path] = {
+                        'display_name': display_name,
+                        'robots': sorted(robots)
+                    }
+        
+        return social_networks
+    
+    def setup_network_robot_selection(self, layout):
+        """Configure la sélection du réseau social et du robot"""
+        if not self.social_networks:
+            # Aucun réseau social détecté
+            no_robot_label = QLabel(self.tr("Aucun robot détecté. Veuillez installer un robot."))
+            layout.addWidget(no_robot_label)
+            self.has_robots = False
+            return
+        
+        self.has_robots = True
+        
+        # Layout horizontal pour les combobox
+        h_layout = QHBoxLayout()
+        
+        # Combobox pour le réseau social
+        self.network_combo = QComboBox()
+        self.network_combo.addItem(self.tr("Sélectionnez un réseau social"))
+        
+        # Combobox pour le robot
+        self.robot_combo = QComboBox()
+        self.robot_combo.addItem(self.tr("Sélectionnez un robot"))
+        
+        # Remplir les combobox
+        self.network_paths = []  # Pour garder la correspondance entre l'index et le chemin
+        for i, (path, data) in enumerate(self.social_networks.items()):
+            self.network_combo.addItem(data['display_name'])
+            self.network_paths.append(path)
+        
+        # Connecter le signal de changement de réseau social
+        self.network_combo.currentIndexChanged.connect(self.update_robot_combo)
+        
+        # Sélectionner Facebook par défaut s'il existe
+        for i, (path, data) in enumerate(self.social_networks.items()):
+            if data['display_name'] == "Facebook":
+                self.network_combo.setCurrentIndex(i + 1)
+                break
+        
+        h_layout.addWidget(QLabel(self.tr("Réseau social:")))
+        h_layout.addWidget(self.network_combo)
+        h_layout.addWidget(QLabel(self.tr("Robot:")))
+        h_layout.addWidget(self.robot_combo)
+        
+        layout.addLayout(h_layout)
+    
+    def update_robot_combo(self, index):
+        """Met à jour la liste des robots lorsqu'un réseau social est sélectionné"""
+        if index == 0:  # "Sélectionnez un réseau social"
+            self.robot_combo.clear()
+            self.robot_combo.addItem(self.tr("Sélectionnez un robot"))
+            return
+        
+        self.robot_combo.clear()
+        network_path = self.network_paths[index - 1]
+        robots = self.social_networks[network_path]['robots']
+        
+        for robot in robots:
+            self.robot_combo.addItem(robot)
+    
+    def setup_category_selection(self, layout):
+        """Configure la sélection des catégories avec des boutons"""
+        if not self.has_robots:
+            return
+        
+        # Catégories de médias
+        media_category_label = QLabel(self.tr("Sélectionnez une ou plusieurs catégories de médias:"))
+        layout.addWidget(media_category_label)
+        
+        self.media_category_list = QListWidget()
+        self.media_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        layout.addWidget(self.media_category_list)
+        
+        # Catégories de groupes
+        group_category_label = QLabel(self.tr("Sélectionnez une ou plusieurs catégories de groupes:"))
+        layout.addWidget(group_category_label)
+        
+        self.group_category_list = QListWidget()
+        self.group_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        layout.addWidget(self.group_category_list)
+    
+    def setup_send_button(self, layout):
+        """Configure le bouton d'envoi"""
+        if self.has_robots:
+            self.send_button = QPushButton(self.tr("Envoyer au Robot"), self)
+            self.send_button.setIcon(QIcon("icons/robot.png"))
+            self.send_button.clicked.connect(self.send_to_robot)
+            layout.addWidget(self.send_button)
+        else:
+            self.install_button = QPushButton(self.tr("Installer un Robot"), self)
+            self.install_button.setIcon(QIcon("icons/install.png"))
+            self.install_button.clicked.connect(self.install_robot)
+            layout.addWidget(self.install_button)
+    
+    def load_media_categories(self):
+        """Charge les catégories de médias depuis la table 'category'"""
+        self.cursor.execute("SELECT id, name FROM category")
+        media_categories = self.cursor.fetchall()
+        for category in media_categories:
+            item = QListWidgetItem(self.tr(category[1]))
+            item.setData(Qt.UserRole, category[0])
+            self.media_category_list.addItem(item)
+    
+    def load_group_categories(self):
+        """Charge les catégories de groupes depuis la table 'category_group'"""
+        self.cursor.execute("SELECT id, name FROM category_group")
+        group_categories = self.cursor.fetchall()
+        for category in group_categories:
+            item = QListWidgetItem(self.tr(category[1]))
+            item.setData(Qt.UserRole, category[0])
+            self.group_category_list.addItem(item)
+    
+    def send_to_robot(self):
+        """Envoie les données sélectionnées au robot."""
+        # Vérifier qu'un réseau social et un robot sont sélectionnés
+        if self.network_combo.currentIndex() == 0 or self.robot_combo.currentIndex() == -1:
+            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Veuillez sélectionner un réseau social et un robot."))
+            return
+        
+        selected_media_categories = [
+            item.data(Qt.UserRole) for item in self.media_category_list.selectedItems()
+        ]
+        selected_group_categories = [
+            item.data(Qt.UserRole) for item in self.group_category_list.selectedItems()
+        ]
+
+        if not selected_media_categories and not selected_group_categories:
+            QMessageBox.warning(self, self.tr("Erreur"), self.tr("Veuillez sélectionner au moins une catégorie de médias ou de groupes."))
+            return
+
+        # Récupérer les données de la base de données
+        media_data = self.get_media_data(selected_media_categories)
+        group_data = self.get_group_data(selected_group_categories)
+
+        # Préparer les données combinées
+        combined_content = {
+            "posts": [],
+            "groups": []
+        }
+
+        # Ajouter les données de médias
+        for media in media_data:
+            combined_content["posts"].append({
+                "id": media[0],
+                "name": media[1],
+                "description": media[2],
+                "preview_path": media[3],
+                "type": media[4]
             })
 
         # Ajouter les données de groupes
         for group in group_data:
             combined_content["groups"].append({
-                "link": group[1],  # Lien du groupe
-                "remarks": group[2],  # Remarques
-                "description": group[3],  # Description
-                "keywords": group[4]  # Mots-clés
+                "id": group[0],
+                "name": group[1],
+                "link": group[2],
+                "remarks": group[3],
+                "description": group[4],
+                "keywords": group[5]
             })
 
-        # Créer une instance de FileTransferApp pour envoyer les données
-        transfer_app = FileTransferApp()
-        transfer_app.start_process(combined_content)  # Envoyer les données combinées
+        # Envoyer les données au robot sélectionné
+        network_path = self.network_paths[self.network_combo.currentIndex() - 1]
+        robot_name = self.robot_combo.currentText()
+        
+        # Créer une instance de FileTransferApp avec le bon chemin
+        transfer_app = FileTransferApp(network_path, robot_name)
+        transfer_app.start_process(combined_content)
 
-        # Créer une instance de FileTransferApp2 pour envoyer les images
-        transfer_app2 = FileTransferApp2()
-        transfer_app2.start_process(combined_content)  # Envoyer les images
-
+        QMessageBox.information(self, self.tr("Succès"), self.tr("Les données ont été envoyées au robot avec succès."))
+        self.accept()
+    
+    def get_media_data(self, category_ids):
+        """Récupère les données des médias pour les catégories sélectionnées."""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def get_group_data(self, category_ids):
+        """Récupère les données des groupes pour les catégories sélectionnées."""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT g.id, g.name, g.link, g.remarks, g.description, g.keywords
+            FROM groups g
+            WHERE g.category_group_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def install_robot(self):
+        """Ouvre la fenêtre d'installation du robot (à implémenter plus tard)"""
+        QMessageBox.information(self, self.tr("Installation"), self.tr("Cette fonctionnalité sera implémentée ultérieurement."))
+    
     def closeEvent(self, event):
-        """Ferme la connexion à la base de données lors de la fermeture de la fenêtre."""
+        """Ferme la connexion à la base de données."""
         self.conn.close()
         event.accept()
+
+
+class FileTransferApp:
+    def __init__(self, network_path, robot_name):
+        self.network_path = network_path
+        self.robot_name = robot_name
+        self.target_dir = os.path.join(network_path, robot_name)
+    
+    def start_process(self, combined_content):
+        """
+        Envoie les données au robot spécifié.
+        
+        Args:
+            combined_content (dict): Données combinées (médias et groupes).
+        """
+        if not os.path.exists(self.target_dir):
+            os.makedirs(self.target_dir)
+
+        # Enregistrer les données dans un fichier JSON
+        target_json_path = os.path.join(self.target_dir, "data.json")
+        with open(target_json_path, 'w', encoding='utf-8') as json_file:
+            import json
+            json.dump(combined_content, json_file, ensure_ascii=False, indent=4)
+
+        # Cacher le dossier
+        self.hide_file(self.target_dir)
+    
+    def hide_file(self, file_path):
+        """Cache un fichier ou un dossier avec les attributs 'hidden' et 'system'."""
+        if os.path.exists(file_path):
+            ctypes.windll.kernel32.SetFileAttributesW(file_path, 0x02 | 0x04)
+
+import os
+import sqlite3
+import ctypes
+import json
+from datetime import datetime
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLabel, QListWidget, QListWidgetItem, 
+                            QPushButton, QMessageBox, QComboBox, QHBoxLayout, QTabWidget,
+                            QTextEdit, QWidget, QFormLayout, QGroupBox, QScrollArea)
+from PyQt5.QtGui import QIcon, QTextCursor
+from PyQt5.QtCore import Qt, QCoreApplication
+
+class UpdateRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Robot Data Manager"))
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setFixedSize(900, 700)
+        
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+        
+        # Détection des réseaux sociaux et robots disponibles
+        self.social_networks = self.detect_social_networks()
+        self.current_network = None
+        self.current_robot = None
+        self.json_structure = {}
+        
+        # Styles CSS modernes
+        self.setup_styles()
+        
+        # Layout principal
+        main_layout = QVBoxLayout()
+        
+        # Section de sélection du réseau et robot
+        self.setup_network_robot_selection(main_layout)
+        
+        # Section des catégories (en ligne)
+        categories_layout = QHBoxLayout()
+        self.setup_category_selection(categories_layout)
+        main_layout.addLayout(categories_layout)
+        
+        # Section de visualisation des données
+        self.setup_data_viewer(main_layout)
+        
+        # Boutons d'action
+        self.setup_action_buttons(main_layout)
+        
+        self.setLayout(main_layout)
+    
+    def setup_styles(self):
+        """Configure les styles CSS"""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 6px;
+                border: none;
+                margin: 4px;
+                min-width: 120px;
+            }
+            QPushButton#send_button {
+                background-color: #4CAF50;
+                color: white;
+            }
+            QPushButton#send_button:hover {
+                background-color: #45a049;
+            }
+            QPushButton#send_button1 {
+                background-color: #2196F3;
+                color: white;
+            }
+            QPushButton#send_button1:hover {
+                background-color: #0b7dda;
+            }
+            QPushButton#send_button2 {
+                background-color: #ff9800;
+                color: white;
+            }
+            QPushButton#send_button2:hover {
+                background-color: #e68a00;
+            }
+            QPushButton#test_button {
+                background-color: #9c27b0;
+                color: white;
+            }
+            QPushButton#test_button:hover {
+                background-color: #7b1fa2;
+            }
+            QListWidget {
+                font-size: 14px;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                background-color: white;
+                min-width: 280px;
+                min-height: 200px;
+            }
+            QLabel {
+                font-size: 14px;
+                color: #333;
+                margin-bottom: 4px;
+                font-weight: bold;
+            }
+            QComboBox {
+                padding: 6px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                min-width: 200px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                padding: 6px;
+                background: white;
+            }
+            QTabBar::tab {
+                padding: 8px 12px;
+                background: #f1f1f1;
+                border: 1px solid #ddd;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                margin-right: 2px;
+            }
+            QTabBar::tab:selected {
+                background: white;
+                border-bottom: 2px solid #2196F3;
+                font-weight: bold;
+            }
+            QTextEdit {
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                padding: 8px;
+                font-family: 'Consolas', monospace;
+                font-size: 12px;
+            }
+            QGroupBox {
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                margin-top: 10px;
+                padding-top: 15px;
+                font-weight: bold;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 3px;
+            }
+        """)
+    
+    def detect_social_networks(self):
+        """Détecte les réseaux sociaux disponibles et leurs robots"""
+        social_networks = {}
+        base_path = "C:\\"
+        
+        # Dictionnaire des dossiers à vérifier et leurs configurations
+        network_config = {
+            "bon": {
+                "display_name": "Facebook",
+                "json_files": ["data.json", "data1.json"],
+                "button_names": ["Publier Posts", "Publier Stories", "Publier Groups"],
+                "tab_names": ["Posts", "Stories", "Groups"]
+            },
+            "wabon": {
+                "display_name": "WhatsApp",
+                "json_files": ["contacts.json", "groups.json", "broadcast.json"],
+                "button_names": ["Envoyer Contacts", "Envoyer Groups", "Envoyer Broadcast"],
+                "tab_names": ["Contacts", "Groups", "Broadcast"]
+            },
+            "instabon": {
+                "display_name": "Instagram",
+                "json_files": ["posts.json", "stories.json", "reels.json"],
+                "button_names": ["Publier Posts", "Publier Stories", "Publier Reels"],
+                "tab_names": ["Posts", "Stories", "Reels"]
+            },
+            "inbon": {
+                "display_name": "LinkedIn",
+                "json_files": ["posts.json", "articles.json", "connections.json"],
+                "button_names": ["Publier Posts", "Publier Articles", "Envoyer Connections"],
+                "tab_names": ["Posts", "Articles", "Connections"]
+            },
+            "ytbon": {
+                "display_name": "YouTube",
+                "json_files": ["videos.json", "shorts.json", "comments.json"],
+                "button_names": ["Publier Videos", "Publier Shorts", "Commenter"],
+                "tab_names": ["Videos", "Shorts", "Comments"]
+            }
+        }
+        
+        for folder, config in network_config.items():
+            network_path = os.path.join(base_path, folder)
+            if os.path.exists(network_path):
+                robots = []
+                # Recherche des sous-dossiers robot1, robot2, etc.
+                for item in os.listdir(network_path):
+                    if os.path.isdir(os.path.join(network_path, item)) and item.startswith("robot"):
+                        robots.append(item)
+                
+                if robots:
+                    social_networks[network_path] = {
+                        'display_name': config['display_name'],
+                        'robots': sorted(robots),
+                        'json_files': config['json_files'],
+                        'button_names': config['button_names'],
+                        'tab_names': config['tab_names']
+                    }
+        
+        return social_networks
+    
+    def setup_network_robot_selection(self, layout):
+        """Configure la sélection du réseau social et du robot"""
+        group_box = QGroupBox(self.tr("Sélection du Robot"))
+        form_layout = QFormLayout()
+        
+        # Combobox pour le réseau social
+        self.network_combo = QComboBox()
+        self.network_combo.addItem(self.tr("Sélectionnez un réseau social"))
+        
+        # Combobox pour le robot
+        self.robot_combo = QComboBox()
+        self.robot_combo.addItem(self.tr("Sélectionnez un robot"))
+        
+        # Combobox pour le fichier JSON
+        self.json_combo = QComboBox()
+        self.json_combo.addItem(self.tr("Sélectionnez un fichier"))
+        
+        # Remplir les combobox
+        self.network_paths = []  # Pour garder la correspondance entre l'index et le chemin
+        for i, (path, data) in enumerate(self.social_networks.items()):
+            self.network_combo.addItem(data['display_name'])
+            self.network_paths.append(path)
+        
+        # Connecter les signaux
+        self.network_combo.currentIndexChanged.connect(self.update_robot_combo)
+        self.robot_combo.currentIndexChanged.connect(self.update_json_combo)
+        self.json_combo.currentIndexChanged.connect(self.load_json_data)
+        
+        form_layout.addRow(QLabel(self.tr("Réseau social:")), self.network_combo)
+        form_layout.addRow(QLabel(self.tr("Robot:")), self.robot_combo)
+        form_layout.addRow(QLabel(self.tr("Fichier:")), self.json_combo)
+        
+        group_box.setLayout(form_layout)
+        layout.addWidget(group_box)
+    
+    def update_robot_combo(self, index):
+        """Met à jour la liste des robots lorsqu'un réseau social est sélectionné"""
+        if index == 0:  # "Sélectionnez un réseau social"
+            self.robot_combo.clear()
+            self.robot_combo.addItem(self.tr("Sélectionnez un robot"))
+            self.json_combo.clear()
+            self.json_combo.addItem(self.tr("Sélectionnez un fichier"))
+            return
+        
+        self.current_network = self.network_paths[index - 1]
+        network_data = self.social_networks[self.current_network]
+        
+        self.robot_combo.clear()
+        for robot in network_data['robots']:
+            self.robot_combo.addItem(robot)
+    
+    def update_json_combo(self, index):
+        """Met à jour la liste des fichiers JSON lorsqu'un robot est sélectionné"""
+        if index == 0:  # "Sélectionnez un robot"
+            self.json_combo.clear()
+            self.json_combo.addItem(self.tr("Sélectionnez un fichier"))
+            return
+        
+        self.current_robot = self.robot_combo.currentText()
+        network_data = self.social_networks[self.current_network]
+        
+        self.json_combo.clear()
+        for json_file in network_data['json_files']:
+            self.json_combo.addItem(json_file)
+    
+    def setup_category_selection(self, layout):
+        """Configure la sélection des catégories avec des listes"""
+        # Catégories de médias
+        media_group = QGroupBox(self.tr("Catégories de Médias"))
+        media_layout = QVBoxLayout()
+        
+        self.media_category_list = QListWidget()
+        self.media_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        
+        media_layout.addWidget(self.media_category_list)
+        media_group.setLayout(media_layout)
+        layout.addWidget(media_group)
+        
+        # Catégories de groupes
+        group_group = QGroupBox(self.tr("Catégories de Groupes"))
+        group_layout = QVBoxLayout()
+        
+        self.group_category_list = QListWidget()
+        self.group_category_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        
+        group_layout.addWidget(self.group_category_list)
+        group_group.setLayout(group_layout)
+        layout.addWidget(group_group)
+    
+    def setup_data_viewer(self, layout):
+        """Configure la visualisation des données JSON"""
+        group_box = QGroupBox(self.tr("Visualisation des Données"))
+        vbox = QVBoxLayout()
+        
+        # Onglets pour afficher les données
+        self.tab_widget = QTabWidget()
+        self.tabs = []
+        
+        # Créer les onglets dynamiquement (sera mis à jour lors de la sélection du JSON)
+        self.update_tabs()
+        
+        # Zone de texte pour afficher le contenu
+        self.content_viewer = QTextEdit()
+        self.content_viewer.setReadOnly(True)
+        
+        vbox.addWidget(self.tab_widget)
+        vbox.addWidget(self.content_viewer)
+        group_box.setLayout(vbox)
+        layout.addWidget(group_box)
+    
+    def update_tabs(self):
+        """Met à jour les onglets en fonction du réseau social sélectionné"""
+        self.tab_widget.clear()
+        self.tabs = []
+        
+        if not self.current_network:
+            return
+        
+        network_data = self.social_networks[self.current_network]
+        
+        for tab_name in network_data['tab_names']:
+            tab = QWidget()
+            self.tabs.append(tab)
+            self.tab_widget.addTab(tab, tab_name)
+        
+        # Connecter le changement d'onglet
+        self.tab_widget.currentChanged.connect(self.update_content_viewer)
+    
+    def load_json_data(self, index):
+        """Charge les données JSON lorsqu'un fichier est sélectionné"""
+        if index == 0 or not self.current_network or not self.current_robot:
+            self.json_structure = {}
+            self.update_tabs()
+            return
+        
+        json_file = self.json_combo.currentText()
+        robot_path = os.path.join(self.current_network, self.current_robot, json_file)
+        
+        try:
+            if os.path.exists(robot_path):
+                with open(robot_path, 'r', encoding='utf-8') as f:
+                    self.json_structure = json.load(f)
+            else:
+                self.json_structure = {}
+            
+            self.update_tabs()
+            self.update_content_viewer()
+        except Exception as e:
+            QMessageBox.warning(self, self.tr("Erreur"), self.tr(f"Impossible de charger le fichier: {str(e)}"))
+            self.json_structure = {}
+    
+    def update_content_viewer(self):
+        """Met à jour le contenu affiché en fonction de l'onglet sélectionné"""
+        if not self.json_structure or not self.tabs:
+            self.content_viewer.clear()
+            return
+        
+        current_tab_index = self.tab_widget.currentIndex()
+        tab_name = self.tab_widget.tabText(current_tab_index).lower()
+        
+        if tab_name in self.json_structure:
+            content = self.json_structure[tab_name]
+            
+            if isinstance(content, list):
+                if content and isinstance(content[0], dict):
+                    # Formatage des dictionnaires en JSON lisible
+                    formatted_content = json.dumps(content, ensure_ascii=False, indent=4)
+                else:
+                    formatted_content = "\n".join(str(item) for item in content)
+            else:
+                formatted_content = str(content)
+            
+            self.content_viewer.setPlainText(formatted_content)
+            self.content_viewer.moveCursor(QTextCursor.Start)
+        else:
+            self.content_viewer.setPlainText(self.tr("Aucune donnée disponible pour cet onglet."))
+    
+    def setup_action_buttons(self, layout):
+        """Configure les boutons d'action"""
+        group_box = QGroupBox(self.tr("Actions"))
+        hbox = QHBoxLayout()
+        
+        # Boutons dynamiques en fonction du réseau social
+        self.send_button = QPushButton()
+        self.send_button.setObjectName("send_button")
+        self.send_button1 = QPushButton()
+        self.send_button1.setObjectName("send_button1")
+        self.send_button2 = QPushButton()
+        self.send_button2.setObjectName("send_button2")
+        
+        # Bouton de test
+        self.test_button = QPushButton(self.tr("Tester le Robot"))
+        self.test_button.setObjectName("test_button")
+        self.test_button.setIcon(QIcon("icons/test.png"))
+        
+        # Connecter les signaux
+        self.send_button.clicked.connect(lambda: self.send_to_robot(0))
+        self.send_button1.clicked.connect(lambda: self.send_to_robot(1))
+        self.send_button2.clicked.connect(lambda: self.send_to_robot(2))
+        self.test_button.clicked.connect(self.test_robot)
+        
+        hbox.addWidget(self.send_button)
+        hbox.addWidget(self.send_button1)
+        hbox.addWidget(self.send_button2)
+        hbox.addWidget(self.test_button)
+        
+        group_box.setLayout(hbox)
+        layout.addWidget(group_box)
+        
+        # Mettre à jour les libellés des boutons
+        self.update_button_labels()
+        
+        # Connecter le changement de réseau social pour mettre à jour les boutons
+        self.network_combo.currentIndexChanged.connect(self.update_button_labels)
+    
+    def update_button_labels(self):
+        """Met à jour les libellés des boutons en fonction du réseau social sélectionné"""
+        if not self.current_network:
+            self.send_button.setText(self.tr("Envoyer"))
+            self.send_button1.setText(self.tr("Envoyer"))
+            self.send_button2.setText(self.tr("Envoyer"))
+            return
+        
+        network_data = self.social_networks[self.current_network]
+        
+        self.send_button.setText(network_data['button_names'][0])
+        self.send_button1.setText(network_data['button_names'][1])
+        self.send_button2.setText(network_data['button_names'][2])
+    
+    def load_media_categories(self):
+        """Charge les catégories de médias depuis la table 'category'"""
+        self.cursor.execute("SELECT id, name FROM category")
+        media_categories = self.cursor.fetchall()
+        for category in media_categories:
+            item = QListWidgetItem(self.tr(category[1]))
+            item.setData(Qt.UserRole, category[0])
+            self.media_category_list.addItem(item)
+    
+    def load_group_categories(self):
+        """Charge les catégories de groupes depuis la table 'category_group'"""
+        self.cursor.execute("SELECT id, name FROM category_group")
+        group_categories = self.cursor.fetchall()
+        for category in group_categories:
+            item = QListWidgetItem(self.tr(category[1]))
+            item.setData(Qt.UserRole, category[0])
+            self.group_category_list.addItem(item)
+    
+    def send_to_robot(self, button_index):
+        """Envoie les données sélectionnées au robot."""
+        # Vérifier qu'un réseau social, un robot et un fichier sont sélectionnés
+        if (self.network_combo.currentIndex() == 0 or 
+            self.robot_combo.currentIndex() == 0 or 
+            self.json_combo.currentIndex() == 0):
+            QMessageBox.warning(self, self.tr("Erreur"), 
+                              self.tr("Veuillez sélectionner un réseau social, un robot et un fichier."))
+            return
+        
+        selected_media_categories = [
+            item.data(Qt.UserRole) for item in self.media_category_list.selectedItems()
+        ]
+        selected_group_categories = [
+            item.data(Qt.UserRole) for item in self.group_category_list.selectedItems()
+        ]
+
+        if not selected_media_categories and not selected_group_categories:
+            QMessageBox.warning(self, self.tr("Erreur"), 
+                              self.tr("Veuillez sélectionner au moins une catégorie de médias ou de groupes."))
+            return
+
+        # Récupérer les données de la base de données
+        media_data = self.get_media_data(selected_media_categories)
+        group_data = self.get_group_data(selected_group_categories)
+
+        # Préparer les données combinées selon le type de fichier
+        json_file = self.json_combo.currentText()
+        combined_content = self.prepare_content(media_data, group_data, json_file, button_index)
+
+        # Chemin complet du fichier JSON
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        json_path = os.path.join(robot_path, json_file)
+        
+        # Archiver l'ancien fichier s'il existe
+        self.archive_existing_file(json_path)
+        
+        # Enregistrer les nouvelles données
+        try:
+            os.makedirs(robot_path, exist_ok=True)
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(combined_content, f, ensure_ascii=False, indent=4)
+            
+            # Cacher le dossier
+            self.hide_file(robot_path)
+            
+            # Afficher un message de confirmation stylé
+            self.show_confirmation_message(json_file)
+        except Exception as e:
+            QMessageBox.critical(self, self.tr("Erreur"), 
+                               self.tr(f"Impossible d'enregistrer le fichier: {str(e)}"))
+    
+    def prepare_content(self, media_data, group_data, json_file, button_index):
+        """Prépare le contenu selon le type de fichier et le bouton cliqué"""
+        network_data = self.social_networks[self.current_network]
+        display_name = network_data['display_name']
+        
+        # Structure de base différente selon le réseau social
+        if display_name == "Facebook":
+            if json_file == "data.json":
+                return {
+                    "posts": [{
+                        "text": f"{media[1]}\n\n{media[2]}",
+                        "image": media[3]
+                    } for media in media_data],
+                    "groups": [group[2] for group in group_data]
+                }
+            elif json_file == "data1.json":
+                return {
+                    "stories": [{
+                        "text": media[1],
+                        "image": media[3]
+                    } for media in media_data],
+                    "groups": [group[2] for group in group_data]
+                }
+        
+        elif display_name == "WhatsApp":
+            if json_file == "contacts.json":
+                return {
+                    "contacts": [{
+                        "name": group[1],
+                        "number": group[2].split('/')[-1]  # Exemple d'extraction de numéro
+                    } for group in group_data]
+                }
+            elif json_file == "groups.json":
+                return {
+                    "groups": [group[2] for group in group_data]
+                }
+        
+        # Ajouter d'autres cas pour les autres réseaux sociaux...
+        
+        # Par défaut, retourner une structure générique
+        return {
+            "media": [{
+                "id": media[0],
+                "name": media[1],
+                "description": media[2],
+                "path": media[3]
+            } for media in media_data],
+            "groups": [{
+                "id": group[0],
+                "name": group[1],
+                "link": group[2]
+            } for group in group_data]
+        }
+    
+    def archive_existing_file(self, file_path):
+        """Archive le fichier existant s'il existe"""
+        if os.path.exists(file_path):
+            try:
+                # Créer un nom d'archive avec la date actuelle
+                archive_name = f"{os.path.splitext(file_path)[0]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                os.rename(file_path, archive_name)
+            except Exception as e:
+                print(f"Impossible d'archiver le fichier: {str(e)}")
+    
+    def hide_file(self, file_path):
+        """Cache un fichier ou un dossier avec les attributs 'hidden' et 'system'."""
+        if os.path.exists(file_path):
+            try:
+                ctypes.windll.kernel32.SetFileAttributesW(file_path, 0x02 | 0x04)
+            except:
+                pass
+    
+    def show_confirmation_message(self, json_file):
+        """Affiche un message de confirmation stylé avec un bouton de test"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(self.tr("Succès"))
+        msg.setText(self.tr(f"Les données ont été envoyées avec succès au fichier {json_file}"))
+        
+        # Ajouter un bouton de test
+        test_button = msg.addButton(self.tr("Tester le Robot"), QMessageBox.ActionRole)
+        test_button.setIcon(QIcon("icons/test.png"))
+        
+        # Ajouter un bouton OK
+        msg.addButton(QMessageBox.Ok)
+        
+        # Appliquer un style
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            QLabel {
+                font-size: 14px;
+                color: #333;
+            }
+        """)
+        
+        # Afficher la boîte de dialogue
+        ret = msg.exec_()
+        
+        # Si le bouton de test est cliqué
+        if msg.clickedButton() == test_button:
+            self.test_robot()
+    
+    def test_robot(self):
+        """Teste le robot sélectionné"""
+        if not self.current_network or not self.current_robot:
+            QMessageBox.warning(self, self.tr("Erreur"), 
+                              self.tr("Veuillez sélectionner un réseau social et un robot."))
+            return
+        
+        # Implémentez ici la logique de test du robot
+        QMessageBox.information(self, self.tr("Test du Robot"), 
+                              self.tr(f"Test du robot {self.current_robot} en cours..."))
+    
+    def get_media_data(self, category_ids):
+        """Récupère les données des médias pour les catégories sélectionnées."""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT m.id, m.nom, m.description, m.preview_path, mt.type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def get_group_data(self, category_ids):
+        """Récupère les données des groupes pour les catégories sélectionnées."""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT g.id, g.name, g.link, g.remarks, g.description, g.keywords
+            FROM groups g
+            WHERE g.category_group_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def closeEvent(self, event):
+        """Ferme la connexion à la base de données."""
+        self.conn.close()
+        event.accept()
+
+
+
+import os
+import sqlite3
+import json
+import ctypes
+from datetime import datetime
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, 
+                            QListWidgetItem, QPushButton, QMessageBox, QComboBox, 
+                            QTextEdit, QTabWidget, QWidget, QGroupBox, QFormLayout)
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import Qt
+
+class UpdateRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Robot Manager Pro")
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setFixedSize(1000, 750)
+        
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+        
+        # Détection des réseaux sociaux et robots disponibles
+        self.social_networks = self.detect_social_networks()
+        self.current_network = None
+        self.current_robot = None
+        
+        # Styles
+        self.setup_styles()
+        
+        # Layout principal
+        main_layout = QVBoxLayout()
+        
+        # 1. Sélection du réseau social et robot
+        self.setup_network_robot_selection(main_layout)
+        
+        # 2. Sélection des catégories (en ligne)
+        categories_layout = QHBoxLayout()
+        self.setup_category_selection(categories_layout)
+        main_layout.addLayout(categories_layout)
+        
+        # 3. Visualisation et édition des données
+        self.setup_data_editor(main_layout)
+        
+        # 4. Boutons d'action
+        self.setup_action_buttons(main_layout)
+        
+        self.setLayout(main_layout)
+    
+    def setup_styles(self):
+        """Configure les styles CSS modernes"""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial;
+            }
+            QGroupBox {
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 15px;
+                font-weight: bold;
+                color: #333;
+            }
+            QListWidget {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 14px;
+            }
+            QTextEdit {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 8px;
+                font-family: 'Consolas';
+                font-size: 12px;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 120px;
+            }
+            QComboBox {
+                padding: 6px;
+                border: 1px solid #dcdcdc;
+                border-radius: 4px;
+                min-width: 200px;
+            }
+            QLabel {
+                color: #444;
+                font-size: 14px;
+            }
+            #send_button {
+                background-color: #4CAF50;
+                color: white;
+            }
+            #cancel_button {
+                background-color: #f44336;
+                color: white;
+            }
+            #close_button {
+                background-color: #2196F3;
+                color: white;
+            }
+        """)
+    
+    def detect_social_networks(self):
+        """Détecte les réseaux sociaux et robots disponibles"""
+        networks = {
+            "bon": {
+                "name": "Facebook",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "text": "{nom}\n\n{description}",
+                            "image": "{preview_path}"
+                        }],
+                        "groups": ["{link}"]
+                    },
+                    "data1.json": {
+                        "stories": [{
+                            "text": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            },
+            "wabon": {
+                "name": "WhatsApp",
+                "json_structure": {
+                    "data.json": {
+                        "contacts": ["{link}"],
+                        "messages": ["{description}"]
+                    }
+                }
+            },
+            "instabon": {
+                "name": "Instagram",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "caption": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            }
+        }
+        
+        detected_networks = {}
+        base_path = "C:\\"
+        
+        for folder, config in networks.items():
+            path = os.path.join(base_path, folder)
+            if os.path.exists(path):
+                robots = [d for d in os.listdir(path) 
+                         if os.path.isdir(os.path.join(path, d)) and d.startswith("robot")]
+                if robots:
+                    detected_networks[path] = {
+                        "name": config["name"],
+                        "robots": sorted(robots),
+                        "json_structure": config["json_structure"]
+                    }
+        
+        return detected_networks
+    
+    def setup_network_robot_selection(self, layout):
+        """Configure la sélection du réseau social et du robot"""
+        group = QGroupBox("Sélection du Robot")
+        form = QFormLayout()
+        
+        # Sélection réseau social
+        self.network_combo = QComboBox()
+        self.network_combo.addItem("Choisissez un réseau social")
+        
+        # Sélection robot
+        self.robot_combo = QComboBox()
+        self.robot_combo.addItem("Choisissez un robot")
+        
+        # Remplissage des combobox
+        self.network_paths = []
+        for path, data in self.social_networks.items():
+            self.network_combo.addItem(data["name"])
+            self.network_paths.append(path)
+        
+        # Connexions des signaux
+        self.network_combo.currentIndexChanged.connect(self.update_robots)
+        self.robot_combo.currentIndexChanged.connect(self.load_robot_data)
+        
+        form.addRow("Réseau social:", self.network_combo)
+        form.addRow("Robot:", self.robot_combo)
+        group.setLayout(form)
+        layout.addWidget(group)
+    
+    def update_robots(self, index):
+        """Met à jour la liste des robots selon le réseau sélectionné"""
+        self.robot_combo.clear()
+        self.robot_combo.addItem("Choisissez un robot")
+        
+        if index == 0:
+            return
+            
+        self.current_network = self.network_paths[index-1]
+        network_data = self.social_networks[self.current_network]
+        
+        for robot in network_data["robots"]:
+            self.robot_combo.addItem(robot)
+    
+    def setup_category_selection(self, layout):
+        """Configure la sélection des catégories"""
+        # Catégories médias
+        media_group = QGroupBox("Catégories de Médias")
+        media_layout = QVBoxLayout()
+        self.media_list = QListWidget()
+        self.media_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        media_layout.addWidget(self.media_list)
+        media_group.setLayout(media_layout)
+        layout.addWidget(media_group)
+        
+        # Catégories groupes
+        group_group = QGroupBox("Catégories de Groupes")
+        group_layout = QVBoxLayout()
+        self.group_list = QListWidget()
+        self.group_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        group_layout.addWidget(self.group_list)
+        group_group.setLayout(group_layout)
+        layout.addWidget(group_group)
+    
+    def setup_data_editor(self, layout):
+        """Configure l'éditeur de données"""
+        group = QGroupBox("Édition des Données")
+        vbox = QVBoxLayout()
+        
+        # Onglets pour chaque fichier JSON
+        self.tabs = QTabWidget()
+        
+        # Création dynamique des onglets
+        self.json_editors = {}
+        if self.current_network:
+            network_data = self.social_networks[self.current_network]
+            for json_file in network_data["json_structure"]:
+                tab = QWidget()
+                editor = QTextEdit()
+                editor.setFont(QFont("Consolas", 10))
+                self.json_editors[json_file] = editor
+                
+                layout = QVBoxLayout()
+                layout.addWidget(editor)
+                tab.setLayout(layout)
+                self.tabs.addTab(tab, json_file)
+        
+        vbox.addWidget(self.tabs)
+        group.setLayout(vbox)
+        layout.addWidget(group)
+    
+    def setup_action_buttons(self, layout):
+        """Configure les boutons d'action"""
+        hbox = QHBoxLayout()
+        
+        self.cancel_button = QPushButton("Annuler")
+        self.cancel_button.setObjectName("cancel_button")
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))
+        self.cancel_button.clicked.connect(self.reject)
+        
+        self.close_button = QPushButton("Fermer")
+        self.close_button.setObjectName("close_button")
+        self.close_button.setIcon(QIcon("icons/close.png"))
+        self.close_button.clicked.connect(self.close)
+        
+        self.send_button = QPushButton("Envoyer au Robot")
+        self.send_button.setObjectName("send_button")
+        self.send_button.setIcon(QIcon("icons/send.png"))
+        self.send_button.clicked.connect(self.send_to_robot)
+        
+        hbox.addWidget(self.cancel_button)
+        hbox.addStretch()
+        hbox.addWidget(self.close_button)
+        hbox.addWidget(self.send_button)
+        
+        layout.addLayout(hbox)
+    
+    def load_media_categories(self):
+        """Charge les catégories de médias depuis la base"""
+        self.cursor.execute("SELECT id, name FROM category WHERE est_supprime = 0")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(cat_name)
+            item.setData(Qt.UserRole, cat_id)
+            self.media_list.addItem(item)
+    
+    def load_group_categories(self):
+        """Charge les catégories de groupes depuis la base"""
+        self.cursor.execute("SELECT id, name FROM category_group WHERE est_supprime = 0")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(cat_name)
+            item.setData(Qt.UserRole, cat_id)
+            self.group_list.addItem(item)
+    
+    def load_robot_data(self, index):
+        """Charge les données du robot sélectionné"""
+        if index == 0 or not self.current_network:
+            return
+            
+        self.current_robot = self.robot_combo.currentText()
+        network_data = self.social_networks[self.current_network]
+        
+        # Mise à jour des onglets
+        self.tabs.clear()
+        self.json_editors = {}
+        
+        for json_file, structure in network_data["json_structure"].items():
+            tab = QWidget()
+            editor = QTextEdit()
+            editor.setFont(QFont("Consolas", 10))
+            self.json_editors[json_file] = editor
+            
+            # Charger le fichier s'il existe
+            json_path = os.path.join(self.current_network, self.current_robot, json_file)
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                        editor.setPlainText(json.dumps(data, indent=4, ensure_ascii=False))
+                    except:
+                        editor.setPlainText("Fichier JSON invalide")
+            else:
+                # Nouvelle structure vide
+                editor.setPlainText(json.dumps(structure, indent=4, ensure_ascii=False))
+            
+            layout = QVBoxLayout()
+            layout.addWidget(editor)
+            tab.setLayout(layout)
+            self.tabs.addTab(tab, json_file)
+    
+    def send_to_robot(self):
+        """Envoie les données au robot"""
+        if not self.current_network or not self.current_robot:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner un réseau et un robot")
+            return
+            
+        # Récupérer les sélections
+        media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+        group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+        
+        if not media_cats and not group_cats:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner au moins une catégorie")
+            return
+        
+        # Récupérer les données de la base
+        media_data = self.get_media_data(media_cats)
+        group_data = self.get_group_data(group_cats)
+        
+        # Préparer les dossiers
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+        
+        # Sauvegarder chaque fichier JSON
+        network_data = self.social_networks[self.current_network]
+        
+        for json_file, editor in self.json_editors.items():
+            try:
+                # Archiver l'ancien fichier
+                self.archive_file(robot_path, json_file)
+                
+                # Sauvegarder le nouveau
+                json_path = os.path.join(robot_path, json_file)
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    # Remplacer les placeholders avec les vraies données
+                    content = self.generate_content(
+                        json.loads(editor.toPlainText()),
+                        media_data,
+                        group_data
+                    )
+                    json.dump(content, f, indent=4, ensure_ascii=False)
+                
+            except Exception as e:
+                QMessageBox.critical(self, "Erreur", f"Erreur avec {json_file}: {str(e)}")
+                continue
+        
+        # Cacher le dossier
+        self.hide_folder(robot_path)
+        
+        # Confirmation
+        self.show_confirmation()
+    
+    def generate_content(self, template, media_data, group_data):
+        """Génère le contenu final en remplaçant les placeholders"""
+        if isinstance(template, list):
+            return [self.generate_content(item, media_data, group_data) for item in template]
+        elif isinstance(template, dict):
+            return {k: self.generate_content(v, media_data, group_data) for k, v in template.items()}
+        elif isinstance(template, str):
+            # Remplacer les médias
+            for media in media_data:
+                template = template.replace("{nom}", media[1]).replace("{description}", media[2]).replace("{preview_path}", media[3])
+            # Remplacer les groupes
+            for group in group_data:
+                template = template.replace("{link}", group[2])
+            return template
+        else:
+            return template
+    
+    def archive_file(self, folder, filename):
+        """Archive un fichier existant avec timestamp"""
+        file_path = os.path.join(folder, filename)
+        if os.path.exists(file_path):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            archive_path = os.path.join(folder, f"{os.path.splitext(filename)[0]}_{timestamp}.json")
+            os.rename(file_path, archive_path)
+    
+    def hide_folder(self, path):
+        """Cache le dossier avec attributs système"""
+        if os.path.exists(path):
+            try:
+                ctypes.windll.kernel32.SetFileAttributesW(path, 0x02 | 0x04)
+            except:
+                pass
+    
+    def show_confirmation(self):
+        """Affiche le message de confirmation avec option de test"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Succès")
+        msg.setText("Données envoyées avec succès au robot !")
+        
+        test_btn = msg.addButton("Tester le Robot", QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        ok_btn = msg.addButton(QMessageBox.Ok)
+        ok_btn.setText("Continuer")
+        
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+    
+    def test_robot(self):
+        """Lance le test du robot"""
+        QMessageBox.information(self, "Test Robot", 
+                              f"Test du robot {self.current_robot} en cours...")
+    
+    def get_media_data(self, category_ids):
+        """Récupère les médias des catégories sélectionnées"""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT id, nom, description, preview_path 
+            FROM media 
+            WHERE category_id IN ({}) AND est_supprime = 0
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def get_group_data(self, category_ids):
+        """Récupère les groupes des catégories sélectionnées"""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT id, name, link, remarks 
+            FROM groups 
+            WHERE category_group_id IN ({}) AND est_supprime = 0
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def closeEvent(self, event):
+        """Ferme proprement la connexion à la base"""
+        self.conn.close()
+        event.accept()
+
+
+import os
+import sqlite3
+import json
+import ctypes
+from datetime import datetime
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QListWidget, 
+                            QListWidgetItem, QPushButton, QMessageBox, QComboBox, 
+                            QTextEdit, QTabWidget, QWidget, QGroupBox, QFormLayout)
+from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import Qt
+
+class UpdateRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Robot Manager Pro")
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setFixedSize(1000, 750)
+        
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+        
+        # Détection des réseaux sociaux et robots disponibles
+        self.social_networks = self.detect_social_networks()
+        self.current_network = None
+        self.current_robot = None
+        
+        # Layout principal
+        main_layout = QVBoxLayout()
+        
+        # 1. Sélection du réseau social et robot
+        self.setup_network_robot_selection(main_layout)
+        
+        # 2. Sélection des catégories (en ligne)
+        categories_layout = QHBoxLayout()
+        self.setup_category_selection(categories_layout)
+        main_layout.addLayout(categories_layout)
+        
+        # 3. Visualisation et édition des données
+        self.setup_data_editor(main_layout)
+        
+        # 4. Boutons d'action
+        self.setup_action_buttons(main_layout)
+        
+        self.setLayout(main_layout)
+        self.setup_styles()
+    
+    def setup_styles(self):
+        """Configure les styles CSS modernes"""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial;
+            }
+            QGroupBox {
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 15px;
+                font-weight: bold;
+                color: #333;
+            }
+            QListWidget {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 14px;
+            }
+            QTextEdit {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 8px;
+                font-family: 'Consolas';
+                font-size: 12px;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 120px;
+            }
+            QComboBox {
+                padding: 6px;
+                border: 1px solid #dcdcdc;
+                border-radius: 4px;
+                min-width: 200px;
+            }
+            QLabel {
+                color: #444;
+                font-size: 14px;
+            }
+            #send_button {
+                background-color: #4CAF50;
+                color: white;
+            }
+            #cancel_button {
+                background-color: #f44336;
+                color: white;
+            }
+            #close_button {
+                background-color: #2196F3;
+                color: white;
+            }
+        """)
+    
+    def detect_social_networks(self):
+        """Détecte les réseaux sociaux et robots disponibles"""
+        networks = {
+            "bon": {
+                "name": "Facebook",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "text": "{nom}\n\n{description}",
+                            "image": "{preview_path}"
+                        }],
+                        "groups": ["{link}"]
+                    },
+                    "data1.json": {
+                        "stories": [{
+                            "text": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            },
+            "wabon": {
+                "name": "WhatsApp",
+                "json_structure": {
+                    "data.json": {
+                        "contacts": ["{link}"],
+                        "messages": ["{description}"]
+                    }
+                }
+            },
+            "instabon": {
+                "name": "Instagram",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "caption": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            }
+        }
+        
+        detected_networks = {}
+        base_path = "C:\\"
+        
+        for folder, config in networks.items():
+            path = os.path.join(base_path, folder)
+            if os.path.exists(path):
+                robots = [d for d in os.listdir(path) 
+                         if os.path.isdir(os.path.join(path, d)) and d.startswith("robot")]
+                if robots:
+                    detected_networks[path] = {
+                        "name": config["name"],
+                        "robots": sorted(robots),
+                        "json_structure": config["json_structure"]
+                    }
+        
+        return detected_networks
+    
+    def setup_network_robot_selection(self, layout):
+        """Configure la sélection du réseau social et du robot"""
+        group = QGroupBox("Sélection du Robot")
+        form = QFormLayout()
+        
+        # Sélection réseau social
+        self.network_combo = QComboBox()
+        self.network_combo.addItem("Choisissez un réseau social")
+        
+        # Sélection robot
+        self.robot_combo = QComboBox()
+        self.robot_combo.addItem("Choisissez un robot")
+        
+        # Remplissage des combobox
+        self.network_paths = []
+        for path, data in self.social_networks.items():
+            self.network_combo.addItem(data["name"])
+            self.network_paths.append(path)
+        
+        # Connexions des signaux
+        self.network_combo.currentIndexChanged.connect(self.update_robots)
+        self.robot_combo.currentIndexChanged.connect(self.load_robot_data)
+        
+        form.addRow("Réseau social:", self.network_combo)
+        form.addRow("Robot:", self.robot_combo)
+        group.setLayout(form)
+        layout.addWidget(group)
+    
+    def update_robots(self, index):
+        """Met à jour la liste des robots selon le réseau sélectionné"""
+        self.robot_combo.clear()
+        self.robot_combo.addItem("Choisissez un robot")
+        
+        if index == 0:
+            return
+            
+        self.current_network = self.network_paths[index-1]
+        network_data = self.social_networks[self.current_network]
+        
+        for robot in network_data["robots"]:
+            self.robot_combo.addItem(robot)
+    
+    def setup_category_selection(self, layout):
+        """Configure la sélection des catégories"""
+        # Catégories médias
+        media_group = QGroupBox("Catégories de Médias")
+        media_layout = QVBoxLayout()
+        self.media_list = QListWidget()
+        self.media_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        media_layout.addWidget(self.media_list)
+        media_group.setLayout(media_layout)
+        layout.addWidget(media_group)
+        
+        # Catégories groupes
+        group_group = QGroupBox("Catégories de Groupes")
+        group_layout = QVBoxLayout()
+        self.group_list = QListWidget()
+        self.group_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        group_layout.addWidget(self.group_list)
+        group_group.setLayout(group_layout)
+        layout.addWidget(group_group)
+    
+    def setup_data_editor(self, layout):
+        """Configure l'éditeur de données"""
+        group = QGroupBox("Édition des Données")
+        vbox = QVBoxLayout()
+        
+        # Onglets pour chaque fichier JSON
+        self.tabs = QTabWidget()
+        self.json_editors = {}
+        
+        vbox.addWidget(self.tabs)
+        group.setLayout(vbox)
+        layout.addWidget(group)
+    
+    def setup_action_buttons(self, layout):
+        """Configure les boutons d'action"""
+        hbox = QHBoxLayout()
+        
+        self.cancel_button = QPushButton("Annuler")
+        self.cancel_button.setObjectName("cancel_button")
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))
+        self.cancel_button.clicked.connect(self.reject)
+        
+        self.close_button = QPushButton("Fermer")
+        self.close_button.setObjectName("close_button")
+        self.close_button.setIcon(QIcon("icons/close.png"))
+        self.close_button.clicked.connect(self.close)
+        
+        self.send_button = QPushButton("Envoyer au Robot")
+        self.send_button.setObjectName("send_button")
+        self.send_button.setIcon(QIcon("icons/send.png"))
+        self.send_button.clicked.connect(self.send_to_robot)
+        
+        hbox.addWidget(self.cancel_button)
+        hbox.addStretch()
+        hbox.addWidget(self.close_button)
+        hbox.addWidget(self.send_button)
+        
+        layout.addLayout(hbox)
+    
+    def load_media_categories(self):
+        """Charge les catégories de médias depuis la base"""
+        self.cursor.execute("SELECT id, name FROM category")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(cat_name)
+            item.setData(Qt.UserRole, cat_id)
+            self.media_list.addItem(item)
+    
+    def load_group_categories(self):
+        """Charge les catégories de groupes depuis la base"""
+        self.cursor.execute("SELECT id, name FROM category_group")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(cat_name)
+            item.setData(Qt.UserRole, cat_id)
+            self.group_list.addItem(item)
+    
+    def load_robot_data(self, index):
+        """Charge les données du robot sélectionné"""
+        if index == 0 or not self.current_network:
+            return
+            
+        self.current_robot = self.robot_combo.currentText()
+        network_data = self.social_networks[self.current_network]
+        
+        # Mise à jour des onglets
+        self.tabs.clear()
+        self.json_editors = {}
+        
+        for json_file, structure in network_data["json_structure"].items():
+            tab = QWidget()
+            editor = QTextEdit()
+            editor.setFont(QFont("Consolas", 10))
+            self.json_editors[json_file] = editor
+            
+            # Charger le fichier s'il existe
+            json_path = os.path.join(self.current_network, self.current_robot, json_file)
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                        editor.setPlainText(json.dumps(data, indent=4, ensure_ascii=False))
+                    except:
+                        editor.setPlainText("Fichier JSON invalide")
+            else:
+                # Nouvelle structure vide
+                editor.setPlainText(json.dumps(structure, indent=4, ensure_ascii=False))
+            
+            layout = QVBoxLayout()
+            layout.addWidget(editor)
+            tab.setLayout(layout)
+            self.tabs.addTab(tab, json_file)
+    
+    def send_to_robot(self):
+        """Envoie les données au robot"""
+        if not self.current_network or not self.current_robot:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner un réseau et un robot")
+            return
+            
+        # Récupérer les sélections
+        media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+        group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+        
+        if not media_cats and not group_cats:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner au moins une catégorie")
+            return
+        
+        # Récupérer les données de la base
+        media_data = self.get_media_data(media_cats)
+        group_data = self.get_group_data(group_cats)
+        
+        # Préparer les dossiers
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+        
+        # Sauvegarder chaque fichier JSON
+        network_data = self.social_networks[self.current_network]
+        
+        for json_file, editor in self.json_editors.items():
+            try:
+                # Archiver l'ancien fichier
+                self.archive_file(robot_path, json_file)
+                
+                # Sauvegarder le nouveau
+                json_path = os.path.join(robot_path, json_file)
+                with open(json_path, 'w', encoding='utf-8') as f:
+                    # Remplacer les placeholders avec les vraies données
+                    content = self.generate_content(
+                        json.loads(editor.toPlainText()),
+                        media_data,
+                        group_data
+                    )
+                    json.dump(content, f, indent=4, ensure_ascii=False)
+                
+            except Exception as e:
+                QMessageBox.critical(self, "Erreur", f"Erreur avec {json_file}: {str(e)}")
+                continue
+        
+        # Cacher le dossier
+        self.hide_folder(robot_path)
+        
+        # Confirmation
+        self.show_confirmation()
+    
+    def generate_content(self, template, media_data, group_data):
+        """Génère le contenu final en remplaçant les placeholders"""
+        if isinstance(template, list):
+            return [self.generate_content(item, media_data, group_data) for item in template]
+        elif isinstance(template, dict):
+            return {k: self.generate_content(v, media_data, group_data) for k, v in template.items()}
+        elif isinstance(template, str):
+            # Remplacer les médias
+            for media in media_data:
+                template = template.replace("{nom}", media[1]).replace("{description}", media[2]).replace("{preview_path}", media[3])
+            # Remplacer les groupes
+            for group in group_data:
+                template = template.replace("{link}", group[2])
+            return template
+        else:
+            return template
+    
+    def archive_file(self, folder, filename):
+        """Archive un fichier existant avec timestamp"""
+        file_path = os.path.join(folder, filename)
+        if os.path.exists(file_path):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            archive_path = os.path.join(folder, f"{os.path.splitext(filename)[0]}_{timestamp}.json")
+            os.rename(file_path, archive_path)
+    
+    def hide_folder(self, path):
+        """Cache le dossier avec attributs système"""
+        if os.path.exists(path):
+            try:
+                ctypes.windll.kernel32.SetFileAttributesW(path, 0x02 | 0x04)
+            except:
+                pass
+    
+    def show_confirmation(self):
+        """Affiche le message de confirmation avec option de test"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Succès")
+        msg.setText("Données envoyées avec succès au robot !")
+        
+        test_btn = msg.addButton("Tester le Robot", QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        ok_btn = msg.addButton(QMessageBox.Ok)
+        ok_btn.setText("Continuer")
+        
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+    
+    def test_robot(self):
+        """Lance le test du robot"""
+        QMessageBox.information(self, "Test Robot", 
+                              f"Test du robot {self.current_robot} en cours...")
+    
+    def get_media_data(self, category_ids):
+        """Récupère les médias des catégories sélectionnées"""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT id, nom, description, preview_path 
+            FROM media 
+            WHERE category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def get_group_data(self, category_ids):
+        """Récupère les groupes des catégories sélectionnées"""
+        if not category_ids:
+            return []
+            
+        query = """
+            SELECT id, name, link, remarks 
+            FROM groups 
+            WHERE category_group_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+    
+    def closeEvent(self, event):
+        """Ferme proprement la connexion à la base"""
+        self.conn.close()
+        event.accept()
+
+
+
+    def send_to_robot(self):
+        """Envoie les données au robot dans le format exact demandé"""
+        if not self.current_network or not self.current_robot:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner un réseau et un robot")
+            return
+            
+        # Récupérer les sélections
+        media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+        group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+        
+        if not media_cats and not group_cats:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner au moins une catégorie")
+            return
+        
+        # Récupérer les données de la base
+        media_data = self.get_formatted_media_data(media_cats)
+        group_data = self.get_formatted_group_data(group_cats)
+        
+        # Préparer les dossiers
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+        
+        # Créer les structures JSON exactes comme demandé
+        data_json = {
+            "posts": media_data,
+            "groups": group_data
+        }
+        
+        data1_json = {
+            "posts": [{
+                "text": media['nom'],  # Juste le nom pour data1.json
+                "image": media['preview_path']
+            } for media in self.get_raw_media_data(media_cats)],
+            "groups": group_data  # Même structure de groupes
+        }
+        
+        # Sauvegarder les fichiers
+        try:
+            # Archiver les anciens fichiers
+            self.archive_file(robot_path, "data.json")
+            self.archive_file(robot_path, "data1.json")
+            
+            # Enregistrer data.json
+            with open(os.path.join(robot_path, "data.json"), 'w', encoding='utf-8') as f:
+                json.dump(data_json, f, indent=4, ensure_ascii=False)
+            
+            # Enregistrer data1.json
+            with open(os.path.join(robot_path, "data1.json"), 'w', encoding='utf-8') as f:
+                json.dump(data1_json, f, indent=4, ensure_ascii=False)
+            
+            # Cacher le dossier
+            self.hide_folder(robot_path)
+            
+            # Message de confirmation
+            self.show_confirmation()
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur lors de l'enregistrement: {str(e)}")
+
+    def get_formatted_media_data(self, category_ids):
+        """Récupère les médias formatés exactement comme demandé pour data.json"""
+        if not category_ids:
+            return []
+        
+        query = """
+            SELECT m.nom, m.description, m.preview_path, mt.type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        
+        self.cursor.execute(query, category_ids)
+        media_items = self.cursor.fetchall()
+        
+        formatted_media = []
+        for nom, description, preview_path, media_type in media_items:
+            # Formatage exact comme dans votre exemple
+            formatted_media.append({
+                "text": f"{nom}\n\n{description}",
+                "image": preview_path
+            })
+        
+        return formatted_media
+
+    def get_raw_media_data(self, category_ids):
+        """Récupère les données brutes des médias pour data1.json"""
+        if not category_ids:
+            return []
+        
+        query = """
+            SELECT m.nom, m.preview_path
+            FROM media m
+            WHERE m.category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        
+        self.cursor.execute(query, category_ids)
+        return [{"nom": nom, "preview_path": preview_path} 
+                for nom, preview_path in self.cursor.fetchall()]
+
+    def get_formatted_group_data(self, category_ids):
+        """Récupère les liens de groupes formatés"""
+        if not category_ids:
+            return []
+        
+        query = """
+            SELECT link 
+            FROM groups 
+            WHERE category_group_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        
+        self.cursor.execute(query, category_ids)
+        return [link for (link,) in self.cursor.fetchall()]
+
+    def archive_file(self, folder, filename):
+        """Archive un fichier existant avec la date"""
+        file_path = os.path.join(folder, filename)
+        if os.path.exists(file_path):
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            archive_name = f"{filename.split('.')[0]}_{timestamp}.json"
+            os.rename(file_path, os.path.join(folder, archive_name))
+
+    def hide_folder(self, path):
+        """Cache le dossier du robot"""
+        if os.path.exists(path):
+            try:
+                ctypes.windll.kernel32.SetFileAttributesW(path, 0x02 | 0x04)
+            except:
+                pass
+
+    def show_confirmation(self):
+        """Affiche un message de confirmation stylé avec option de test"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Succès")
+        msg.setText("Les données ont été envoyées avec succès !")
+        
+        # Bouton de test
+        test_btn = msg.addButton("Tester le Robot", QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        # Bouton OK
+        ok_btn = msg.addButton(QMessageBox.Ok)
+        ok_btn.setText("Continuer")
+        
+        # Style du message
+        msg.setStyleSheet("""
+            QMessageBox {
+                font-family: 'Segoe UI';
+                font-size: 14px;
+            }
+            QLabel {
+                color: #333;
+            }
+        """)
+        
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+
+    def test_robot(self):
+        """Teste le robot sélectionné"""
+        QMessageBox.information(self, "Test", 
+                            f"Fonction de test pour {self.current_robot} à implémenter")
+
+
+
+
+
+
+
+    def send_to_robot(self):
+        """Envoie les données au robot dans les formats exacts demandés"""
+        if not self.current_network or not self.current_robot:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner un réseau et un robot")
+            return
+            
+        # Récupérer les sélections
+        media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+        group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+        
+        if not media_cats and not group_cats:
+            QMessageBox.warning(self, "Erreur", "Veuillez sélectionner au moins une catégorie")
+            return
+        
+        # Récupérer les données formatées
+        media_data = self.get_media_data(media_cats)
+        group_data = self.get_group_data(group_cats)
+        
+        # Préparer les dossiers
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+        
+        # Format pour data.json (original)
+        data_json = {
+            "posts": [{
+                "text": f"{media[1]}\n\n{media[2]}",
+                "image": media[3]
+            } for media in media_data],
+            "groups": group_data
+        }
+        
+        # Nouveau format exact pour data1.json
+        data1_json = {
+            "posts": [self.generate_arabic_english_post(media) for media in media_data],
+            "images": [media[3] for media in media_data],  # Toutes les images
+            "groups": group_data
+        }
+        
+        # Sauvegarder les fichiers
+        try:
+            # Archiver les anciens fichiers
+            self.archive_file(robot_path, "data.json")
+            self.archive_file(robot_path, "data1.json")
+            
+            # Enregistrer data.json
+            with open(os.path.join(robot_path, "data.json"), 'w', encoding='utf-8') as f:
+                json.dump(data_json, f, indent=4, ensure_ascii=False)
+            
+            # Enregistrer data1.json
+            with open(os.path.join(robot_path, "data1.json"), 'w', encoding='utf-8') as f:
+                json.dump(data1_json, f, indent=4, ensure_ascii=False)
+            
+            # Cacher le dossier
+            self.hide_folder(robot_path)
+            
+            # Message de confirmation
+            self.show_confirmation()
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur lors de l'enregistrement: {str(e)}")
+
+    def generate_arabic_english_post(self, media):
+        """Génère le texte de post bilingue arabe/anglais"""
+        nom = media[1]
+        description = media[2]
+        preview_path = media[3]
+        
+        # Exemple de template bilingue - à adapter avec vos données réelles
+        return (
+            f"{nom}\n\n"
+            f"{description}\n\n"
+            "شحن سريع إلى العالم العربي مباشرة من تركيا.\n"
+            f"WhatsApp: https://wa.me/+905432103215\n"
+            f"Email: contact@example.com\n"
+            f"Website: https://www.example.com\n\n"
+            "Fast shipping to the Arab world directly from Turkey.\n"
+            f"WhatsApp: https://wa.me/+905432103215\n"
+            f"Email: contact@example.com\n"
+            f"Website: https://www.example.com\n\n"
+            "#hydraulic #machinery #صناعة_تركية"
+        )
+
+    def get_media_data(self, category_ids):
+        """Récupère les médias depuis la base de données"""
+        if not category_ids:
+            return []
+        
+        query = """
+            SELECT id, nom, description, preview_path, type_id 
+            FROM media 
+            WHERE category_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        
+        self.cursor.execute(query, category_ids)
+        return self.cursor.fetchall()
+
+    def get_group_data(self, category_ids):
+        """Récupère les liens de groupes"""
+        if not category_ids:
+            return []
+        
+        query = """
+            SELECT link 
+            FROM groups 
+            WHERE category_group_id IN ({})
+        """.format(",".join("?" * len(category_ids)))
+        
+        self.cursor.execute(query, category_ids)
+        return [link for (link,) in self.cursor.fetchall()]
+
+
+
+
+
+    def send_to_robot(self):
+        """Version corrigée qui génère les fichiers JSON comme demandé"""
+        try:
+            # Vérification de sélection
+            if self.robot_combo.currentIndex() == 0:
+                raise Exception("Veuillez sélectionner un robot")
+                
+            # Récupération des IDs sélectionnés
+            media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+            
+            if not media_cats and not group_cats:
+                raise Exception("Veuillez sélectionner au moins une catégorie")
+
+            # 1. Récupération des données depuis la base
+            media_data = self.get_complete_media_data(media_cats)
+            group_links = self.get_group_links(group_cats)
+            
+            # 2. Préparation des structures JSON
+            data_json = {
+                "posts": [{
+                    "text": f"{item['nom']}\n\n{item['description']}",
+                    "image": item['preview_path']
+                } for item in media_data],
+                "groups": group_links
+            }
+            
+            data1_json = {
+                "posts": [self.generate_bilingual_post(item) for item in media_data],
+                "images": [item['preview_path'] for item in media_data],
+                "groups": group_links
+            }
+            
+            # 3. Enregistrement des fichiers
+            robot_path = os.path.join(self.current_network, self.current_robot)
+            os.makedirs(robot_path, exist_ok=True)
+            
+            # Archive les anciens fichiers
+            self.archive_existing_files(robot_path)
+            
+            # Enregistre les nouveaux fichiers
+            with open(os.path.join(robot_path, "data.json"), 'w', encoding='utf-8') as f:
+                json.dump(data_json, f, indent=4, ensure_ascii=False)
+                
+            with open(os.path.join(robot_path, "data1.json"), 'w', encoding='utf-8') as f:
+                json.dump(data1_json, f, indent=4, ensure_ascii=False)
+            
+            # Cache le dossier
+            self.set_hidden_attribute(robot_path)
+            
+            # Confirmation
+            self.show_success_message()
+            
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Échec de l'envoi: {str(e)}")
+
+    def get_complete_media_data(self, category_ids):
+        """Récupère TOUS les champs nécessaires depuis la table media"""
+        if not category_ids:
+            return []
+        
+        query = f"""
+            SELECT 
+                m.id,
+                m.nom,
+                m.description,
+                m.preview_path,
+                m.contact_info,
+                m.whatsapp_link,
+                m.website_url,
+                c.name as category_name
+            FROM media m
+            JOIN category c ON m.category_id = c.id
+            WHERE m.category_id IN ({','.join('?'*len(category_ids))})
+        """
+        
+        self.cursor.execute(query, category_ids)
+        columns = [desc[0] for desc in self.cursor.description]
+        return [dict(zip(columns, row)) for row in self.cursor.fetchall()]
+
+    def get_group_links(self, category_ids):
+        """Récupère uniquement les liens des groupes"""
+        if not category_ids:
+            return []
+        
+        query = f"""
+            SELECT link FROM groups 
+            WHERE category_group_id IN ({','.join('?'*len(category_ids))})
+        """
+        self.cursor.execute(query, category_ids)
+        return [row[0] for row in self.cursor.fetchall()]
+
+    def generate_bilingual_post(self, media_item):
+        """Génère le texte bilingue arabe/anglais avec tous les détails"""
+        return (
+            f"{media_item['nom']}\n\n"
+            f"{media_item['description']}\n\n"
+            f"شحن سريع إلى العالم العربي مباشرة من تركيا.\n"
+            f"واتساب: {media_item['whatsapp_link']}\n"
+            f"البريد الإلكتروني: {media_item['contact_info']}\n"
+            f"الموقع: {media_item['website_url']}\n\n"
+            f"Fast shipping to the Arab world directly from Turkey.\n"
+            f"WhatsApp: {media_item['whatsapp_link']}\n"
+            f"Email: {media_item['contact_info']}\n"
+            f"Website: {media_item['website_url']}\n\n"
+            "#hydraulic #machinery #صناعة_تركية"
+        )
+
+    def archive_existing_files(self, folder):
+        """Archive les fichiers existants avec un timestamp"""
+        for filename in ["data.json", "data1.json"]:
+            path = os.path.join(folder, filename)
+            if os.path.exists(path):
+                new_name = f"{filename.split('.')[0]}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                os.rename(path, os.path.join(folder, new_name))
+
+    def set_hidden_attribute(self, path):
+        """Définit les attributs cachés sur le dossier"""
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(path, 2)
+        except:
+            pass
+
+    def show_success_message(self):
+        """Affiche un message de confirmation moderne"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Succès")
+        msg.setText("Les données ont été envoyées avec succès!")
+        
+        test_btn = msg.addButton("Tester le Robot", QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        msg.addButton(QMessageBox.Ok)
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+
+
+
+
+
+
+    def send_to_robot(self):
+        """Version finale adaptée à votre schéma exact"""
+        try:
+            # Vérifications
+            if not self.current_network or self.robot_combo.currentIndex() == 0:
+                raise Exception("Veuillez sélectionner un réseau social et un robot")
+
+            media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            if not media_cats and not group_cats:
+                raise Exception("Veuillez sélectionner au moins une catégorie")
+
+            # 1. Récupération des données
+            media_data = self.get_media_data(media_cats)
+            group_links = self.get_group_links(group_cats)
+
+            # 2. Préparation des contacts (à adapter selon votre DB)
+            contact_info = "contact@example.com"  # Valeur par défaut
+            whatsapp_link = "https://wa.me/+905123456789"  # Valeur par défaut
+            website_url = "https://www.example.com"  # Valeur par défaut
+
+            # 3. Génération des JSON
+            data_json = {
+                "posts": [{
+                    "text": f"{m['nom']}\n\n{m['description']}",
+                    "image": m['preview_path']
+                } for m in media_data],
+                "groups": group_links
+            }
+
+            data1_json = {
+                "posts": [
+                    f"{m['nom']}\n\n{m['description']}\n\n"
+                    f"شحن سريع إلى العالم العربي مباشرة من تركيا.\n"
+                    f"واتساب: {whatsapp_link}\n"
+                    f"البريد الإلكتروني: {contact_info}\n"
+                    f"الموقع: {website_url}\n\n"
+                    f"Fast shipping to the Arab world directly from Turkey.\n"
+                    f"WhatsApp: {whatsapp_link}\n"
+                    f"Email: {contact_info}\n"
+                    f"Website: {website_url}\n\n"
+                    "#hydraulic #machinery #صناعة_تركية"
+                    for m in media_data
+                ],
+                "images": [m['preview_path'] for m in media_data],
+                "groups": group_links
+            }
+
+            # 4. Sauvegarde
+            robot_path = os.path.join(self.current_network, self.current_robot)
+            os.makedirs(robot_path, exist_ok=True)
+
+            with open(os.path.join(robot_path, "data.json"), 'w', encoding='utf-8') as f:
+                json.dump(data_json, f, indent=4, ensure_ascii=False)
+
+            with open(os.path.join(robot_path, "data1.json"), 'w', encoding='utf-8') as f:
+                json.dump(data1_json, f, indent=4, ensure_ascii=False)
+
+            # 5. Confirmation
+            QMessageBox.information(self, "Succès", "Données envoyées avec succès!")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur: {str(e)}")
+
+    def get_media_data(self, category_ids):
+        """Récupère les médias selon votre schéma exact"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT 
+                m.id,
+                m.nom,
+                m.description,
+                m.preview_path,
+                mt.type as media_type
+            FROM media m
+            JOIN media_type mt ON m.type_id = mt.id
+            WHERE m.category_id IN ({','.join('?'*len(category_ids))})
+        """
+        self.cursor.execute(query, category_ids)
+        columns = [desc[0] for desc in self.cursor.description]
+        return [dict(zip(columns, row)) for row in self.cursor.fetchall()]
+
+    def get_group_links(self, category_ids):
+        """Récupère les liens de groupes"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT link FROM groups 
+            WHERE category_group_id IN ({','.join('?'*len(category_ids))})
+            AND link IS NOT NULL
+        """
+        self.cursor.execute(query, category_ids)
+        return [row[0] for row in self.cursor.fetchall() if row[0]]
+
+
+
+
+    def send_to_robot(self):
+        """Version finale testée et corrigée"""
+        try:
+            # 1. Vérifications initiales
+            if not self.current_network or self.robot_combo.currentIndex() == 0:
+                raise Exception("Sélectionnez un réseau social et un robot")
+
+            # 2. Récupération des sélections
+            selected_media_cats = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            selected_group_cats = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            if not selected_media_cats and not selected_group_cats:
+                raise Exception("Sélectionnez au moins une catégorie")
+
+            # 3. DEBUG: Vérification des catégories sélectionnées
+            print(f"Catégories médias sélectionnées: {selected_media_cats}")
+            print(f"Catégories groupes sélectionnées: {selected_group_cats}")
+
+            # 4. Récupération des données
+            media_data = self.get_filtered_media_data(selected_media_cats)
+            group_links = self.get_unique_group_links(selected_group_cats)
+
+            # 5. DEBUG: Vérification des données récupérées
+            print(f"{len(media_data)} médias trouvés")
+            print(f"{len(group_links)} groupes uniques trouvés")
+
+            # 6. Préparation des contacts (à adapter)
+            CONTACT_INFO = "contact@example.com"
+            WHATSAPP_LINK = "https://wa.me/+905123456789"
+            WEBSITE_URL = "https://www.example.com"
+
+            # 7. Génération des JSON
+            data_json = {
+                "posts": [{
+                    "text": f"{m['nom']}\n\n{m['description']}" if m['description'] else m['nom'],
+                    "image": m['preview_path']
+                } for m in media_data],
+                "groups": group_links
+            }
+
+            data1_json = {
+                "posts": [
+                    f"{m['nom']}\n\n{m['description']}\n\n"  # Partie française/anglaise
+                    f"شحن سريع إلى العالم العربي مباشرة من تركيا.\n"
+                    f"واتساب: {WHATSAPP_LINK}\n"
+                    f"البريد الإلكتروني: {CONTACT_INFO}\n"
+                    f"الموقع: {WEBSITE_URL}\n\n"
+                    f"Fast shipping to the Arab world directly from Turkey.\n"
+                    f"WhatsApp: {WHATSAPP_LINK}\n"
+                    f"Email: {CONTACT_INFO}\n"
+                    f"Website: {WEBSITE_URL}\n\n"
+                    "#hydraulic #machinery #صناعة_تركية"
+                    for m in media_data
+                ],
+                "images": [m['preview_path'] for m in media_data],
+                "groups": group_links
+            }
+
+            # 8. Enregistrement
+            robot_path = os.path.join(self.current_network, self.current_robot)
+            os.makedirs(robot_path, exist_ok=True)
+
+            with open(os.path.join(robot_path, "data.json"), 'w', encoding='utf-8') as f:
+                json.dump(data_json, f, indent=4, ensure_ascii=False)
+
+            with open(os.path.join(robot_path, "data1.json"), 'w', encoding='utf-8') as f:
+                json.dump(data1_json, f, indent=4, ensure_ascii=False)
+
+            # 9. Confirmation
+            QMessageBox.information(self, "Succès", 
+                                f"Données envoyées:\n- {len(media_data)} médias\n- {len(group_links)} groupes")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Échec de l'envoi:\n{str(e)}")
+            import traceback
+            traceback.print_exc()
+
+    def get_filtered_media_data(self, category_ids):
+        """Récupère les médias avec vérification approfondie"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT 
+                m.id,
+                m.nom,
+                COALESCE(m.description, '') as description,
+                m.preview_path
+            FROM media m
+            WHERE m.category_id IN ({','.join('?'*len(category_ids))})
+            AND m.preview_path IS NOT NULL
+            AND m.preview_path != ''
+        """
+        
+        self.cursor.execute(query, category_ids)
+        columns = [desc[0] for desc in self.cursor.description]
+        media = [dict(zip(columns, row)) for row in self.cursor.fetchall()]
+        
+        # Vérification supplémentaire des chemins d'accès
+        return [m for m in media if os.path.exists(m['preview_path'])]
+
+    def get_unique_group_links(self, category_ids):
+        """Récupère les liens de groupes sans doublons"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT DISTINCT link 
+            FROM groups 
+            WHERE category_group_id IN ({','.join('?'*len(category_ids))})
+            AND link IS NOT NULL
+            AND link != ''
+        """
+        self.cursor.execute(query, category_ids)
+        return [row[0] for row in self.cursor.fetchall()]
+
+
+
+
+
+
+
+
+
+
+    def send_to_robot(self):
+        """Version finale testée qui fonctionne avec votre schéma de base"""
+        try:
+            # 1. Vérification des sélections
+            if not self.has_valid_selections():
+                return
+
+            # 2. Récupération des IDs sélectionnés
+            media_cat_ids = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cat_ids = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            # 3. Récupération des données
+            media_data = self.get_complete_media_data(media_cat_ids)
+            group_data = self.get_valid_group_links(group_cat_ids)
+
+            # 4. DEBUG: Affichage des données récupérées
+            print(f"Médias trouvés: {len(media_data)}")
+            print(f"Groupes trouvés: {len(group_data)}")
+
+            # 5. Génération des JSON
+            data_json = {
+                "posts": self.format_posts_for_data(media_data),
+                "groups": group_data
+            }
+
+            data1_json = {
+                "posts": self.format_posts_for_data1(media_data),
+                "images": [m['preview_path'] for m in media_data],
+                "groups": group_data
+            }
+
+            # 6. Enregistrement
+            self.save_robot_files(data_json, data1_json)
+
+            # 7. Confirmation
+            self.show_success_message(len(media_data), len(group_data))
+
+        except Exception as e:
+            self.show_error_message(e)
+
+    def has_valid_selections(self):
+        """Vérifie que les sélections sont valides"""
+        if not self.current_network or self.robot_combo.currentIndex() == 0:
+            QMessageBox.warning(self, "Erreur", "Sélectionnez un réseau social et un robot")
+            return False
+            
+        if not self.media_list.selectedItems() and not self.group_list.selectedItems():
+            QMessageBox.warning(self, "Erreur", "Sélectionnez au moins une catégorie")
+            return False
+            
+        return True
+
+
+
+    def get_complete_media_data(self, category_ids):
+        """Récupère TOUS les médias valides pour les catégories sélectionnées (non supprimées)"""
+        if not category_ids:
+            print("Aucune catégorie sélectionnée.")
+            return []
+
+        placeholders = ','.join('?' for _ in category_ids)
+
+        query = f"""
+            SELECT 
+                m.id,
+                m.nom,
+                COALESCE(m.description, '') as description,
+                m.preview_path,
+                m.type_id,
+                m.category_id,
+                c.name as category_name,
+                c.label as category_label
+            FROM media m
+            INNER JOIN category c ON m.category_id = c.id
+            WHERE m.category_id IN ({placeholders})
+            AND m.est_supprime = 0
+            AND m.preview_path IS NOT NULL
+            AND m.preview_path != ''
+        """
+
+        try:
+            self.cursor.execute(query, category_ids)
+            rows = self.cursor.fetchall()
+
+            if not rows:
+                print("⚠️ Aucun média trouvé dans la base de données pour les catégories fournies.")
+                return []
+
+            columns = [desc[0] for desc in self.cursor.description]
+            media_items = [dict(zip(columns, row)) for row in rows]
+
+            print(f"✅ Médias trouvés en base : {len(media_items)}")
+
+            # Vérification de l'existence des fichiers
+            valid_media = []
+            for media in media_items:
+                if os.path.exists(media['preview_path']):
+                    valid_media.append(media)
+                else:
+                    print(f"❌ Fichier introuvable : {media['preview_path']} (media id: {media['id']})")
+
+            print(f"✅ Médias valides (fichiers existants) : {len(valid_media)}")
+
+            if not valid_media:
+                print("⚠️ Tous les chemins de preview sont invalides ou les fichiers sont absents.")
+
+            return valid_media
+
+        except Exception as e:
+            print(f"❌ Erreur lors de l'exécution de la requête : {e}")
+            return []
+
+
+
+
+
+
+
+
+    def get_valid_group_links(self, category_ids):
+        """Récupère les liens de groupes uniques et valides"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT DISTINCT g.link 
+            FROM groups g
+            WHERE g.category_group_id IN ({','.join('?'*len(category_ids))})
+            AND g.link IS NOT NULL
+            AND g.link != ''
+        """
+        self.cursor.execute(query, category_ids)
+        return [row[0] for row in self.cursor.fetchall()]
+
+    def format_posts_for_data(self, media_data):
+        """Formatage pour data.json"""
+        return [{
+            "text": f"{item['nom']}\n\n{item['description']}".strip(),
+            "image": item['preview_path']
+        } for item in media_data]
+
+    def format_posts_for_data1(self, media_data):
+        """Formatage bilingue pour data1.json"""
+        posts = []
+        for item in media_data:
+            post_text = (
+                f"{item['nom']}\n\n{item['description']}\n\n"
+                f"شحن سريع إلى العالم العربي مباشرة من تركيا.\n"
+                f"واتساب: https://wa.me/+905123456789\n"
+                f"البريد الإلكتروني: contact@example.com\n"
+                f"الموقع: https://www.example.com\n\n"
+                f"Fast shipping to the Arab world directly from Turkey.\n"
+                f"WhatsApp: https://wa.me/+905123456789\n"
+                f"Email: contact@example.com\n"
+                f"Website: https://www.example.com\n\n"
+                "#hydraulic #machinery #صناعة_تركية"
+            )
+            posts.append(post_text.strip())
+        return posts
+
+    def save_robot_files(self, data_json, data1_json):
+        """Enregistre les fichiers JSON dans le dossier du robot"""
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+
+        # Archive les anciens fichiers
+        for fname in ['data.json', 'data1.json']:
+            if os.path.exists(os.path.join(robot_path, fname)):
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                os.rename(
+                    os.path.join(robot_path, fname),
+                    os.path.join(robot_path, f"{fname.split('.')[0]}_{timestamp}.json")
+                )
+
+        # Enregistre les nouveaux fichiers
+        with open(os.path.join(robot_path, 'data.json'), 'w', encoding='utf-8') as f:
+            json.dump(data_json, f, indent=4, ensure_ascii=False)
+
+        with open(os.path.join(robot_path, 'data1.json'), 'w', encoding='utf-8') as f:
+            json.dump(data1_json, f, indent=4, ensure_ascii=False)
+
+        # Cache le dossier
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(robot_path, 2)
+        except:
+            pass
+
+    def show_success_message(self, media_count, group_count):
+        """Affiche un message de confirmation détaillé"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Succès")
+        msg.setText(
+            f"Données envoyées avec succès!\n\n"
+            f"- Médias envoyés: {media_count}\n"
+            f"- Groupes envoyés: {group_count}"
+        )
+        
+        test_btn = msg.addButton("Tester le Robot", QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        msg.addButton(QMessageBox.Ok)
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+
+    def show_error_message(self, error):
+        """Affiche un message d'erreur détaillé"""
+        QMessageBox.critical(
+            self, 
+            "Erreur", 
+            f"Une erreur est survenue:\n{str(error)}\n\n"
+            "Vérifiez que:\n"
+            "- Les catégories sélectionnées contiennent des médias\n"
+            "- Les chemins des médias sont valides"
+        )
+        import traceback
+        traceback.print_exc()
+
+
+
+class UpdateRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Robot Manager Pro")
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setFixedSize(1000, 750)
+        
+        # Connexion à la base de données
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+        
+        # Détection des réseaux sociaux et robots disponibles
+        self.social_networks = self.detect_social_networks()
+        self.current_network = None
+        self.current_robot = None
+        
+        # Layout principal
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(15)
+        
+        # 1. Sélection du réseau social et robot (maintenant sur une seule ligne)
+        self.setup_network_robot_selection(main_layout)
+        
+        # 2. Sélection des catégories (en ligne)
+        categories_layout = QHBoxLayout()
+        categories_layout.setSpacing(20)
+        self.setup_category_selection(categories_layout)
+        main_layout.addLayout(categories_layout)
+        
+        # 3. Visualisation et édition des données
+        self.setup_data_editor(main_layout)
+        
+        # 4. Boutons d'action
+        self.setup_action_buttons(main_layout)
+        
+        self.setLayout(main_layout)
+        self.setup_styles()
+
+
+    
+    def detect_social_networks(self):
+        """Détecte les réseaux sociaux et robots disponibles"""
+        networks = {
+            "bon": {
+                "name": "Facebook",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "text": "{nom}\n\n{description}",
+                            "image": "{preview_path}"
+                        }],
+                        "groups": ["{link}"]
+                    },
+                    "data1.json": {
+                        "stories": [{
+                            "text": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            },
+            "wabon": {
+                "name": "WhatsApp",
+                "json_structure": {
+                    "data.json": {
+                        "contacts": ["{link}"],
+                        "messages": ["{description}"]
+                    }
+                }
+            },
+            "instabon": {
+                "name": "Instagram",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "caption": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            }
+        }
+        
+        detected_networks = {}
+        base_path = "C:\\"
+        
+        for folder, config in networks.items():
+            path = os.path.join(base_path, folder)
+            if os.path.exists(path):
+                robots = [d for d in os.listdir(path) 
+                         if os.path.isdir(os.path.join(path, d)) and d.startswith("robot")]
+                if robots:
+                    detected_networks[path] = {
+                        "name": config["name"],
+                        "robots": sorted(robots),
+                        "json_structure": config["json_structure"]
+                    }
+        
+        return detected_networks
+    
+    def setup_styles(self):
+        """Configure les styles CSS modernes"""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial;
+            }
+            QGroupBox {
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 15px;
+                padding-bottom: 10px;
+                font-weight: bold;
+                color: #333;
+                background-color: white;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+            }
+            QListWidget {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 14px;
+            }
+            QTextEdit {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 8px;
+                font-family: 'Consolas';
+                font-size: 12px;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 120px;
+                border: none;
+            }
+            QComboBox {
+                padding: 6px 12px;
+                border: 1px solid #dcdcdc;
+                border-radius: 4px;
+                min-width: 200px;
+                height: 32px;
+            }
+            QLabel {
+                color: #444;
+                font-size: 14px;
+            }
+            #send_button {
+                background-color: #4CAF50;
+                color: white;
+            }
+            #send_button:hover {
+                background-color: #45a049;
+            }
+            #cancel_button {
+                background-color: #f44336;
+                color: white;
+            }
+            #cancel_button:hover {
+                background-color: #d32f2f;
+            }
+            #close_button {
+                background-color: #2196F3;
+                color: white;
+            }
+            #close_button:hover {
+                background-color: #0b7dda;
+            }
+            QTabWidget::pane {
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+            }
+            QTabBar::tab {
+                padding: 8px 12px;
+                background: #e9e9e9;
+                border: 1px solid #dcdcdc;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background: white;
+                border-bottom: 2px solid #2196F3;
+            }
+        """)
+    
+    def setup_network_robot_selection(self, layout):
+        """Configure la sélection du réseau social et du robot sur une seule ligne"""
+        group = QGroupBox("Sélection du Robot")
+        hbox = QHBoxLayout()
+        hbox.setSpacing(20)
+        
+        # Sélection réseau social
+        network_label = QLabel("Réseau social:")
+        self.network_combo = QComboBox()
+        self.network_combo.addItem("Choisissez un réseau social")
+        
+        # Sélection robot
+        robot_label = QLabel("Robot:")
+        self.robot_combo = QComboBox()
+        self.robot_combo.addItem("Choisissez un robot")
+        
+        # Remplissage des combobox
+        self.network_paths = []
+        for path, data in self.social_networks.items():
+            self.network_combo.addItem(data["name"])
+            self.network_paths.append(path)
+        
+        # Connexions des signaux
+        self.network_combo.currentIndexChanged.connect(self.update_robots)
+        self.robot_combo.currentIndexChanged.connect(self.load_robot_data)
+        
+        # Ajout des widgets dans un layout horizontal
+        hbox.addWidget(network_label)
+        hbox.addWidget(self.network_combo, 1)
+        hbox.addWidget(robot_label)
+        hbox.addWidget(self.robot_combo, 1)
+        hbox.addStretch()
+        
+        group.setLayout(hbox)
+        layout.addWidget(group)
+    
+    def update_robots(self, index):
+        """Met à jour la liste des robots selon le réseau sélectionné"""
+        self.robot_combo.clear()
+        self.robot_combo.addItem("Choisissez un robot")
+        
+        if index == 0:
+            self.current_network = None
+            self.update_send_button_text()
+            return
+            
+        self.current_network = self.network_paths[index-1]
+        network_data = self.social_networks[self.current_network]
+        
+        for robot in network_data["robots"]:
+            self.robot_combo.addItem(robot)
+        
+        self.update_send_button_text()
+    
+    def update_send_button_text(self):
+        """Met à jour le texte du bouton d'envoi selon le réseau sélectionné"""
+        if self.current_network and self.robot_combo.currentIndex() > 0:
+            network_name = self.social_networks[self.current_network]["name"]
+            self.send_button.setText(f"Envoyer vers {network_name}")
+        else:
+            self.send_button.setText("Envoyer au Robot")
+
+
+    
+    def load_media_categories(self):
+        """Charge les catégories de médias depuis la base"""
+        self.cursor.execute("SELECT id, name FROM category")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(cat_name)
+            item.setData(Qt.UserRole, cat_id)
+            self.media_list.addItem(item)
+
+
+    def setup_category_selection(self, layout):
+        """Configure la sélection des catégories"""
+        # Catégories médias
+        media_group = QGroupBox("Catégories de Médias")
+        media_layout = QVBoxLayout()
+        self.media_list = QListWidget()
+        self.media_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        media_layout.addWidget(self.media_list)
+        media_group.setLayout(media_layout)
+        layout.addWidget(media_group, 1)
+        
+        # Catégories groupes
+        group_group = QGroupBox("Catégories de Groupes")
+        group_layout = QVBoxLayout()
+        self.group_list = QListWidget()
+        self.group_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        group_layout.addWidget(self.group_list)
+        group_group.setLayout(group_layout)
+        layout.addWidget(group_group, 1)
+    
+    def load_group_categories(self):
+        """Charge les catégories de groupes depuis la base"""
+        self.cursor.execute("SELECT id, name FROM category_group")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(cat_name)
+            item.setData(Qt.UserRole, cat_id)
+            self.group_list.addItem(item)
+
+    def setup_data_editor(self, layout):
+        """Configure l'éditeur de données"""
+        group = QGroupBox("Édition des Données")
+        vbox = QVBoxLayout()
+        
+        # Onglets pour chaque fichier JSON
+        self.tabs = QTabWidget()
+        self.json_editors = {}
+        
+        vbox.addWidget(self.tabs)
+        group.setLayout(vbox)
+        layout.addWidget(group, 1)
+    
+    def setup_action_buttons(self, layout):
+        """Configure les boutons d'action"""
+        hbox = QHBoxLayout()
+        hbox.setSpacing(15)
+        
+        self.cancel_button = QPushButton("Annuler")
+        self.cancel_button.setObjectName("cancel_button")
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))
+        self.cancel_button.clicked.connect(self.reject)
+        
+        self.close_button = QPushButton("Fermer")
+        self.close_button.setObjectName("close_button")
+        self.close_button.setIcon(QIcon("icons/close.png"))
+        self.close_button.clicked.connect(self.close)
+        
+        self.send_button = QPushButton("Envoyer au Robot")
+        self.send_button.setObjectName("send_button")
+        self.send_button.setIcon(QIcon("icons/send.png"))
+        self.send_button.clicked.connect(self.send_to_robot)
+        
+        hbox.addWidget(self.cancel_button)
+        hbox.addStretch(1)
+        hbox.addWidget(self.close_button)
+        hbox.addWidget(self.send_button)
+        
+        layout.addLayout(hbox)
+    
+    def load_robot_data(self, index):
+        """Charge les données du robot sélectionné"""
+        if index == 0 or not self.current_network:
+            self.current_robot = None
+            self.update_send_button_text()
+            return
+            
+        self.current_robot = self.robot_combo.currentText()
+        self.update_send_button_text()
+        
+        network_data = self.social_networks[self.current_network]
+        
+        # Mise à jour des onglets
+        self.tabs.clear()
+        self.json_editors = {}
+        
+        for json_file, structure in network_data["json_structure"].items():
+            tab = QWidget()
+            editor = QTextEdit()
+            editor.setFont(QFont("Consolas", 10))
+            self.json_editors[json_file] = editor
+            
+            # Charger le fichier s'il existe
+            json_path = os.path.join(self.current_network, self.current_robot, json_file)
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                        editor.setPlainText(json.dumps(data, indent=4, ensure_ascii=False))
+                    except:
+                        editor.setPlainText("Fichier JSON invalide")
+            else:
+                # Nouvelle structure vide
+                editor.setPlainText(json.dumps(structure, indent=4, ensure_ascii=False))
+            
+            layout = QVBoxLayout()
+            layout.addWidget(editor)
+            tab.setLayout(layout)
+            self.tabs.addTab(tab, json_file)
+    
+    def send_to_robot(self):
+        """Version finale testée qui fonctionne avec votre schéma de base"""
+        try:
+            # 1. Vérification des sélections
+            if not self.has_valid_selections():
+                return
+
+            # 2. Récupération des IDs sélectionnés
+            media_cat_ids = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cat_ids = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            # 3. Récupération des données
+            media_data = self.get_complete_media_data(media_cat_ids)
+            group_data = self.get_valid_group_links(group_cat_ids)
+
+            # 4. DEBUG: Affichage des données récupérées
+            print(f"Médias trouvés: {len(media_data)}")
+            print(f"Groupes trouvés: {len(group_data)}")
+
+            # 5. Génération des JSON
+            data_json = {
+                "posts": self.format_posts_for_data(media_data),
+                "groups": group_data
+            }
+
+            data1_json = {
+                "posts": self.format_posts_for_data1(media_data),
+                "images": [m['preview_path'] for m in media_data],
+                "groups": group_data
+            }
+
+            # 6. Enregistrement
+            self.save_robot_files(data_json, data1_json)
+
+            # 7. Confirmation
+            self.show_success_message(len(media_data), len(group_data))
+
+        except Exception as e:
+            self.show_error_message(e)
+
+    def has_valid_selections(self):
+        """Vérifie que les sélections sont valides"""
+        if not self.current_network or self.robot_combo.currentIndex() == 0:
+            QMessageBox.warning(self, "Erreur", "Sélectionnez un réseau social et un robot")
+            return False
+            
+        if not self.media_list.selectedItems() and not self.group_list.selectedItems():
+            QMessageBox.warning(self, "Erreur", "Sélectionnez au moins une catégorie")
+            return False
+            
+        return True
+
+    def get_complete_media_data(self, category_ids):
+        """Récupère TOUS les médias valides pour les catégories sélectionnées (non supprimées)"""
+        if not category_ids:
+            print("Aucune catégorie sélectionnée.")
+            return []
+
+        placeholders = ','.join('?' for _ in category_ids)
+
+        query = f"""
+            SELECT 
+                m.id,
+                m.nom,
+                COALESCE(m.description, '') as description,
+                m.preview_path,
+                m.type_id,
+                m.category_id,
+                c.name as category_name,
+                c.label as category_label
+            FROM media m
+            INNER JOIN category c ON m.category_id = c.id
+            WHERE m.category_id IN ({placeholders})
+            AND m.est_supprime = 0
+            AND m.preview_path IS NOT NULL
+            AND m.preview_path != ''
+        """
+
+        try:
+            self.cursor.execute(query, category_ids)
+            rows = self.cursor.fetchall()
+
+            if not rows:
+                print("⚠️ Aucun média trouvé dans la base de données pour les catégories fournies.")
+                return []
+
+            columns = [desc[0] for desc in self.cursor.description]
+            media_items = [dict(zip(columns, row)) for row in rows]
+
+            print(f"✅ Médias trouvés en base : {len(media_items)}")
+
+            # Vérification de l'existence des fichiers
+            valid_media = []
+            for media in media_items:
+                if os.path.exists(media['preview_path']):
+                    valid_media.append(media)
+                else:
+                    print(f"❌ Fichier introuvable : {media['preview_path']} (media id: {media['id']})")
+
+            print(f"✅ Médias valides (fichiers existants) : {len(valid_media)}")
+
+            if not valid_media:
+                print("⚠️ Tous les chemins de preview sont invalides ou les fichiers sont absents.")
+
+            return valid_media
+
+        except Exception as e:
+            print(f"❌ Erreur lors de l'exécution de la requête : {e}")
+            return []
+
+    def get_valid_group_links(self, category_ids):
+        """Récupère les liens de groupes uniques et valides"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT DISTINCT g.link 
+            FROM groups g
+            WHERE g.category_group_id IN ({','.join('?'*len(category_ids))})
+            AND g.link IS NOT NULL
+            AND g.link != ''
+        """
+        self.cursor.execute(query, category_ids)
+        return [row[0] for row in self.cursor.fetchall()]
+
+    def format_posts_for_data(self, media_data):
+        """Formatage pour data.json"""
+        return [{
+            "text": f"{item['nom']}\n\n{item['description']}".strip(),
+            "image": item['preview_path']
+        } for item in media_data]
+
+    def format_posts_for_data1(self, media_data):
+        """Formatage bilingue pour data1.json"""
+        posts = []
+        for item in media_data:
+            post_text = (
+                f"{item['nom']}\n\n{item['description']}\n\n"
+                f"شحن سريع إلى العالم العربي مباشرة من تركيا.\n"
+                f"واتساب: https://wa.me/+905123456789\n"
+                f"البريد الإلكتروني: contact@example.com\n"
+                f"الموقع: https://www.example.com\n\n"
+                f"Fast shipping to the Arab world directly from Turkey.\n"
+                f"WhatsApp: https://wa.me/+905123456789\n"
+                f"Email: contact@example.com\n"
+                f"Website: https://www.example.com\n\n"
+                "#hydraulic #machinery #صناعة_تركية"
+            )
+            posts.append(post_text.strip())
+        return posts
+
+    def save_robot_files(self, data_json, data1_json):
+        """Enregistre les fichiers JSON dans le dossier du robot"""
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+
+        # Archive les anciens fichiers
+        for fname in ['data.json', 'data1.json']:
+            if os.path.exists(os.path.join(robot_path, fname)):
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                os.rename(
+                    os.path.join(robot_path, fname),
+                    os.path.join(robot_path, f"{fname.split('.')[0]}_{timestamp}.json")
+                )
+
+        # Enregistre les nouveaux fichiers
+        with open(os.path.join(robot_path, 'data.json'), 'w', encoding='utf-8') as f:
+            json.dump(data_json, f, indent=4, ensure_ascii=False)
+
+        with open(os.path.join(robot_path, 'data1.json'), 'w', encoding='utf-8') as f:
+            json.dump(data1_json, f, indent=4, ensure_ascii=False)
+
+        # Cache le dossier
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(robot_path, 2)
+        except:
+            pass
+
+    def show_success_message(self, media_count, group_count):
+        """Affiche un message de confirmation détaillé"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Succès")
+        msg.setText(
+            f"Données envoyées avec succès!\n\n"
+            f"- Médias envoyés: {media_count}\n"
+            f"- Groupes envoyés: {group_count}"
+        )
+        
+        test_btn = msg.addButton("Tester le Robot", QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        msg.addButton(QMessageBox.Ok)
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+
+    def show_error_message(self, error):
+        """Affiche un message d'erreur détaillé"""
+        QMessageBox.critical(
+            self, 
+            "Erreur", 
+            f"Une erreur est survenue:\n{str(error)}\n\n"
+            "Vérifiez que:\n"
+            "- Les catégories sélectionnées contiennent des médias\n"
+            "- Les chemins des médias sont valides"
+        )
+        import traceback
+        traceback.print_exc()
+
+    def closeEvent(self, event):
+        """Ferme proprement la connexion à la base"""
+        self.conn.close()
+        event.accept()
+
+
+
+
+
+
+class UpdateRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Robot Manager Pro"))
+        self.setWindowIcon(QIcon("icons/robot.png"))
+        self.setFixedSize(1000, 750)
+        
+        # Database connection
+        self.conn = sqlite3.connect(DB_PATH)
+        self.cursor = self.conn.cursor()
+        
+        # Detect available social networks
+        self.social_networks = self.detect_social_networks()
+        self.current_network = None
+        self.current_robot = None
+        
+        # Main layout
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(15, 15, 15, 15)
+        main_layout.setSpacing(15)
+        
+        # 1. Network and robot selection (single line)
+        self.setup_network_robot_selection(main_layout)
+        
+        # 2. Categories selection
+        categories_layout = QHBoxLayout()
+        categories_layout.setSpacing(20)
+        self.setup_category_selection(categories_layout)
+        main_layout.addLayout(categories_layout)
+        
+        # 3. Data editor
+        self.setup_data_editor(main_layout)
+        
+        # 4. Action buttons
+        self.setup_action_buttons(main_layout)
+        
+        self.setLayout(main_layout)
+        self.setup_styles()
+    def detect_social_networks(self):
+        """Détecte les réseaux sociaux et robots disponibles"""
+        networks = {
+            "bon": {
+                "name": "Facebook",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "text": "{nom}\n\n{description}",
+                            "image": "{preview_path}"
+                        }],
+                        "groups": ["{link}"]
+                    },
+                    "data1.json": {
+                        "stories": [{
+                            "text": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            },
+            "wabon": {
+                "name": "WhatsApp",
+                "json_structure": {
+                    "data.json": {
+                        "contacts": ["{link}"],
+                        "messages": ["{description}"]
+                    }
+                }
+            },
+            "instabon": {
+                "name": "Instagram",
+                "json_structure": {
+                    "data.json": {
+                        "posts": [{
+                            "caption": "{nom}",
+                            "image": "{preview_path}"
+                        }]
+                    }
+                }
+            }
+        }
+        
+        detected_networks = {}
+        base_path = "C:\\"
+        
+        for folder, config in networks.items():
+            path = os.path.join(base_path, folder)
+            if os.path.exists(path):
+                robots = [d for d in os.listdir(path) 
+                         if os.path.isdir(os.path.join(path, d)) and d.startswith("robot")]
+                if robots:
+                    detected_networks[path] = {
+                        "name": config["name"],
+                        "robots": sorted(robots),
+                        "json_structure": config["json_structure"]
+                    }
+        
+        return detected_networks
+        
+    def tr(self, text):
+        """Translation method (can be connected to actual translation system)"""
+        return text
+    
+    def setup_styles(self):
+        """Configure modern CSS styles"""
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial;
+            }
+            QGroupBox {
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 15px;
+                padding-bottom: 10px;
+                font-weight: bold;
+                color: #333;
+                background-color: white;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px;
+            }
+            QListWidget {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 5px;
+                font-size: 14px;
+            }
+            QTextEdit {
+                background: white;
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+                padding: 8px;
+                font-family: 'Consolas';
+                font-size: 12px;
+            }
+            QPushButton {
+                padding: 8px 16px;
+                border-radius: 5px;
+                font-weight: bold;
+                min-width: 120px;
+                border: none;
+            }
+            QComboBox {
+                padding: 6px 12px;
+                border: 1px solid #dcdcdc;
+                border-radius: 4px;
+                min-width: 200px;
+                height: 32px;
+            }
+            QLabel {
+                color: #444;
+                font-size: 14px;
+            }
+            #send_button {
+                background-color: #4CAF50;
+                color: white;
+            }
+            #send_button:hover {
+                background-color: #45a049;
+            }
+            #cancel_button {
+                background-color: #f44336;
+                color: white;
+            }
+            #cancel_button:hover {
+                background-color: #d32f2f;
+            }
+            #close_button {
+                background-color: #2196F3;
+                color: white;
+            }
+            #close_button:hover {
+                background-color: #0b7dda;
+            }
+            QTabWidget::pane {
+                border: 1px solid #dcdcdc;
+                border-radius: 5px;
+            }
+            QTabBar::tab {
+                padding: 8px 12px;
+                background: #e9e9e9;
+                border: 1px solid #dcdcdc;
+                border-bottom: none;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background: white;
+                border-bottom: 2px solid #2196F3;
+            }
+        """)
+    
+    def setup_network_robot_selection(self, layout):
+        """Setup network and robot selection on single line"""
+        group = QGroupBox(self.tr("Robot Selection"))
+        hbox = QHBoxLayout()
+        hbox.setSpacing(20)
+        
+        # Network selection
+        network_label = QLabel(self.tr("Social Network:"))
+        self.network_combo = QComboBox()
+        self.network_combo.addItem(self.tr("Select a social network"))
+        
+        # Robot selection
+        robot_label = QLabel(self.tr("Robot:"))
+        self.robot_combo = QComboBox()
+        self.robot_combo.addItem(self.tr("Select a robot"))
+        
+        # Fill comboboxes
+        self.network_paths = []
+        for path, data in self.social_networks.items():
+            self.network_combo.addItem(data["name"])
+            self.network_paths.append(path)
+        
+        # Connect signals
+        self.network_combo.currentIndexChanged.connect(self.update_robots)
+        self.robot_combo.currentIndexChanged.connect(self.load_robot_data)
+        
+        # Add widgets to horizontal layout
+        hbox.addWidget(network_label)
+        hbox.addWidget(self.network_combo, 1)
+        hbox.addWidget(robot_label)
+        hbox.addWidget(self.robot_combo, 1)
+        hbox.addStretch()
+        
+        group.setLayout(hbox)
+        layout.addWidget(group)
+    
+    def update_robots(self, index):
+        """Update robots list based on selected network"""
+        self.robot_combo.clear()
+        self.robot_combo.addItem(self.tr("Select a robot"))
+        
+        if index == 0:
+            self.current_network = None
+            self.update_send_button_text()
+            return
+            
+        self.current_network = self.network_paths[index-1]
+        network_data = self.social_networks[self.current_network]
+        
+        for robot in network_data["robots"]:
+            self.robot_combo.addItem(robot)
+        
+        self.update_send_button_text()
+    
+    def update_send_button_text(self):
+        """Update send button text based on selected network"""
+        if self.current_network and self.robot_combo.currentIndex() > 0:
+            network_name = self.social_networks[self.current_network]["name"]
+            self.send_button.setText(self.tr(f"Send to {network_name}"))
+        else:
+            self.send_button.setText(self.tr("Send to Robot"))
+    
+    def setup_category_selection(self, layout):
+        """Setup categories selection"""
+        # Media categories
+        media_group = QGroupBox(self.tr("Media Categories"))
+        media_layout = QVBoxLayout()
+        self.media_list = QListWidget()
+        self.media_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_media_categories()
+        media_layout.addWidget(self.media_list)
+        media_group.setLayout(media_layout)
+        layout.addWidget(media_group, 1)
+        
+        # Group categories
+        group_group = QGroupBox(self.tr("Group Categories"))
+        group_layout = QVBoxLayout()
+        self.group_list = QListWidget()
+        self.group_list.setSelectionMode(QListWidget.MultiSelection)
+        self.load_group_categories()
+        group_layout.addWidget(self.group_list)
+        group_group.setLayout(group_layout)
+        layout.addWidget(group_group, 1)
+    
+    def setup_data_editor(self, layout):
+        """Setup data editor"""
+        group = QGroupBox(self.tr("Data Editor"))
+        vbox = QVBoxLayout()
+        
+        # Tabs for JSON files
+        self.tabs = QTabWidget()
+        self.json_editors = {}
+        
+        vbox.addWidget(self.tabs)
+        group.setLayout(vbox)
+        layout.addWidget(group, 1)
+    
+    def setup_action_buttons(self, layout):
+        """Setup action buttons"""
+        hbox = QHBoxLayout()
+        hbox.setSpacing(15)
+        
+        self.cancel_button = QPushButton(self.tr("Cancel"))
+        self.cancel_button.setObjectName("cancel_button")
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))
+        self.cancel_button.clicked.connect(self.reject)
+        
+        self.close_button = QPushButton(self.tr("Close"))
+        self.close_button.setObjectName("close_button")
+        self.close_button.setIcon(QIcon("icons/close.png"))
+        self.close_button.clicked.connect(self.close)
+        
+        self.send_button = QPushButton(self.tr("Send to Robot"))
+        self.send_button.setObjectName("send_button")
+        self.send_button.setIcon(QIcon("icons/send.png"))
+        self.send_button.clicked.connect(self.execute_send_operation)
+        
+        hbox.addWidget(self.cancel_button)
+        hbox.addStretch(1)
+        hbox.addWidget(self.close_button)
+        hbox.addWidget(self.send_button)
+        
+        layout.addLayout(hbox)
+    
+    def execute_send_operation(self):
+        """Execute the appropriate send operation based on selected network"""
+        if not self.current_network or self.robot_combo.currentIndex() == 0:
+            QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a network and robot"))
+            return
+            
+        network_name = self.social_networks[self.current_network]["name"]
+        
+        if network_name == "Facebook":
+            self.send_to_robot_facebook()
+        elif network_name == "WhatsApp":
+            self.send_to_robot_whatsapp()
+        elif network_name == "Instagram":
+            self.send_to_robot_instagram()
+        else:
+            QMessageBox.warning(self, self.tr("Error"), self.tr("Unsupported network"))
+    
+    def send_to_robot_facebook(self):
+        """Send data to Facebook robot"""
+        try:
+            if not self.has_valid_selections():
+                return
+
+            media_cat_ids = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cat_ids = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            media_data = self.get_complete_media_data(media_cat_ids)
+            group_data = self.get_valid_group_links(group_cat_ids)
+
+            # Facebook-specific JSON structure
+            data_json = {
+                "posts": self.format_posts_for_facebook(media_data),
+                "groups": group_data
+            }
+
+            data1_json = {
+                "stories": self.format_stories_for_facebook(media_data),
+                "groups": group_data
+            }
+
+            self.save_robot_files(data_json, data1_json)
+            self.show_success_message(len(media_data), len(group_data))
+
+        except Exception as e:
+            self.show_error_message(e)
+    
+    def send_to_robot_whatsapp(self):
+        """Send data to WhatsApp robot"""
+        try:
+            if not self.has_valid_selections():
+                return
+
+            media_cat_ids = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cat_ids = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            media_data = self.get_complete_media_data(media_cat_ids)
+            group_data = self.get_valid_group_links(group_cat_ids)
+
+            # WhatsApp-specific JSON structure
+            data_json = {
+                "contacts": group_data,
+                "messages": [self.format_message_for_whatsapp(m) for m in media_data]
+            }
+
+            self.save_robot_files(data_json, {})
+            self.show_success_message(len(media_data), len(group_data))
+
+        except Exception as e:
+            self.show_error_message(e)
+    
+    def send_to_robot_instagram(self):
+        """Send data to Instagram robot"""
+        try:
+            if not self.has_valid_selections():
+                return
+
+            media_cat_ids = [item.data(Qt.UserRole) for item in self.media_list.selectedItems()]
+            group_cat_ids = [item.data(Qt.UserRole) for item in self.group_list.selectedItems()]
+
+            media_data = self.get_complete_media_data(media_cat_ids)
+            group_data = self.get_valid_group_links(group_cat_ids)
+
+            # Instagram-specific JSON structure
+            data_json = {
+                "posts": [self.format_post_for_instagram(m) for m in media_data],
+                "stories": [self.format_story_for_instagram(m) for m in media_data],
+                "hashtags": ["#insta", "#social"]
+            }
+
+            self.save_robot_files(data_json, {})
+            self.show_success_message(len(media_data), len(group_data))
+
+        except Exception as e:
+            self.show_error_message(e)
+    
+    def format_posts_for_facebook(self, media_data):
+        """Format posts for Facebook"""
+        return [{
+            "text": f"{item['nom']}\n\n{item['description']}".strip(),
+            "image": item['preview_path'],
+            "timestamp": datetime.now().isoformat()
+        } for item in media_data]
+    
+    def format_stories_for_facebook(self, media_data):
+        """Format stories for Facebook"""
+        return [{
+            "text": item['nom'],
+            "image": item['preview_path'],
+            "duration": 10
+        } for item in media_data]
+    
+    def format_message_for_whatsapp(self, media_item):
+        """Format message for WhatsApp"""
+        return (
+            f"{media_item['nom']}\n\n"
+            f"{media_item['description']}\n\n"
+            f"Contact: +123456789\n"
+            f"More info: example.com"
+        )
+    
+    def format_post_for_instagram(self, media_item):
+        """Format post for Instagram"""
+        return {
+            "caption": f"{media_item['nom']} #insta",
+            "image": media_item['preview_path'],
+            "location": "Turkey"
+        }
+    
+    def format_story_for_instagram(self, media_item):
+        """Format story for Instagram"""
+        return {
+            "image": media_item['preview_path'],
+            "duration": 7,
+            "mentions": []
+        }
+    
+    def load_robot_data(self, index):
+        """Load data for selected robot"""
+        if index == 0 or not self.current_network:
+            self.current_robot = None
+            self.update_send_button_text()
+            return
+            
+        self.current_robot = self.robot_combo.currentText()
+        self.update_send_button_text()
+        
+        network_data = self.social_networks[self.current_network]
+        
+        # Update tabs
+        self.tabs.clear()
+        self.json_editors = {}
+        
+        for json_file, structure in network_data["json_structure"].items():
+            tab = QWidget()
+            editor = QTextEdit()
+            editor.setFont(QFont("Consolas", 10))
+            self.json_editors[json_file] = editor
+            
+            # Load file if exists
+            json_path = os.path.join(self.current_network, self.current_robot, json_file)
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                        editor.setPlainText(json.dumps(data, indent=4, ensure_ascii=False))
+                    except:
+                        editor.setPlainText(self.tr("Invalid JSON file"))
+            else:
+                # New empty structure
+                editor.setPlainText(json.dumps(structure, indent=4, ensure_ascii=False))
+            
+            layout = QVBoxLayout()
+            layout.addWidget(editor)
+            tab.setLayout(layout)
+            self.tabs.addTab(tab, json_file)
+    
+    def has_valid_selections(self):
+        """Check if selections are valid"""
+        if not self.current_network or self.robot_combo.currentIndex() == 0:
+            QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a network and robot"))
+            return False
+            
+        if not self.media_list.selectedItems() and not self.group_list.selectedItems():
+            QMessageBox.warning(self, self.tr("Error"), self.tr("Please select at least one category"))
+            return False
+            
+        return True
+
+    def get_complete_media_data(self, category_ids):
+        """Get all valid media for selected categories"""
+        if not category_ids:
+            return []
+
+        placeholders = ','.join('?' for _ in category_ids)
+
+        query = f"""
+            SELECT 
+                m.id,
+                m.nom,
+                COALESCE(m.description, '') as description,
+                m.preview_path,
+                m.type_id,
+                m.category_id,
+                c.name as category_name,
+                c.label as category_label
+            FROM media m
+            INNER JOIN category c ON m.category_id = c.id
+            WHERE m.category_id IN ({placeholders})
+            AND m.est_supprime = 0
+            AND m.preview_path IS NOT NULL
+            AND m.preview_path != ''
+        """
+
+        try:
+            self.cursor.execute(query, category_ids)
+            rows = self.cursor.fetchall()
+
+            if not rows:
+                return []
+
+            columns = [desc[0] for desc in self.cursor.description]
+            media_items = [dict(zip(columns, row)) for row in rows]
+
+            # Verify file existence
+            return [m for m in media_items if os.path.exists(m['preview_path'])]
+
+        except Exception as e:
+            print(f"Database error: {e}")
+            return []
+
+    def get_valid_group_links(self, category_ids):
+        """Get unique and valid group links"""
+        if not category_ids:
+            return []
+
+        query = f"""
+            SELECT DISTINCT g.link 
+            FROM groups g
+            WHERE g.category_group_id IN ({','.join('?'*len(category_ids))})
+            AND g.link IS NOT NULL
+            AND g.link != ''
+        """
+        self.cursor.execute(query, category_ids)
+        return [row[0] for row in self.cursor.fetchall()]
+
+    def save_robot_files(self, data_json, data1_json):
+        """Save JSON files to robot folder"""
+        robot_path = os.path.join(self.current_network, self.current_robot)
+        os.makedirs(robot_path, exist_ok=True)
+
+        # Archive existing files
+        for fname in ['data.json', 'data1.json']:
+            if os.path.exists(os.path.join(robot_path, fname)):
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                os.rename(
+                    os.path.join(robot_path, fname),
+                    os.path.join(robot_path, f"{fname.split('.')[0]}_{timestamp}.json")
+                )
+
+        # Save new files
+        with open(os.path.join(robot_path, 'data.json'), 'w', encoding='utf-8') as f:
+            json.dump(data_json, f, indent=4, ensure_ascii=False)
+
+        if data1_json:  # Only save if not empty
+            with open(os.path.join(robot_path, 'data1.json'), 'w', encoding='utf-8') as f:
+                json.dump(data1_json, f, indent=4, ensure_ascii=False)
+
+        # Hide folder
+        try:
+            ctypes.windll.kernel32.SetFileAttributesW(robot_path, 2)
+        except:
+            pass
+
+    def show_success_message(self, media_count, group_count):
+        """Show success message"""
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle(self.tr("Success"))
+        msg.setText(
+            self.tr("Data sent successfully!\n\n"
+                  "- Media sent: {}\n"
+                  "- Groups sent: {}").format(media_count, group_count)
+        )
+        
+        test_btn = msg.addButton(self.tr("Test Robot"), QMessageBox.ActionRole)
+        test_btn.setIcon(QIcon("icons/test.png"))
+        
+        msg.addButton(QMessageBox.Ok)
+        msg.exec_()
+        
+        if msg.clickedButton() == test_btn:
+            self.test_robot()
+
+    def show_error_message(self, error):
+        """Show error message"""
+        QMessageBox.critical(
+            self, 
+            self.tr("Error"), 
+            self.tr("An error occurred:\n{}\n\n"
+                  "Please verify that:\n"
+                  "- Selected categories contain media\n"
+                  "- Media paths are valid").format(str(error))
+        )
+
+    def test_robot(self):
+        """Test robot functionality"""
+        QMessageBox.information(
+            self,
+            self.tr("Test Robot"),
+            self.tr("Testing robot {}...").format(self.current_robot)
+        )
+
+    def load_media_categories(self):
+        """Load media categories from database"""
+        self.cursor.execute("SELECT id, name FROM category")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(self.tr(cat_name))
+            item.setData(Qt.UserRole, cat_id)
+            self.media_list.addItem(item)
+    
+    def load_group_categories(self):
+        """Load group categories from database"""
+        self.cursor.execute("SELECT id, name FROM category_group")
+        for cat_id, cat_name in self.cursor.fetchall():
+            item = QListWidgetItem(self.tr(cat_name))
+            item.setData(Qt.UserRole, cat_id)
+            self.group_list.addItem(item)
+    
+    def closeEvent(self, event):
+        """Close database connection"""
+        self.conn.close()
+        event.accept()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class UpdateRobotDialognext(QDialog):

@@ -384,7 +384,7 @@ class PromptManager1(QMainWindow):
         
         # Création des tables
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS categories (
+            CREATE TABLE IF NOT EXISTS categoriesprompts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 created_at TEXT NOT NULL
@@ -392,7 +392,7 @@ class PromptManager1(QMainWindow):
         ''')
         
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tags (
+            CREATE TABLE IF NOT EXISTS tagsprompts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 color TEXT,
@@ -410,7 +410,7 @@ class PromptManager1(QMainWindow):
                 is_favorite BOOLEAN DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
-                FOREIGN KEY (category_id) REFERENCES categories (id)
+                FOREIGN KEY (category_id) REFERENCES categoriesprompts (id)
             )
         ''')
         
@@ -420,7 +420,7 @@ class PromptManager1(QMainWindow):
                 tag_id INTEGER,
                 PRIMARY KEY (prompt_id, tag_id),
                 FOREIGN KEY (prompt_id) REFERENCES prompts (id),
-                FOREIGN KEY (tag_id) REFERENCES tags (id)
+                FOREIGN KEY (tag_id) REFERENCES tagsprompts (id)
             )
         ''')
         
@@ -694,7 +694,7 @@ class PromptManager1(QMainWindow):
         self.category_filter.clear()
         self.category_filter.addItem("Toutes les catégories")
         
-        self.cursor.execute("SELECT name FROM categories ORDER BY name")
+        self.cursor.execute("SELECT name FROM categoriesprompts ORDER BY name")
         categories = self.cursor.fetchall()
         
         for category in categories:
@@ -721,7 +721,7 @@ class PromptManager1(QMainWindow):
         query = '''
             SELECT DISTINCT p.id, p.title, c.name, p.is_favorite 
             FROM prompts p
-            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categoriesprompts c ON p.category_id = c.id
             LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
             LEFT JOIN tags t ON pt.tag_id = t.id
             WHERE 1=1
@@ -773,7 +773,7 @@ class PromptManager1(QMainWindow):
         self.cursor.execute('''
             SELECT p.title, p.content, p.example, c.name, p.is_favorite
             FROM prompts p 
-            LEFT JOIN categories c ON p.category_id = c.id 
+            LEFT JOIN categoriesprompts c ON p.category_id = c.id 
             WHERE p.id = ?
         ''', (prompt_id,))
         
@@ -1055,7 +1055,7 @@ class PromptManager1(QMainWindow):
         self.editor_category = QComboBox()
         self.editor_category.addItem("Sans catégorie", None)
         
-        self.cursor.execute("SELECT id, name FROM categories ORDER BY name")
+        self.cursor.execute("SELECT id, name FROM categoriesprompts ORDER BY name")
         categories = self.cursor.fetchall()
         
         for cat_id, name in categories:
@@ -1224,7 +1224,7 @@ class PromptManager1(QMainWindow):
             try:
                 now = datetime.now().isoformat()
                 self.cursor.execute(
-                    "INSERT INTO categories (name, created_at) VALUES (?, ?)",
+                    "INSERT INTO categoriesprompts (name, created_at) VALUES (?, ?)",
                     (name, now)
                 )
                 self.conn.commit()
@@ -1286,7 +1286,7 @@ class PromptManager1(QMainWindow):
             SELECT p.title, p.content, p.example, c.name, 
                    GROUP_CONCAT(t.name, ', ') as tags
             FROM prompts p
-            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categoriesprompts c ON p.category_id = c.id
             LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
             LEFT JOIN tags t ON pt.tag_id = t.id
             WHERE p.id = ?
@@ -1360,7 +1360,7 @@ class PromptManager1(QMainWindow):
                 category_combo = QComboBox()
                 category_combo.addItem("Sans catégorie", None)
                 
-                self.cursor.execute("SELECT id, name FROM categories ORDER BY name")
+                self.cursor.execute("SELECT id, name FROM categoriesprompts ORDER BY name")
                 categories = self.cursor.fetchall()
                 
                 for cat_id, name in categories:
@@ -1879,7 +1879,7 @@ class PromptManager1(QMainWindow):
         self.cursor.execute("SELECT COUNT(*) FROM prompts")
         total_prompts = self.cursor.fetchone()[0]
         
-        self.cursor.execute("SELECT COUNT(*) FROM categories")
+        self.cursor.execute("SELECT COUNT(*) FROM categoriesprompts")
         total_categories = self.cursor.fetchone()[0]
         
         self.cursor.execute("SELECT COUNT(*) FROM tags")
@@ -1937,12 +1937,14 @@ class PromptManager1(QMainWindow):
         stats_dialog.exec_()
 
     def backup_database(self):
+        from imports import DB_PATH_prompts_archiv 
+
         """Créer une sauvegarde de la base de données"""
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             "Sauvegarder la base de données",
-            "prompts_backup.db",
+            DB_PATH_prompts_archiv,
             "Fichiers SQLite (*.db *.sqlite);;Tous les fichiers (*)",
             options=options
         )
@@ -2075,7 +2077,8 @@ class PromptManager1(QMainWindow):
 
     def auto_backup(self):
         """Effectuer une sauvegarde automatique"""
-        backup_dir = "backups"
+        backup_dir = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources')
+
         if not os.path.exists(backup_dir):
             os.makedirs(backup_dir)
         
@@ -2183,7 +2186,7 @@ class PromptManager1(QMainWindow):
                     SELECT p.id, p.title, p.content, p.example, c.name, 
                            GROUP_CONCAT(t.name, ', ') as tags
                     FROM prompts p
-                    LEFT JOIN categories c ON p.category_id = c.id
+                    LEFT JOIN categoriesprompts c ON p.category_id = c.id
                     LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
                     LEFT JOIN tags t ON pt.tag_id = t.id
                     GROUP BY p.id
@@ -2229,7 +2232,7 @@ class PromptManager1(QMainWindow):
         self.cursor.execute("SELECT title FROM prompts")
         titles = [row[0] for row in self.cursor.fetchall()]
         
-        self.cursor.execute("SELECT name FROM categories")
+        self.cursor.execute("SELECT name FROM categoriesprompts")
         categories = [row[0] for row in self.cursor.fetchall()]
         
         self.cursor.execute("SELECT name FROM tags")
@@ -2602,7 +2605,7 @@ class PromptManager(QMainWindow):
         
         # Création des tables (inchangé)
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS categories (
+            CREATE TABLE IF NOT EXISTS categoriesprompts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 created_at TEXT NOT NULL
@@ -2610,7 +2613,7 @@ class PromptManager(QMainWindow):
         ''')
         
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tags (
+            CREATE TABLE IF NOT EXISTS tagsprompts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 color TEXT,
@@ -2628,7 +2631,7 @@ class PromptManager(QMainWindow):
                 is_favorite BOOLEAN DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
-                FOREIGN KEY (category_id) REFERENCES categories (id)
+                FOREIGN KEY (category_id) REFERENCES categoriesprompts (id)
             )
         ''')
         
@@ -2638,7 +2641,7 @@ class PromptManager(QMainWindow):
                 tag_id INTEGER,
                 PRIMARY KEY (prompt_id, tag_id),
                 FOREIGN KEY (prompt_id) REFERENCES prompts (id),
-                FOREIGN KEY (tag_id) REFERENCES tags (id)
+                FOREIGN KEY (tag_id) REFERENCES tagsprompts (id)
             )
         ''')
         
@@ -2677,7 +2680,7 @@ class PromptManager(QMainWindow):
         ]
         
         self.cursor.executemany(
-            "INSERT INTO categories (name, created_at) VALUES (?, ?)",
+            "INSERT INTO categoriesprompts (name, created_at) VALUES (?, ?)",
             default_categories
         )
         
@@ -2690,7 +2693,7 @@ class PromptManager(QMainWindow):
         ]
         
         self.cursor.executemany(
-            "INSERT INTO tags (name, color, created_at) VALUES (?, ?, ?)",
+            "INSERT INTO tagsprompts (name, color, created_at) VALUES (?, ?, ?)",
             default_tags
         )
         
@@ -2748,7 +2751,7 @@ class PromptManager(QMainWindow):
 
         # Création des tables
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS categories (
+            CREATE TABLE IF NOT EXISTS categoriesprompts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 created_at TEXT NOT NULL
@@ -2756,7 +2759,7 @@ class PromptManager(QMainWindow):
         ''')
 
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tags (
+            CREATE TABLE IF NOT EXISTS tagsprompts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
                 color TEXT,
@@ -2774,7 +2777,7 @@ class PromptManager(QMainWindow):
                 is_favorite BOOLEAN DEFAULT 0,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
-                FOREIGN KEY (category_id) REFERENCES categories (id)
+                FOREIGN KEY (category_id) REFERENCES categoriesprompts (id)
             )
         ''')
 
@@ -2784,7 +2787,7 @@ class PromptManager(QMainWindow):
                 tag_id INTEGER,
                 PRIMARY KEY (prompt_id, tag_id),
                 FOREIGN KEY (prompt_id) REFERENCES prompts (id),
-                FOREIGN KEY (tag_id) REFERENCES tags (id)
+                FOREIGN KEY (tag_id) REFERENCES tagsprompts (id)
             )
         ''')
 
@@ -3058,7 +3061,7 @@ class PromptManager(QMainWindow):
         self.category_filter.clear()
         self.category_filter.addItem("Toutes les catégories")
 
-        self.cursor.execute("SELECT name FROM categories ORDER BY name")
+        self.cursor.execute("SELECT name FROM categoriesprompts ORDER BY name")
         categories = self.cursor.fetchall()
 
         for category in categories:
@@ -3068,7 +3071,7 @@ class PromptManager(QMainWindow):
         self.tags_filter.clear()
         self.tags_filter.addItem("Tous les tags")
 
-        self.cursor.execute("SELECT name FROM tags ORDER BY name")
+        self.cursor.execute("SELECT name FROM tagsprompts ORDER BY name")
         tags = self.cursor.fetchall()
 
         for tag in tags:
@@ -3085,9 +3088,9 @@ class PromptManager(QMainWindow):
         query = '''
             SELECT DISTINCT p.id, p.title, c.name, p.is_favorite
             FROM prompts p
-            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categoriesprompts c ON p.category_id = c.id
             LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
-            LEFT JOIN tags t ON pt.tag_id = t.id
+            LEFT JOIN tagsprompts t ON pt.tag_id = t.id
             WHERE 1=1
         '''
 
@@ -3137,7 +3140,7 @@ class PromptManager(QMainWindow):
         self.cursor.execute('''
             SELECT p.title, p.content, p.example, c.name, p.is_favorite
             FROM prompts p
-            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categoriesprompts c ON p.category_id = c.id
             WHERE p.id = ?
         ''', (prompt_id,))
 
@@ -3184,7 +3187,7 @@ class PromptManager(QMainWindow):
 
         self.cursor.execute('''
             SELECT t.id, t.name, t.color
-            FROM tags t
+            FROM tagsprompts t
             JOIN prompt_tags pt ON t.id = pt.tag_id
             WHERE pt.prompt_id = ?
         ''', (prompt_id,))
@@ -3257,7 +3260,7 @@ class PromptManager(QMainWindow):
         existing_tag_combo = QComboBox()
         existing_tag_combo.addItem("-- Sélectionner un tag existant --", None)
 
-        self.cursor.execute("SELECT id, name FROM tags ORDER BY name")
+        self.cursor.execute("SELECT id, name FROM tagsprompts ORDER BY name")
         tags = self.cursor.fetchall()
 
         for tag_id, name in tags:
@@ -3319,7 +3322,7 @@ class PromptManager(QMainWindow):
             try:
                 now = datetime.now().isoformat()
                 self.cursor.execute(
-                    "INSERT INTO tags (name, color, created_at) VALUES (?, ?, ?)",
+                    "INSERT INTO tagsprompts (name, color, created_at) VALUES (?, ?, ?)",
                     (new_tag_name, color, now)
                 )
                 tag_id = self.cursor.lastrowid
@@ -3419,7 +3422,7 @@ class PromptManager(QMainWindow):
         self.editor_category = QComboBox()
         self.editor_category.addItem("Sans catégorie", None)
 
-        self.cursor.execute("SELECT id, name FROM categories ORDER BY name")
+        self.cursor.execute("SELECT id, name FROM categoriesprompts ORDER BY name")
         categories = self.cursor.fetchall()
 
         for cat_id, name in categories:
@@ -3588,7 +3591,7 @@ class PromptManager(QMainWindow):
             try:
                 now = datetime.now().isoformat()
                 self.cursor.execute(
-                    "INSERT INTO categories (name, created_at) VALUES (?, ?)",
+                    "INSERT INTO categoriesprompts (name, created_at) VALUES (?, ?)",
                     (name, now)
                 )
                 self.conn.commit()
@@ -3648,11 +3651,11 @@ class PromptManager(QMainWindow):
 
         self.cursor.execute('''
             SELECT p.title, p.content, p.example, c.name,
-                   GROUP_CONCAT(t.name, ', ') as tags
+                   GROUP_CONCAT(t.name, ', ') as tagsprompts
             FROM prompts p
-            LEFT JOIN categories c ON p.category_id = c.id
+            LEFT JOIN categoriesprompts c ON p.category_id = c.id
             LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
-            LEFT JOIN tags t ON pt.tag_id = t.id
+            LEFT JOIN tagsprompts t ON pt.tag_id = t.id
             WHERE p.id = ?
             GROUP BY p.id
         ''', (self.current_prompt_id,))
@@ -3724,7 +3727,7 @@ class PromptManager(QMainWindow):
                 category_combo = QComboBox()
                 category_combo.addItem("Sans catégorie", None)
 
-                self.cursor.execute("SELECT id, name FROM categories ORDER BY name")
+                self.cursor.execute("SELECT id, name FROM categoriesprompts ORDER BY name")
                 categories = self.cursor.fetchall()
 
                 for cat_id, name in categories:
@@ -3812,13 +3815,13 @@ class PromptManager(QMainWindow):
         if tags:
             for tag_name in tags:
                 # Vérifier si le tag existe
-                self.cursor.execute("SELECT id FROM tags WHERE name = ?", (tag_name,))
+                self.cursor.execute("SELECT id FROM tagsprompts WHERE name = ?", (tag_name,))
                 tag = self.cursor.fetchone()
 
                 if not tag:
                     # Créer le tag s'il n'existe pas
                     self.cursor.execute(
-                        "INSERT INTO tags (name, created_at) VALUES (?, ?)",
+                        "INSERT INTO tagsprompts (name, created_at) VALUES (?, ?)",
                         (tag_name, now)
                     )
                     tag_id = self.cursor.lastrowid
@@ -4003,7 +4006,7 @@ class PromptManager(QMainWindow):
         """Charger tous les tags dans la liste"""
         self.all_tags_list.clear()
 
-        self.cursor.execute("SELECT id, name, color FROM tags ORDER BY name")
+        self.cursor.execute("SELECT id, name, color FROM tagsprompts ORDER BY name")
         tags = self.cursor.fetchall()
 
         for tag_id, name, color in tags:
@@ -4024,7 +4027,7 @@ class PromptManager(QMainWindow):
 
         tag_id = selected_items[0].data(Qt.UserRole)
 
-        self.cursor.execute("SELECT name, color FROM tags WHERE id = ?", (tag_id,))
+        self.cursor.execute("SELECT name, color FROM tagsprompts WHERE id = ?", (tag_id,))
         tag_name, color = self.cursor.fetchone()
 
         dialog = QDialog(self)
@@ -4080,7 +4083,7 @@ class PromptManager(QMainWindow):
 
         try:
             self.cursor.execute(
-                "UPDATE tags SET name = ?, color = ? WHERE id = ?",
+                "UPDATE tagsprompts SET name = ?, color = ? WHERE id = ?",
                 (new_name, new_color, tag_id)
             )
             self.conn.commit()
@@ -4118,7 +4121,7 @@ class PromptManager(QMainWindow):
             self.cursor.execute("DELETE FROM prompt_tags WHERE tag_id = ?", (tag_id,))
 
             # Supprimer le tag
-            self.cursor.execute("DELETE FROM tags WHERE id = ?", (tag_id,))
+            self.cursor.execute("DELETE FROM tagsprompts WHERE id = ?", (tag_id,))
             self.conn.commit()
 
             # Mettre à jour les affichages
@@ -4140,10 +4143,10 @@ class PromptManager(QMainWindow):
         self.cursor.execute("SELECT COUNT(*) FROM prompts")
         total_prompts = self.cursor.fetchone()[0]
 
-        self.cursor.execute("SELECT COUNT(*) FROM categories")
+        self.cursor.execute("SELECT COUNT(*) FROM categoriesprompts")
         total_categories = self.cursor.fetchone()[0]
 
-        self.cursor.execute("SELECT COUNT(*) FROM tags")
+        self.cursor.execute("SELECT COUNT(*) FROM tagsprompts")
         total_tags = self.cursor.fetchone()[0]
 
         self.cursor.execute("SELECT COUNT(*) FROM prompts WHERE is_favorite = 1")
@@ -4198,12 +4201,13 @@ class PromptManager(QMainWindow):
         stats_dialog.exec_()
 
     def backup_database(self):
+        from imports import DB_PATH_prompts_archiv 
         """Créer une sauvegarde de la base de données"""
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             "Sauvegarder la base de données",
-            "prompts_backup.db",
+            DB_PATH_prompts_archiv,
             "Fichiers SQLite (*.db *.sqlite);;Tous les fichiers (*)",
             options=options
         )
@@ -4438,11 +4442,11 @@ class PromptManager(QMainWindow):
                 # Exporter tous les prompts
                 self.cursor.execute('''
                     SELECT p.id, p.title, p.content, p.example, c.name,
-                           GROUP_CONCAT(t.name, ', ') as tags
+                           GROUP_CONCAT(t.name, ', ') as tagsprompts
                     FROM prompts p
-                    LEFT JOIN categories c ON p.category_id = c.id
+                    LEFT JOIN categoriesprompts c ON p.category_id = c.id
                     LEFT JOIN prompt_tags pt ON p.id = pt.prompt_id
-                    LEFT JOIN tags t ON pt.tag_id = t.id
+                    LEFT JOIN tagsprompts t ON pt.tag_id = t.id
                     GROUP BY p.id
                 ''')
 
@@ -4486,10 +4490,10 @@ class PromptManager(QMainWindow):
         self.cursor.execute("SELECT title FROM prompts")
         titles = [row[0] for row in self.cursor.fetchall()]
 
-        self.cursor.execute("SELECT name FROM categories")
+        self.cursor.execute("SELECT name FROM categoriesprompts")
         categories = [row[0] for row in self.cursor.fetchall()]
 
-        self.cursor.execute("SELECT name FROM tags")
+        self.cursor.execute("SELECT name FROM tagsprompts")
         tags = [row[0] for row in self.cursor.fetchall()]
 
         all_items = titles + categories + tags

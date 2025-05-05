@@ -1,3 +1,33 @@
+Licences 
+
+propose mo'une app complete qu' do't resembler a la page 
+voila ceque tu doit faire la page doit resembler a la page de windowa ou in inserre la cle dativation 
+et en plus de cela ca doit respeccter cette logique 
+
+aussi cela doit permettre de selectionner un reseau et pour chaque reseau il doit selectiooner un ou plusieur robot correspondant  
+
+dansla meme page on doit aussi etre capable de voir si la licence est invalide ou valide 
+
+le disign doit etre impecable 
+
+
+
+donne de depart 
+pour ce shema de base de donne donne moi les donnee fictif de depart 
+
+envoi1
+inspire toi de ce code fonctioonneel et donne moi unefonction qui permet d envoyer a datapost.json
+et une fonction pour datastauts.json
+les deux doivent presenter un modalou lonpeut notamtent choisr le sreseau socialet le robot comme ici mais en pluson doit choisir une date 
+et donc lexecution de ce modal doit envoyer le fichier mais aussi et surtout ca doit programmer le resseau shoisi a sexecuter a la date donnee 
+en suivant cette logique de programmation 
+
+
+
+
+
+
+
 ce code fonctionne tres bien jairais faire de sorte que en changer de robot genre sil ya par exemple robot2  alor le contenu du text area contennt la description change donc je vais te demander de creer un nouveau table nomme autredescrption qui contiendra les descript des robot2  et jusqua la table actuelle garde la description du robot1 mais s il ya plut d un robot  alors le contenu du deuxieme et vers le haut seront ddans la table autredescription donc cette table va avor un champ pour la description et un autr e pour le robot correspondant  et donc si je selectionne robot2 par exemple automatiquemt il pend et afffiche la description correspondant stocker dans cette nouvelle table pour le reste ne toutche surtout pas a ce qui fonctionne deja la logique actuelle est parfaite et si possible alors je te demandrais de me donne le code complet incualant cette nouvelle idee 
 
 

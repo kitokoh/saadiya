@@ -45,10 +45,18 @@ user_data_dir = get_user_data_dir()
 #permet de generer aussi le .dmg et met des condition de maniere a ceque si nous somme face a un os 
 #alors ca utiliste tel lien et si on est en face d un .exe ca utilise ca 
 DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups333.db')
-DB_PATH_links = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'links1.db')
-DB_PATH_prompts = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts1.db')
-DB_PATH_notes = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'notess.db')
+# DB_PATH_links = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'links1.db')
+# DB_PATH_prompts = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts1.db')
 
+# DB_PATH_prompts_archiv = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts_backup.db')
+
+# DB_PATH_prompt_command = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts1.db')
+DB_PATH_prompt_command = DB_PATH
+# DB_PATH_notes = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'notess.db')
+DB_PATH_links = DB_PATH
+DB_PATH_prompts = DB_PATH
+DB_PATH_notes = DB_PATH     
+DB_PATH_prompts_archiv = DB_PATH
 
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
