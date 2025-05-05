@@ -2979,20 +2979,20 @@ class MediaTable(QWidget):
         
         # ----------------------------
         # Header amélioré
-        # ----------------------------
-        self.header = QWidget()
-        self.header.setFixedHeight(70)  # Hauteur encore plus réduite pour gagner de l'espace
-        self.header.setStyleSheet(f"""
-            QWidget {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 {self.primary_color}, stop:1 {self.secondary_color});
-                border-bottom: 2px solid {self.dark_color};
-            }}
-        """)
+        # # ----------------------------
+        # self.header = QWidget()
+        # self.header.setFixedHeight(70)  # Hauteur encore plus réduite pour gagner de l'espace
+        # self.header.setStyleSheet(f"""
+        #     QWidget {{
+        #         background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        #             stop:0 {self.primary_color}, stop:1 {self.secondary_color});
+        #         border-bottom: 2px solid {self.dark_color};
+        #     }}
+        # """)
         
-        header_layout = QHBoxLayout(self.header)
-        header_layout.setContentsMargins(15, 5, 15, 5)
-        header_layout.setSpacing(10)
+        # header_layout = QHBoxLayout(self.header)
+        # header_layout.setContentsMargins(15, 5, 15, 5)
+        # header_layout.setSpacing(10)
         
         # Logo et titre avec alignement parfait
         title_container = QWidget()
@@ -3004,26 +3004,15 @@ class MediaTable(QWidget):
         logo_pixmap = QPixmap("icons/logo.png").scaled(30, 30, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.logo_label.setPixmap(logo_pixmap)
         self.logo_label.setAlignment(Qt.AlignVCenter)
+
         
-        self.title_label = QLabel("FBK GROUP MANAGEMENT")
-        self.title_label.setStyleSheet(f"""
-            QLabel {{
-                color: white;
-                font-size: 18px;
-                font-weight: bold;
-                margin: 0;
-            }}
-        """)
-        self.title_label.setAlignment(Qt.AlignVCenter)
+        # title_layout.addWidget(self.logo_label)
+        # title_layout.addWidget(self.title_label)
+        # title_layout.addStretch()
         
-        title_layout.addWidget(self.logo_label)
-        title_layout.addWidget(self.title_label)
-        title_layout.addStretch()
+        # header_layout.addWidget(title_container)
+        # header_layout.addStretch()
         
-        header_layout.addWidget(title_container)
-        header_layout.addStretch()
-        
-        layout.addWidget(self.header)
 
         # ----------------------------
         # Barre d'outils améliorée
@@ -3041,7 +3030,19 @@ class MediaTable(QWidget):
         toolbar_layout = QHBoxLayout(toolbar)
         toolbar_layout.setContentsMargins(5, 5, 5, 5)
         toolbar_layout.setSpacing(10)
+
+
         
+        self.title_label = QLabel("FBK GROUP MANAGEMENT")
+        self.title_label.setStyleSheet(f"""
+            QLabel {{
+                color: white;
+                font-size: 18px;
+                font-weight: bold;
+                margin: 0;
+            }}
+        """)
+        self.title_label.setAlignment(Qt.AlignVCenter)
         # Barre de recherche avec effet au focus amélioré
         self.search_field = QLineEdit()
         self.search_field.setPlaceholderText("🔍 Rechercher...")
@@ -3167,6 +3168,8 @@ class MediaTable(QWidget):
         self.update_robot_button.clicked.connect(self.show_update_modal)
         
         # Ajout des éléments avec ordre logique et espacement
+        toolbar_layout.addWidget(self.title_label)
+
         toolbar_layout.addWidget(self.search_field)
         toolbar_layout.addWidget(self.instance_combo)
         toolbar_layout.addStretch()

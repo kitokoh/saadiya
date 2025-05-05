@@ -2976,138 +2976,235 @@ class MediaTable(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)  # Espacement réduit mais présent pour une meilleure hiérarchie
+  
+        # ----------------------------
+        # Header amélioré
+        # ----------------------------
+        # self.header = QWidget()
+        # self.header.setFixedHeight(70)  # Hauteur encore plus réduite pour gagner de l'espace
+        # self.header.setStyleSheet(f"""
+        # #     QWidget {{
+        # #         background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        #             stop:0 {self.primary_color}, stop:1 {self.secondary_color});
+        #         border-bottom: 2px solid {self.dark_color};
+        #     }}
+        # """)
         
-        top_bar = QWidget()
-        top_bar.setFixedHeight(70)
-        top_bar.setStyleSheet(f"""
+        # header_layout = QHBoxLayout(self.header)
+        # header_layout.setContentsMargins(15, 5, 15, 5)
+        # header_layout.setSpacing(10)
+        
+        # Logo et titre avec alignement parfait
+        title_container = QWidget()
+        title_layout = QHBoxLayout(title_container)
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        
+        self.logo_label = QLabel()
+        logo_pixmap = QPixmap("icons/logo.png").scaled(30, 30, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.logo_label.setPixmap(logo_pixmap)
+        self.logo_label.setAlignment(Qt.AlignVCenter)
+        
+        # self.title_label = QLabel("FBK GROUP MANAGEMENT")
+        # self.title_label.setStyleSheet(f"""
+        #     QLabel {{
+        #         color: white;
+        #         font-size: 18px;
+        #         font-weight: bold;
+        #         margin: 0;
+        #     }}
+        # """)
+        # self.title_label.setAlignment(Qt.AlignVCenter)
+        
+        # title_layout.addWidget(self.logo_label)
+        # title_layout.addWidget(self.title_label)
+        # title_layout.addStretch()
+        
+        # header_layout.addWidget(title_container)
+        # header_layout.addStretch()
+        
+        # layout.addWidget(self.header)
+
+        # ----------------------------
+        # Barre d'outils améliorée
+        # ----------------------------
+        toolbar = QWidget()
+        toolbar.setStyleSheet(f"""
             QWidget {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #1F2937, stop:1 #4B5563);
-                border-bottom: 2px solid #3B82F6;
-                border-radius: 12px;
+                background-color: white;
+                border-radius: 0;
+                padding: 10px 15px;
+                border-bottom: 1px solid #ddd;
             }}
         """)
+        
+        toolbar_layout = QHBoxLayout(toolbar)
+        toolbar_layout.setContentsMargins(5, 5, 5, 5)
+        toolbar_layout.setSpacing(10)
+        
 
-        top_layout = QHBoxLayout(top_bar)
-        top_layout.setContentsMargins(20, 10, 20, 10)
-        top_layout.setSpacing(15)
 
-        # ---- Logo + Titre (gauche) ----
-        logo_title = QWidget()
-        logo_layout = QHBoxLayout(logo_title)
-        logo_layout.setContentsMargins(0, 0, 0, 0)
-        logo_layout.setSpacing(10)
+        
 
-        self.logo_label = QLabel()
-        self.logo_label.setPixmap(QPixmap("icons/logo.png").scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
-        self.title_label = QLabel("📁 FBK GROUP MANAGEMENT")
+
+        self.title_label = QLabel("FBK GROUP")
+        self.title_label.setAlignment(Qt.AlignCenter)  # Centre le texte horizontalement
         self.title_label.setStyleSheet("""
-            QLabel {
-                color: #E5E7EB;
-                font-size: 20px;
-                font-weight: 600;
-                font-family: "Segoe UI", sans-serif;
-            }
+            color: #3b82f6;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: transparent;  /* Optionnel selon votre fond */
         """)
 
-        logo_layout.addWidget(self.logo_label)
-        logo_layout.addWidget(self.title_label)
-
-        # ---- Recherche + Combo (centre) ----
-        search_group = QWidget()
-        search_layout = QHBoxLayout(search_group)
-        search_layout.setContentsMargins(0, 0, 0, 0)
-        search_layout.setSpacing(0)
-
+        # self.title_label.setAlignment(Qt.AlignVCenter)
+        
+        # title_layout.addWidget(self.logo_label)
+        # title_layout.addWidget(self.title_label)
+        # layout.addWidget(self.title_label)
+        # header_layout.addWidget(title_container)
+        # header_layout.addStretch()
+        # Barre de recherche avec effet au focus amélioré
         self.search_field = QLineEdit()
         self.search_field.setPlaceholderText("🔍 Rechercher...")
-        self.search_field.setStyleSheet("""
-            QLineEdit {
-                padding: 8px 20px;
-                font-size: 14px;
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                border-right: none;
-                border-radius: 18px 0 0 18px;
-                background: rgba(255, 255, 255, 0.05);
-                color: #E5E7EB;
-            }
-            QLineEdit::placeholder {
-                color: #9CA3AF;
-            }
-        """)
-
-        self.instance_combo = QComboBox()
-        self.instance_combo.addItems([f"media{i}" for i in range(1, 11)])
-        self.instance_combo.setStyleSheet("""
-            QComboBox {
+        self.search_field.setClearButtonEnabled(True)
+        self.search_field.setStyleSheet(f"""
+            QLineEdit {{
                 padding: 8px 15px;
                 font-size: 14px;
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                border-left: none;
-                border-radius: 0 18px 18px 0;
-                background: rgba(255, 255, 255, 0.05);
-                color: #E5E7EB;
-            }
-            QComboBox QAbstractItemView {
-                background: #1F2937;
-                color: white;
-                selection-background-color: #374151;
-            }
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                background-color: white;
+                min-width: 250px;
+            }}
+            QLineEdit:hover {{
+                border: 1px solid {self.primary_color};
+            }}
+            QLineEdit:focus {{
+                border: 2px solid {self.primary_color};
+                padding: 7px 14px;  /* Compensation pour la bordure plus épaisse */
+            }}
         """)
-
-        search_layout.addWidget(self.search_field)
-        search_layout.addWidget(self.instance_combo)
-
-        # ---- Boutons (droite) ----
-        buttons_container = QWidget()
-        buttons_layout = QHBoxLayout(buttons_container)
-        buttons_layout.setContentsMargins(0, 0, 0, 0)
-        buttons_layout.setSpacing(10)
-
-        button_style = """
-            QPushButton {
-                padding: 8px 18px;
+        self.search_field.textChanged.connect(self.filter_table)
+        
+        # Sélecteur d'instance avec icône
+        self.instance_combo = QComboBox()
+        self.instance_combo.addItems([f"media{i}" for i in range(1, 11)])
+        self.instance_combo.setCurrentText(self.user_choice)
+        self.instance_combo.setCurrentIndex(0)
+        self.instance_combo.currentIndexChanged.connect(self.on_instance_changed)
+        self.instance_combo.setStyleSheet(f"""
+            QComboBox {{
+                padding: 8px 15px 8px 10px;
                 font-size: 14px;
-                font-weight: 500;
+                border: 1px solid #ddd;
+                border-radius: 20px;
+                background-color: white;
+            }}
+            QComboBox:hover {{
+                border: 1px solid {self.primary_color};
+            }}
+            QComboBox:focus {{
+                border: 2px solid {self.primary_color};
+                padding: 7px 14px 7px 9px;
+            }}
+            QComboBox::drop-down {{
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 25px;
+                border-left-width: 1px;
+                border-left-color: #ddd;
+                border-left-style: solid;
+                border-top-right-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }}
+            QComboBox::down-arrow {{
+                image: url(icons/down-arrow.png);
+                width: 12px;
+                height: 12px;
+            }}
+        """)
+        
+        # Boutons d'action avec effets visuels améliorés
+        button_style = """
+            QPushButton {{
+                padding: 8px 15px;
+                font-size: 14px;
                 border-radius: 20px;
                 border: none;
                 color: white;
-                font-family: "Segoe UI", sans-serif;
-            }
-            QPushButton:hover {
-                opacity: 0.92;
-            }
+                background-color: {0};
+                min-width: 120px;
+            }}
+            QPushButton:hover {{
+                background-color: {1};
+                transform: translateY(-1px);
+            }}
+            QPushButton:pressed {{
+                transform: translateY(1px);
+            }}
         """
 
+        self.add_note_button = QPushButton("📋 Ajouter Note")
+        self.add_note_button.setStyleSheet(button_style.format(
+            self.secondary_color, 
+            QColor(self.secondary_color).darker(110).name()
+        ))
+        self.add_note_button.clicked.connect(self.import_media)
+        
+        self.add_maj_button = QPushButton("↺")
+        self.add_maj_button.setStyleSheet(button_style.format(
+            self.secondary_color, 
+            QColor(self.secondary_color).darker(110).name()
+        ))
+        self.add_maj_button.clicked.connect(self.import_media)
+        
+
         self.add_media_button = QPushButton("➕ Ajouter média")
-        self.add_media_button.setStyleSheet(button_style + "background: #10B981;")
+        self.add_media_button.setStyleSheet(button_style.format(
+            self.secondary_color, 
+            QColor(self.secondary_color).darker(110).name()
+        ))
         self.add_media_button.clicked.connect(self.import_media)
-
+        
         self.action_button = QPushButton("📋 Actions")
-        self.action_button.setStyleSheet(button_style + "background: #3B82F6;")
+        self.action_button.setStyleSheet(button_style.format(
+            self.primary_color,
+            QColor(self.primary_color).darker(110).name()
+        ))
         self.action_button.setMenu(self.create_action_menu())
-
+        
         self.settings_button = QPushButton("⚙️ Paramètres")
-        self.settings_button.setStyleSheet(button_style + "background: #6B7280;")
+        self.settings_button.setStyleSheet(button_style.format(
+            "#7f8c8d",
+            QColor("#7f8c8d").darker(110).name()
+        ))
         self.settings_button.setMenu(self.create_settings_menu())
-
+        
         self.update_robot_button = QPushButton("🤖 Envoyer au robot")
-        self.update_robot_button.setStyleSheet(button_style + "background: #F59E0B;")
+        self.update_robot_button.setStyleSheet(button_style.format(
+            self.accent_color,
+            QColor(self.accent_color).darker(110).name()
+        ))
         self.update_robot_button.clicked.connect(self.show_update_modal)
+      
+      
+        toolbar_layout.addWidget(self.title_label)
+        
+        # Ajout des éléments avec ordre logique et espacement
+        toolbar_layout.addWidget(self.search_field)
+        toolbar_layout.addWidget(self.instance_combo)
+        toolbar_layout.addStretch()
+        toolbar_layout.addWidget(self.add_media_button)
+        # toolbar_layout.addWidget(self.add_note_button)
+        # toolbar_layout.addWidget(self.add_maj_button)
 
-        buttons_layout.addWidget(self.add_media_button)
-        buttons_layout.addWidget(self.action_button)
-        buttons_layout.addWidget(self.settings_button)
-        buttons_layout.addWidget(self.update_robot_button)
-
-        # ---- Intégration finale ----
-        top_layout.addWidget(logo_title)
-        top_layout.addStretch()
-        top_layout.addWidget(search_group)
-        top_layout.addStretch()
-        top_layout.addWidget(buttons_container)
-
-        layout.addWidget(top_bar)
+        toolbar_layout.addWidget(self.action_button)
+        toolbar_layout.addWidget(self.settings_button)
+        toolbar_layout.addWidget(self.update_robot_button)
+        
+        layout.addWidget(toolbar)
 
         # Tableau amélioré
         # ----------------------------
@@ -3408,7 +3505,7 @@ class MediaTable(QWidget):
         header_layout.addStretch()
         header_layout.addWidget(self.user_button)
         
-        layout.addWidget(self.header)
+        # layout.addWidget(self.header)
 
         # ----------------------------
         # Barre d'outils premium avec onglets
@@ -3460,7 +3557,27 @@ class MediaTable(QWidget):
         tab_layout = QHBoxLayout(main_tab)
         tab_layout.setContentsMargins(15, 15, 15, 15)
         tab_layout.setSpacing(15)
+
+
+      
+        self.title_label = QLabel("FBK GROUP MANAGEMENT")
+        self.title_label.setStyleSheet(f"""
+            QLabel {{
+                color: white;
+                font-size: 22px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }}
+        """)
+        self.title_label.setAlignment(Qt.AlignVCenter)
         
+        title_layout.addWidget(self.logo_label)
+        title_layout.addWidget(self.title_label)
+        title_layout.addStretch()
+
+
+
         # Barre de recherche avec icône intégrée
         search_container = QWidget()
         search_container.setStyleSheet(".shadow-effect;")
@@ -3598,6 +3715,8 @@ class MediaTable(QWidget):
         self.update_robot_button.clicked.connect(self.show_update_modal)
         
         # Ajout des éléments avec espacement
+        tab_layout.addWidget(search_container)
+
         tab_layout.addWidget(search_container)
         tab_layout.addWidget(self.instance_combo)
         tab_layout.addStretch()
