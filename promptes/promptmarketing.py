@@ -1201,7 +1201,8 @@ class MarketingAIAnalyzer(QMainWindow):
         
     def init_db(self):
         """Initialise la base de données avec un jeu de données complet"""
-        self.db_path = "marketing_a1i.db"
+        from imports import DB_PATH_prompt_command
+        self.db_path = DB_PATH_prompt_command
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
