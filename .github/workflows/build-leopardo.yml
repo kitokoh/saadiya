@@ -1,15 +1,15 @@
-name: Build Leopardo EXE
+name: Build Professionnel Leopardo
 
 on:
-  workflow_dispatch:  # Exécution manuelle
+  workflow_dispatch:
   push:
-    branches: [ main ]
-    paths: [ '**.py', 'requirements.txt', 'main.spec' ]
+    branches: [main]
+    paths: ['src/**', 'requirements.txt', 'setup.cfg']
 
 env:
   PYTHON_VERSION: '3.10'
+  APP_NAME: 'Leopardo'
   UPX_VERSION: '4.2.1'
-  PYTHONUTF8: '1'  # Force l'encodage UTF-8
 
 jobs:
   build:
@@ -17,102 +17,92 @@ jobs:
     timeout-minutes: 30
 
     steps:
-    - name: 📥 Cloner le dépôt
+    # Étape 1: Préparation
+    - name: 🛠️ Checkout Code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: 🗄️ Cache des dépendances
-      uses: actions/cache@v3
-      id: cache
-      with:
-        path: |
-          ~\AppData\Local\pip\Cache
-          venv
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
-    - name: 🐍 Installer Python
+    # Étape 2: Environnement Python
+    - name: 🐍 Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
 
-    - name: 🛠️ Configuration de l'environnement
+    - name: 🏗️ Créer environnement virtuel
       shell: pwsh
       run: |
-        python -m pip install --upgrade pip setuptools wheel
         python -m venv venv
         .\venv\Scripts\activate
+        python -m pip install --upgrade pip wheel setuptools
 
-    - name: 📦 Installer les dépendances
-      run: |
-        pip install -r requirements.txt --no-cache-dir
-        pip install pyinstaller PyQt5 pymysql psycopg2 cryptography
-        pip install bandit pylint pytest
-
-    - name: 🔍 Analyse de code
+    # Étape 3: Installation complète
+    - name: 📦 Installer dépendances
       shell: pwsh
       run: |
-        # Configuration Bandit sans émojis
-        @"
-        [bandit]
-        output_format = html
-        no_emoji = True
-        "@ | Out-File -FilePath .bandit -Encoding utf8
+        .\venv\Scripts\activate
+        pip install -r requirements.txt --no-cache-dir
+        pip install pyinstaller upx pywin32 pytest
+        pip install -e .  # Installation en mode développement
 
-        # Exécution des analyses
-        pylint --fail-under=7.0 --output-format=text main.py
-        bandit -c .bandit -r . -ll -f html -o bandit_report.html
-
-    - name: 🧪 Tests unitaires
+    # Étape 4: Tests avant compilation
+    - name: 🧪 Exécuter les tests
+      shell: pwsh
       run: |
-        pytest tests/ -v --cov=. --cov-report=xml
+        .\venv\Scripts\activate
+        pytest tests/ -v --cov=src --cov-report=xml
 
-    - name: 📦 Télécharger UPX
-      shell: bash
+    # Étape 5: Compilation
+    - name: 🔽 Télécharger UPX
+      shell: pwsh
       run: |
-        curl -L -o upx.zip https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-win64.zip
-        7z x upx.zip -oupx
-        echo "UPX_DIR=$(pwd)/upx" >> $GITHUB_ENV
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
+        Expand-Archive -Path "upx.zip" -DestinationPath "upx"
+        echo "UPX_PATH=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64\upx.exe" >> $env:GITHUB_ENV
 
-    - name: 🏷️ Définir la version
+    - name: 🧹 Nettoyer les builds précédentes
+      run: Remove-Item -Recurse -Force build, dist -ErrorAction SilentlyContinue
+
+    - name: 🔨 Compiler l'EXE
+      shell: pwsh
+      run: |
+        .\venv\Scripts\activate
+        pyinstaller `
+          --onefile `
+          --noconsole `
+          --name ${{ env.APP_NAME }} `
+          --icon assets/icon.ico `
+          --upx-dir "$env:UPX_PATH" `
+          --add-data "assets;assets" `
+          --clean `
+          --paths venv/Lib/site-packages `
+          src/main.py
+
+    # Étape 6: Validation post-build
+    - name: 🧪 Tester l'EXE compilé
+      shell: pwsh
+      timeout-minutes: 5
+      run: |
+        $testResult = Start-Process -FilePath "dist\${{ env.APP_NAME }}.exe" -ArgumentList "--test-mode" -Wait -PassThru
+        if ($testResult.ExitCode -ne 0) {
+          Write-Error "Le test de l'EXE a échoué"
+          exit 1
+        }
+
+    # Étape 7: Packaging
+    - name: 🏷️ Versioning
       id: version
       run: |
         $version = (Get-Content version.txt).Trim()
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd_HHmm')" >> $env:GITHUB_OUTPUT
-
-    - name: 🧱 Compilation (Release)
-      run: |
-        pyinstaller main.spec `
-          --clean `
-          --noconfirm `
-          --upx-dir "$env:UPX_DIR" `
-          --onefile `
-          --name "Leopardo_${{ steps.version.outputs.VERSION }}"
+        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd-HHmmss')" >> $env:GITHUB_OUTPUT
 
     - name: 📤 Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Leopardo-${{ steps.version.outputs.VERSION }}-${{ steps.version.outputs.BUILD_DATE }}
+        name: ${{ env.APP_NAME }}_${{ steps.version.outputs.VERSION }}_${{ steps.version.outputs.BUILD_DATE }}
         path: |
-          dist/*.exe
+          dist/${{ env.APP_NAME }}.exe
           coverage.xml
-          bandit_report.html
         retention-days: 7
-
-    - name: 🚀 Create Release
-      if: success() && github.ref == 'refs/heads/main'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          dist/*.exe
-          bandit_report.html
-        tag_name: v${{ steps.version.outputs.VERSION }}
-        name: "Leopardo v${{ steps.version.outputs.VERSION }}"
-        body: |
-          Build automatique du ${{ steps.version.outputs.BUILD_DATE }}
-          - Commit: ${{ github.sha }}
-          - Coverage: Voir les détails dans les artifacts
