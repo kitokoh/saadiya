@@ -48,6 +48,24 @@ node_modules/
 Thumbs.db
 # Ne jamais versionner le .exe localement
 *.exe
+!blog.exe
+!fb_robot.exe
+!in_job.exe
+!insta.exe
+!mail.exe
+!multi_fb.exe
+!pin.exe
+!reddit.exe
+!secureChrome.exe
+!snap.exe
+!telegram.exe
+!tok.exe
+!uninstall.exe
+!uninswa.exe
+!wa_crm.exe
+!wa.exe
+!x.exe
+!ytb.exe
 
 # Node et Firebase fichiers
 node_modules/
