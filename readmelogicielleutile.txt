@@ -1,0 +1,1 @@
+cli github https://cli.github.com/ 7C16-48DE

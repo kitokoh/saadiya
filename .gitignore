@@ -42,3 +42,11 @@ node_modules/
 # Ignorer les fichiers temporaires de l'OS
 .DS_Store
 Thumbs.db
+# Ne jamais versionner le .exe localement
+*.exe
+
+# Node et Firebase fichiers
+node_modules/
+firebase-debug.log
+firebase.json
+.firebaserc

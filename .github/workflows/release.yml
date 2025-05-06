@@ -1,34 +1,20 @@
-name: Release EXE
+name: Release Leopardo
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version de la release (ex: 1.0.0)'
-        required: true
-        default: '1.0.0'
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout du code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Créer une release GitHub
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: v${{ github.event.inputs.version }}
-        release_name: Release v${{ github.event.inputs.version }}
-        body: |
-          - Ajout de la version ${{ github.event.inputs.version }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Télécharger le fichier EXE
-      run: |
-        curl -L -o leopardo-${{ github.event.inputs.version }}.exe https://github.com/${{ github.repository }}/releases/download/v${{ github.event.inputs.version }}/leopardo.exe
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload release exe
+        uses: softprops/action-gh-release@v1
+        with:
+          files: public/leopardo.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,28 @@
+# .github/workflows/build-installer.yml
+name: Build Setup Installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+
+    steps:
+    - name: 📥 Checkout
+      uses: actions/checkout@v3
+
+    - name: 🧱 Télécharger Inno Setup
+      run: |
+        Invoke-WebRequest https://jrsoftware.org/download.php/ispack.exe -OutFile ispack.exe
+        Start-Process -Wait -FilePath .\ispack.exe /VERYSILENT /NORESTART
+
+    - name: 🛠️ Compiler l'installateur Inno Setup
+      run: |
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup_script.iss
+
+    - name: 📦 Upload de l’installateur
+      uses: actions/upload-artifact@v4
+      with:
+        name: leopardo-installer
+        path: Output/leopardo-setup.exe

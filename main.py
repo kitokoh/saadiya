@@ -3260,3 +3260,57 @@ def check_update():
                 webbrowser.open(data["url"])
     except Exception as e:
         print("Erreur lors de la vérification des mises à jour :", e)
+
+
+
+
+
+import requests
+import json
+import os
+import shutil
+
+VERSION_ACTUELLE = "1.9"
+
+def get_latest_version_info():
+    url = "https://leopardo-ai.web.app/version.json"  # lien Firebase Hosting
+    response = requests.get(url)
+    return response.json()
+
+def update_app():
+    info = get_latest_version_info()
+    if info["version"] != VERSION_ACTUELLE:
+        print(f"📥 Nouvelle version disponible : {info['version']}")
+        exe_url = info["url"]
+        new_file = "leopardo_new.exe"
+        
+        r = requests.get(exe_url, stream=True)
+        with open(new_file, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+        
+        print("✅ Téléchargement terminé.")
+        # Facultatif : Exécuter le nouveau .exe, puis fermer l'app actuelle
+        os.startfile(new_file)
+        os._exit(0)  # Ferme l'ancienne version
+    else:
+        print("🟢 Aucune mise à jour nécessaire.")
+
+
+
+
+import tkinter as tk
+from tkinter import messagebox
+from threading import Thread
+
+def check_for_update():
+    info = get_latest_version_info()
+    if info["version"] != VERSION_ACTUELLE:
+        should_update = messagebox.askyesno(
+            "Mise à jour disponible",
+            f"La version {info['version']} est disponible. Voulez-vous l'installer ?"
+        )
+        if should_update:
+            download_and_execute(info["url"])
+
+Thread(target=check_for_update).start()
