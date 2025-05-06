@@ -390,7 +390,9 @@ class ContactDialog(QDialog):
             self.conn.commit()
         self.accept()
 roaming_folder = os.environ['APPDATA']
-db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+from imports import DB_PATH_contacts
+db_path = DB_PATH_contacts
+# db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
 #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
 
 # Create database connection and table
@@ -402,13 +404,15 @@ class ContactTable(QWidget):
         super().__init__(parent)
         #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
         roaming_folder = os.environ['APPDATA']
-        db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+        # db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+        from imports import DB_PATH_contacts
+        db_path = DB_PATH_contacts
         self.conn = create_connection(db_path)
         create_table(self.conn)
         layout = QVBoxLayout(self)
         # Add the header
-        header = HeaderSection(self, title=self.tr("Contact Management"), app_name=self.tr("Leopardo AI"), slogan=self.tr("AI Marketing & Management Auto"))
-        layout.addWidget(header)
+        # header = HeaderSection(self, title=self.tr("Contact Management"), app_name=self.tr("Leopardo AI"), slogan=self.tr("AI Marketing & Management Auto"))
+        # layout.addWidget(header)
         self.contacts = self.load_contacts()
         self.items_per_page = 10
         self.current_page = 1
@@ -418,6 +422,16 @@ class ContactTable(QWidget):
         top_layout.setContentsMargins(10, 0, 10, 20)  # Add margins for better spacing
         top_layout.setSpacing(15)  # Spacing between elements
 
+        self.title_label = QLabel("Contacts")
+        self.title_label.setAlignment(Qt.AlignCenter)  # Centre le texte horizontalement
+        self.title_label.setStyleSheet("""
+            color: #3b82f6;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: transparent;  /* Optionnel selon votre fond */
+        """)
+        top_layout.addWidget(self.title_label)
         # Search bar
         self.search_field = QLineEdit(self)
         self.search_field.setPlaceholderText(self.tr("Search contacts..."))
@@ -472,7 +486,9 @@ class ContactTable(QWidget):
 
         #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
         roaming_folder = os.environ['APPDATA']
-        self.db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+        # self.db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+        from imports import DB_PATH_contacts
+        self.db_path = DB_PATH_contacts
         self.output_folder = get_output_folder()
 
         add_send_button = QPushButton(self.tr("🚀 Send to Robot"), self)
@@ -1085,8 +1101,10 @@ if __name__ == "__main__":
     # Database path
     #db_path = os.path.join(os.path.expanduser('~'), 'Downloads', 'AI-WA-Robot', 'contacts.db')
     roaming_folder = os.environ['APPDATA']
-    db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
+    # db_path = os.path.join(roaming_folder, 'saadiya', 'resources', 'contact.db')
     # Create database connection and table
+    from imports import DB_PATH_contacts
+    db_path = DB_PATH_contacts
     conn = create_connection(db_path)
     create_table(conn)
 

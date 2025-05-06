@@ -277,4 +277,109 @@
             conn.close()
 
 
+#from management 
 
+    def init_db(self):
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            
+            # Table des utilisateurs
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    full_name TEXT NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    role TEXT NOT NULL,
+                    phone TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Table des membres d'équipe
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS team_members (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    department TEXT NOT NULL,
+                    hire_date TEXT NOT NULL,
+                    performance INTEGER DEFAULT 0,
+                    skills TEXT,
+                    notes TEXT,
+                    status TEXT DEFAULT 'active'
+                )
+            ''')
+            
+            # Table des projets
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS projects (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    start_date TEXT NOT NULL,
+                    deadline TEXT NOT NULL,
+                    budget REAL NOT NULL,
+                    status TEXT DEFAULT 'planning',
+                    progress INTEGER DEFAULT 0,
+                    manager_id INTEGER,
+                    priority TEXT DEFAULT 'medium',
+                    FOREIGN KEY (manager_id) REFERENCES team_members(id)
+                )
+            ''')
+            
+            # Table des tâches
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS tasks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    project_id INTEGER NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    assignee_id INTEGER,
+                    status TEXT DEFAULT 'todo',
+                    priority TEXT DEFAULT 'medium',
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    deadline TEXT,
+                    completed_at TEXT,
+                    FOREIGN KEY (project_id) REFERENCES projects(id),
+                    FOREIGN KEY (assignee_id) REFERENCES team_members(id)
+                )
+            ''')
+            
+            # Table des KPI
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS kpis (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    value REAL NOT NULL,
+                    target REAL NOT NULL,
+                    trend TEXT NOT NULL,
+                    unit TEXT NOT NULL,
+                    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Table des activités
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS activities (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER,
+                    action TEXT NOT NULL,
+                    details TEXT,
+                    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            ''')
+            
+            # Insérer l'admin par défaut si nécessaire
+            cursor.execute("SELECT COUNT(*) FROM users WHERE role='admin'")
+            if cursor.fetchone()[0] == 0:
+                hashed_pwd = hashlib.sha256('admin123'.encode()).hexdigest()
+                cursor.execute('''
+                    INSERT INTO users (username, password, full_name, email, role)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', ('admin', hashed_pwd, 'Administrateur', 'admin@company.com', 'admin'))
+            
+            conn.commit()
+    

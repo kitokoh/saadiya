@@ -23,9 +23,9 @@ from PyQt5.QtWidgets import QDoubleSpinBox
 from PyQt5.QtWidgets import QDoubleSpinBox
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtCore import QSize
-
+from imports import DB_PATH_management
 class DatabaseManager:
-    def __init__(self, db_name='management.db'):
+    def __init__(self, db_name=DB_PATH_management):
         self.db_name = db_name
         self.init_db()
         
@@ -214,7 +214,8 @@ class MainDashboard(QMainWindow):
 
         # Vérifier si l'utilisateur est connecté
         if not self.current_user:
-            self.show_login_dialog()
+            pass
+            # self.show_login_dialog()
 
 
     def setup_sidebar(self):

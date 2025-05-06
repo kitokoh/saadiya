@@ -47,6 +47,7 @@ user_data_dir = get_user_data_dir()
 DB_PATH = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'groups333.db')
 # DB_PATH_links = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'links1.db')
 # DB_PATH_prompts = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts1.db')
+# DB_PATH_management = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'management.db')
 
 # DB_PATH_prompts_archiv = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'prompts_backup.db')
 
@@ -57,7 +58,11 @@ DB_PATH_links = DB_PATH
 DB_PATH_prompts = DB_PATH
 DB_PATH_notes = DB_PATH     
 DB_PATH_prompts_archiv = DB_PATH
-
+DB_PATH_management = DB_PATH
+DB_PATH_instances = DB_PATH
+DB_PATH_finances = DB_PATH
+DB_PATH_contacts = DB_PATH
+DB_PATH_licence = DB_PATH
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
 

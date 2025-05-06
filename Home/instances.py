@@ -119,6 +119,7 @@ class InstanceTable(QWidget):
         """Charge les données des instances depuis SQLite, ou crée la base de données si elle est introuvable."""
         instances = []
         roaming_path = os.path.expandvars(r'%APPDATA%')
+        from imports import DB_PATH_instances
         db_path = os.path.join(roaming_path, 'saadiya', 'resources', 'data', 'nova360.db')
 
         # Vérifie si le dossier et le fichier de la base de données existent

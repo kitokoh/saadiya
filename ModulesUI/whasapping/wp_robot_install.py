@@ -1161,7 +1161,10 @@ class WpRobot(QtWidgets.QWidget):
     
     def add_new_instance_to_db(instance_name, instance_type, facebook_user_name, licence_request_date):
         try:
-            conn = sqlite3.connect(os.path.join(user_data_dir, 'resources', 'data', 'nova360.db'))
+            from imports import DB_PATH_contacts
+            conn = sqlite3.connect(os.path.join(user_data_dir, DB_PATH_contacts))
+            # conn = sqlite3.connect(os.path.join(user_data_dir, 'resources', 'data', 'nova360.db'))
+
             cursor = conn.cursor()
 
             # Insertion dans la table `instances`

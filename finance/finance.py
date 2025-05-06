@@ -33,8 +33,9 @@ COLORS = {
 }
 
 ## Database Manager (Enhanced)
+from imports import DB_PATH_finances
 class DatabaseManager:
-    def __init__(self, db_name='crypto_strategy_v2.db'):
+    def __init__(self, db_name=DB_PATH_finances):
         self.conn = sqlite3.connect(db_name)
         self._init_db()
         

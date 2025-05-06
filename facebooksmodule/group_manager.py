@@ -4133,7 +4133,7 @@ class GroupTable(QWidget):
     def init_ui(self):
         """Initialisation complète de l'interface utilisateur"""
         self.setup_main_layout()
-        self.setup_header()
+        # self.setup_header()
         self.setup_controls()
         self.setup_table()
         self.setup_column_toggles()
@@ -4166,7 +4166,17 @@ class GroupTable(QWidget):
         """Configuration des contrôles supérieurs"""
         control_layout = QHBoxLayout()
         control_layout.setSpacing(15)
-        
+
+        self.title_label = QLabel("FBK GROUP")
+        self.title_label.setAlignment(Qt.AlignCenter)  # Centre le texte horizontalement
+        self.title_label.setStyleSheet("""
+            color: #3b82f6;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: transparent;  /* Optionnel selon votre fond */
+        """)
+        control_layout.addWidget(self.title_label)       
         # Bouton Action
         self.action_btn = self.create_tool_button("⚡ Actions", "#3498db")
         self.setup_action_menu()
@@ -5255,7 +5265,7 @@ class GroupTable(QWidget):
     def init_ui(self):
         """Initialisation complète de l'interface utilisateur"""
         self.setup_main_layout()
-        self.setup_header()
+        # self.setup_header()
         self.setup_controls()
         self.setup_table()
         self.setup_column_toggles()

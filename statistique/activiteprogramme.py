@@ -434,18 +434,29 @@ class Activite(QtWidgets.QWidget):
         self.setWindowIcon(QtGui.QIcon("resources/icons/calendar.ico"))
 
         # Main title with gradient effect
-        title_label = QtWidgets.QLabel(self.tr("📅 Scheduled Activities Manager"))
-        title_label.setAlignment(QtCore.Qt.AlignCenter)
-        title_label.setFont(QtGui.QFont("Segoe UI", 24, QFont.Bold))
-        title_label.setStyleSheet("""
-            QLabel {
-                color: #2c3e50;
-                padding: 10px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #3498db, stop:1 #2c3e50);
-                border-radius: 10px;
-                color: white;
-            }
+        # title_label = QtWidgets.QLabel(self.tr("📅 Scheduled Activities Manager"))
+        # title_label.setAlignment(QtCore.Qt.AlignCenter)
+        # title_label.setFont(QtGui.QFont("Segoe UI", 24, QFont.Bold))
+        # title_label.setStyleSheet("""
+        #     QLabel {
+        #         color: #2c3e50;
+        #         padding: 10px;
+        #         background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        #             stop:0 #3498db, stop:1 #2c3e50);
+        #         border-radius: 10px;
+        #         color: white;
+        #     }
+        # """)
+
+
+        self.title_label = QtWidgets.QLabel("Scheduled")
+        self.title_label.setAlignment(Qt.AlignCenter)  # Centre le texte horizontalement
+        self.title_label.setStyleSheet("""
+            color: #3b82f6;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px;
+            background-color: transparent;  /* Optionnel selon votre fond */
         """)
 
         # Search bar with modern style
@@ -576,6 +587,7 @@ class Activite(QtWidgets.QWidget):
         # Top bar layout with search and buttons
         top_bar_layout = QtWidgets.QHBoxLayout()
         top_bar_layout.setSpacing(15)
+        top_bar_layout.addWidget(self.title_label)
         top_bar_layout.addWidget(self.search_entry, 4)
         top_bar_layout.addWidget(self.search_button, 1)
         top_bar_layout.addWidget(self.add_button, 1)
@@ -664,7 +676,7 @@ class Activite(QtWidgets.QWidget):
         main_layout.setContentsMargins(20, 20, 20, 20)
         
         # Add widgets to main layout
-        main_layout.addWidget(title_label)
+        # main_layout.addWidget(title_label)
         main_layout.addLayout(top_bar_layout)
         main_layout.addWidget(self.table)
         

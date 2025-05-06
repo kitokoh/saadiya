@@ -3048,7 +3048,7 @@ class MediaTable(QWidget):
 
 
 
-        self.title_label = QLabel("FBK GROUP")
+        self.title_label = QLabel("Medias")
         self.title_label.setAlignment(Qt.AlignCenter)  # Centre le texte horizontalement
         self.title_label.setStyleSheet("""
             color: #3b82f6;

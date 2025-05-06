@@ -207,7 +207,8 @@ class ManagementDashboardPro(QMainWindow):
 
         # Vérifier si l'utilisateur est connecté
         if not self.current_user:
-            self.show_login_dialog()
+            pass
+            # self.show_login_dialog()
 
 
     def setup_sidebar(self):
@@ -1241,7 +1242,7 @@ class ManagementDashboardPro(QMainWindow):
         self.current_user = None
         self.user_name.setText("Invité")
         self.user_role.setText("Non connecté")
-        self.show_login_dialog()
+        # self.show_login_dialog()
     
     def log_activity(self, action, details=None):
         with self.db.get_connection() as conn:

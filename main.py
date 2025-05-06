@@ -1063,7 +1063,7 @@ class Browser(QMainWindow):
      
    
     def open_sheduling_window(self):
-        tab_name = self.tr("shedulings")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("⏰ shedulings")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1073,11 +1073,11 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'shedulings') or self.sheduling is None:
+        if not hasattr(self, '⏰ shedulings') or self.sheduling is None:
             self.sheduling = Activite()  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.sheduling, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.sheduling, tab_name, "resources/icons/multi_fbb.ico")
 
 
 
@@ -1236,9 +1236,11 @@ class Browser(QMainWindow):
 
     def open_links_window(self):
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("links")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("🔗 links")  # Tab name (matches the label used in add_custom_tab)
 
-        # Check if a tab with this name already exists
+        # Check if a tab with this name already exists :
+
+
         existing_tab_index = self.find_tab_by_name(tab_name)
         if existing_tab_index != -1:
             # If the tab already exists, select it
@@ -1246,11 +1248,11 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'links') or self.settings is None:
-            self.settings = MainWindowLink(main_app=self)  # Create the instance only once
+        if not hasattr(self, '🔗 links') or self.links is None:
+            self.links = MainWindowLink(main_app=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.settings, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.links, tab_name, "resources/icons/multi_fbb.ico")
     def open_exports_window(self):
         """Open a tab with the content of the 'SettingsWidget' class."""
         tab_name = self.tr("exports")  # Tab name (matches the label used in add_custom_tab)
@@ -1306,7 +1308,7 @@ class Browser(QMainWindow):
 
     def open_prompts_window(self):
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("prompts")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("⚡prompts")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1316,7 +1318,7 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'prompts') or self.prompts is None:
+        if not hasattr(self, '⚡ prompts') or self.prompts is None:
             self.prompts = PromptManager(main_app=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
@@ -1344,7 +1346,7 @@ class Browser(QMainWindow):
         from ModulesUI.whasapping.group_manager import ContactTable
 
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("contacts")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("👥 contacts")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1354,18 +1356,18 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'contacts') or self.contacts is None:
+        if not hasattr(self, '👥 contacts') or self.contacts is None:
             self.contacts = ContactTable(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.contacts, tab_name, "resources/icons/multi_fbb.ico")
    
     def open_grups_window(self):
         from facebooksmodule.group_manager import GroupTable
 
 
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("groups")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("👥 groups")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1375,18 +1377,18 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'groups') or self.groups is None:
+        if not hasattr(self, '👥 groups') or self.groups is None:
             self.groups = GroupTable(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.groups, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.groups, tab_name, "resources/icons/multi_fbb.ico")
    
       
     def add_media_page(self):
         from facebooksmodule.media_manager import MediaTable
 
         """Open a tab with the content of the 'SettingsWidget' class."""
-        tab_name = self.tr("Medias")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("📺 Medias")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1396,24 +1398,24 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'medias') or self.medias is None:
+        if not hasattr(self, '📺 Medias') or self.medias is None:
             self.medias = MediaTable(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.medias, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.medias, tab_name, "resources/icons/multi_fbb.ico")
 
     def open_help_window(self):
         """Open a tab with the content of the 'HelpWidget' class."""
         widget = HelpWidget()
-        self.add_custom_tab(widget, self.tr("Help"), "resources/icons/multi_fb.ico")
+        self.add_custom_tab(widget, self.tr("🆘 Help"), "resources/icons/multi_fb.ico")
 
     def open_remote_window(self):
         """Open a tab with the content of the 'HelpWidget' class."""
         widget = HelpWidget()
-        self.add_custom_tab(widget, self.tr("Help"), "resources/icons/multi_fb.ico")
+        self.add_custom_tab(widget, self.tr("🆘 Help"), "resources/icons/multi_fb.ico")
 
     def open_upgrade_window1(self):
-        tab_name = self.tr("Upgrade")  # ajoute aussi le module licene.upgrade
+        tab_name = self.tr("🚀 Upgrade")  # ajoute aussi le module licene.upgrade
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1423,7 +1425,7 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'upgrades') or self.upgrades is None:
+        if not hasattr(self, '🚀 Upgrade') or self.upgrades is None:
             self.upgrades = SpecialOfferWindow(main_app=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
@@ -2051,12 +2053,12 @@ class Browser(QMainWindow):
             ]),
             
             # Beta Features section
-            ("✨", self.tr("Beta"), "beta", None, self.tr("Beta options"), [
+            ("✨", self.tr("Features"), "beta", None, self.tr("Beta options"), [
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
-                ("🏛️", self.tr("Licenses"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
+                # ("🏛️", self.tr("Licenses"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("Marketing tools"), []),
                 ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
-                ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
+                # ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
             ]),
             
             # Data section
@@ -2078,23 +2080,25 @@ class Browser(QMainWindow):
             
             # Settings section
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
-                ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
+                # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
 
                 ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("Add app"), []),
-                ("📦", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
-                ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
+                ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), []),
+
+            ]),
+            # Upgrade button
+            
+
+            ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
                     ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
                     ("🏰", self.tr("English"), "english", lambda: self.switch_language("en"), self.tr("English language"), []),
                     ("🕋", self.tr("Arabic"), "arabic", lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
                     ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
                     ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
-                ]),
             ]),
-            # Upgrade button
-            ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), []),
-            
         ]
 
         self.menu_buttons = []
@@ -2333,31 +2337,31 @@ class Browser(QMainWindow):
 
 
     def open_management(self):
-        tab_name = self.tr("Management")
+        tab_name = self.tr("🧠 Management")
 
         existing_tab_index = self.find_tab_by_name(tab_name)
         if existing_tab_index != -1:
             self.tab_widget.setCurrentIndex(existing_tab_index)
             return
 
-        if not hasattr(self, 'management') or self.management is None:
+        if not hasattr(self, '🧠 Management') or self.management is None:
             from Home.homeManagement import MainDashboard
             self.management = MainDashboard()
 
         self.add_custom_tab(self.management, tab_name, "resources/icons/management.ico")
     def open_marketing(self):
-        tab_name = self.tr("Marketing")
+        tab_name = self.tr("📣 Marketing Auto")
 
         existing_tab_index = self.find_tab_by_name(tab_name)
         if existing_tab_index != -1:
             self.tab_widget.setCurrentIndex(existing_tab_index)
             return
 
-        if not hasattr(self, 'marketing') or self.marketing is None:
-            from Home.login import Nova360ProApp
-            self.marketing = Nova360ProApp(main_app=self)
+        if not hasattr(self, '📣 Marketing Auto') or self.marketingauto is None:
+            from Home.home import HomePage
+            self.marketingauto = HomePage(main_app=self)
 
-        self.add_custom_tab(self.marketing, tab_name, "resources/icons/marketing.ico")
+        self.add_custom_tab(self.marketingauto, tab_name, "resources/icons/marketing.ico")
 
     def open_home(self):
         tab_name = self.tr("home")
@@ -2373,7 +2377,21 @@ class Browser(QMainWindow):
 
         self.add_custom_tab(self.marketing, tab_name, "resources/icons/marketing.ico")
 
-             
+    def open_home(self):
+        tab_name = self.tr("🏠 Home")  # Changed to include home emoji
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'home') or self.home is None:
+            from promptes.promptmarketing import MarketingAIAnalyzer
+            self.marketing = MarketingAIAnalyzer(parent=self)
+
+        self.add_custom_tab(self.marketing, tab_name, "📊")  # Changed to marketing/analytics emoji
+        
+                    
     def open_marketing1(self):
         tab_name = self.tr("Marketing")
 
@@ -2422,14 +2440,14 @@ class Browser(QMainWindow):
         self.loader_thread.finished.connect(load_management)
         self.loader_thread.start()
     def open_finance(self):
-        tab_name = self.tr("Finance")
+        tab_name = self.tr("💵 Finance")
 
         existing_tab_index = self.find_tab_by_name(tab_name)
         if existing_tab_index != -1:
             self.tab_widget.setCurrentIndex(existing_tab_index)
             return
 
-        if not hasattr(self, 'finance') or self.finance is None:
+        if not hasattr(self, '💵 finance') or self.finance is None:
             from finance.finance import CryptoStrategyApp
             self.finance = CryptoStrategyApp(parent=self)
 
