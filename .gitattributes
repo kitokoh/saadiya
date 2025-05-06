@@ -6,4 +6,8 @@
 
 # Optionnel : ignorer les binaires et .exe
 *.exe binary
+# Force LF
+* text=auto eol=lf
+# Garde CRLF sous Windows
+* text=auto eol=crlf
 
