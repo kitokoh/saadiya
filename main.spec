@@ -2,9 +2,6 @@
 import os
 from PyInstaller.utils.hooks import collect_data_files
 
-# Chemin absolu pour les ressources dans GitHub Actions
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
 # Collect qtwebengine locale files
 qtwebengine_locales = collect_data_files(
     'PyQt5',
@@ -14,7 +11,7 @@ qtwebengine_locales = collect_data_files(
 
 a = Analysis(
     ['main.py'],
-    pathex=[base_dir],  # Utilisation du chemin absolu
+    pathex=['.'],  # Chemin relatif corrigé (il manquait les guillemets)
     
     binaries=[
         (os.path.join('dlls', 'liblzma.dll'), '.'),
@@ -69,7 +66,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=os.path.join('resources', 'icons', 'robot-icons-30504-Windows.ico'),
-    distpath='dist',  # Modifié pour correspondre au standard GitHub Actions
+    distpath='dist',
     workpath='build',
     onefile=True
 )
