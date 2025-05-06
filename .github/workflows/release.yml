@@ -1,0 +1,40 @@
+name: Release EXE and Update Firebase
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 2.1.0)'
+        required: true
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Upload exe to release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.event.inputs.version }}
+        name: Release v${{ github.event.inputs.version }}
+        body: Auto-uploaded release from workflow
+        draft: false
+        prerelease: false
+        files: |
+          path/to/your/leopardo.exe
+
+    - name: Create version.json
+      run: |
+        echo "{" > version.json
+        echo "  \"version\": \"${{ github.event.inputs.version }}\"," >> version.json
+        echo "  \"url\": \"https://github.com/${{ github.repository }}/releases/download/v${{ github.event.inputs.version }}/leopardo.exe\"" >> version.json
+        echo "}" >> version.json
+
+    - name: Deploy version.json to Firebase
+      uses: w9jds/firebase-action@v13.0.2
+      with:
+        args: deploy --only hosting
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

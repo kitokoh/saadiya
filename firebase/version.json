@@ -1,1 +1,23 @@
-test 
+{
+    "hosting": {
+      "public": "firebase",
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "/your_app.exe",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/octet-stream"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  

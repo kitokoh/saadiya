@@ -3235,3 +3235,28 @@ if __name__ == "__main__":
 #     window = Browser()
 #     window.show()
 #     sys.exit(app.exec_())
+
+
+
+
+import requests
+from packaging import version
+from PyQt5.QtWidgets import QMessageBox
+
+VERSION_LOCAL = "1.9.0"
+
+def check_update():
+    try:
+        response = requests.get("https://leopardo-ai.web.app/version.json")
+        data = response.json()
+        version_en_ligne = data['version']
+        if version.parse(version_en_ligne) > version.parse(VERSION_LOCAL):
+            msg = QMessageBox()
+            msg.setWindowTitle("Nouvelle version disponible")
+            msg.setText(f"Une nouvelle version {version_en_ligne} est disponible.\n\nNotes : {data.get('notes', '')}\n\nTélécharger maintenant ?")
+            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            if msg.exec_() == QMessageBox.Yes:
+                import webbrowser
+                webbrowser.open(data["url"])
+    except Exception as e:
+        print("Erreur lors de la vérification des mises à jour :", e)
