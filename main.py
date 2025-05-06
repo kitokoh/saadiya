@@ -102,6 +102,8 @@ class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
         # Afficher le splash screen
+        self.splash = None  # Initialize the attribute
+
         self.show_splash_screen()
 
         self.translator = QTranslator()

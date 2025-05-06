@@ -21,16 +21,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install pyinstaller
+        pip install PyQt5 pymysql psycopg2 cryptography  # Ajout des dépendances spécifiques
 
     - name: 📦 Télécharger UPX (optionnel mais recommandé)
       run: |
         curl -L -o upx.zip https://github.com/upx/upx/releases/download/v4.2.1/upx-4.2.1-win64.zip
-        tar -xf upx.zip
-        echo "UPX_DIR=$(pwd)/upx-4.2.1-win64" >> $GITHUB_ENV
+        7z x upx.zip
+        echo "UPX_DIR=$env:GITHUB_WORKSPACE/upx-4.2.1-win64" >> $env:GITHUB_ENV
 
     - name: 🧱 Compiler avec PyInstaller (.spec)
       run: |
-        pyinstaller test.spec --clean --noconfirm --upx-dir "$env:UPX_DIR"
+        pyinstaller main.spec --clean --noconfirm --upx-dir "$env:UPX_DIR"
 
     - name: 📤 Uploader le fichier EXE compilé
       uses: actions/upload-artifact@v4
