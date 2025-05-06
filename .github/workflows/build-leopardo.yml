@@ -9,6 +9,7 @@ on:
 env:
   PYTHON_VERSION: '3.10'
   UPX_VERSION: '4.2.1'
+  PYTHONUTF8: '1'  # Force l'encodage UTF-8
 
 jobs:
   build:
@@ -49,12 +50,21 @@ jobs:
       run: |
         pip install -r requirements.txt --no-cache-dir
         pip install pyinstaller PyQt5 pymysql psycopg2 cryptography
-        pip install bandit pylint pytest  # Outils de développement
+        pip install bandit pylint pytest
 
     - name: 🔍 Analyse de code
+      shell: pwsh
       run: |
-        pylint --fail-under=7.0 main.py
-        bandit -r . -ll
+        # Configuration Bandit sans émojis
+        @"
+        [bandit]
+        output_format = html
+        no_emoji = True
+        "@ | Out-File -FilePath .bandit -Encoding utf8
+
+        # Exécution des analyses
+        pylint --fail-under=7.0 --output-format=text main.py
+        bandit -c .bandit -r . -ll -f html -o bandit_report.html
 
     - name: 🧪 Tests unitaires
       run: |
@@ -72,7 +82,7 @@ jobs:
       run: |
         $version = (Get-Content version.txt).Trim()
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd')" >> $env:GITHUB_OUTPUT
+        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd_HHmm')" >> $env:GITHUB_OUTPUT
 
     - name: 🧱 Compilation (Release)
       run: |
@@ -83,12 +93,6 @@ jobs:
           --onefile `
           --name "Leopardo_${{ steps.version.outputs.VERSION }}"
 
-    - name: 🔒 Signature du binaire (optionnel)
-      if: success() && github.ref == 'refs/heads/main'
-      run: |
-        # Ici vous pourriez ajouter une étape de signature avec signtool
-        echo "Signing would happen here with signtool"
-
     - name: 📤 Upload Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -96,14 +100,19 @@ jobs:
         path: |
           dist/*.exe
           coverage.xml
+          bandit_report.html
         retention-days: 7
 
-    - name: 🚀 Create Release (optionnel)
+    - name: 🚀 Create Release
       if: success() && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/*.exe
+        files: |
+          dist/*.exe
+          bandit_report.html
         tag_name: v${{ steps.version.outputs.VERSION }}
         name: "Leopardo v${{ steps.version.outputs.VERSION }}"
-        body: "Build automatique du ${{ steps.version.outputs.BUILD_DATE }}"
-
+        body: |
+          Build automatique du ${{ steps.version.outputs.BUILD_DATE }}
+          - Commit: ${{ github.sha }}
+          - Coverage: Voir les détails dans les artifacts
