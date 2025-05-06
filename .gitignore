@@ -38,7 +38,11 @@ node_modules/
 *.so
 *.dylib
 *.dll
-
+# Sauf ce fichier spécifique
+!libcrypto-3-x64.dll 
+!liblzma.dll 
+!libssl-3-x64.dll 
+!libcrypto-3-x64.dll
 # Ignorer les fichiers temporaires de l'OS
 .DS_Store
 Thumbs.db
