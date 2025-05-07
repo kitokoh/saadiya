@@ -2,10 +2,13 @@ name: Build Application PyQt
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
 
 env:
-  PYTHON_VERSION: '3.10'
-  APP_NAME: 'leopardo'
+  PYTHON_VERSION: '3.13'
+  APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
 
 jobs:
@@ -28,7 +31,7 @@ jobs:
     - name: 📦 Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller==6.13.0
+        pip install pyinstaller
         pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
         pip install -r requirements.txt
 
@@ -67,6 +70,8 @@ jobs:
     - name: 🔨 Build with .spec
       shell: pwsh
       run: |
+        $env:PYTHONPATH="$pwd"
+
         pyinstaller `
           main.spec `
           --noconfirm `
