@@ -1,42 +1,45 @@
-name: Test Inno Setup Installation with Release
+name: Test Inno Setup Installation
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag (e.g., v1.0.0)'
-        required: true
-        default: 'v0.0.0-test'
 
 jobs:
   test-innosetup:
     runs-on: windows-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
-    - name: 🛠️ Checkout code
+    - name: 🛠️ Checkout code (empty)
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    # Step 1: Install Inno Setup (portable)
-    - name: 🧪 Install Inno Setup
+    - name: 🧪 Download and Install Inno Setup
       shell: pwsh
       run: |
-        $version = "6.2.2"
-        $installDir = "C:\InnoSetup"
-        Write-Output "Downloading Inno Setup Portable $version..."
-        Invoke-WebRequest -Uri "https://github.com/innosetup/innosetup/releases/download/$version/innosetup-$version.zip" -OutFile "$env:RUNNER_TEMP\innosetup.zip"
-        Expand-Archive -Path "$env:RUNNER_TEMP\innosetup.zip" -DestinationPath $installDir -Force
-        echo "$installDir" >> $env:GITHUB_PATH
+        # Download
+        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
+        Write-Output "Downloading Inno Setup..."
+        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/ispack.exe" -OutFile $installerPath -UseBasicParsing
 
-    # Step 2: Create test installer
-    - name: 🏗️ Create Test Installer
+        # Install
+        Write-Output "Installing silently..."
+        Start-Process -FilePath $installerPath -ArgumentList "/VERYSILENT", "/NORESTART", "/DIR=C:\InnoSetup" -Wait -NoNewWindow
+
+        # Verify
+        if (Test-Path "C:\InnoSetup\ISCC.exe") {
+            Write-Output "✔ Installation successful!"
+            echo "C:\InnoSetup" >> $env:GITHUB_PATH
+        } else {
+            Write-Error "❌ Installation failed"
+            exit 1
+        }
+
+    - name: ✅ Verify Installation
       shell: pwsh
       run: |
+        # Create test ISS file
         $issContent = @"
 [Setup]
-AppName=Test Setup
+AppName=TestApp
 AppVersion=1.0
 DefaultDirName={autopf}\TestApp
 OutputDir=output
@@ -44,14 +47,14 @@ OutputBaseFilename=TestSetup
 "@
         New-Item -ItemType Directory -Path output -Force | Out-Null
         Set-Content -Path "test.iss" -Value $issContent
+
+        # Compile test installer
         ISCC test.iss
 
-    # Step 3: Create release with test installer
-    - name: 🚀 Create Test Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ github.event.inputs.tag }}
-        name: "Inno Setup Test Release (${{ github.event.inputs.tag }})"
-        body: "This is a test release verifying Inno Setup installation"
-        files: |
-          output/TestSetup.exe
+        # Verify output
+        if (Test-Path "output\TestSetup.exe") {
+            Write-Output "✔ Compilation successful!"
+        } else {
+            Write-Error "❌ Compilation failed"
+            exit 1
+        }
