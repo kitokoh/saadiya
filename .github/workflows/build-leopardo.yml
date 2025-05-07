@@ -2,13 +2,10 @@ name: Build Application PyQt
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
 
 env:
   PYTHON_VERSION: '3.10'
-  APP_NAME: 'Nova360'
+  APP_NAME: 'leopardo'
   UPX_VERSION: '4.2.1'
 
 jobs:
