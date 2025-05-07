@@ -1,4 +1,4 @@
-name: Build Leopardo EXE (Structure Racine)
+name: Build Leopardo EXE
 
 on:
   workflow_dispatch:
@@ -14,82 +14,63 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
 
     steps:
-    # Étape 1: Initialisation
-    - name: 🛠️ Checkout Code
+    - name: 🛠️ Checkout code
       uses: actions/checkout@v4
 
-    # Étape 2: Configuration Python
     - name: 🐍 Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
 
-    - name: 🏗️ Configurer l'environnement
+    - name: 🏗️ Create virtual environment
       shell: pwsh
       run: |
         python -m venv venv
         .\venv\Scripts\activate
         python -m pip install --upgrade pip wheel setuptools
 
-    # Étape 3: Installation
-    - name: 📦 Installer dépendances
+    - name: 📦 Install Python dependencies
       shell: pwsh
       run: |
         .\venv\Scripts\activate
-        pip install -r requirements.txt
-        pip install pyinstaller upx pywin32 pytest
+        # Installation spécifique pour psycopg2
+        pip install wheel
+        pip install psycopg2-binary==2.9.10 --no-cache-dir
+        # Installation des autres requirements
+        pip install -r requirements.txt --use-pep517 --no-cache-dir
+        # Outils de build
+        pip install pyinstaller==6.13.0
 
-
-
-    # Étape 5: Préparation build
-    - name: 🔽 Télécharger UPX
+    - name: 🔽 Download UPX manually
       shell: pwsh
       run: |
         Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
         Expand-Archive -Path "upx.zip" -DestinationPath "upx"
-        echo "UPX_PATH=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64\upx.exe" >> $env:GITHUB_ENV
+        echo "UPX_DIR=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64" >> $env:GITHUB_ENV
 
-    - name: 🧹 Nettoyage pré-build
+    - name: 🧹 Clean previous builds
       run: Remove-Item -Recurse -Force build, dist -ErrorAction SilentlyContinue
 
-    # Étape 6: Compilation
-    - name: 🔨 Builder l'EXE
+    - name: 🔨 Build executable
       shell: pwsh
       run: |
         .\venv\Scripts\activate
-        $add_data = @()
-        
-        # Ajout automatique des dossiers à la racine
-        Get-ChildItem -Directory | Where-Object {
-            $_.Name -notin @('venv', 'tests', 'build', 'dist', '.github')
-        } | ForEach-Object {
-            $add_data += "--add-data `"$($_.Name);$($_.Name)`""
-        }
-
         pyinstaller `
           --onefile `
           --noconsole `
           --name ${{ env.APP_NAME }} `
           --icon icon.ico `
-          --upx-dir "$env:UPX_PATH" `
-          $add_data `
+          --upx-dir "$env:UPX_DIR" `
+          --add-data "assets;assets" `
           --clean `
           main.py
 
-    # Étape 7: Post-build
-    - name: 🏷️ Générer version
-      id: version
-      run: |
-        $version = if (Test-Path "version.txt") { (Get-Content version.txt).Trim() } else { "1.0.0" }
-        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd-HHmm')" >> $env:GITHUB_OUTPUT
-
-    - name: 📤 Publier l'artifact
+    - name: 📤 Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.APP_NAME }}_${{ steps.version.outputs.VERSION }}
+        name: ${{ env.APP_NAME }}_Executable
         path: dist/${{ env.APP_NAME }}.exe
