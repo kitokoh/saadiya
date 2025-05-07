@@ -12,6 +12,17 @@ jobs:
     - name: 🛠️ Checkout code (empty)
       uses: actions/checkout@v4
 
+
+    - name: 🧪 Install Inno Setup (Portable)
+      shell: pwsh
+      run: |
+        $version = "6.2.2"
+        $installDir = "C:\InnoSetup"
+        Write-Output "Downloading Inno Setup Portable $version..."
+        Invoke-WebRequest -Uri "https://github.com/innosetup/innosetup/releases/download/$version/innosetup-$version.zip" -OutFile "$env:RUNNER_TEMP\innosetup.zip"
+        Expand-Archive -Path "$env:RUNNER_TEMP\innosetup.zip" -DestinationPath $installDir -Force
+        echo "$installDir" >> $env:GITHUB_PATH
+        
     - name: 🧪 Download and Install Inno Setup
       shell: pwsh
       run: |
