@@ -1,0 +1,72 @@
+name: Build Leopardo AI for Linux
+
+on:
+  push:
+    branches: [main]
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.13'
+  APP_NAME: 'Leopardo AI'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+    - name: 🛠️ Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: 📦 Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libxcb-xinerama0  # Important pour PyQt
+        pip install --upgrade pip
+        pip install pyinstaller
+        pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
+        pip install -r requirements.txt
+
+    - name: 🔍 Verify resources
+      run: |
+        for dir in resources lesClesNova360; do
+          if [ ! -d "$dir" ]; then
+            echo "❌ Dossier manquant: $dir"
+            exit 1
+          fi
+        done
+
+    - name: 🧹 Clean previous builds
+      run: |
+        rm -rf build dist release *.zip || true
+
+    - name: 🔨 Build app with PyInstaller
+      run: |
+        pyinstaller main.spec --noconfirm --clean --distpath dist --workpath build
+
+        if [ ! -e "dist/main" ]; then
+          echo "❌ Compilation échouée"
+          cat build/warn-main.txt || true
+          exit 1
+        fi
+
+    - name: 📦 Package build
+      run: |
+        mkdir -p release
+        cp -R dist/main "release/${{ env.APP_NAME }}"
+        cp -R resources release/
+        cp -R lesClesNova360 release/
+        zip -r "${{ env.APP_NAME }}-Linux.zip" release/
+
+    - name: 📤 Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.APP_NAME }}_Linux_Build
+        path: "${{ env.APP_NAME }}-Linux.zip"
