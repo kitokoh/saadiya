@@ -1,7 +1,7 @@
-name: Build Application PyQt
+
+name: Build Leopardo AI Installer
 
 on:
-  workflow_dispatch:
   push:
     branches: [main]
     paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
@@ -10,6 +10,8 @@ env:
   PYTHON_VERSION: '3.13'
   APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
+  ISS_SCRIPT: 'main.iss'
+  RELEASE_TAG: 'latest'
 
 jobs:
   build:
@@ -45,7 +47,6 @@ jobs:
     - name: 🔍 Verify resources
       shell: pwsh
       run: |
-        # Vérification des dossiers critiques
         $requiredDirs = @('resources', 'dlls', 'lesClesNova360')
         foreach ($dir in $requiredDirs) {
           if (-not (Test-Path $dir)) {
@@ -53,8 +54,7 @@ jobs:
               exit 1
           }
         }
-        
-        # Vérification des DLLs requises
+
         $requiredDlls = @('liblzma.dll', 'libssl-3-x64.dll', 'libcrypto-3-x64.dll')
         foreach ($dll in $requiredDlls) {
           if (-not (Test-Path "dlls\$dll")) {
@@ -65,44 +65,50 @@ jobs:
 
     - name: 🧹 Clean previous builds
       run: |
-        Remove-Item -Recurse -Force build, dist -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
 
-    - name: 🔨 Build with .spec
+    - name: 🔨 Build with PyInstaller
       shell: pwsh
       run: |
         $env:PYTHONPATH="$pwd"
+        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
 
-        pyinstaller `
-          main.spec `
-          --noconfirm `
-          --clean `
-          --upx-dir "$env:UPX_DIR" `
-          --distpath "dist" `
-          --workpath "build"
-
-        # Vérification du résultat
         if (-not (Test-Path "dist\main.exe")) {
-          Write-Error "❌ La compilation a échoué"
+          Write-Error "❌ Compilation échouée"
           Get-Content "build\warn-main.txt" -ErrorAction SilentlyContinue
           exit 1
         }
 
-    - name: 📦 Package release
+    - name: 📦 Package build
       shell: pwsh
       run: |
-        # Création d'un dossier structuré
         New-Item -ItemType Directory -Path "release" | Out-Null
         Copy-Item "dist\main.exe" -Destination "release\${{ env.APP_NAME }}.exe"
         Copy-Item -Recurse "resources" -Destination "release\resources"
         Copy-Item -Recurse "dlls" -Destination "release\dlls"
-        
-        # Création du zip
-        Compress-Archive -Path "release\*" -DestinationPath "${{ env.APP_NAME }}.zip" -Force
 
-    - name: 📤 Upload artifact
-      uses: actions/upload-artifact@v4
+    - name: 🧪 Install Inno Setup
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/ispack-unicode.exe" -OutFile "ispack.exe"
+        Start-Process -FilePath ".\ispack.exe" -ArgumentList "/VERYSILENT", "/DIR=C:\InnoSetup" -Wait
+
+    - name: 🛠️ Build Inno Setup Installer
+      shell: cmd
+      run: |
+        "C:\InnoSetup\ISCC.exe" ${{ env.ISS_SCRIPT }}
+
+    - name: 📤 Create GitHub Release and Upload
+      uses: softprops/action-gh-release@v2
       with:
-        name: ${{ env.APP_NAME }}_Release
-        path: |
-          ${{ env.APP_NAME }}.zip
-          dist\main.exe
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: Leopardo AI Release
+        body: |
+          ✅ Nouvelle version compilée automatiquement.
+          Inclut l'exécutable principal **et** l'installeur.
+        draft: false
+        prerelease: false
+        files: |
+          release\${{ env.APP_NAME }}.exe
+          output\leopardo.exe
+          
