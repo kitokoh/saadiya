@@ -88,14 +88,15 @@ jobs:
         Copy-Item -Recurse "resources" -Destination "release\resources"
         Copy-Item -Recurse "dlls" -Destination "release\dlls"
 
-    - name: 🧪 Install Inno Setup
+
+    - name: 🧪 Install Inno Setup (64-bit)
       shell: pwsh
       run: |
-        # Download Inno Setup
-        $innosetupUrl = "https://jrsoftware.org/download.php/ispack-unicode.exe"
+        # Download 64-bit version of Inno Setup
+        $innosetupUrl = "https://jrsoftware.org/download.php/is-unicode.exe"
         $outputPath = "$env:RUNNER_TEMP\innosetup.exe"
         
-        Write-Output "Downloading Inno Setup..."
+        Write-Output "Downloading Inno Setup (64-bit)..."
         Invoke-WebRequest -Uri $innosetupUrl -OutFile $outputPath -UseBasicParsing
         
         # Verify download
