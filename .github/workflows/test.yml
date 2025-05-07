@@ -1,0 +1,66 @@
+name: Test Inno Setup Installation
+
+on:
+  workflow_dispatch:  # Permet de lancer manuellement depuis l'interface GitHub
+
+jobs:
+  test-innosetup:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: 🧪 Télécharger et configurer Inno Setup (Portable)
+      shell: pwsh
+      run: |
+        # Configuration
+        $version = "6.2.2"
+        $installDir = "C:\InnoSetup"
+        $zipPath = "$env:RUNNER_TEMP\innosetup.zip"
+
+        # Téléchargement
+        Write-Output "Téléchargement de Inno Setup Portable $version..."
+        $url = "https://github.com/innosetup/innosetup/releases/download/$version/innosetup-$version.zip"
+        Invoke-WebRequest -Uri $url -OutFile $zipPath -UseBasicParsing
+
+        # Extraction
+        Write-Output "Extraction vers $installDir..."
+        if (-not (Test-Path $installDir)) { New-Item -ItemType Directory -Path $installDir | Out-Null }
+        Expand-Archive -Path $zipPath -DestinationPath $installDir -Force
+
+        # Vérification
+        $isccPath = "$installDir\ISCC.exe"
+        if (Test-Path $isccPath) {
+            Write-Output "✔ Installation réussie! Version détectée:"
+            & $isccPath /?
+        } else {
+            Write-Error "❌ Échec de l'installation"
+            exit 1
+        }
+
+        # Ajout au PATH
+        Write-Output "Ajout à GITHUB_PATH..."
+        echo "$installDir" >> $env:GITHUB_PATH
+
+    - name: ✅ Vérification finale
+      shell: pwsh
+      run: |
+        # Test d'exécution
+        Write-Output "Test de compilation avec ISCC..."
+        $testScript = @"
+[Setup]
+AppName=Test Setup
+AppVersion=1.0
+DefaultDirName={autopf}\TestApp
+OutputDir=output
+OutputBaseFilename=TestSetup
+"@
+        Set-Content -Path "test.iss" -Value $testScript
+        ISCC test.iss
+
+        if (Test-Path "output\TestSetup.exe") {
+            Write-Output "✔ Test réussi! Installeur généré:"
+            Get-ChildItem "output"
+        } else {
+            Write-Error "❌ La compilation a échoué"
+            exit 1
+        }
