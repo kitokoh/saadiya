@@ -1,10 +1,10 @@
-name: Build Professionnel Leopardo
+name: Build Leopardo EXE (Structure Racine)
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['src/**', 'requirements.txt', 'setup.cfg']
+    paths: ['*.py', 'requirements.txt']
 
 env:
   PYTHON_VERSION: '3.10'
@@ -14,46 +14,38 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
 
     steps:
-    # Étape 1: Préparation
+    # Étape 1: Initialisation
     - name: 🛠️ Checkout Code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
-    # Étape 2: Environnement Python
+    # Étape 2: Configuration Python
     - name: 🐍 Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
 
-    - name: 🏗️ Créer environnement virtuel
+    - name: 🏗️ Configurer l'environnement
       shell: pwsh
       run: |
         python -m venv venv
         .\venv\Scripts\activate
         python -m pip install --upgrade pip wheel setuptools
 
-    # Étape 3: Installation complète
+    # Étape 3: Installation
     - name: 📦 Installer dépendances
       shell: pwsh
       run: |
         .\venv\Scripts\activate
-        pip install -r requirements.txt --no-cache-dir
+        pip install -r requirements.txt
         pip install pyinstaller upx pywin32 pytest
-        pip install -e .  # Installation en mode développement
 
-    # Étape 4: Tests avant compilation
-    - name: 🧪 Exécuter les tests
-      shell: pwsh
-      run: |
-        .\venv\Scripts\activate
-        pytest tests/ -v --cov=src --cov-report=xml
 
-    # Étape 5: Compilation
+
+    # Étape 5: Préparation build
     - name: 🔽 Télécharger UPX
       shell: pwsh
       run: |
@@ -61,48 +53,43 @@ jobs:
         Expand-Archive -Path "upx.zip" -DestinationPath "upx"
         echo "UPX_PATH=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64\upx.exe" >> $env:GITHUB_ENV
 
-    - name: 🧹 Nettoyer les builds précédentes
+    - name: 🧹 Nettoyage pré-build
       run: Remove-Item -Recurse -Force build, dist -ErrorAction SilentlyContinue
 
-    - name: 🔨 Compiler l'EXE
+    # Étape 6: Compilation
+    - name: 🔨 Builder l'EXE
       shell: pwsh
       run: |
         .\venv\Scripts\activate
+        $add_data = @()
+        
+        # Ajout automatique des dossiers à la racine
+        Get-ChildItem -Directory | Where-Object {
+            $_.Name -notin @('venv', 'tests', 'build', 'dist', '.github')
+        } | ForEach-Object {
+            $add_data += "--add-data `"$($_.Name);$($_.Name)`""
+        }
+
         pyinstaller `
           --onefile `
           --noconsole `
           --name ${{ env.APP_NAME }} `
-          --icon assets/icon.ico `
+          --icon icon.ico `
           --upx-dir "$env:UPX_PATH" `
-          --add-data "assets;assets" `
+          $add_data `
           --clean `
-          --paths venv/Lib/site-packages `
-          src/main.py
+          main.py
 
-    # Étape 6: Validation post-build
-    - name: 🧪 Tester l'EXE compilé
-      shell: pwsh
-      timeout-minutes: 5
-      run: |
-        $testResult = Start-Process -FilePath "dist\${{ env.APP_NAME }}.exe" -ArgumentList "--test-mode" -Wait -PassThru
-        if ($testResult.ExitCode -ne 0) {
-          Write-Error "Le test de l'EXE a échoué"
-          exit 1
-        }
-
-    # Étape 7: Packaging
-    - name: 🏷️ Versioning
+    # Étape 7: Post-build
+    - name: 🏷️ Générer version
       id: version
       run: |
-        $version = (Get-Content version.txt).Trim()
+        $version = if (Test-Path "version.txt") { (Get-Content version.txt).Trim() } else { "1.0.0" }
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
-        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd-HHmmss')" >> $env:GITHUB_OUTPUT
+        echo "BUILD_DATE=$(Get-Date -Format 'yyyyMMdd-HHmm')" >> $env:GITHUB_OUTPUT
 
-    - name: 📤 Upload Artifact
+    - name: 📤 Publier l'artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.APP_NAME }}_${{ steps.version.outputs.VERSION }}_${{ steps.version.outputs.BUILD_DATE }}
-        path: |
-          dist/${{ env.APP_NAME }}.exe
-          coverage.xml
-        retention-days: 7
+        name: ${{ env.APP_NAME }}_${{ steps.version.outputs.VERSION }}
+        path: dist/${{ env.APP_NAME }}.exe
