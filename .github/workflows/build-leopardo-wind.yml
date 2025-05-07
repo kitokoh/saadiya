@@ -92,31 +92,27 @@ jobs:
     - name: 🧪 Install Inno Setup (64-bit)
       shell: pwsh
       run: |
-        # Download 64-bit version of Inno Setup
-        $innosetupUrl = "https://jrsoftware.org/download.php/is-unicode.exe"
-        $outputPath = "$env:RUNNER_TEMP\innosetup.exe"
-        
-        Write-Output "Downloading Inno Setup (64-bit)..."
+        # Download the *portable* version of Inno Setup (no installation needed)
+        $innosetupUrl = "https://github.com/innosetup/innosetup/releases/download/6.2.2/innosetup-6.2.2.zip"
+        $outputPath = "$env:RUNNER_TEMP\innosetup.zip"
+        $installDir = "C:\InnoSetup"
+    
+        Write-Output "Downloading Inno Setup Portable (64-bit)..."
         Invoke-WebRequest -Uri $innosetupUrl -OutFile $outputPath -UseBasicParsing
-        
-        # Verify download
-        if (-not (Test-Path $outputPath)) {
-            Write-Error "❌ Failed to download Inno Setup"
+    
+        # Extract directly to C:\InnoSetup (no installation required)
+        Write-Output "Extracting Inno Setup..."
+        Expand-Archive -Path $outputPath -DestinationPath $installDir -Force
+    
+        # Add ISCC.exe to PATH
+        Add-Content -Path $env:GITHUB_PATH -Value "$installDir\ISCC.exe"
+    
+        # Verify ISCC.exe exists
+        if (-not (Test-Path "$installDir\ISCC.exe")) {
+            Write-Error "❌ Inno Setup extraction failed!"
             exit 1
         }
         
-        # Install silently
-        Write-Output "Installing Inno Setup..."
-        Start-Process -FilePath $outputPath -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=C:\InnoSetup" -Wait -NoNewWindow
-        
-        # Add Inno Setup to PATH
-        Add-Content -Path $env:GITHUB_PATH -Value "C:\InnoSetup"
-        
-        # Verify installation
-        if (-not (Test-Path "C:\InnoSetup\ISCC.exe")) {
-            Write-Error "❌ Inno Setup installation failed"
-            exit 1
-        }
     - name: 🛠️ Build Inno Setup Installer
       shell: cmd
       run: |
