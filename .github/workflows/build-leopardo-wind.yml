@@ -91,9 +91,31 @@ jobs:
     - name: 🧪 Install Inno Setup
       shell: pwsh
       run: |
-        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/ispack-unicode.exe" -OutFile "ispack.exe"
-        Start-Process -FilePath ".\ispack.exe" -ArgumentList "/VERYSILENT", "/DIR=C:\InnoSetup" -Wait
-
+        # Download Inno Setup
+        $innosetupUrl = "https://jrsoftware.org/download.php/ispack-unicode.exe"
+        $outputPath = "$env:RUNNER_TEMP\innosetup.exe"
+        
+        Write-Output "Downloading Inno Setup..."
+        Invoke-WebRequest -Uri $innosetupUrl -OutFile $outputPath -UseBasicParsing
+        
+        # Verify download
+        if (-not (Test-Path $outputPath)) {
+            Write-Error "❌ Failed to download Inno Setup"
+            exit 1
+        }
+        
+        # Install silently
+        Write-Output "Installing Inno Setup..."
+        Start-Process -FilePath $outputPath -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/DIR=C:\InnoSetup" -Wait -NoNewWindow
+        
+        # Add Inno Setup to PATH
+        Add-Content -Path $env:GITHUB_PATH -Value "C:\InnoSetup"
+        
+        # Verify installation
+        if (-not (Test-Path "C:\InnoSetup\ISCC.exe")) {
+            Write-Error "❌ Inno Setup installation failed"
+            exit 1
+        }
     - name: 🛠️ Build Inno Setup Installer
       shell: cmd
       run: |
