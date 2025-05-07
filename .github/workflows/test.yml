@@ -1,52 +1,40 @@
-name: Test Inno Setup Installation
+name: Test Inno Setup Installation with Release
 
 on:
-  workflow_dispatch:  # Permet de lancer manuellement depuis l'interface GitHub
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        default: 'v0.0.0-test'
 
 jobs:
   test-innosetup:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
-    - name: 🧪 Télécharger et configurer Inno Setup (Portable)
+    - name: 🛠️ Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Step 1: Install Inno Setup (portable)
+    - name: 🧪 Install Inno Setup
       shell: pwsh
       run: |
-        # Configuration
         $version = "6.2.2"
         $installDir = "C:\InnoSetup"
-        $zipPath = "$env:RUNNER_TEMP\innosetup.zip"
-
-        # Téléchargement
-        Write-Output "Téléchargement de Inno Setup Portable $version..."
-        $url = "https://github.com/innosetup/innosetup/releases/download/$version/innosetup-$version.zip"
-        Invoke-WebRequest -Uri $url -OutFile $zipPath -UseBasicParsing
-
-        # Extraction
-        Write-Output "Extraction vers $installDir..."
-        if (-not (Test-Path $installDir)) { New-Item -ItemType Directory -Path $installDir | Out-Null }
-        Expand-Archive -Path $zipPath -DestinationPath $installDir -Force
-
-        # Vérification
-        $isccPath = "$installDir\ISCC.exe"
-        if (Test-Path $isccPath) {
-            Write-Output "✔ Installation réussie! Version détectée:"
-            & $isccPath /?
-        } else {
-            Write-Error "❌ Échec de l'installation"
-            exit 1
-        }
-
-        # Ajout au PATH
-        Write-Output "Ajout à GITHUB_PATH..."
+        Write-Output "Downloading Inno Setup Portable $version..."
+        Invoke-WebRequest -Uri "https://github.com/innosetup/innosetup/releases/download/$version/innosetup-$version.zip" -OutFile "$env:RUNNER_TEMP\innosetup.zip"
+        Expand-Archive -Path "$env:RUNNER_TEMP\innosetup.zip" -DestinationPath $installDir -Force
         echo "$installDir" >> $env:GITHUB_PATH
 
-    - name: ✅ Vérification finale
+    # Step 2: Create test installer
+    - name: 🏗️ Create Test Installer
       shell: pwsh
       run: |
-        # Test d'exécution
-        Write-Output "Test de compilation avec ISCC..."
-        $testScript = @"
+        $issContent = @"
 [Setup]
 AppName=Test Setup
 AppVersion=1.0
@@ -54,13 +42,16 @@ DefaultDirName={autopf}\TestApp
 OutputDir=output
 OutputBaseFilename=TestSetup
 "@
-        Set-Content -Path "test.iss" -Value $testScript
+        New-Item -ItemType Directory -Path output -Force | Out-Null
+        Set-Content -Path "test.iss" -Value $issContent
         ISCC test.iss
 
-        if (Test-Path "output\TestSetup.exe") {
-            Write-Output "✔ Test réussi! Installeur généré:"
-            Get-ChildItem "output"
-        } else {
-            Write-Error "❌ La compilation a échoué"
-            exit 1
-        }
+    # Step 3: Create release with test installer
+    - name: 🚀 Create Test Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.event.inputs.tag }}
+        name: "Inno Setup Test Release (${{ github.event.inputs.tag }})"
+        body: "This is a test release verifying Inno Setup installation"
+        files: |
+          output/TestSetup.exe
