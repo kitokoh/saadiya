@@ -1,5 +1,4 @@
-
-name: Build Leopardo AI Installer
+name: Build Leopardo AI Installer win
 
 on:
   workflow_dispatch:
@@ -88,35 +87,31 @@ jobs:
         Copy-Item -Recurse "resources" -Destination "release\resources"
         Copy-Item -Recurse "dlls" -Destination "release\dlls"
 
-
     - name: 🧪 Install Inno Setup (64-bit)
       shell: pwsh
       run: |
-        # Download the *portable* version of Inno Setup (no installation needed)
-        $innosetupUrl = "https://github.com/innosetup/innosetup/releases/download/6.2.2/innosetup-6.2.2.zip"
-        $outputPath = "$env:RUNNER_TEMP\innosetup.zip"
-        $installDir = "C:\InnoSetup"
-    
-        Write-Output "Downloading Inno Setup Portable (64-bit)..."
-        Invoke-WebRequest -Uri $innosetupUrl -OutFile $outputPath -UseBasicParsing
-    
-        # Extract directly to C:\InnoSetup (no installation required)
-        Write-Output "Extracting Inno Setup..."
-        Expand-Archive -Path $outputPath -DestinationPath $installDir -Force
-    
-        # Add ISCC.exe to PATH
-        Add-Content -Path $env:GITHUB_PATH -Value "$installDir\ISCC.exe"
-    
-        # Verify ISCC.exe exists
-        if (-not (Test-Path "$installDir\ISCC.exe")) {
-            Write-Error "❌ Inno Setup extraction failed!"
-            exit 1
-        }
-        
-    - name: 🛠️ Build Inno Setup Installer
+        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
+        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
+        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
+        echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: 📂 Debug – Fichiers disponibles
+      shell: cmd
+      run: dir /s /b
+
+    - name: 🛠️ Build Setup Installer
       shell: cmd
       run: |
-        "C:\InnoSetup\ISCC.exe" ${{ env.ISS_SCRIPT }}
+        if not exist "%ISS_SCRIPT%" (
+          echo ❌ Le script Inno Setup "%ISS_SCRIPT%" est introuvable.
+          exit /b 1
+        )
+        iscc /O"LeopardoAI-Installer" /F"Nova360" "%ISS_SCRIPT%"
+
+    - name: 📂 Verify build output
+      run: dir LeopardoAI-Installer
+      shell: pwsh
 
     - name: 📤 Create GitHub Release and Upload
       uses: softprops/action-gh-release@v2
@@ -130,6 +125,4 @@ jobs:
         prerelease: false
         files: |
           release\${{ env.APP_NAME }}.exe
-          output\leopardo.exe
-
-          
+          LeopardoAI-Installer\Nova360.exe
