@@ -42,15 +42,3 @@ jobs:
 
 
 
-      - name: 📤 Upload PyInstaller .exe as artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: main-exe
-          path: dist/main.exe
-
-      - name: 📤 Upload Installer .exe as artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: installer
-          path: Output/*.exe
-
