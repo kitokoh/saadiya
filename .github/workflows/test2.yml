@@ -1,58 +1,130 @@
-name: Build Windows Installer
+name: Build Leopardo AI Executable  1
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
+
+env:
+  PYTHON_VERSION: '3.13'
+  APP_NAME: 'Leopardo AI'
+  UPX_VERSION: '4.2.1'
 
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v3
+    - name: 🛠️ Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
 
-      - name: 📦 Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pyinstaller
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
+        pip install -r requirements.txt
 
-      - name: 🛠️ Build EXE with PyInstaller
-        run: |
-          pyinstaller --noconfirm --onefile --icon=resources/icons/robot-icons-30504-Windows.ico main.py
+    - name: 🔽 Download UPX
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
+        Expand-Archive -Path "upx.zip" -DestinationPath "upx"
+        echo "UPX_DIR=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64" >> $env:GITHUB_ENV
 
-      - name: 📤 Upload PyInstaller .exe as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: main-exe
-          path: dist/main.exe
+    - name: 🔍 Verify resources and DLLs
+      shell: pwsh
+      run: |
+        $requiredDirs = @('resources', 'dlls', 'lesClesNova360')
+        foreach ($dir in $requiredDirs) {
+          if (-not (Test-Path $dir)) {
+              Write-Error "❌ Dossier manquant: $dir"
+              exit 1
+          }
+        }
 
-      - name: ⬇️ Download Inno Setup
-        run: |
-          Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
-          Start-Process .\is.exe "/VERYSILENT /NORESTART /SP-" -Wait
+        $requiredDlls = @('liblzma.dll', 'libssl-3-x64.dll', 'libcrypto-3-x64.dll')
+        foreach ($dll in $requiredDlls) {
+          if (-not (Test-Path "dlls\$dll")) {
+              Write-Error "❌ DLL manquante: $dll"
+              exit 1
+          }
+        }
 
-      - name: ➕ Add Inno Setup to PATH
-        run: echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -Append $env:GITHUB_PATH
+    - name: 🧹 Clean previous builds
+      run: |
+        Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
 
-      - name: 📦 Build installer with Inno Setup
-        run: ISCC.exe main.iss
+    - name: 🔨 Build with PyInstaller
+      shell: pwsh
+      run: |
+        $env:PYTHONPATH="$pwd"
+        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
+
+        if (-not (Test-Path "dist\main.exe")) {
+          Write-Error "❌ Compilation échouée"
+          Get-Content "build\warn-main.txt" -ErrorAction SilentlyContinue
+          exit 1
+        }
+
+    - name: 📂 Debug – Fichiers disponibles
+      shell: cmd
+      run: dir /s /b
+    - name: 📤 Upload main.exe
+      uses: actions/upload-artifact@v4
+      with:
+        name: main-exe
+        path: dist/main.exe
 
 
+    - name: ⬇️ Download Inno Setup
+      run: |
+        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
+        Start-Process .\is.exe "/VERYSILENT /NORESTART /SP-" -Wait
+
+    - name: ➕ Add Inno Setup to PATH
+      run: echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -Append $env:GITHUB_PATH
+
+    - name: 📦 Build installer with Inno Setup
+      run: ISCC.exe main.iss
 
 
+    - name: 📤 Upload installer exe
+      uses: actions/upload-artifact@v4
+      with:
+        name: LeopardoAI-installer
+        path: LeopardoAI-Installer/Leopardo-ai.exe
 
-      - name: 📤 Upload Installer .exe as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: installer
-          path: Output/*.exe
+    - name: 🏷️ Create or Update 'latest' tag
+      run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git tag -f latest
+        git push origin --force latest
+    - name: 🚀 Create GitHub Release (latest)
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Leopardo AI - Version stable"
+        tag_name: latest
+        files: |
+          dist/main.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+        body: |
+          ✅ Release stable de Leopardo AI
+          Contenu :
+          - 🧠 Executable : main.exe
+          - 📦 Installateur : Leopardo-ai.exe
 
-
+          Généré automatiquement via GitHub Actions.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
