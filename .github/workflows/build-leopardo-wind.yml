@@ -7,7 +7,7 @@ on:
     paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
 
 env:
-  PYTHON_VERSION: '3.13'
+  PYTHON_VERSION: '3.11'
   APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
   ISS_SCRIPT: 'main.iss'
@@ -23,6 +23,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🐍 Setup Python
       uses: actions/setup-python@v4
@@ -112,6 +113,25 @@ jobs:
     - name: 📂 Verify build output
       run: dir LeopardoAI-Installer
       shell: pwsh
+
+
+
+    - name: 📤 Create GitHub Release and Upload
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: Leopardo AI Release
+        body: |
+          ✅ Nouvelle version compilée automatiquement.
+          Inclut l'exécutable principal **et** l'installeur.
+        draft: false
+        prerelease: false
+        files: |
+          release/Leopardo AI.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+      env:
+        # Ajout des permissions étendues
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
