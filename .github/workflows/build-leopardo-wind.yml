@@ -7,7 +7,7 @@ on:
     paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: '3.13'
   APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
   ISS_SCRIPT: 'main.iss'
@@ -17,16 +17,12 @@ jobs:
   build:
     runs-on: windows-latest
     timeout-minutes: 45
-    permissions:
-      contents: write  # Nécessaire pour créer des releases
-      packages: write
-      
+
     steps:
     - name: 🛠️ Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🐍 Setup Python
       uses: actions/setup-python@v4
@@ -74,11 +70,7 @@ jobs:
     - name: 🔨 Build with PyInstaller
       shell: pwsh
       run: |
-
-        $projectRoot = (Get-Location).Path 
-        echo "PYTHONPATH=$projectRoot" >> $env:GITHUB_ENV
-
-        
+        $env:PYTHONPATH="$pwd"
         pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
 
         if (-not (Test-Path "dist\main.exe")) {
@@ -121,8 +113,6 @@ jobs:
       run: dir LeopardoAI-Installer
       shell: pwsh
 
-
-
     - name: 📤 Create GitHub Release and Upload
       uses: softprops/action-gh-release@v2
       with:
@@ -134,9 +124,5 @@ jobs:
         draft: false
         prerelease: false
         files: |
-          release/Leopardo AI.exe
-          LeopardoAI-Installer/Leopardo-ai.exe
-      env:
-        # Ajout des permissions étendues
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          release\${{ env.APP_NAME }}.exe
+          LeopardoAI-Installer\Nova360.exe
