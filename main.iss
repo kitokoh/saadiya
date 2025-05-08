@@ -30,7 +30,7 @@ DisableProgramGroupPage=yes
 LicenseFile=compil\licence.txt
 InfoBeforeFile=compil\beforinstall.txt
 InfoAfterFile=compil\afterinstall.txt
-OutputBaseFilename=Nova360
+OutputBaseFilename=Leopardo-ai
 SetupIconFile=resources\icons\robot-icons-30504-Windows.ico
 
 Compression=lzma
