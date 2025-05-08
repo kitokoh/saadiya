@@ -1,4 +1,4 @@
-name: Build Windows Installer2
+name: Build Windows Installer
 
 on:
   push:
@@ -39,15 +39,14 @@ jobs:
       - name: 📦 Build installer with Inno Setup
         run: ISCC.exe main.iss
 
-      - name: 📦 Upload PyInstaller .exe as artifact
+      - name: 📤 Upload PyInstaller .exe as artifact
         uses: actions/upload-artifact@v3
         with:
           name: main-exe
           path: dist/main.exe
 
-      - name: 📦 Upload Installer .exe as artifact
+      - name: 📤 Upload Installer .exe as artifact
         uses: actions/upload-artifact@v3
         with:
           name: installer
           path: Output/*.exe
-
