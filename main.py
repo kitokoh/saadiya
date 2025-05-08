@@ -28,6 +28,7 @@ import sys
 import time
 from imports import *
 from PyQt5.QtWidgets import QScrollArea
+from PyQt5.QtWidgets import QToolButton
 
 from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5.QtCore import Qt, QTimer
@@ -97,6 +98,82 @@ class LoadingScreen(QDialog):
         self.setLayout(layout)
         self.resize(300, 100)
 
+from PyQt5.QtWidgets import QLayout
+from PyQt5.QtWidgets import QWidgetItem
+from PyQt5.QtWidgets import QWidgetAction
+
+class QOverlayLayout(QLayout):
+    """Un layout personnalisé pour superposer des widgets (comme un badge sur une icône)"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.items = []
+        self.positions = {}  # Pour stocker les alignements
+        
+    def addWidget(self, widget, alignment=None):
+        item = QWidgetItem(widget)
+        self.addItem(item)
+        if alignment is not None:
+            self.positions[widget] = alignment
+        return item
+        
+    def addItem(self, item):
+        self.items.append(item)
+        
+    def count(self):
+        return len(self.items)
+    
+    def itemAt(self, index):
+        if 0 <= index < len(self.items):
+            return self.items[index]
+        return None
+    
+    def takeAt(self, index):
+        if 0 <= index < len(self.items):
+            return self.items.pop(index)
+        return None
+    
+    def setGeometry(self, rect):
+        super().setGeometry(rect)
+        
+        for i in range(self.count()):
+            item = self.itemAt(i)
+            if item is None:
+                continue
+                
+            widget = item.widget()
+            if widget is None:
+                continue
+                
+            # Position par défaut (remplit tout l'espace)
+            widget_rect = rect
+                
+            # Appliquer l'alignement si spécifié
+            if widget in self.positions:
+                alignment = self.positions[widget]
+                size = widget.sizeHint()
+                
+                if alignment & Qt.AlignTop:
+                    widget_rect.setTop(rect.top())
+                    widget_rect.setBottom(rect.top() + size.height())
+                elif alignment & Qt.AlignBottom:
+                    widget_rect.setTop(rect.bottom() - size.height())
+                    widget_rect.setBottom(rect.bottom())
+                    
+                if alignment & Qt.AlignLeft:
+                    widget_rect.setLeft(rect.left())
+                    widget_rect.setRight(rect.left() + size.width())
+                elif alignment & Qt.AlignRight:
+                    widget_rect.setLeft(rect.right() - size.width())
+                    widget_rect.setRight(rect.right())
+                
+                if alignment & Qt.AlignHCenter:
+                    widget_rect.setLeft(rect.left() + (rect.width() - size.width()) // 2)
+                    widget_rect.setRight(widget_rect.left() + size.width())
+                elif alignment & Qt.AlignVCenter:
+                    widget_rect.setTop(rect.top() + (rect.height() - size.height()) // 2)
+                    widget_rect.setBottom(widget_rect.top() + size.height())
+            
+            widget.setGeometry(widget_rect)
 
 class Browser(QMainWindow):
     def __init__(self):
@@ -1324,7 +1401,7 @@ class Browser(QMainWindow):
             self.prompts = PromptManager(main_app=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.prompts, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.prompts, tab_name, "resources/icons/multi_fbc.ico")
 
     def open_settings_window(self):
         """Open a tab with the content of the 'SettingsWidget' class."""
@@ -2046,16 +2123,19 @@ class Browser(QMainWindow):
             # Tools section (dynamic)
             ("🧰", self.tr("Tools"), "tools", None, self.tr("Document tools"), [
                 ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
+                ("🌍", self.tr("Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
+
                 ("👥", self.tr("Contacts"), "contact", self.open_contacts_window, self.tr("Contact list"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
-                ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
-                ("🌍", self.tr("Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
-                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
-                ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
+                # ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
+                # ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
+                # ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
+                 ("📝", self.tr("Desc & Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
+
             ]),
             
             # Beta Features section
-            ("✨", self.tr("Features"), "beta", None, self.tr("Beta options"), [
+            ("✨", self.tr("Robots"), "robot", None, self.tr("robot options"), [
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
                 # ("🏛️", self.tr("Licenses"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("Marketing tools"), []),
@@ -2063,22 +2143,21 @@ class Browser(QMainWindow):
                 # ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
             ]),
             
-            # Data section
-            ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
-                ("📝", self.tr("Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
-                ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
-                ("📜", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
-                ("📥", self.tr("Import Data"), "import", self.open_imports_window, self.tr("Import data"), []),
-                ("🗃️", self.tr("ADN Backup"), "backup", self.open_imports_window, self.tr("Backup enterprise data"), []),
-            ]),
-            
+
             # Support section
             ("🆘", self.tr("Support"), "support", None, self.tr("Support resources"), [
                 ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
                 ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
                 ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
             ]),
-            
+            # Settings section
+            ("⏯️", self.tr("Run"), "Run", None, self.tr("Run Now"), [
+                # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
+                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
+                ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
+                ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
+
+            ]),          
             
             # Settings section
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
@@ -2092,7 +2171,17 @@ class Browser(QMainWindow):
 
             ]),
             # Upgrade button
+
+            # Data section
+            ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
+                # ("📝", self.tr("Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
+                ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
+                ("📜", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
+                ("📥", self.tr("Import Data"), "import", self.open_imports_window, self.tr("Import data"), []),
+                ("🗃️", self.tr("ADN Backup"), "backup", self.open_imports_window, self.tr("Backup enterprise data"), []),
+            ]),
             
+
 
             ("🌍", self.tr("Language"), "language", None, self.tr("Language settings"), [
                     ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), []),
@@ -2225,9 +2314,14 @@ class Browser(QMainWindow):
             self.menu_buttons.append(button)
 
         # Add stretch before window controls
+
         self.top_menu_layout.addLayout(self.menu_bar)
+
+
         self.top_menu_layout.addStretch()
+
         self.top_menu_layout.addLayout(self.control_buttons_layout)
+
 
         # --- User Profile Section ---
         self.user_button = QPushButton("👤 Guest")
@@ -2310,6 +2404,221 @@ class Browser(QMainWindow):
         # Add to main layout (at the top)
             # self.layout().insertWidget(0, self.top_menu)
         self.main_layout.insertWidget(0, self.top_menu)
+
+        # Mettez à jour les badges
+        self.update_notification_count()
+        self.update_message_count()
+
+
+
+    def add_sample_notification(self, title, content, time):
+        """Ajoute une notification exemple au menu"""
+        notification_action = QWidgetAction(self.notification_menu)
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        
+        title_label = QLabel(title)
+        title_label.setStyleSheet("font-weight: bold;")
+        
+        content_label = QLabel(content)
+        content_label.setWordWrap(True)
+        content_label.setStyleSheet("color: #6b7280; font-size: 12px;")
+        
+        time_label = QLabel(time)
+        time_label.setStyleSheet("color: #9ca3af; font-size: 10px;")
+        time_label.setAlignment(Qt.AlignRight)
+        
+        layout.addWidget(title_label)
+        layout.addWidget(content_label)
+        layout.addWidget(time_label)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(2)
+        
+        notification_action.setDefaultWidget(widget)
+        self.notification_menu.insertAction(self.notification_menu.actions()[1], notification_action)
+        
+        # Mettre à jour le compteur
+        current_count = int(self.notification_badge.text())
+        self.notification_badge.setText(str(current_count + 1))
+
+    def add_sample_message(self, sender, subject, preview, time):
+        """Ajoute un message exemple au menu"""
+        message_action = QWidgetAction(self.message_menu)
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        
+        sender_label = QLabel(sender)
+        sender_label.setStyleSheet("font-weight: bold;")
+        
+        subject_label = QLabel(subject)
+        subject_label.setStyleSheet("color: #3b82f6;")
+        
+        preview_label = QLabel(preview)
+        preview_label.setWordWrap(True)
+        preview_label.setStyleSheet("color: #6b7280; font-size: 12px;")
+        
+        time_label = QLabel(time)
+        time_label.setStyleSheet("color: #9ca3af; font-size: 10px;")
+        time_label.setAlignment(Qt.AlignRight)
+        
+        layout.addWidget(sender_label)
+        layout.addWidget(subject_label)
+        layout.addWidget(preview_label)
+        layout.addWidget(time_label)
+        layout.setContentsMargins(5, 5, 5, 5)
+        layout.setSpacing(2)
+        
+        message_action.setDefaultWidget(widget)
+        self.message_menu.insertAction(self.message_menu.actions()[1], message_action)
+        
+        # Mettre à jour le compteur
+        current_count = int(self.message_badge.text())
+        self.message_badge.setText(str(current_count + 1))
+
+    def clear_all_notifications(self):
+        """Marque toutes les notifications comme lues"""
+        self.notification_badge.setText("0")
+        # Ici vous pourriez aussi vider la liste des notifications
+        # ou marquer les éléments comme lus dans votre système
+
+    def open_new_message(self):
+        """Ouvre la fenêtre de composition d'un nouveau message"""
+        # Implémentez cette fonction selon vos besoins
+        print("Ouvrir l'éditeur de message")
+
+    def update_notification_count(self):
+        """Met à jour le compteur de notifications"""
+        # Implémentez la logique pour récupérer le nombre réel de notifications
+        # Par exemple:
+        # count = get_unread_notification_count()
+        # self.notification_badge.setText(str(count))
+        pass
+
+    def update_message_count(self):
+        """Met à jour le compteur de messages"""
+        # Implémentez la logique pour récupérer le nombre réel de messages non lus
+        # Par exemple:
+        # count = get_unread_message_count()
+        # self.message_badge.setText(str(count))
+        pass
+
+
+    # Assurez-vous que QOverlayLayout est bien défini ailleurs ou importé si c'est une classe custom
+
+    def create_notif(self):
+        def create_button_with_badge(emoji_text, badge_color):
+            button = QToolButton()
+            button.setText(emoji_text)
+            button.setFont(QFont("Segoe UI Emoji", 5))  # Police emoji lisible
+            button.setStyleSheet("""
+                QToolButton {
+                    background-color: transparent;
+                    border: none;
+                    padding: 5px;
+                }
+                QToolButton:hover {
+                    background-color: #e5e7eb;
+                    border-radius: 6px;
+                }
+            """)
+            
+            badge = QLabel("0")
+            badge.setStyleSheet(f"""
+                QLabel {{
+                    background-color: {badge_color};
+                    color: white;
+                    border-radius: 8px;
+                    padding: 1px 5px;
+                    font-size: 10px;
+                    min-width: 6px;
+                    max-width: 6px;
+                    min-height: 6px;
+                    max-height: 6px;
+                }}
+            """)
+            badge.setAlignment(Qt.AlignCenter)
+
+            # Superposer badge au bouton
+            overlay = QOverlayLayout(button)
+            overlay.addWidget(badge, alignment=Qt.AlignTop | Qt.AlignRight)
+            
+            return button, badge
+
+        # --- Notifications ---
+        self.notification_button, self.notification_badge = create_button_with_badge("🔔", "#ef4444")
+        self.notification_menu = QMenu()
+        self.notification_menu.setStyleSheet("""
+            QMenu {
+                background-color: white;
+                border: 1px solid #d1d5db;
+                min-width: 100px;
+                max-height: 200px;
+            }
+            QMenu::item {
+                padding: 8px 15px;
+                border-bottom: 1px solid #f3f4f6;
+            }
+            QMenu::item:selected {
+                background-color: #f3f4f6;
+            }
+        """)
+
+        notif_header = QWidgetAction(self.notification_menu)
+        notif_widget = QWidget()
+        notif_layout = QHBoxLayout(notif_widget)
+        notif_label = QLabel("🔔 Notifications")
+        notif_label.setStyleSheet("font-weight: bold;")
+        clear_btn = QPushButton("Tout marquer comme lu")
+        clear_btn.setStyleSheet("""
+            QPushButton {
+                border: none;
+                color: #3b82f6;
+                background: transparent;
+                padding: 0;
+            }
+            QPushButton:hover {
+                text-decoration: underline;
+            }
+        """)
+        clear_btn.clicked.connect(self.clear_all_notifications)
+        notif_layout.addWidget(notif_label)
+        notif_layout.addStretch()
+        notif_layout.addWidget(clear_btn)
+        notif_header.setDefaultWidget(notif_widget)
+        self.notification_menu.addAction(notif_header)
+        self.notification_menu.addSeparator()
+
+        self.add_sample_notification("Nouveau message", "Vous avez reçu un nouveau message de l'équipe", "5 min")
+        self.notification_button.setMenu(self.notification_menu)
+        self.notification_button.setPopupMode(QToolButton.InstantPopup)
+
+        # --- Messages ---
+        self.message_button, self.message_badge = create_button_with_badge("💬", "#3b82f6")
+        self.message_menu = QMenu()
+        self.message_menu.setStyleSheet(self.notification_menu.styleSheet())
+
+        msg_header = QWidgetAction(self.message_menu)
+        msg_widget = QWidget()
+        msg_layout = QHBoxLayout(msg_widget)
+        msg_label = QLabel("💬 Messages")
+        msg_label.setStyleSheet("font-weight: bold;")
+        new_msg_btn = QPushButton("Nouveau message")
+        new_msg_btn.setStyleSheet(clear_btn.styleSheet())
+        new_msg_btn.clicked.connect(self.open_new_message)
+        msg_layout.addWidget(msg_label)
+        msg_layout.addStretch()
+        msg_layout.addWidget(new_msg_btn)
+        msg_header.setDefaultWidget(msg_widget)
+        self.message_menu.addAction(msg_header)
+        self.message_menu.addSeparator()
+
+        self.add_sample_message("Jean Dupont", "Réunion demain", "Bonjour, nous avons une réunion demain à 10h...", "10 min")
+        self.message_button.setMenu(self.message_menu)
+        self.message_button.setPopupMode(QToolButton.InstantPopup)
+
+        # --- Ajout au layout ---
+        # self.top_menu_layout.addWidget(self.message_button)
+        self.top_menu_layout.addWidget(self.notification_button)
 
 
     def tab_widget_style(self):
@@ -3297,6 +3606,9 @@ def update_app():
         os._exit(0)  # Ferme l'ancienne version
     else:
         print("🟢 Aucune mise à jour nécessaire.")
+
+
+
 
 
 

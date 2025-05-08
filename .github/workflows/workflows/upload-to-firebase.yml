@@ -1,0 +1,42 @@
+name: Release Upload to Firebase
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Download release artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: my-app-build
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install firebase-tools
+      run: npm install -g firebase-tools
+
+    - name: Authenticate with Firebase
+      env:
+        FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      run: |
+        echo "$FIREBASE_SERVICE_ACCOUNT" > ${HOME}/firebase.json
+        firebase login:ci --token "$(jq -r .token ${HOME}/firebase.json)" || true
+        firebase use --add myproject
+
+    - name: Upload to Firebase Storage
+      run: |
+        firebase storage:upload path/to/your-app.exe \
+          --path /releases/${{ github.event.release.tag_name }}/my-app.exe \
+          --project myproject
+
+          

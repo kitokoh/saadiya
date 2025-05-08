@@ -1,2 +1,138 @@
-test 
-test 
+name: Build Leopardo AI Installer win
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
+
+env:
+  PYTHON_VERSION: '3.11'
+  APP_NAME: 'Leopardo AI'
+  UPX_VERSION: '4.2.1'
+  ISS_SCRIPT: 'main.iss'
+  RELEASE_TAG: 'latest'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write  # Nécessaire pour créer des releases
+      packages: write
+      
+    steps:
+    - name: 🛠️ Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
+        pip install -r requirements.txt
+
+    - name: 🔽 Download UPX
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
+        Expand-Archive -Path "upx.zip" -DestinationPath "upx"
+        echo "UPX_DIR=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64" >> $env:GITHUB_ENV
+
+    - name: 🔍 Verify resources
+      shell: pwsh
+      run: |
+        $requiredDirs = @('resources', 'dlls', 'lesClesNova360')
+        foreach ($dir in $requiredDirs) {
+          if (-not (Test-Path $dir)) {
+              Write-Error "❌ Dossier manquant: $dir"
+              exit 1
+          }
+        }
+
+        $requiredDlls = @('liblzma.dll', 'libssl-3-x64.dll', 'libcrypto-3-x64.dll')
+        foreach ($dll in $requiredDlls) {
+          if (-not (Test-Path "dlls\$dll")) {
+              Write-Error "❌ DLL manquante: $dll"
+              exit 1
+          }
+        }
+
+    - name: 🧹 Clean previous builds
+      run: |
+        Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
+
+    - name: 🔨 Build with PyInstaller
+      shell: pwsh
+      run: |
+        $env:PYTHONPATH="$pwd"
+        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
+
+        if (-not (Test-Path "dist\main.exe")) {
+          Write-Error "❌ Compilation échouée"
+          Get-Content "build\warn-main.txt" -ErrorAction SilentlyContinue
+          exit 1
+        }
+
+    - name: 📦 Package build
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Path "release" | Out-Null
+        Copy-Item "dist\main.exe" -Destination "release\${{ env.APP_NAME }}.exe"
+        Copy-Item -Recurse "resources" -Destination "release\resources"
+        Copy-Item -Recurse "dlls" -Destination "release\dlls"
+
+    - name: 🧪 Install Inno Setup (64-bit)
+      shell: pwsh
+      run: |
+        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
+        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
+        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
+        echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: 📂 Debug – Fichiers disponibles
+      shell: cmd
+      run: dir /s /b
+
+    - name: 🛠️ Build Setup Installer
+      shell: cmd
+      run: |
+        if not exist "%ISS_SCRIPT%" (
+          echo ❌ Le script Inno Setup "%ISS_SCRIPT%" est introuvable.
+          exit /b 1
+        )
+        iscc /O"LeopardoAI-Installer" /F"Nova360" "%ISS_SCRIPT%"
+
+    - name: 📂 Verify build output
+      run: dir LeopardoAI-Installer
+      shell: pwsh
+
+
+
+    - name: 📤 Create GitHub Release and Upload
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        name: Leopardo AI Release
+        body: |
+          ✅ Nouvelle version compilée automatiquement.
+          Inclut l'exécutable principal **et** l'installeur.
+        draft: false
+        prerelease: false
+        files: |
+          release/Leopardo AI.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+      env:
+        # Ajout des permissions étendues
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
