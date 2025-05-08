@@ -1,10 +1,11 @@
+name: Build Leopardo AI Installer inno
+
 on:
   workflow_dispatch:
-
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -14,16 +15,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Inno Setup
-      uses: ammaraskar/setup-innosetup@v1
-      with:
-        version: '6.2.0'  # Version d'Inno Setup
+    - name: Install Inno Setup
+      run: |
+        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
+        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
+        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
+        Add-Content $env:GITHUB_PATH "C:\Program Files (x86)\Inno Setup 6"
+      shell: pwsh
 
     - name: Build installer
       run: |
         iscc /O"LeopardoAI-Installer" /F"Nova360" "your_script_name.iss"
       shell: cmd
-      
+
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
