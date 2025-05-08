@@ -74,7 +74,11 @@ jobs:
     - name: 🔨 Build with PyInstaller
       shell: pwsh
       run: |
-        $env:PYTHONPATH="$pwd"
+
+        $projectRoot = (Get-Location).Path 
+        echo "PYTHONPATH=$projectRoot" >> $env:GITHUB_ENV
+
+        
         pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
 
         if (-not (Test-Path "dist\main.exe")) {
