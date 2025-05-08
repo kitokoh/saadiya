@@ -2316,7 +2316,7 @@ class Browser(QMainWindow):
         # Add stretch before window controls
 
         self.top_menu_layout.addLayout(self.menu_bar)
-
+        self.create_notif()
 
         self.top_menu_layout.addStretch()
 
