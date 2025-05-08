@@ -1,4 +1,4 @@
-name: Build Leopardo AI Installer (Windows)
+name: Build Leopardo AI Installer Win
 
 on:
   workflow_dispatch:
@@ -7,13 +7,12 @@ on:
     paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
 
 env:
-  PYTHON_VERSION: '3.11'  # Changé de 3.13 à 3.11 pour compatibilité
+  PYTHON_VERSION: '3.11'
   APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
   ISS_SCRIPT: 'main.iss'
-  RELEASE_TAG: 'v1.9'  # Utilisez une vraie version au lieu de 'latest'
-  OUTPUT_DIR: 'LeopardoAI-Installer'
-  INSTALLER_NAME: 'Leopardo-AI-Setup-v1.9.exe'
+  RELEASE_TAG: 'v1.9'
+  INSTALLER_NAME: 'Leopardo-AI-Setup.exe'
 
 jobs:
   build:
@@ -67,7 +66,7 @@ jobs:
 
     - name: 🧹 Clean previous builds
       run: |
-        Remove-Item -Recurse -Force build, dist, ${{ env.OUTPUT_DIR }} -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force build, dist, LeopardoAI-Installer -ErrorAction SilentlyContinue
 
     - name: 🔨 Build with PyInstaller
       shell: pwsh
@@ -81,40 +80,55 @@ jobs:
           exit 1
         }
 
-    - name: 🛠️ Build Setup Installer
-      shell: cmd
-      run: |
-        if not exist "%ISS_SCRIPT%" (
-          echo ❌ Le script Inno Setup "%ISS_SCRIPT%" est introuvable.
-          exit /b 1
-        )
-        iscc /O"${{ env.OUTPUT_DIR }}" /F"${{ env.INSTALLER_NAME }}" "%ISS_SCRIPT%"
-
-    - name: 📂 Verify build output
+    - name: 📦 Package build
       shell: pwsh
       run: |
-        $installerPath = "${{ env.OUTPUT_DIR }}\${{ env.INSTALLER_NAME }}"
-        if (-not (Test-Path $installerPath)) {
-          Write-Error "❌ L'installeur n'a pas été créé: $installerPath"
+        New-Item -ItemType Directory -Path "release" -Force | Out-Null
+        Copy-Item "dist\main.exe" -Destination "release\${{ env.APP_NAME }}.exe"
+        Copy-Item -Recurse "resources" -Destination "release\resources"
+        Copy-Item -Recurse "dlls" -Destination "release\dlls"
+
+    - name: 🧪 Install Inno Setup (64-bit)
+      shell: pwsh
+      run: |
+        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
+        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
+        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
+        echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: 🛠️ Build Setup Installer
+      shell: pwsh
+      run: |
+        # Vérification que le fichier ISS existe
+        if (-not (Test-Path "${{ env.ISS_SCRIPT }}")) {
+          Write-Error "❌ Fichier ${{ env.ISS_SCRIPT }} introuvable"
+          Get-ChildItem -Recurse
           exit 1
         }
-        Write-Output "✔ Installeur créé avec succès: $installerPath"
-
-    - name: 📤 Upload Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Leopardo-AI-Installer
-        path: ${{ env.OUTPUT_DIR }}/${{ env.INSTALLER_NAME }}
+        
+        # Création du dossier de sortie
+        New-Item -ItemType Directory -Path "LeopardoAI-Installer" -Force
+        
+        # Compilation avec Inno Setup
+        iscc /O"LeopardoAI-Installer" /F"${{ env.INSTALLER_NAME }}" "${{ env.ISS_SCRIPT }}"
+        
+        # Vérification que l'installeur a été créé
+        if (-not (Test-Path "LeopardoAI-Installer\${{ env.INSTALLER_NAME }}")) {
+          Write-Error "❌ Échec de la création de l'installeur"
+          exit 1
+        }
 
     - name: 📤 Create GitHub Release
-      if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ env.RELEASE_TAG }}
-        name: Leopardo AI ${{ env.RELEASE_TAG }}
+        name: ${{ env.APP_NAME }} ${{ env.RELEASE_TAG }}
         body: |
           ✅ Version ${{ env.RELEASE_TAG }} compilée automatiquement.
-          Inclut l'installeur Windows.
+          Contient l'application et l'installeur Windows.
         draft: false
         prerelease: false
-        files: ${{ env.OUTPUT_DIR }}/${{ env.INSTALLER_NAME }}
+        files: |
+          release\${{ env.APP_NAME }}.exe
+          LeopardoAI-Installer\${{ env.INSTALLER_NAME }}
