@@ -21,8 +21,9 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
-DefaultGroupName=MyApplication
-ArchitecturesAllowed=x86 x64compatible
+DefaultGroupName=
+ArchitecturesAllowed=x86 x64
+
 ArchitecturesInstallIn64BitMode=x64compatible
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
