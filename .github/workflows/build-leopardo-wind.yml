@@ -125,4 +125,4 @@ jobs:
         prerelease: false
         files: |
           release\${{ env.APP_NAME }}.exe
-          LeopardoAI-Installer\Nova360.exe
+          LeopardoAI-Installer\leopardo-ai.exe
