@@ -113,16 +113,3 @@ jobs:
       run: dir LeopardoAI-Installer
       shell: pwsh
 
-    - name: 📤 Create GitHub Release and Upload
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ env.RELEASE_TAG }}
-        name: Leopardo AI Release
-        body: |
-          ✅ Nouvelle version compilée automatiquement.
-          Inclut l'exécutable principal **et** l'installeur.
-        draft: false
-        prerelease: false
-        files: |
-          release\${{ env.APP_NAME }}.exe
-          LeopardoAI-Installer\leopardo-ai.exe
