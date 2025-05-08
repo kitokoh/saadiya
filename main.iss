@@ -24,7 +24,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName=
 ArchitecturesAllowed=x86 x64
 
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesInstallIn64BitMode=x64 arm64
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
 LicenseFile=dist\licence.txt
