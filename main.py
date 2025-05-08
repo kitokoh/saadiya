@@ -2509,7 +2509,7 @@ class Browser(QMainWindow):
         def create_button_with_badge(emoji_text, badge_color):
             button = QToolButton()
             button.setText(emoji_text)
-            button.setFont(QFont("Segoe UI Emoji", 5))  # Police emoji lisible
+            button.setFont(QFont("Segoe UI Emoji", 10))  # Police emoji lisible
             button.setStyleSheet("""
                 QToolButton {
                     background-color: transparent;
