@@ -1,4 +1,4 @@
-name: Build Leopardo AI Installer win
+name: Build Leopardo AI Installer (Windows)
 
 on:
   workflow_dispatch:
@@ -7,11 +7,13 @@ on:
     paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: '3.11'  # Changé de 3.13 à 3.11 pour compatibilité
   APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
   ISS_SCRIPT: 'main.iss'
-  RELEASE_TAG: 'latest'
+  RELEASE_TAG: 'v1.9'  # Utilisez une vraie version au lieu de 'latest'
+  OUTPUT_DIR: 'LeopardoAI-Installer'
+  INSTALLER_NAME: 'Leopardo-AI-Setup-v1.9.exe'
 
 jobs:
   build:
@@ -23,7 +25,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🐍 Setup Python
       uses: actions/setup-python@v4
@@ -66,7 +67,7 @@ jobs:
 
     - name: 🧹 Clean previous builds
       run: |
-        Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force build, dist, ${{ env.OUTPUT_DIR }} -ErrorAction SilentlyContinue
 
     - name: 🔨 Build with PyInstaller
       shell: pwsh
@@ -80,27 +81,6 @@ jobs:
           exit 1
         }
 
-    - name: 📦 Package build
-      shell: pwsh
-      run: |
-        New-Item -ItemType Directory -Path "release" | Out-Null
-        Copy-Item "dist\main.exe" -Destination "release\${{ env.APP_NAME }}.exe"
-        Copy-Item -Recurse "resources" -Destination "release\resources"
-        Copy-Item -Recurse "dlls" -Destination "release\dlls"
-
-    - name: 🧪 Install Inno Setup (64-bit)
-      shell: pwsh
-      run: |
-        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
-        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
-        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
-        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
-        echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
-
-    - name: 📂 Debug – Fichiers disponibles
-      shell: cmd
-      run: dir /s /b
-
     - name: 🛠️ Build Setup Installer
       shell: cmd
       run: |
@@ -108,43 +88,33 @@ jobs:
           echo ❌ Le script Inno Setup "%ISS_SCRIPT%" est introuvable.
           exit /b 1
         )
-        iscc /O"LeopardoAI-Installer" /F"Nova360" "%ISS_SCRIPT%"
+        iscc /O"${{ env.OUTPUT_DIR }}" /F"${{ env.INSTALLER_NAME }}" "%ISS_SCRIPT%"
 
     - name: 📂 Verify build output
-      run: dir LeopardoAI-Installer
       shell: pwsh
+      run: |
+        $installerPath = "${{ env.OUTPUT_DIR }}\${{ env.INSTALLER_NAME }}"
+        if (-not (Test-Path $installerPath)) {
+          Write-Error "❌ L'installeur n'a pas été créé: $installerPath"
+          exit 1
+        }
+        Write-Output "✔ Installeur créé avec succès: $installerPath"
 
+    - name: 📤 Upload Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Leopardo-AI-Installer
+        path: ${{ env.OUTPUT_DIR }}/${{ env.INSTALLER_NAME }}
 
-
-    - name: 📤 Create GitHub Release and Upload
+    - name: 📤 Create GitHub Release
+      if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ env.RELEASE_TAG }}
-        name: Leopardo AI Release
+        name: Leopardo AI ${{ env.RELEASE_TAG }}
         body: |
-          ✅ Nouvelle version compilée automatiquement.
-          Inclut l'exécutable principal **et** l'installeur.
+          ✅ Version ${{ env.RELEASE_TAG }} compilée automatiquement.
+          Inclut l'installeur Windows.
         draft: false
         prerelease: false
-        files: |
-          release/Leopardo AI.exe
-          LeopardoAI-Installer/Leopardo-ai.exe
-      env:
-        # Ajout des permissions étendues
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-
-    - name: 📤 Create GitHub Release and Upload
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ env.RELEASE_TAG }}
-        name: Leopardo AI Release
-        body: |
-          ✅ Nouvelle version compilée automatiquement.
-          Inclut l'exécutable principal **et** l'installeur.
-        draft: false
-        prerelease: false
-        files: |
-          release\${{ env.APP_NAME }}.exe
-          LeopardoAI-Installer\leopardo-ai.exe
+        files: ${{ env.OUTPUT_DIR }}/${{ env.INSTALLER_NAME }}
