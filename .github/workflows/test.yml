@@ -98,10 +98,11 @@ jobs:
     - name: 📦 Build installer with Inno Setup
       run: ISCC.exe main.iss
 
+
     - name: 📤 Upload installer exe
       uses: actions/upload-artifact@v4
       with:
         name: LeopardoAI-installer
-        path: |
-          output/*.exe
+        path: LeopardoAI-Installer/Leopardo-ai.exe
+
 
