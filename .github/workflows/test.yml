@@ -1,40 +1,82 @@
-name: Build Leopardo AI Installer
+name: Build Leopardo AI Executable
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
+
+env:
+  PYTHON_VERSION: '3.13'
+  APP_NAME: 'Leopardo AI'
+  UPX_VERSION: '4.2.1'
 
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
-    - name: Checkout repository
+    - name: 🛠️ Checkout code
       uses: actions/checkout@v4
-
-    - name: Install Inno Setup
-      shell: pwsh
-      run: |
-        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
-        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
-        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
-        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
-        echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
-
-    - name: Build installer
-      shell: cmd
-      run: |
-        iscc /O"LeopardoAI-Installer" /F"Nova360" "your_script_name.iss"
-
-    - name: Verify build output
-      run: dir LeopardoAI-Installer
-      shell: pwsh
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
       with:
-        name: LeopardoAI-Installer
-        path: LeopardoAI-Installer/Nova360.exe
+        fetch-depth: 0
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
+        pip install -r requirements.txt
+
+    - name: 🔽 Download UPX
+      shell: pwsh
+      run: |
+        Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
+        Expand-Archive -Path "upx.zip" -DestinationPath "upx"
+        echo "UPX_DIR=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64" >> $env:GITHUB_ENV
+
+    - name: 🔍 Verify resources and DLLs
+      shell: pwsh
+      run: |
+        $requiredDirs = @('resources', 'dlls', 'lesClesNova360')
+        foreach ($dir in $requiredDirs) {
+          if (-not (Test-Path $dir)) {
+              Write-Error "❌ Dossier manquant: $dir"
+              exit 1
+          }
+        }
+
+        $requiredDlls = @('liblzma.dll', 'libssl-3-x64.dll', 'libcrypto-3-x64.dll')
+        foreach ($dll in $requiredDlls) {
+          if (-not (Test-Path "dlls\$dll")) {
+              Write-Error "❌ DLL manquante: $dll"
+              exit 1
+          }
+        }
+
+    - name: 🧹 Clean previous builds
+      run: |
+        Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
+
+    - name: 🔨 Build with PyInstaller
+      shell: pwsh
+      run: |
+        $env:PYTHONPATH="$pwd"
+        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
+
+        if (-not (Test-Path "dist\main.exe")) {
+          Write-Error "❌ Compilation échouée"
+          Get-Content "build\warn-main.txt" -ErrorAction SilentlyContinue
+          exit 1
+        }
+
+    - name: 📂 Debug – Fichiers disponibles
+      shell: cmd
+      run: dir /s /b
