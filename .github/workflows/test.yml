@@ -1,4 +1,4 @@
-name: Build Leopardo AI Executable
+name: Build Leopardo AI Executable  1
 
 on:
   workflow_dispatch:
@@ -85,3 +85,15 @@ jobs:
       with:
         name: main-exe
         path: dist/main.exe
+
+
+    - name: ⬇️ Download Inno Setup
+      run: |
+        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
+        Start-Process .\is.exe "/VERYSILENT /NORESTART /SP-" -Wait
+
+    - name: ➕ Add Inno Setup to PATH
+      run: echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -Append $env:GITHUB_PATH
+
+    - name: 📦 Build installer with Inno Setup
+      run: ISCC.exe main.iss
