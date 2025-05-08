@@ -28,6 +28,12 @@ jobs:
         run: |
           pyinstaller --noconfirm --onefile --icon=resources/icons/robot-icons-30504-Windows.ico main.py
 
+      - name: 📤 Upload PyInstaller .exe as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: main-exe
+          path: dist/main.exe
+
       - name: ⬇️ Download Inno Setup
         run: |
           Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
@@ -42,14 +48,9 @@ jobs:
 
 
 
-      - name: 📤 Upload PyInstaller .exe as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: main-exe
-          path: dist/main.exe
 
       - name: 📤 Upload Installer .exe as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: installer
           path: Output/*.exe
