@@ -27,9 +27,9 @@ ArchitecturesAllowed=x86 x64
 ArchitecturesInstallIn64BitMode=x64 arm64
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=dist\licence.txt
-InfoBeforeFile=dist\beforinstall.txt
-InfoAfterFile=dist\afterinstall.txt
+LicenseFile=compil\licence.txt
+InfoBeforeFile=compil\beforinstall.txt
+InfoAfterFile=compil\afterinstall.txt
 OutputBaseFilename=Nova360
 SetupIconFile=resources\icons\robot-icons-30504-Windows.ico
 
