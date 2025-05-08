@@ -1,71 +1,31 @@
-name: Test Inno Setup Installation
-
 on:
   workflow_dispatch:
 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  test-innosetup:
+  build:
     runs-on: windows-latest
-    timeout-minutes: 10
 
     steps:
-    - name: 🛠️ Checkout code (empty)
-      uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
+    - name: Set up Inno Setup
+      uses: ammaraskar/setup-innosetup@v1
+      with:
+        version: '6.2.0'  # Version d'Inno Setup
 
-    - name: 🧪 Install Inno Setup (Portable)
-      shell: pwsh
+    - name: Build installer
       run: |
-        $version = "6.2.2"
-        $installDir = "C:\InnoSetup"
-        Write-Output "Downloading Inno Setup Portable $version..."
-        Invoke-WebRequest -Uri "https://github.com/innosetup/innosetup/releases/download/$version/innosetup-$version.zip" -OutFile "$env:RUNNER_TEMP\innosetup.zip"
-        Expand-Archive -Path "$env:RUNNER_TEMP\innosetup.zip" -DestinationPath $installDir -Force
-        echo "$installDir" >> $env:GITHUB_PATH
-        
-    - name: 🧪 Download and Install Inno Setup
-      shell: pwsh
-      run: |
-        # Download
-        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
-        Write-Output "Downloading Inno Setup..."
-        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/ispack.exe" -OutFile $installerPath -UseBasicParsing
-
-        # Install
-        Write-Output "Installing silently..."
-        Start-Process -FilePath $installerPath -ArgumentList "/VERYSILENT", "/NORESTART", "/DIR=C:\InnoSetup" -Wait -NoNewWindow
-
-        # Verify
-        if (Test-Path "C:\InnoSetup\ISCC.exe") {
-            Write-Output "✔ Installation successful!"
-            echo "C:\InnoSetup" >> $env:GITHUB_PATH
-        } else {
-            Write-Error "❌ Installation failed"
-            exit 1
-        }
-
-    - name: ✅ Verify Installation
-      shell: pwsh
-      run: |
-        # Create test ISS file
-        $issContent = @"
-[Setup]
-AppName=TestApp
-AppVersion=1.0
-DefaultDirName={autopf}\TestApp
-OutputDir=output
-OutputBaseFilename=TestSetup
-"@
-        New-Item -ItemType Directory -Path output -Force | Out-Null
-        Set-Content -Path "test.iss" -Value $issContent
-
-        # Compile test installer
-        ISCC test.iss
-
-        # Verify output
-        if (Test-Path "output\TestSetup.exe") {
-            Write-Output "✔ Compilation successful!"
-        } else {
-            Write-Error "❌ Compilation failed"
-            exit 1
-        }
+        iscc /O"LeopardoAI-Installer" /F"Nova360" "your_script_name.iss"
+      shell: cmd
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: LeopardoAI-Installer
+        path: LeopardoAI-Installer/Nova360.exe
