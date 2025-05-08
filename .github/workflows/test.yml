@@ -1,19 +1,40 @@
-name: Test Upload Artifact
+name: Build Leopardo AI Installer
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  test-upload:
+  build:
     runs-on: windows-latest
 
     steps:
-    - name: Create a test file
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Inno Setup
+      shell: pwsh
       run: |
-        echo "Hello LeopardoAI!" > test-output.txt
+        $innosetupUrl = "https://files.jrsoftware.org/is/6/innosetup-6.2.0.exe"
+        $installerPath = "$env:RUNNER_TEMP\innosetup.exe"
+        Invoke-WebRequest -Uri $innosetupUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -Args "/VERYSILENT /ALLUSERS /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" -Wait
+        echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: Build installer
+      shell: cmd
+      run: |
+        iscc /O"LeopardoAI-Installer" /F"Nova360" "your_script_name.iss"
+
+    - name: Verify build output
+      run: dir LeopardoAI-Installer
+      shell: pwsh
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: test-artifact
-        path: test-output.txt
+        name: LeopardoAI-Installer
+        path: LeopardoAI-Installer/Nova360.exe
