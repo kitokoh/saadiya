@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
 from Home.giris import SplitScreenView
 from Home.login import Nova360ProApp
 from Home.parametre import Nova360Ultimate
-from licenceYonetimi.upgrade import SpecialOfferWindow
+# from licenceYonetimi.upgrade import SpecialOfferWindow
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QProgressDialog
 import os
@@ -2319,6 +2319,8 @@ class Browser(QMainWindow):
         # Add stretch before window controls
 
         self.top_menu_layout.addLayout(self.menu_bar)
+        self.top_menu_layout.addStretch()
+
         self.create_notif()
 
         self.top_menu_layout.addStretch()
