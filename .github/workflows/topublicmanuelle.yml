@@ -1,7 +1,6 @@
 name: Replicate Release to Public Repo
 
 on:
-  workflow_dispatch:
   release:
     types: [published, edited]
 
@@ -10,82 +9,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Récupérer la dernière release en cas de déclenchement manuel
-      - name: Get latest release (if manual)
-        if: github.event_name == 'workflow_dispatch'
-        uses: actions/github-script@v7
-        id: get_latest
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let data;
-            try {
-              const latest = await github.rest.repos.getLatestRelease({
-                owner: context.repo.owner,
-                repo: context.repo.repo
-              });
-              data = latest.data;
-            } catch (err) {
-              core.info("Pas de release existante, on passera à la création d'une nouvelle.");
-              data = {
-                tag_name: "",
-                name: "",
-                body: "",
-                draft: false,
-                prerelease: false,
-                assets: []
-              };
-            }
-            return {
-              tag_name: data.tag_name,
-              name: data.name,
-              body: data.body,
-              draft: data.draft,
-              prerelease: data.prerelease,
-              assets: JSON.stringify(data.assets.map(a => ({ name: a.name, url: a.url })))
-            };
-
-      # 2. Récupérer la release depuis l’événement 'release'
-      - name: Use payload release info
-        if: github.event_name == 'release'
+      - name: Fetch release metadata and assets
         uses: actions/github-script@v7
         id: fetch_release
         with:
+          result-encoding: string
           script: |
-            const r = context.payload.release;
-            return {
-              tag_name: r.tag_name,
-              name: r.name,
-              body: r.body,
-              draft: r.draft,
-              prerelease: r.prerelease,
-              assets: JSON.stringify(r.assets.map(a => ({ name: a.name, url: a.url })))
-            };
+            const release = context.payload.release;
+            const assets = release.assets.map(asset => ({
+              name: asset.name,
+              url: asset.url
+            }));
+            return JSON.stringify({
+              tag: release.tag_name,
+              name: release.name,
+              body: release.body || '',
+              draft: release.draft,
+              prerelease: release.prerelease,
+              assets: assets
+            });
 
-      # 3. Fusionner les données (manuelle vs event)
-      - name: Set release data
-        id: set_data
+      - name: Parse release outputs
+        id: parse
         run: |
-          echo "::set-output name=tag_name::${{ steps.get_latest.outputs.tag_name || steps.fetch_release.outputs.tag_name }}"
-          echo "::set-output name=name::${{ steps.get_latest.outputs.name || steps.fetch_release.outputs.name }}"
-          echo "::set-output name=body::${{ steps.get_latest.outputs.body || steps.fetch_release.outputs.body }}"
-          echo "::set-output name=draft::${{ steps.get_latest.outputs.draft || steps.fetch_release.outputs.draft }}"
-          echo "::set-output name=prerelease::${{ steps.get_latest.outputs.prerelease || steps.fetch_release.outputs.prerelease }}"
-          echo "::set-output name=assets::${{ steps.get_latest.outputs.assets || steps.fetch_release.outputs.assets }}"
+          echo '${{ steps.fetch_release.outputs.result }}' > release.json
+          cat release.json
+          echo "TAG=$(jq -r .tag release.json)" >> $GITHUB_ENV
+          echo "NAME=$(jq -r .name release.json)" >> $GITHUB_ENV
+          echo "BODY=$(jq -r .body release.json)" >> $GITHUB_ENV
+          echo "DRAFT=$(jq -r .draft release.json)" >> $GITHUB_ENV
+          echo "PRERELEASE=$(jq -r .prerelease release.json)" >> $GITHUB_ENV
+          echo "ASSETS=$(jq -c .assets release.json)" >> $GITHUB_ENV
 
-      # 4. Créer ou mettre à jour la release dans le dépôt public
       - name: Create or update release in public repo
         uses: actions/github-script@v7
-        id: create_release
+        id: create_public
+        env:
+          TAG: ${{ env.TAG }}
+          NAME: ${{ env.NAME }}
+          BODY: ${{ env.BODY }}
+          DRAFT: ${{ env.DRAFT }}
+          PRERELEASE: ${{ env.PRERELEASE }}
         with:
           github-token: ${{ secrets.TARGET_REPO_TOKEN }}
           script: |
             const owner = "kitokoh";
-            const repo  = "leopardo";
-            const tag   = "${{ steps.set_data.outputs.tag_name }}";
-            let release;
+            const repo = "leopardo";
+            const tag = process.env.TAG;
+            const name = process.env.NAME;
+            const body = process.env.BODY;
+            const draft = process.env.DRAFT === 'true';
+            const prerelease = process.env.PRERELEASE === 'true';
 
-            // Vérifier si la release existe déjà
+            let release;
             try {
               const existing = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
               release = existing.data;
@@ -93,49 +69,42 @@ jobs:
                 owner,
                 repo,
                 release_id: release.id,
-                name: "${{ steps.set_data.outputs.name }}",
-                body: "${{ steps.set_data.outputs.body }}",
-                draft: ${{ steps.set_data.outputs.draft }},
-                prerelease: ${{ steps.set_data.outputs.prerelease }}
+                name,
+                body,
+                draft,
+                prerelease
               });
             } catch {
-              // Sinon, créer la release
               const created = await github.rest.repos.createRelease({
                 owner,
                 repo,
                 tag_name: tag,
-                name: "${{ steps.set_data.outputs.name }}",
-                body: "${{ steps.set_data.outputs.body }}",
-                draft: ${{ steps.set_data.outputs.draft }},
-                prerelease: ${{ steps.set_data.outputs.prerelease }}
+                name,
+                body,
+                draft,
+                prerelease
               });
               release = created.data;
             }
 
             return { upload_url: release.upload_url };
 
-      # 5. Télécharger les assets depuis le dépôt privé
-      - name: Download assets from private repo
+      - name: Download assets
         run: |
-          mkdir -p assets
-          echo '${{ steps.set_data.outputs.assets }}' \
-            | jq -c '.[]' \
-            | while read -r asset; do
-                name=$(echo "$asset" | jq -r '.name')
-                url=$(echo "$asset" | jq -r '.url')
-                echo "Downloading $name"
-                curl -L \
-                     -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                     -H "Accept: application/octet-stream" \
-                     "$url" -o "assets/$name"
-              done
-        shell: bash
+          mkdir assets
+          echo "$ASSETS" | jq -c '.[]' | while read -r asset; do
+            name=$(echo "$asset" | jq -r '.name')
+            url=$(echo "$asset" | jq -r '.url')
+            echo "Downloading $name ..."
+            curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                 -H "Accept: application/octet-stream" \
+                 "$url" --output "assets/$name"
+          done
 
-      # 6. Uploader les assets vers le dépôt public
       - name: Upload assets to public release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.TARGET_REPO_TOKEN }}
           repository: kitokoh/leopardo
-          tag_name: ${{ steps.set_data.outputs.tag_name }}
+          tag_name: ${{ env.TAG }}
           files: assets/*
