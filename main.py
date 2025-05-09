@@ -2141,6 +2141,9 @@ class Browser(QMainWindow):
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("Marketing tools"), []),
                 ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
                 # ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
+                ("🪙", self.tr("Crypto Mining"), "Management", self.open_management, self.tr("Management tools"), []),
+                ("🪙", self.tr("Tading"), "Management", self.open_management, self.tr("Management tools"), []),
+
             ]),
             
 
