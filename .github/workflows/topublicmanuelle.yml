@@ -102,4 +102,3 @@ jobs:
           repository: kitokoh/leopardo
           tag_name: ${{ steps.release_data.outputs.tag }}
           files: assets/*
-
