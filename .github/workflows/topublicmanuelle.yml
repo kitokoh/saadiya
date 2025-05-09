@@ -1,4 +1,4 @@
-name: Mirror Release to Public Repo
+name: Mireeror Release to Public Repo
 
 on:
   release:
