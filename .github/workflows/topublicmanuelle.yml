@@ -1,8 +1,7 @@
 name: Replicate Release to Public Repo
 
 on:
-  release:
-    types: [published, edited]
+    workflow_dispatch:
 
 jobs:
   replicate-release:
