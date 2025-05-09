@@ -1,4 +1,4 @@
-name: Test & Replicate Release to Public
+name: "Test and Replicate Release to Public"
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupération des infos de la release (auto ou manuel)
+      # 1️⃣ Get release info (auto or manual)
       - name: Determine release data
         id: release_data
         uses: actions/github-script@v7
@@ -25,30 +25,30 @@ jobs:
             if (context.eventName === 'release') {
               r = context.payload.release;
             } else {
-              // invocation manuelle → on prend la dernière release dispo
+              // manual invocation → get latest release
               const latest = await github.rest.repos
                 .getLatestRelease({
-                  owner: context.repo.owner,
+                  owner: 'kitokoh',
                   repo: 'saadiya'
                 })
                 .catch(() => null);
               if (!latest) {
-                throw new Error('Aucune release existante à répliquer.');
+                throw new Error('No existing release to replicate.');
               }
               r = latest.data;
             }
             return {
-              tag:        r.tag_name,
-              name:       r.name,
-              body:       r.body,
-              draft:      r.draft,
+              tag: r.tag_name,
+              name: r.name,
+              body: r.body,
+              draft: r.draft,
               prerelease: r.prerelease,
-              assets:     JSON.stringify(
+              assets: JSON.stringify(
                 r.assets.map(a => ({ name: a.name, url: a.url }))
               )
             };
 
-      # 2️⃣ Création / mise à jour de la release dans le repo public
+      # 2️⃣ Create/update release in public repo
       - name: Create/update in public repo
         id: public_release
         uses: actions/github-script@v7
@@ -56,15 +56,15 @@ jobs:
           github-token: ${{ secrets.TARGET_REPO_TOKEN }}
           script: |
             const owner = "kitokoh";
-            const repo  = "leopardo";
-            const tag   = "${{ steps.release_data.outputs.tag }}";
+            const repo = "leopardo";
+            const tag = "${{ steps.release_data.outputs.tag }}";
             const opts = {
               owner,
               repo,
-              tag_name:   tag,
-              name:       "${{ steps.release_data.outputs.name }}",
-              body:       "${{ steps.release_data.outputs.body }}",
-              draft:      ${{ steps.release_data.outputs.draft }},
+              tag_name: tag,
+              name: "${{ steps.release_data.outputs.name }}",
+              body: "${{ steps.release_data.outputs.body }}",
+              draft: ${{ steps.release_data.outputs.draft }},
               prerelease: ${{ steps.release_data.outputs.prerelease }}
             };
             let rel;
@@ -83,7 +83,7 @@ jobs:
             }
             return { upload_url: rel.upload_url };
 
-      # 3️⃣ Téléchargement des assets depuis le privé
+      # 3️⃣ Download assets from private repo
       - name: Download private assets
         run: |
           mkdir -p assets
@@ -100,11 +100,11 @@ jobs:
               done
         shell: bash
 
-      # 4️⃣ Upload des assets vers la release publique
+      # 4️⃣ Upload assets to public release
       - name: Upload assets to public release
         uses: softprops/action-gh-release@v1
         with:
-          token:      ${{ secrets.TARGET_REPO_TOKEN }}
+          token: ${{ secrets.TARGET_REPO_TOKEN }}
           repository: kitokoh/leopardo
-          tag_name:   ${{ steps.release_data.outputs.tag }}
-          files:      assets/*
+          tag_name: ${{ steps.release_data.outputs.tag }}
+          files: assets/*
