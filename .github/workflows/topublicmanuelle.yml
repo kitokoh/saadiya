@@ -1,48 +1,56 @@
-name: Test & Replicate Release to Public
+name: Test & Replicate Release to Public ss
 
 on:
-  workflow_dispatch:             # pour tests manuels
+  workflow_dispatch:            # pour tests manuels
     inputs:
       dummy:
         description: 'Just trigger manually'
         required: false
   release:
-    types: [published, edited]   # dès qu'une release est publiée ou modifiée
+    types: [published, edited]  # déclenche dès qu'une release est publiée ou modifiée
 
 jobs:
   replicate-release:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Récupérer les infos de la release (automatique ou manuelle)
+      # 1️⃣ Recueillir les infos de la release (automatique ou manuelle)
       - name: Determine release data
         id: release_data
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const core = require('@actions/core');
             let r;
+
             if (context.eventName === 'release') {
               r = context.payload.release;
             } else {
-              // appel manuel → on prend la dernière release dispo
-              const latest = await github.rest.repos.getLatestRelease({
-                owner: context.repo.owner,
-                repo: 'saadiya'
-              }).catch(() => null);
+              // invocation manuelle : on récupère la dernière release existante
+              const latest = await github.rest.repos
+                .getLatestRelease({
+                  owner: context.repo.owner,
+                  repo: 'saadiya'
+                })
+                .catch(() => null);
+
               if (!latest) {
                 core.setFailed('Aucune release existante à répliquer.');
                 return;
               }
               r = latest.data;
             }
+
             return {
               tag:        r.tag_name,
               name:       r.name,
               body:       r.body,
               draft:      r.draft,
               prerelease: r.prerelease,
-              assets:     JSON.stringify(r.assets.map(a => ({ name: a.name, url: a.url })))
+              assets:     JSON.stringify(
+                r.assets.map(a => ({ name: a.name, url: a.url }))
+              )
             };
 
       # 2️⃣ Créer ou mettre à jour la release dans le repo public
@@ -56,41 +64,53 @@ jobs:
             const repo  = "leopardo";
             const tag   = "${{ steps.release_data.outputs.tag }}";
             const opts = {
-              owner, repo,
-              tag_name:  tag,
-              name:      "${{ steps.release_data.outputs.name }}",
-              body:      "${{ steps.release_data.outputs.body }}",
-              draft:     ${{ steps.release_data.outputs.draft }},
-              prerelease:${{ steps.release_data.outputs.prerelease }}
+              owner:       owner,
+              repo:        repo,
+              tag_name:    tag,
+              name:        "${{ steps.release_data.outputs.name }}",
+              body:        "${{ steps.release_data.outputs.body }}",
+              draft:       ${{ steps.release_data.outputs.draft }},
+              prerelease:  ${{ steps.release_data.outputs.prerelease }}
             };
+
             let rel;
             try {
-              // si existe, on update
-              const ex = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
-              rel = ex.data;
-              await github.rest.repos.updateRelease({ 
-                owner, repo, release_id: rel.id, ...opts 
+              // Si la release existe déjà, on la met à jour
+              const existing = await github.rest.repos.getReleaseByTag({
+                owner,
+                repo,
+                tag
+              });
+              rel = existing.data;
+
+              await github.rest.repos.updateRelease({
+                owner,
+                repo,
+                release_id: rel.id,
+                ...opts
               });
             } catch {
-              // sinon, on crée
-              const cr = await github.rest.repos.createRelease(opts);
-              rel = cr.data;
+              // Sinon, on la crée
+              const created = await github.rest.repos.createRelease(opts);
+              rel = created.data;
             }
+
             return { upload_url: rel.upload_url };
 
-      # 3️⃣ Télécharger les assets du repo privé
+      # 3️⃣ Télécharger les assets depuis le repo privé
       - name: Download private assets
         run: |
           mkdir -p assets
           echo '${{ steps.release_data.outputs.assets }}' \
             | jq -c '.[]' \
             | while read -r a; do
-                n=$(echo "$a" | jq -r '.name')
-                u=$(echo "$a" | jq -r '.url')
-                echo "Downloading $n"
-                curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                       -H "Accept: application/octet-stream" \
-                       "$u" -o "assets/$n"
+                name=$(echo "$a" | jq -r '.name')
+                url=$(echo "$a" | jq -r '.url')
+                echo "Downloading $name"
+                curl -L \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/octet-stream" \
+                  "$url" -o "assets/$name"
               done
         shell: bash
 
@@ -98,7 +118,7 @@ jobs:
       - name: Upload assets to public release
         uses: softprops/action-gh-release@v1
         with:
-          token: ${{ secrets.TARGET_REPO_TOKEN }}
+          token:      ${{ secrets.TARGET_REPO_TOKEN }}
           repository: kitokoh/leopardo
-          tag_name: ${{ steps.release_data.outputs.tag }}
-          files: assets/*
+          tag_name:   ${{ steps.release_data.outputs.tag }}
+          files:      assets/*
