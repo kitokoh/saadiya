@@ -1,10 +1,10 @@
-name: Build Leopardo AI Executable  2
+name: Build Leopardo AI Executable - Optimisé
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**', 'dlls/**']
 
 env:
   PYTHON_VERSION: '3.11'
@@ -14,35 +14,45 @@ env:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        python-version: ['3.11']
+    
     steps:
     - name: 🛠️ Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
+        
+    - name: 🏷️ Extraction de la version
+      id: version
+      run: |
+        $version = (Get-Content version.txt).Trim()
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+        echo "::set-output name=version::$version"
+    
     - name: 🐍 Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-
-    - name: 📦 Install dependencies
+    
+    - name: 📦 Installation optimisée des dépendances
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller
-        pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
-        pip install -r requirements.txt
-
+        pip install --no-cache-dir pyinstaller
+        pip install --no-cache-dir PyQt5==5.15.10 pymysql psycopg2-binary cryptography
+        pip install --no-cache-dir -r requirements.txt
+    
     - name: 🔽 Download UPX
       shell: pwsh
       run: |
         Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
         Expand-Archive -Path "upx.zip" -DestinationPath "upx"
         echo "UPX_DIR=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64" >> $env:GITHUB_ENV
-
-    - name: 🔍 Verify resources and DLLs
+    
+    - name: 🔍 Vérification approfondie des ressources
       shell: pwsh
       run: |
         $requiredDirs = @('resources', 'dlls', 'lesClesNova360')
@@ -55,33 +65,113 @@ jobs:
 
         $requiredDlls = @('liblzma.dll', 'libssl-3-x64.dll', 'libcrypto-3-x64.dll')
         foreach ($dll in $requiredDlls) {
-          if (-not (Test-Path "dlls\$dll")) {
+          $dllPath = "dlls\$dll"
+          if (-not (Test-Path $dllPath)) {
               Write-Error "❌ DLL manquante: $dll"
               exit 1
           }
+          if ((Get-Item $dllPath).Length -lt 100KB) {
+              Write-Error "❌ DLL corrompue ou trop petite: $dll"
+              exit 1
+          }
         }
-
+    
     - name: 🧹 Clean previous builds
       run: |
         Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
-
+    
     - name: 🔨 Build with PyInstaller
       shell: pwsh
       run: |
         $env:PYTHONPATH="$pwd"
-        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
-
+        $buildLog = "build_log_$(Get-Date -Format 'yyyyMMdd_HHmmss').txt"
+        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build" 2>&1 | Tee-Object -FilePath $buildLog
+        
         if (-not (Test-Path "dist\main.exe")) {
           Write-Error "❌ Compilation échouée"
-          Get-Content "build\warn-main.txt" -ErrorAction SilentlyContinue
+          Get-Content $buildLog
           exit 1
         }
-
-    - name: 📂 Debug – Fichiers disponibles
-      shell: cmd
-      run: dir /s /b
-    - name: 📤 Upload main.exe
+        
+        # Calcul de la taille de l'exécutable
+        $size = (Get-Item "dist\main.exe").Length / 1MB
+        echo "EXE_SIZE=$size" >> $env:GITHUB_ENV
+    
+    - name: ⬇️ Download Inno Setup
+      run: |
+        Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
+        Start-Process .\is.exe "/VERYSILENT /NORESTART /SP-" -Wait
+    
+    - name: ➕ Add Inno Setup to PATH
+      run: echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -Append $env:GITHUB_PATH
+    
+    - name: 📦 Build installer with Inno Setup
+      run: ISCC.exe /DMyAppVersion=${{ env.VERSION }} main.iss
+    
+    - name: 📤 Upload artefacts
       uses: actions/upload-artifact@v4
       with:
-        name: main-exe
-        path: dist/main.exe
+        name: LeopardoAI-Build-${{ env.VERSION }}
+        path: |
+          dist/main.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+    
+    - name: 🏷️ Create version tag
+      run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git tag -a v${{ env.VERSION }} -m "Version ${{ env.VERSION }}"
+        git push origin v${{ env.VERSION }}
+    
+    - name: 🚀 Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Leopardo AI v${{ env.VERSION }}"
+        tag_name: v${{ env.VERSION }}
+        files: |
+          dist/main.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+        body: |
+          🚀 Nouvelle version de Leopardo AI v${{ env.VERSION }}
+          
+          **Détails:**
+          - 📅 Date: $(Get-Date -Format 'yyyy-MM-dd')
+          - 🧠 Taille exécutable: ${{ env.EXE_SIZE }} MB
+          - 📦 Installateur Windows inclus
+          
+          Généré automatiquement via GitHub Actions.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 📢 Notification Slack en cas de succès
+      if: success()
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        payload: |
+          {
+            "text": "✅ Construction réussie de Leopardo AI v${{ env.VERSION }}",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*✅ Nouvelle version de Leopardo AI*"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Version:*\n${{ env.VERSION }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Taille:*\n${{ env.EXE_SIZE }} MB"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

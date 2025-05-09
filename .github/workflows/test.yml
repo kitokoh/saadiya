@@ -1,48 +1,100 @@
-name: Build Leopardo AI Executable  1
+name: Build Leopardo AI - Pipeline Complet
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**']
+    paths: ['*.py', 'requirements.txt', 'main.spec', 'resources/**', 'dlls/**']
+  pull_request:
+    branches: [main]
 
 env:
-  PYTHON_VERSION: '3.12'
+  PYTHON_VERSION: '3.11'
   APP_NAME: 'Leopardo AI'
   UPX_VERSION: '4.2.1'
+  SIGNTOOL_PATH: 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/signtool.exe'
 
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 30
-
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']  # Build matrix pour tester différentes versions
+    
     steps:
+    # Étape 1: Checkout du code
     - name: 🛠️ Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    - name: 🐍 Setup Python
+        
+    # Étape 2: Gestion de version
+    - name: 🏷️ Extraction de la version
+      id: version
+      run: |
+        # Essayez différentes méthodes pour trouver la version
+        $version = if (Test-Path version.txt) { (Get-Content version.txt).Trim() }
+                   elseif (Test-Path pyproject.toml) { (Select-String -Path pyproject.toml -Pattern 'version = "(.*)"').Matches.Groups[1].Value }
+                   else { "1.0.0" }
+        
+        # Formatage semver
+        $version = $version -replace '[^\d.]', ''
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+        echo "::set-output name=version::$version"
+    
+    # Étape 3: Configuration Python
+    - name: 🐍 Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
+        python-version: ${{ matrix.python-version }}
         cache: 'pip'
-
-    - name: 📦 Install dependencies
+        cache-dependency-path: 'requirements.txt'
+    
+    # Étape 4: Audit de sécurité des dépendances
+    - name: 🔒 Audit des dépendances
+      run: |
+        pip install pip-audit
+        pip-audit -r requirements.txt --ignore-vulns AUDIT_IGNORE.txt || echo "##[warning]Vulnérabilités trouvées dans les dépendances"
+    
+    # Étape 5: Installation optimisée
+    - name: 📦 Installation des dépendances
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller
-        pip install PyQt5==5.15.10 pymysql psycopg2-binary cryptography
-        pip install -r requirements.txt
-
+        pip install --no-cache-dir wheel
+        pip install --no-cache-dir pyinstaller ruff bandit pylint
+        pip install --no-cache-dir PyQt5==5.15.10 pymysql psycopg2-binary cryptography
+        pip install --no-cache-dir -r requirements.txt
+    
+    # Étape 6: Analyse statique du code
+    - name: 🔍 Analyse statique
+      run: |
+        # Ruff pour le linting rapide
+        ruff check . --exit-non-zero-on-fix
+        
+        # Bandit pour la sécurité
+        bandit -r . -ll
+        
+        # Pylint pour une analyse approfondie
+        pylint **/*.py --exit-zero
+    
+    # Étape 7: Tests automatiques
+    - name: 🧪 Exécution des tests
+      run: |
+        python -m pytest tests/ -v --cov=. --cov-report=xml
+      env:
+        TEST_ENV: true
+    
+    # Étape 8: Téléchargement UPX
     - name: 🔽 Download UPX
       shell: pwsh
       run: |
         Invoke-WebRequest -Uri "https://github.com/upx/upx/releases/download/v${{ env.UPX_VERSION }}/upx-${{ env.UPX_VERSION }}-win64.zip" -OutFile "upx.zip"
         Expand-Archive -Path "upx.zip" -DestinationPath "upx"
         echo "UPX_DIR=$pwd\upx\upx-${{ env.UPX_VERSION }}-win64" >> $env:GITHUB_ENV
-
-    - name: 🔍 Verify resources and DLLs
+    
+    # Étape 9: Vérification des ressources
+    - name: 🔍 Vérification approfondie des ressources
       shell: pwsh
       run: |
         $requiredDirs = @('resources', 'dlls', 'lesClesNova360')
@@ -54,55 +106,138 @@ jobs:
         }
 
         $requiredDlls = @('liblzma.dll', 'libssl-3-x64.dll', 'libcrypto-3-x64.dll')
+        $dllHashes = @{
+          "libssl-3-x64.dll" = "EXPECTED_SHA256_HASH"
+          # Ajouter d'autres hashs connus
+        }
+        
         foreach ($dll in $requiredDlls) {
-          if (-not (Test-Path "dlls\$dll")) {
+          $dllPath = "dlls\$dll"
+          if (-not (Test-Path $dllPath)) {
               Write-Error "❌ DLL manquante: $dll"
               exit 1
           }
+          if ((Get-Item $dllPath).Length -lt 100KB) {
+              Write-Error "❌ DLL corrompue ou trop petite: $dll"
+              exit 1
+          }
+          if ($dllHashes.ContainsKey($dll)) {
+              $actualHash = (Get-FileHash $dllPath -Algorithm SHA256).Hash
+              if ($actualHash -ne $dllHashes[$dll]) {
+                  Write-Error "❌ DLL compromise: $dll"
+                  exit 1
+              }
+          }
         }
-
+    
+    # Étape 10: Nettoyage
     - name: 🧹 Clean previous builds
       run: |
         Remove-Item -Recurse -Force build, dist, output, release -ErrorAction SilentlyContinue
-
+    
+    # Étape 11: Construction avec PyInstaller
     - name: 🔨 Build with PyInstaller
       shell: pwsh
       run: |
         $env:PYTHONPATH="$pwd"
-        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build"
-
+        $buildLog = "build_log_$(Get-Date -Format 'yyyyMMdd_HHmmss').txt"
+        pyinstaller main.spec --noconfirm --clean --upx-dir "$env:UPX_DIR" --distpath "dist" --workpath "build" 2>&1 | Tee-Object -FilePath $buildLog
+        
         if (-not (Test-Path "dist\main.exe")) {
           Write-Error "❌ Compilation échouée"
-          Get-Content "build\warn-main.txt" -ErrorAction SilentlyContinue
+          Get-Content $buildLog
           exit 1
         }
-
-    - name: 📂 Debug – Fichiers disponibles
-      shell: cmd
-      run: dir /s /b
-    - name: 📤 Upload main.exe
-      uses: actions/upload-artifact@v4
-      with:
-        name: main-exe
-        path: dist/main.exe
-
-
+        
+        # Calcul des métriques
+        $size = (Get-Item "dist\main.exe").Length / 1MB
+        echo "EXE_SIZE=$size" >> $env:GITHUB_ENV
+        echo "PYTHON_VERSION=${{ matrix.python-version }}" >> $env:GITHUB_ENV
+    
+    # Étape 12: Signature du code (si certificat disponible)
+    - name: 🔏 Signer l'exécutable
+      if: env.SIGNING_CERT && env.SIGNING_PASSWORD
+      shell: pwsh
+      run: |
+        $certPath = "cert.pfx"
+        [System.IO.File]::WriteAllBytes($certPath, [System.Convert]::FromBase64String("${{ secrets.SIGNING_CERT }}"))
+        & "${{ env.SIGNTOOL_PATH }}" sign /f $certPath /p "${{ secrets.SIGNING_PASSWORD }}" /tr http://timestamp.digicert.com /td sha256 /fd sha256 "dist\main.exe"
+        Remove-Item $certPath
+    
+    # Étape 13: Construction de l'installateur
     - name: ⬇️ Download Inno Setup
       run: |
         Invoke-WebRequest -Uri "https://jrsoftware.org/download.php/is.exe" -OutFile "is.exe"
         Start-Process .\is.exe "/VERYSILENT /NORESTART /SP-" -Wait
-
+    
     - name: ➕ Add Inno Setup to PATH
       run: echo "C:\Program Files (x86)\Inno Setup 6" | Out-File -Append $env:GITHUB_PATH
-
+    
     - name: 📦 Build installer with Inno Setup
-      run: ISCC.exe main.iss
-
-
-    - name: 📤 Upload installer exe
+      run: ISCC.exe /DMyAppVersion=${{ env.VERSION }} main.iss
+    
+    # Étape 14: Upload des artefacts
+    - name: 📤 Upload artefacts
       uses: actions/upload-artifact@v4
       with:
-        name: LeopardoAI-installer
-        path: LeopardoAI-Installer/Leopardo-ai.exe
-
-
+        name: LeopardoAI-Build-${{ matrix.python-version }}-${{ env.VERSION }}
+        path: |
+          dist/main.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+          build_log_*.txt
+          coverage.xml
+    
+    # Étape 15: Déploiement conditionnel
+    - name: 🚀 Déployer en production
+      if: github.ref == 'refs/heads/main' && matrix.python-version == '3.11'
+      run: |
+        # Ici vous pourriez ajouter des étapes de déploiement automatique
+        # vers S3, GitHub Releases, ou votre plateforme de distribution
+        echo "Déploiement de la version ${{ env.VERSION }}"
+    
+    # Étape 16: Gestion des versions
+    - name: 🏷️ Création de tag versionné
+      if: github.ref == 'refs/heads/main' && matrix.python-version == '3.11'
+      run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git tag -a v${{ env.VERSION }} -m "Version ${{ env.VERSION }}"
+        git push origin v${{ env.VERSION }}
+    
+    # Étape 17: Création de release
+    - name: 🚀 Create GitHub Release
+      if: github.ref == 'refs/heads/main' && matrix.python-version == '3.11'
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Leopardo AI v${{ env.VERSION }}"
+        tag_name: v${{ env.VERSION }}
+        files: |
+          dist/main.exe
+          LeopardoAI-Installer/Leopardo-ai.exe
+        body: |
+          🚀 Nouvelle version de Leopardo AI v${{ env.VERSION }}
+          
+          **Détails de la construction:**
+          - 📅 Date: $(Get-Date -Format 'yyyy-MM-dd')
+          - 🐍 Python: ${{ env.PYTHON_VERSION }}
+          - 📦 Taille exécutable: ${{ env.EXE_SIZE }} MB
+          - 🔒 Signé: ${{ env.SIGNING_CERT && 'Oui' || 'Non' }}
+          
+          **Métriques qualité:**
+          - ✅ Tests: $(Select-String -Path coverage.xml -Pattern 'line-rate="([^"]*)"').Matches.Groups[1].Value
+          - 🔍 Lint: $(Select-String -Path build_log_*.txt -Pattern 'found \d+ error').Matches.Value
+          
+          Généré automatiquement via GitHub Actions.
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    # Étape 18: Notifications
+    - name: 📢 Notification Slack/MSTeams
+      uses: rtCamp/action-slack-notify@v2
+      if: always()
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_COLOR: ${{ job.status == 'success' && 'good' || 'danger' }}
+        SLACK_TITLE: "Build ${{ job.status }} - Leopardo AI v${{ env.VERSION }}"
+        SLACK_MESSAGE: "Version ${{ env.VERSION }} construite avec Python ${{ env.PYTHON_VERSION }} (Taille: ${{ env.EXE_SIZE }}MB)"
+        SLACK_FOOTER: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
