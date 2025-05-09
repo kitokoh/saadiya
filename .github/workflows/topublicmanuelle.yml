@@ -1,98 +1,66 @@
-name: Mirror Release and Tags to Public Repo
+name: Sync Release from Private to Public Repo
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch: # Permet d'exécuter manuellement via GitHub UI
   push:
-    tags:
-      - '*'
-  workflow_dispatch:
+    branches:
+      - main # Remplace "main" par ta branche si nécessaire
 
 jobs:
-  mirror-release-and-tags:
+  sync-release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout current repo
-        uses: actions/checkout@v3
+    # 1. Vérifie que le token est valide et que GitHub CLI peut s'authentifier
+    - name: Set up GitHub CLI
+      run: |
+        echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
 
-      - name: Set up tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq curl
-
-      - name: Get latest release info
-        id: get_release
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          release=$(gh api repos/kitokoh/saadiya/releases/latest --silent || echo "not found")
-          
-          if [[ "$release" == "not found" ]]; then
-            echo "No release found. Checking tags..."
-            # Check if a tag exists
-            tag=$(gh api repos/kitokoh/saadiya/git/refs/tags | jq -r '.[-1].ref' | sed 's/refs\/tags\///')
-            if [[ "$tag" == "null" ]]; then
-              echo "No tags found either. Exiting."
-              exit 1
-            fi
-            echo "Using tag: $tag"
-            echo "tag_name=$tag" >> $GITHUB_ENV
-          else
-            echo "$release" > release.json
-            echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_ENV
-            echo "name=$(jq -r .name release.json)" >> $GITHUB_ENV
-            echo "body=$(jq -r .body release.json | jq -sRr @json)" >> $GITHUB_ENV
-            echo "draft=$(jq -r .draft release.json)" >> $GITHUB_ENV
-            echo "prerelease=$(jq -r .prerelease release.json)" >> $GITHUB_ENV
-            echo "id=$(jq -r .id release.json)" >> $GITHUB_ENV
+    # 2. Récupère la dernière release du dépôt privé `saadiya`
+    - name: Get latest release from Saadiya repo
+      id: get_release
+      run: |
+        # Récupère la dernière release du dépôt privé
+        release=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
+          https://api.github.com/repos/kitokoh/saadiya/releases/latest)
+        
+        # Si aucune release n'est trouvée, utiliser le dernier tag
+        if [[ "$release" == *"Not Found"* ]]; then
+          echo "No release found. Falling back to the latest tag..."
+          tag=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
+            https://api.github.com/repos/kitokoh/saadiya/git/refs/tags | jq -r '.[-1].ref' | sed 's/refs\/tags\///')
+          if [[ "$tag" == "null" ]]; then
+            echo "No tags found either. Exiting."
+            exit 1
           fi
+          echo "Using tag: $tag"
+          echo "tag_name=$tag" >> $GITHUB_ENV
+        else
+          echo "$release" > release.json
+          echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_ENV
+          echo "name=$(jq -r .name release.json)" >> $GITHUB_ENV
+          echo "body=$(jq -r .body release.json | jq -sRr @json)" >> $GITHUB_ENV
+          echo "draft=$(jq -r .draft release.json)" >> $GITHUB_ENV
+          echo "prerelease=$(jq -r .prerelease release.json)" >> $GITHUB_ENV
+        fi
 
-      - name: Download release assets (if release exists)
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          if [[ "$release" != "not found" ]]; then
-            mkdir assets
-            asset_urls=$(gh api repos/kitokoh/saadiya/releases/${{ env.id }}/assets --jq '.[].url')
-            for url in $asset_urls; do
-              name=$(gh api "$url" --jq .name)
-              echo "Downloading $name..."
-              curl -L -H "Authorization: token $GH_TOKEN" \
-                   -H "Accept: application/octet-stream" \
-                   "$url" -o "assets/$name"
-            done
-          fi
+    # 3. Vérifie si la release est un draft ou une pré-release (évite de publier ces releases)
+    - name: Check if release is draft or prerelease
+      run: |
+        if [[ "${{ env.draft }}" == "true" || "${{ env.prerelease }}" == "true" ]]; then
+          echo "This is a draft or prerelease. Skipping publication."
+          exit 0
+        fi
 
-      - name: Create release or tag on public repo
-        id: create_release_or_tag
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          if [[ "$release" != "not found" ]]; then
-            # Create release on public repo
-            gh release create "${{ env.tag_name }}" \
-              --repo kitokoh/leopardo \
-              --title "${{ env.name }}" \
-              --notes "${{ env.body }}" \
-              $([[ "${{ env.draft }}" == "true" ]] && echo "--draft") \
-              $([[ "${{ env.prerelease }}" == "true" ]] && echo "--prerelease")
-          else
-            # Create tag on public repo
-            gh tag create "${{ env.tag_name }}" --repo kitokoh/leopardo
-            gh push origin "${{ env.tag_name }}"
-            echo "Tag ${{ env.tag_name }} created and pushed to public repo"
-          fi
+    # 4. Publie la release dans le dépôt public `leopardo`
+    - name: Publish release to public repo (leopardo)
+      run: |
+        # Création de la release dans le dépôt public
+        gh release create "${{ env.tag_name }}" \
+          --repo kitokoh/leopardo \
+          --title "${{ env.name }}" \
+          --notes "${{ env.body }}" \
+          --draft false \
+          --prerelease false
 
-      - name: Upload assets to public release (if release exists)
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          if [[ "$release" != "not found" ]]; then
-            for file in assets/*; do
-              echo "Uploading $file..."
-              gh release upload "${{ env.tag_name }}" "$file" \
-                --repo kitokoh/leopardo \
-                --clobber
-            done
-          fi
+        echo "Release published to public repository successfully!"
