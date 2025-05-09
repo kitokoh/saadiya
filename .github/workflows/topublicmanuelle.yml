@@ -9,26 +9,24 @@ on:
 jobs:
   sync-release:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
     - name: Setup GitHub CLI
       run: |
+        # Clear any existing token and authenticate with PAT
+        unset GITHUB_TOKEN
         echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
-        gh api user -H "Accept: application/vnd.github+json" # Test connection
+        gh auth status # Verify authentication
 
     - name: Get latest release data
       id: get_release
       run: |
         # Get latest release or fall back to latest tag
-        response=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
-          https://api.github.com/repos/kitokoh/saadiya/releases/latest)
+        response=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.')
         
-        if [[ "$response" == *"Not Found"* ]]; then
+        if [[ "$response" == "" || "$response" == "null" ]]; then
           echo "No release found. Falling back to the latest tag..."
-          tag_data=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
-            https://api.github.com/repos/kitokoh/saadiya/tags | jq -r '.[0]')
+          tag_data=$(gh api repos/kitokoh/saadiya/tags --jq '.[0]')
           
           if [[ "$tag_data" == "null" ]]; then
             echo "::error::No releases or tags found in the source repository"
@@ -44,11 +42,10 @@ jobs:
         else
           tag_name=$(echo "$response" | jq -r '.tag_name')
           release_name=$(echo "$response" | jq -r '.name // ""')
-          release_body=$(echo "$response" | jq -r '.body // ""' | jq -sR)
+          release_body=$(echo "$response" | jq -r '.body // ""')
           is_draft=$(echo "$response" | jq -r '.draft')
           is_prerelease=$(echo "$response" | jq -r '.prerelease')
           
-          # Set default name if empty
           if [[ -z "$release_name" || "$release_name" == "null" ]]; then
             release_name="Release $tag_name"
           fi
@@ -69,7 +66,7 @@ jobs:
     - name: Create release in public repo
       run: |
         # Create a clean notes file
-        notes_file="release_notes.md"
+        notes_file=$(mktemp)
         echo -e "${{ steps.get_release.outputs.release_body }}" > "$notes_file"
         
         # Create release with proper error handling
@@ -85,3 +82,4 @@ jobs:
         fi
         
         echo "Release created successfully!"
+        rm "$notes_file"
