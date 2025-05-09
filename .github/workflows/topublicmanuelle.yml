@@ -10,78 +10,83 @@ jobs:
   sync-release:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_PAT }}  # Using GH_TOKEN instead of GITHUB_TOKEN to avoid conflicts
+      GH_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
     - name: Setup GitHub CLI
       run: |
-        gh auth status  # Verify authentication
-        gh api user -H "Accept: application/vnd.github+json"  # Test API connection
+        gh auth status
+        gh api user -H "Accept: application/vnd.github+json"
 
-    - name: Get release data
+    - name: Get release data and assets
       id: get_release
       run: |
-        # Try to get latest release
+        # Get latest release data
         release_data=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.' || echo "")
         
         if [[ -z "$release_data" || "$release_data" == "null" ]]; then
-          echo "No release found. Falling back to latest tag..."
-          tag_data=$(gh api repos/kitokoh/saadiya/tags --jq '.[0]')
-          
-          if [[ "$tag_data" == "null" ]]; then
-            echo "::error::No releases or tags found in source repository"
-            exit 1
-          fi
-          
-          tag_name=$(echo "$tag_data" | jq -r '.name')
-          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
-          echo "release_name=Release $tag_name" >> $GITHUB_OUTPUT
-          echo "release_body=" >> $GITHUB_OUTPUT
-          echo "is_draft=false" >> $GITHUB_OUTPUT
-          echo "is_prerelease=false" >> $GITHUB_OUTPUT
-        else
-          tag_name=$(echo "$release_data" | jq -r '.tag_name')
-          release_name=$(echo "$release_data" | jq -r '.name')
-          release_body=$(echo "$release_data" | jq -r '.body? // ""' | sed 's/"/\\"/g')
-          is_draft=$(echo "$release_data" | jq -r '.draft')
-          is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
-          
-          # Set default name if empty
-          [[ -z "$release_name" || "$release_name" == "null" ]] && release_name="Release $tag_name"
-          
-          # Properly escape outputs
-          {
-            echo "tag_name=$(echo "$tag_name" | jq -sR)"
-            echo "release_name=$(echo "$release_name" | jq -sR)"
-            echo "release_body=$(echo "$release_body" | jq -sR)"
-            echo "is_draft=$is_draft"
-            echo "is_prerelease=$is_prerelease"
-          } >> $GITHUB_OUTPUT
+          echo "::error::No releases found in source repository"
+          exit 1
         fi
+
+        # Extract release info
+        tag_name=$(echo "$release_data" | jq -r '.tag_name')
+        release_name=$(echo "$release_data" | jq -r '.name')
+        release_body=$(echo "$release_data" | jq -r '.body? // ""')
+        is_draft=$(echo "$release_data" | jq -r '.draft')
+        is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
+        assets=$(echo "$release_data" | jq -r '.assets[] | .browser_download_url')
+
+        # Set default name if empty
+        [[ -z "$release_name" || "$release_name" == "null" ]] && release_name="Release $tag_name"
+
+        # Download all assets to a temporary directory
+        mkdir -p release_assets
+        cd release_assets
+        for asset_url in $assets; do
+          echo "Downloading $asset_url"
+          curl -sLJO -H "Authorization: token $GH_TOKEN" "$asset_url"
+        done
+        cd ..
+
+        # Output results
+        {
+          echo "tag_name=$(echo "$tag_name" | jq -sR)"
+          echo "release_name=$(echo "$release_name" | jq -sR)"
+          echo "release_body=$(echo "$release_body" | jq -sR)"
+          echo "is_draft=$is_draft"
+          echo "is_prerelease=$is_prerelease"
+          echo "asset_files=$(ls release_assets/ | jq -R -s -c 'split("\n")[:-1]')"
+        } >> $GITHUB_OUTPUT
 
     - name: Skip draft/prerelease
       if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
       run: echo "Skipping draft/prerelease"
 
-    - name: Create public release
+    - name: Create public release with all assets
       if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
       run: |
-        # Create properly formatted notes file
+        # Create notes file
         notes_file=$(mktemp)
         echo -e "$(echo '${{ steps.get_release.outputs.release_body }}' | jq -r)" > "$notes_file"
+
+        # Prepare assets list
+        assets_list=$(echo '${{ steps.get_release.outputs.asset_files }}' | jq -r '.[]')
         
-        # Debug output
-        echo "Creating release with:"
-        echo "Tag: ${{ steps.get_release.outputs.tag_name }}"
-        echo "Title: ${{ steps.get_release.outputs.release_name }}"
-        echo "Notes length: $(wc -c < "$notes_file") bytes"
-        
-        # Create release
+        # Create release with all assets
         gh release create "$(echo '${{ steps.get_release.outputs.tag_name }}' | jq -r)" \
           --repo kitokoh/leopardo \
           --title "$(echo '${{ steps.get_release.outputs.release_name }}' | jq -r)" \
           --notes-file "$notes_file" \
+          release_assets/* \
           --draft=false \
           --prerelease=false
-        
+
+        # Cleanup
         rm "$notes_file"
+        rm -rf release_assets
+
+    - name: Cleanup on failure
+      if: failure()
+      run: |
+        rm -rf release_assets || true
