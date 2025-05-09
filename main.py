@@ -2132,6 +2132,8 @@ class Browser(QMainWindow):
                 # ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
                  ("📝", self.tr("Desc & Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
 
+                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+
             ]),
             
             # Beta Features section
@@ -2167,7 +2169,7 @@ class Browser(QMainWindow):
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
 
                 ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("Add app"), []),
-                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+                # ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
                 ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), []),

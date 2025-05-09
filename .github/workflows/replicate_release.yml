@@ -1,0 +1,70 @@
+name: Replicate Release to Public Repo
+
+on:
+  release:
+    types: [published, edited]
+
+jobs:
+  replicate-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Get release information
+        id: get_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const release = context.payload.release;
+            return {
+              tag_name: release.tag_name,
+              name: release.name,
+              body: release.body,
+              draft: release.draft,
+              prerelease: release.prerelease,
+              upload_url: release.upload_url,
+              assets: release.assets.map(a => ({ name: a.name, url: a.url }))
+            };
+
+      - name: Download assets
+        run: |
+          mkdir assets
+          for asset in "${{ steps.get_release.outputs.assets }}"; do
+            echo "Skipping empty"
+          done
+        shell: bash
+
+      - name: Recreate release in public repo
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.TARGET_REPO_TOKEN }}
+        with:
+          github-token: ${{ secrets.TARGET_REPO_TOKEN }}
+          script: |
+            const releaseInfo = JSON.parse(`${
+              JSON.stringify(JSON.parse(process.env.RELEASE_DATA))
+            }`);
+            const [owner, repo] = "NomUtilisateur/NomDepotPublic".split("/");
+            const response = await github.rest.repos.createRelease({
+              owner,
+              repo,
+              tag_name: releaseInfo.tag_name,
+              name: releaseInfo.name,
+              body: releaseInfo.body,
+              draft: releaseInfo.draft,
+              prerelease: releaseInfo.prerelease
+            });
+            core.setOutput("upload_url", response.data.upload_url);
+
+      - name: Upload assets to public release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.TARGET_REPO_TOKEN }}
+          repository: NomUtilisateur/NomDepotPublic
+          tag_name: ${{ steps.get_release.outputs.tag_name }}
+          name: ${{ steps.get_release.outputs.name }}
+          body: ${{ steps.get_release.outputs.body }}
+          files: ./assets/*
+
+

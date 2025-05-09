@@ -1,3 +1,5 @@
 token github pour cette app 
 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
 
+token ddeueimee pour prive public realase 
+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
