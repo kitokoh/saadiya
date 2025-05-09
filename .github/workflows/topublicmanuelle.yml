@@ -1,128 +1,71 @@
-name: "Replicate Release from Private to Public"
+name: Mirror Release to Public Repo
 
 on:
-  workflow_dispatch:
-    inputs:
-      dummy:
-        description: 'Trigger manually'
-        required: false
   release:
-    types: [published, edited]
+    types: [published]     # Déclenchement automatique
+  workflow_dispatch:        # Déclenchement manuel
 
 jobs:
-  replicate-release:
+  mirror-release:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Get release info from private repo
-      - name: Get release data
-        id: release_data
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            try {
-              let release;
-              if (context.eventName === 'release') {
-                release = context.payload.release;
-              } else {
-                // For manual trigger, get latest release
-                const response = await github.rest.repos.getLatestRelease({
-                  owner: 'kitokoh',
-                  repo: 'saadiya'
-                });
-                release = response.data;
-              }
-              
-              // Return outputs
-              return {
-                tag: release.tag_name,
-                name: release.name || release.tag_name,
-                body: release.body || '',
-                draft: release.draft,
-                prerelease: release.prerelease,
-                assets: JSON.stringify(release.assets.map(a => ({
-                  name: a.name,
-                  url: a.url
-                })))
-              };
-            } catch (error) {
-              core.setFailed(`Failed to get release data: ${error.message}`);
-              throw error;
-            }
+      - name: Checkout current repo
+        uses: actions/checkout@v3
 
-      # 2️⃣ Create/update release in public repo
-      - name: Sync to public repo
-        id: public_release
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.TARGET_REPO_TOKEN }}
-          script: |
-            const { tag, name, body, draft, prerelease } = {
-              tag: '${{ steps.release_data.outputs.tag }}',
-              name: '${{ steps.release_data.outputs.name }}',
-              body: '${{ steps.release_data.outputs.body }}',
-              draft: ${{ steps.release_data.outputs.draft }},
-              prerelease: ${{ steps.release_data.outputs.prerelease }}
-            };
-
-            try {
-              // Try to get existing release
-              const existing = await github.rest.repos.getReleaseByTag({
-                owner: 'kitokoh',
-                repo: 'leopardo',
-                tag
-              });
-              
-              // Update existing release
-              await github.rest.repos.updateRelease({
-                owner: 'kitokoh',
-                repo: 'leopardo',
-                release_id: existing.data.id,
-                tag_name: tag,
-                name,
-                body,
-                draft,
-                prerelease
-              });
-              return { upload_url: existing.data.upload_url };
-            } catch (error) {
-              if (error.status === 404) {
-                // Create new release if not found
-                const created = await github.rest.repos.createRelease({
-                  owner: 'kitokoh',
-                  repo: 'leopardo',
-                  tag_name: tag,
-                  name,
-                  body,
-                  draft,
-                  prerelease
-                });
-                return { upload_url: created.data.upload_url };
-              }
-              throw error;
-            }
-
-      # 3️⃣ Download assets from private repo
-      - name: Download assets
+      - name: Set up tools
         run: |
-          mkdir -p assets
-          echo '${{ steps.release_data.outputs.assets }}' | jq -c '.[]' | while read -r asset; do
-            name=$(echo "$asset" | jq -r '.name')
-            url=$(echo "$asset" | jq -r '.url')
-            echo "Downloading $name"
-            curl -sL \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/octet-stream" \
-              -o "assets/$name" "$url"
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: Get latest release info
+        id: get_release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          release=$(gh api repos/kitokoh/Saadya/releases/latest)
+          echo "$release" > release.json
+
+          echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_OUTPUT
+          echo "name=$(jq -r .name release.json)" >> $GITHUB_OUTPUT
+          echo "body=$(jq -r .body release.json)" >> $GITHUB_OUTPUT
+          echo "draft=$(jq -r .draft release.json)" >> $GITHUB_OUTPUT
+          echo "prerelease=$(jq -r .prerelease release.json)" >> $GITHUB_OUTPUT
+          echo "id=$(jq -r .id release.json)" >> $GITHUB_OUTPUT
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          mkdir assets
+          asset_urls=$(gh api repos/kitokoh/Saadya/releases/${{ steps.get_release.outputs.id }}/assets --jq '.[].url')
+          for url in $asset_urls; do
+            name=$(gh api "$url" --jq .name)
+            echo "Downloading $name..."
+            curl -L -H "Authorization: token $GH_TOKEN" \
+                 -H "Accept: application/octet-stream" \
+                 "$url" -o "assets/$name"
           done
 
-      # 4️⃣ Upload assets to public release
-      - name: Upload assets
-        uses: softprops/action-gh-release@v1
-        with:
-          token: ${{ secrets.TARGET_REPO_TOKEN }}
-          repository: kitokoh/leopardo
-          tag_name: ${{ steps.release_data.outputs.tag }}
-          files: assets/*
-          
+      - name: Create release on public repo
+        id: create_release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh release create "${{ steps.get_release.outputs.tag_name }}" \
+            --repo kitokoh/leopardo \
+            --title "${{ steps.get_release.outputs.name }}" \
+            --notes "${{ steps.get_release.outputs.body }}" \
+            $([[ "${{ steps.get_release.outputs.draft }}" == "true" ]] && echo "--draft") \
+            $([[ "${{ steps.get_release.outputs.prerelease }}" == "true" ]] && echo "--prerelease")
+
+      - name: Upload assets to public release
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          for file in assets/*; do
+            echo "Uploading $file..."
+            gh release upload "${{ steps.get_release.outputs.tag_name }}" "$file" \
+              --repo kitokoh/leopardo \
+              --clobber
+          done
