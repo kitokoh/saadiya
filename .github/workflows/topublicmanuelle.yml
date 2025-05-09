@@ -1,0 +1,66 @@
+name: Sync Release from Private to Public Repo
+
+on:
+  workflow_dispatch: # Permet d'exécuter manuellement via GitHub UI
+  push:
+    branches:
+      - main # Remplace "main" par ta branche si nécessaire
+
+jobs:
+  sync-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Vérifie que le token est valide et que GitHub CLI peut s'authentifier
+    - name: Set up GitHub CLI
+      run: |
+        echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+
+    # 2. Récupère la dernière release du dépôt privé `saadiya`
+    - name: Get latest release from Saadiya repo
+      id: get_release
+      run: |
+        # Récupère la dernière release du dépôt privé
+        release=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
+          https://api.github.com/repos/kitokoh/saadiya/releases/latest)
+        
+        # Si aucune release n'est trouvée, utiliser le dernier tag
+        if [[ "$release" == *"Not Found"* ]]; then
+          echo "No release found. Falling back to the latest tag..."
+          tag=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
+            https://api.github.com/repos/kitokoh/saadiya/git/refs/tags | jq -r '.[-1].ref' | sed 's/refs\/tags\///')
+          if [[ "$tag" == "null" ]]; then
+            echo "No tags found either. Exiting."
+            exit 1
+          fi
+          echo "Using tag: $tag"
+          echo "tag_name=$tag" >> $GITHUB_ENV
+        else
+          echo "$release" > release.json
+          echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_ENV
+          echo "name=$(jq -r .name release.json)" >> $GITHUB_ENV
+          echo "body=$(jq -r .body release.json | jq -sRr @json)" >> $GITHUB_ENV
+          echo "draft=$(jq -r .draft release.json)" >> $GITHUB_ENV
+          echo "prerelease=$(jq -r .prerelease release.json)" >> $GITHUB_ENV
+        fi
+
+    # 3. Vérifie si la release est un draft ou une pré-release (évite de publier ces releases)
+    - name: Check if release is draft or prerelease
+      run: |
+        if [[ "${{ env.draft }}" == "true" || "${{ env.prerelease }}" == "true" ]]; then
+          echo "This is a draft or prerelease. Skipping publication."
+          exit 0
+        fi
+
+    # 4. Publie la release dans le dépôt public `leopardo`
+    - name: Publish release to public repo (leopardo)
+      run: |
+        # Création de la release dans le dépôt public
+        gh release create "${{ env.tag_name }}" \
+          --repo kitokoh/leopardo \
+          --title "${{ env.name }}" \
+          --notes "${{ env.body }}" \
+          --draft false \
+          --prerelease false
+
+        echo "Release published to public repository successfully!"
