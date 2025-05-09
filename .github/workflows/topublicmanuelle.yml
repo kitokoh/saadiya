@@ -9,67 +9,79 @@ on:
 jobs:
   sync-release:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
-    - name: Set up GitHub CLI
+    - name: Setup GitHub CLI
       run: |
         echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+        gh api user -H "Accept: application/vnd.github+json" # Test connection
 
-    - name: Get latest release from Saadiya repo
+    - name: Get latest release data
       id: get_release
       run: |
         # Get latest release or fall back to latest tag
-        release=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
+        response=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
           https://api.github.com/repos/kitokoh/saadiya/releases/latest)
         
-        if [[ "$release" == *"Not Found"* ]]; then
+        if [[ "$response" == *"Not Found"* ]]; then
           echo "No release found. Falling back to the latest tag..."
-          tag=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
-            https://api.github.com/repos/kitokoh/saadiya/tags | jq -r '.[0].name')
-          if [[ -z "$tag" || "$tag" == "null" ]]; then
-            echo "No tags found either. Exiting."
+          tag_data=$(curl -s -H "Authorization: token ${{ secrets.GH_PAT }}" \
+            https://api.github.com/repos/kitokoh/saadiya/tags | jq -r '.[0]')
+          
+          if [[ "$tag_data" == "null" ]]; then
+            echo "::error::No releases or tags found in the source repository"
             exit 1
           fi
-          echo "Using tag: $tag"
-          echo "tag_name=$tag" >> $GITHUB_ENV
-          echo "name=Release $tag" >> $GITHUB_ENV
-          echo "body=" >> $GITHUB_ENV
-          echo "draft=false" >> $GITHUB_ENV
-          echo "prerelease=false" >> $GITHUB_ENV
+          
+          tag_name=$(echo "$tag_data" | jq -r '.name')
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "release_name=Release $tag_name" >> $GITHUB_OUTPUT
+          echo "release_body=" >> $GITHUB_OUTPUT
+          echo "is_draft=false" >> $GITHUB_OUTPUT
+          echo "is_prerelease=false" >> $GITHUB_OUTPUT
         else
-          tag_name=$(echo "$release" | jq -r '.tag_name')
-          name=$(echo "$release" | jq -r '.name')
-          body=$(echo "$release" | jq -r '.body')
+          tag_name=$(echo "$response" | jq -r '.tag_name')
+          release_name=$(echo "$response" | jq -r '.name // ""')
+          release_body=$(echo "$response" | jq -r '.body // ""' | jq -sR)
+          is_draft=$(echo "$response" | jq -r '.draft')
+          is_prerelease=$(echo "$response" | jq -r '.prerelease')
           
-          # Set default values if empty
-          [[ -z "$name" || "$name" == "null" ]] && name="Release $tag_name"
-          [[ -z "$body" || "$body" == "null" ]] && body=""
+          # Set default name if empty
+          if [[ -z "$release_name" || "$release_name" == "null" ]]; then
+            release_name="Release $tag_name"
+          fi
           
-          echo "tag_name=$tag_name" >> $GITHUB_ENV
-          echo "name=$name" >> $GITHUB_ENV
-          echo "body=$body" >> $GITHUB_ENV
-          echo "draft=$(echo "$release" | jq -r '.draft')" >> $GITHUB_ENV
-          echo "prerelease=$(echo "$release" | jq -r '.prerelease')" >> $GITHUB_ENV
+          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+          echo "release_name=$release_name" >> $GITHUB_OUTPUT
+          echo "release_body=$release_body" >> $GITHUB_OUTPUT
+          echo "is_draft=$is_draft" >> $GITHUB_OUTPUT
+          echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
         fi
 
-    - name: Check if release is draft or prerelease
+    - name: Check if release should be skipped
+      if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
       run: |
-        if [[ "${{ env.draft }}" == "true" || "${{ env.prerelease }}" == "true" ]]; then
-          echo "This is a draft or prerelease. Skipping publication."
-          exit 0
-        fi
+        echo "Skipping because this is a draft or prerelease"
+        exit 0
 
-    - name: Publish release to public repo (leopardo)
+    - name: Create release in public repo
       run: |
-        # Create a temporary file for the release notes
-        echo "${{ env.body }}" > release_notes.md
+        # Create a clean notes file
+        notes_file="release_notes.md"
+        echo -e "${{ steps.get_release.outputs.release_body }}" > "$notes_file"
         
-        # Create the release
-        gh release create "${{ env.tag_name }}" \
+        # Create release with proper error handling
+        if ! gh release create "${{ steps.get_release.outputs.tag_name }}" \
           --repo kitokoh/leopardo \
-          --title "${{ env.name }}" \
-          --notes-file release_notes.md \
+          --title "${{ steps.get_release.outputs.release_name }}" \
+          --notes-file "$notes_file" \
           --draft=false \
-          --prerelease=false
-
-        echo "Release published to public repository successfully!"
+          --prerelease=false; then
+          
+          echo "::error::Failed to create release"
+          exit 1
+        fi
+        
+        echo "Release created successfully!"
