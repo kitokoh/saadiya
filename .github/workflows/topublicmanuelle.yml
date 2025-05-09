@@ -1,9 +1,9 @@
-name: Mireeror Release to Public Repo
+name: Mirror Release to Public Repo
 
 on:
   release:
-    types: [published]     # Déclenchement automatique
-  workflow_dispatch:        # Déclenchement manuel
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   mirror-release:
@@ -23,7 +23,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          release=$(gh api repos/kitokoh/Saadya/releases/latest)
+          release=$(gh api repos/kitokoh/saadiya/releases/latest)
           echo "$release" > release.json
 
           echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_OUTPUT
@@ -38,7 +38,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           mkdir assets
-          asset_urls=$(gh api repos/kitokoh/Saadya/releases/${{ steps.get_release.outputs.id }}/assets --jq '.[].url')
+          asset_urls=$(gh api repos/kitokoh/saadiya/releases/${{ steps.get_release.outputs.id }}/assets --jq '.[].url')
           for url in $asset_urls; do
             name=$(gh api "$url" --jq .name)
             echo "Downloading $name..."
