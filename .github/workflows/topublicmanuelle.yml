@@ -1,12 +1,15 @@
-name: Mirror Release to Public Repo
+name: Mirror Release and Tags to Public Repo
 
 on:
   release:
     types: [published]
+  push:
+    tags:
+      - '*'
   workflow_dispatch:
 
 jobs:
-  mirror-release:
+  mirror-release-and-tags:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,49 +26,73 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          release=$(gh api repos/kitokoh/saadiya/releases/latest)
-          echo "$release" > release.json
+          release=$(gh api repos/kitokoh/saadiya/releases/latest --silent || echo "not found")
+          
+          if [[ "$release" == "not found" ]]; then
+            echo "No release found. Checking tags..."
+            # Check if a tag exists
+            tag=$(gh api repos/kitokoh/saadiya/git/refs/tags | jq -r '.[-1].ref' | sed 's/refs\/tags\///')
+            if [[ "$tag" == "null" ]]; then
+              echo "No tags found either. Exiting."
+              exit 1
+            fi
+            echo "Using tag: $tag"
+            echo "tag_name=$tag" >> $GITHUB_ENV
+          else
+            echo "$release" > release.json
+            echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_ENV
+            echo "name=$(jq -r .name release.json)" >> $GITHUB_ENV
+            echo "body=$(jq -r .body release.json | jq -sRr @json)" >> $GITHUB_ENV
+            echo "draft=$(jq -r .draft release.json)" >> $GITHUB_ENV
+            echo "prerelease=$(jq -r .prerelease release.json)" >> $GITHUB_ENV
+            echo "id=$(jq -r .id release.json)" >> $GITHUB_ENV
+          fi
 
-          echo "tag_name=$(jq -r .tag_name release.json)" >> $GITHUB_OUTPUT
-          echo "name=$(jq -r .name release.json)" >> $GITHUB_OUTPUT
-          echo "body=$(jq -r .body release.json)" >> $GITHUB_OUTPUT
-          echo "draft=$(jq -r .draft release.json)" >> $GITHUB_OUTPUT
-          echo "prerelease=$(jq -r .prerelease release.json)" >> $GITHUB_OUTPUT
-          echo "id=$(jq -r .id release.json)" >> $GITHUB_OUTPUT
-
-      - name: Download release assets
+      - name: Download release assets (if release exists)
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          mkdir assets
-          asset_urls=$(gh api repos/kitokoh/saadiya/releases/${{ steps.get_release.outputs.id }}/assets --jq '.[].url')
-          for url in $asset_urls; do
-            name=$(gh api "$url" --jq .name)
-            echo "Downloading $name..."
-            curl -L -H "Authorization: token $GH_TOKEN" \
-                 -H "Accept: application/octet-stream" \
-                 "$url" -o "assets/$name"
-          done
+          if [[ "$release" != "not found" ]]; then
+            mkdir assets
+            asset_urls=$(gh api repos/kitokoh/saadiya/releases/${{ env.id }}/assets --jq '.[].url')
+            for url in $asset_urls; do
+              name=$(gh api "$url" --jq .name)
+              echo "Downloading $name..."
+              curl -L -H "Authorization: token $GH_TOKEN" \
+                   -H "Accept: application/octet-stream" \
+                   "$url" -o "assets/$name"
+            done
+          fi
 
-      - name: Create release on public repo
-        id: create_release
+      - name: Create release or tag on public repo
+        id: create_release_or_tag
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          gh release create "${{ steps.get_release.outputs.tag_name }}" \
-            --repo kitokoh/leopardo \
-            --title "${{ steps.get_release.outputs.name }}" \
-            --notes "${{ steps.get_release.outputs.body }}" \
-            $([[ "${{ steps.get_release.outputs.draft }}" == "true" ]] && echo "--draft") \
-            $([[ "${{ steps.get_release.outputs.prerelease }}" == "true" ]] && echo "--prerelease")
-
-      - name: Upload assets to public release
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          for file in assets/*; do
-            echo "Uploading $file..."
-            gh release upload "${{ steps.get_release.outputs.tag_name }}" "$file" \
+          if [[ "$release" != "not found" ]]; then
+            # Create release on public repo
+            gh release create "${{ env.tag_name }}" \
               --repo kitokoh/leopardo \
-              --clobber
-          done
+              --title "${{ env.name }}" \
+              --notes "${{ env.body }}" \
+              $([[ "${{ env.draft }}" == "true" ]] && echo "--draft") \
+              $([[ "${{ env.prerelease }}" == "true" ]] && echo "--prerelease")
+          else
+            # Create tag on public repo
+            gh tag create "${{ env.tag_name }}" --repo kitokoh/leopardo
+            gh push origin "${{ env.tag_name }}"
+            echo "Tag ${{ env.tag_name }} created and pushed to public repo"
+          fi
+
+      - name: Upload assets to public release (if release exists)
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [[ "$release" != "not found" ]]; then
+            for file in assets/*; do
+              echo "Uploading $file..."
+              gh release upload "${{ env.tag_name }}" "$file" \
+                --repo kitokoh/leopardo \
+                --clobber
+            done
+          fi
