@@ -9,27 +9,27 @@ on:
 jobs:
   sync-release:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_PAT }}  # Using GH_TOKEN instead of GITHUB_TOKEN to avoid conflicts
 
     steps:
     - name: Setup GitHub CLI
       run: |
-        # Clear any existing token and authenticate with PAT
-        unset GITHUB_TOKEN
-        echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
-        gh auth status # Verify authentication
+        gh auth status  # Verify authentication
+        gh api user -H "Accept: application/vnd.github+json"  # Test API connection
 
-    - name: Get latest release data
+    - name: Get release data
       id: get_release
       run: |
-        # Get latest release or fall back to latest tag
-        response=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.')
+        # Try to get latest release
+        release_data=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.' || echo "")
         
-        if [[ "$response" == "" || "$response" == "null" ]]; then
-          echo "No release found. Falling back to the latest tag..."
+        if [[ -z "$release_data" || "$release_data" == "null" ]]; then
+          echo "No release found. Falling back to latest tag..."
           tag_data=$(gh api repos/kitokoh/saadiya/tags --jq '.[0]')
           
           if [[ "$tag_data" == "null" ]]; then
-            echo "::error::No releases or tags found in the source repository"
+            echo "::error::No releases or tags found in source repository"
             exit 1
           fi
           
@@ -40,46 +40,48 @@ jobs:
           echo "is_draft=false" >> $GITHUB_OUTPUT
           echo "is_prerelease=false" >> $GITHUB_OUTPUT
         else
-          tag_name=$(echo "$response" | jq -r '.tag_name')
-          release_name=$(echo "$response" | jq -r '.name // ""')
-          release_body=$(echo "$response" | jq -r '.body // ""')
-          is_draft=$(echo "$response" | jq -r '.draft')
-          is_prerelease=$(echo "$response" | jq -r '.prerelease')
+          tag_name=$(echo "$release_data" | jq -r '.tag_name')
+          release_name=$(echo "$release_data" | jq -r '.name')
+          release_body=$(echo "$release_data" | jq -r '.body? // ""' | sed 's/"/\\"/g')
+          is_draft=$(echo "$release_data" | jq -r '.draft')
+          is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
           
-          if [[ -z "$release_name" || "$release_name" == "null" ]]; then
-            release_name="Release $tag_name"
-          fi
+          # Set default name if empty
+          [[ -z "$release_name" || "$release_name" == "null" ]] && release_name="Release $tag_name"
           
-          echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
-          echo "release_name=$release_name" >> $GITHUB_OUTPUT
-          echo "release_body=$release_body" >> $GITHUB_OUTPUT
-          echo "is_draft=$is_draft" >> $GITHUB_OUTPUT
-          echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
+          # Properly escape outputs
+          {
+            echo "tag_name=$(echo "$tag_name" | jq -sR)"
+            echo "release_name=$(echo "$release_name" | jq -sR)"
+            echo "release_body=$(echo "$release_body" | jq -sR)"
+            echo "is_draft=$is_draft"
+            echo "is_prerelease=$is_prerelease"
+          } >> $GITHUB_OUTPUT
         fi
 
-    - name: Check if release should be skipped
+    - name: Skip draft/prerelease
       if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
-      run: |
-        echo "Skipping because this is a draft or prerelease"
-        exit 0
+      run: echo "Skipping draft/prerelease"
 
-    - name: Create release in public repo
+    - name: Create public release
+      if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
       run: |
-        # Create a clean notes file
+        # Create properly formatted notes file
         notes_file=$(mktemp)
-        echo -e "${{ steps.get_release.outputs.release_body }}" > "$notes_file"
+        echo -e "$(echo '${{ steps.get_release.outputs.release_body }}' | jq -r)" > "$notes_file"
         
-        # Create release with proper error handling
-        if ! gh release create "${{ steps.get_release.outputs.tag_name }}" \
+        # Debug output
+        echo "Creating release with:"
+        echo "Tag: ${{ steps.get_release.outputs.tag_name }}"
+        echo "Title: ${{ steps.get_release.outputs.release_name }}"
+        echo "Notes length: $(wc -c < "$notes_file") bytes"
+        
+        # Create release
+        gh release create "$(echo '${{ steps.get_release.outputs.tag_name }}' | jq -r)" \
           --repo kitokoh/leopardo \
-          --title "${{ steps.get_release.outputs.release_name }}" \
+          --title "$(echo '${{ steps.get_release.outputs.release_name }}' | jq -r)" \
           --notes-file "$notes_file" \
           --draft=false \
-          --prerelease=false; then
-          
-          echo "::error::Failed to create release"
-          exit 1
-        fi
+          --prerelease=false
         
-        echo "Release created successfully!"
         rm "$notes_file"
