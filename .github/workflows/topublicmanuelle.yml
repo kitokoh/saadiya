@@ -10,8 +10,7 @@ jobs:
   sync-release:
     runs-on: ubuntu-latest
     env:
-      # Utilisez un nom de variable personnalisé pour éviter les conflits
-      MY_GH_PAT: ${{ secrets.GH_PAT }}
+      GH_PAT: ${{ secrets.GH_PAT }}  # Votre Personal Access Token
 
     steps:
     - name: Checkout code
@@ -20,15 +19,13 @@ jobs:
     - name: Setup GitHub CLI
       run: |
         # Authentification simple et fiable
-        echo "$MY_GH_PAT" > token.txt
-        gh auth login --with-token < token.txt
-        rm token.txt
+        echo "$GH_PAT" | gh auth login --with-token
         gh auth status
 
     - name: Get latest release data
       id: get_release
       run: |
-        # Récupère la dernière release du dépôt PRIVÉ
+        # Récupération des données de la release
         release_data=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.' || echo "")
         
         if [[ -z "$release_data" || "$release_data" == "null" ]]; then
@@ -36,7 +33,7 @@ jobs:
           exit 1
         fi
 
-        # Extraction des infos
+        # Extraction des métadonnées
         tag_name=$(echo "$release_data" | jq -r '.tag_name')
         release_name=$(echo "$release_data" | jq -r '.name // "Release $tag_name"')
         release_body=$(echo "$release_data" | jq -r '.body // ""')
@@ -44,25 +41,30 @@ jobs:
         is_draft=$(echo "$release_data" | jq -r '.draft')
         is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
 
-        # Télécharge UNIQUEMENT les .exe
+        # Téléchargement des assets .exe
         mkdir -p release_assets
         echo "$release_data" | jq -r '.assets[] | select(.name | endswith(".exe")) | .id' | while read asset_id; do
-          echo "Téléchargement de l'asset ID: $asset_id"
-          gh api repos/kitokoh/saadiya/releases/assets/$asset_id \
+          asset_name=$(gh api repos/kitokoh/saadiya/releases/assets/$asset_id --jq '.name')
+          echo "Téléchargement de $asset_name (ID: $asset_id)"
+          
+          curl -sL \
+            -H "Authorization: token $GH_PAT" \
             -H "Accept: application/octet-stream" \
-            --output "release_assets/$(gh api repos/kitokoh/saadiya/releases/assets/$asset_id --jq '.name')"
+            "https://api.github.com/repos/kitokoh/saadiya/releases/assets/$asset_id" \
+            -o "release_assets/$asset_name"
         done
 
-        # Vérifie la taille des fichiers (au moins 100 Mo)
+        # Vérification des fichiers
         for file in release_assets/*.exe; do
           size=$(stat -c %s "$file")
-          if [ "$size" -lt 100000000 ]; then
-            echo "::error::Fichier $file trop petit ($size octets) - Téléchargement corrompu ?"
+          if [ "$size" -lt 100000000 ]; then  # 100MB minimum
+            echo "::error::Fichier $file corrompu (taille: $size octets)"
+            ls -lh release_assets/
             exit 1
           fi
         done
 
-        # Exporte les variables pour les étapes suivantes
+        # Export pour les étapes suivantes
         echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
         echo "release_name=$release_name" >> $GITHUB_OUTPUT
         echo "release_body=$release_body" >> $GITHUB_OUTPUT
@@ -74,20 +76,27 @@ jobs:
     - name: Skip if draft/prerelease
       if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
       run: |
-        echo "Ignorer car draft ou prerelease"
+        echo "Ignoré: release draft ou prerelease"
         exit 0
 
     - name: Create public release
       if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
       run: |
-        # Crée une release dans le dépôt PUBLIC
+        # Formatage des notes
+        notes_file=$(mktemp)
+        echo -e "Publié originellement le: ${{ steps.get_release.outputs.published_at }}\n\n${{ steps.get_release.outputs.release_body }}" > "$notes_file"
+
+        # Création de la release publique
         gh release create "${{ steps.get_release.outputs.tag_name }}" \
           --repo kitokoh/leopardo \
           --title "${{ steps.get_release.outputs.release_name }}" \
-          --notes "Publié le: ${{ steps.get_release.outputs.published_at }}\n\n${{ steps.get_release.outputs.release_body }}" \
+          --notes-file "$notes_file" \
           release_assets/*.exe
 
-        echo "Release synchronisée avec succès !"
+        # Nettoyage
+        rm "$notes_file"
+        echo "✅ Release synchronisée avec succès!"
 
     - name: Cleanup
+      if: always()
       run: rm -rf release_assets
