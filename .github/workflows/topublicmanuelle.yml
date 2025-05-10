@@ -13,30 +13,36 @@ jobs:
       GH_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
-    - name: Vérifier l'authentification GH CLI
+    - name: Setup GitHub CLI
       run: |
-        gh auth status || echo "Connexion via GH_TOKEN réussie"
+        gh auth status
+        gh api user -H "Accept: application/vnd.github+json"
 
-    - name: Récupérer les données de la release privée (EXE seulement)
+    - name: Get release data and EXE assets
       id: get_release
       run: |
-        echo "Fetching latest release from private repo..."
+        # Get latest release data
         release_data=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.' || echo "")
         
         if [[ -z "$release_data" || "$release_data" == "null" ]]; then
-          echo "::error::Aucune release trouvée dans le dépôt privé"
+          echo "::error::No releases found in source repository"
           exit 1
         fi
 
+        # Extract release info
         tag_name=$(echo "$release_data" | jq -r '.tag_name')
         release_name=$(echo "$release_data" | jq -r '.name')
         release_body=$(echo "$release_data" | jq -r '.body? // ""')
         is_draft=$(echo "$release_data" | jq -r '.draft')
         is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
-
-        # Lister uniquement les assets EXE (pas ZIP, pas code source)
+        
+        # Filter only .exe assets
         exe_assets=$(echo "$release_data" | jq -r '.assets[] | select(.name | endswith(".exe")) | .browser_download_url')
 
+        # Set default name if empty
+        [[ -z "$release_name" || "$release_name" == "null" ]] && release_name="Release $tag_name"
+
+        # Download only .exe assets
         mkdir -p release_assets
         cd release_assets
         for asset_url in $exe_assets; do
@@ -45,60 +51,81 @@ jobs:
         done
         cd ..
 
-        echo "tag_name=$tag_name" >> "$GITHUB_OUTPUT"
-        echo "release_name=$release_name" >> "$GITHUB_OUTPUT"
-        echo "release_body<<EOF" >> "$GITHUB_OUTPUT"
-        echo "$release_body" >> "$GITHUB_OUTPUT"
-        echo "EOF" >> "$GITHUB_OUTPUT"
-        echo "is_draft=$is_draft" >> "$GITHUB_OUTPUT"
-        echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
+        # Output results
+        {
+          echo "tag_name=$(echo "$tag_name" | jq -sR)"
+          echo "release_name=$(echo "$release_name" | jq -sR)"
+          echo "release_body=$(echo "$release_body" | jq -sR)"
+          echo "is_draft=$is_draft"
+          echo "is_prerelease=$is_prerelease"
+          echo "asset_files=$(ls release_assets/ | jq -R -s -c 'split("\n")[:-1]')"
+        } >> $GITHUB_OUTPUT
 
-    - name: Ignorer les drafts ou pre-releases
+    - name: Skip draft/prerelease
       if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
-      run: echo "Release ignorée car c’est un draft ou une pre-release."
+      run: echo "Skipping draft/prerelease"
 
-
-    - name: Supprimer l'ancienne release si elle existe
-      continue-on-error: true
+    - name: Verify file sizes before uploading to public release
       run: |
-        echo "Vérification et suppression de la release existante..."
-        existing_release=$(gh release view "${{ steps.get_release.outputs.tag_name }}" --repo kitokoh/leopardo --json id -q .id 2>/dev/null || echo "")
-        
-        if [[ -n "$existing_release" ]]; then
-          echo "Release existante détectée. Suppression en cours..."
-          gh release delete "${{ steps.get_release.outputs.tag_name }}" --repo kitokoh/leopardo --yes || true
-          gh api --method DELETE repos/kitokoh/leopardo/git/refs/tags/${{ steps.get_release.outputs.tag_name }} || true
-        else
-          echo "Aucune release à supprimer."
-        fi
+        # Verify the size of each .exe file before uploading
+        for file in release_assets/*.exe; do
+          file_size=$(stat -c %s "$file")
+          if [[ $file_size -lt 1024 ]]; then
+            echo "::error::File $file is too small and likely corrupted"
+            exit 1
+          fi
+        done
 
-    - name: Créer la release publique avec seulement les .exe
+    - name: Get and increment release tag if needed
+      id: prepare_tag
+      run: |
+        latest_tag=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.tag_name' || echo "v1.0.0")
+        base_tag=${latest_tag#v}
+        major=$(echo $base_tag | cut -d. -f1)
+        minor=$(echo $base_tag | cut -d. -f2)
+        patch=$(echo $base_tag | cut -d. -f3)
+
+        new_tag="v$major.$minor.$((patch + 1))"
+
+        # Vérifie s’il existe déjà dans le repo public
+        while gh release view "$new_tag" --repo kitokoh/leopardo &> /dev/null; do
+          patch=$((patch + 1))
+          new_tag="v$major.$minor.$patch"
+        done
+
+        echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+
+    - name: Create public release with EXE files
       if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
       run: |
+        # Create notes file
         notes_file=$(mktemp)
-        echo "${{ steps.get_release.outputs.release_body }}" > "$notes_file"
+        echo -e "$(echo '${{ steps.get_release.outputs.release_body }}' | jq -r)" > "$notes_file"
 
-        if compgen -G "release_assets/*.exe" > /dev/null; then
-          gh release create "${{ steps.get_release.outputs.tag_name }}" \
+        # Create release with only .exe files
+        if [ -n "$(ls -A release_assets/)" ]; then
+          gh release create "${{ steps.prepare_tag.outputs.new_tag }}" \
             --repo kitokoh/leopardo \
-            --title "${{ steps.get_release.outputs.release_name }}" \
+            --title "Release ${{ steps.prepare_tag.outputs.new_tag }}" \
             --notes-file "$notes_file" \
             release_assets/*.exe \
             --draft=false \
             --prerelease=false
         else
-          echo "::warning::Aucun fichier .exe trouvé. Release créée sans fichiers."
-          gh release create "${{ steps.get_release.outputs.tag_name }}" \
+          echo "No EXE files found, creating release without assets"
+          gh release create "${{ steps.prepare_tag.outputs.new_tag }}" \
             --repo kitokoh/leopardo \
-            --title "${{ steps.get_release.outputs.release_name }}" \
+            --title "Release ${{ steps.prepare_tag.outputs.new_tag }}" \
             --notes-file "$notes_file" \
             --draft=false \
             --prerelease=false
         fi
 
+        # Cleanup
         rm "$notes_file"
         rm -rf release_assets
 
-    - name: Cleanup en cas d’échec
+    - name: Cleanup on failure
       if: failure()
-      run: rm -rf release_assets || true
+      run: |
+        rm -rf release_assets || true
