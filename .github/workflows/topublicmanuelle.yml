@@ -57,6 +57,21 @@ jobs:
       if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
       run: echo "Release ignorée car c’est un draft ou une pre-release."
 
+
+    - name: Supprimer l'ancienne release si elle existe
+      continue-on-error: true
+      run: |
+        echo "Vérification et suppression de la release existante..."
+        existing_release=$(gh release view "${{ steps.get_release.outputs.tag_name }}" --repo kitokoh/leopardo --json id -q .id 2>/dev/null || echo "")
+        
+        if [[ -n "$existing_release" ]]; then
+          echo "Release existante détectée. Suppression en cours..."
+          gh release delete "${{ steps.get_release.outputs.tag_name }}" --repo kitokoh/leopardo --yes || true
+          gh api --method DELETE repos/kitokoh/leopardo/git/refs/tags/${{ steps.get_release.outputs.tag_name }} || true
+        else
+          echo "Aucune release à supprimer."
+        fi
+
     - name: Créer la release publique avec seulement les .exe
       if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
       run: |
