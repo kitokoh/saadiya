@@ -10,7 +10,8 @@ jobs:
   sync-release:
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{ secrets.GH_PAT }}
+      # Utilisez un nom de variable personnalisé pour éviter les conflits
+      MY_GH_PAT: ${{ secrets.GH_PAT }}
 
     steps:
     - name: Checkout code
@@ -18,127 +19,75 @@ jobs:
 
     - name: Setup GitHub CLI
       run: |
-        gh auth login --with-token <<< "$GH_TOKEN"
+        # Authentification simple et fiable
+        echo "$MY_GH_PAT" > token.txt
+        gh auth login --with-token < token.txt
+        rm token.txt
         gh auth status
 
-    - name: Get release data and EXE assets
+    - name: Get latest release data
       id: get_release
       run: |
-        # Get latest release data
+        # Récupère la dernière release du dépôt PRIVÉ
         release_data=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.' || echo "")
         
         if [[ -z "$release_data" || "$release_data" == "null" ]]; then
-          echo "::error::No releases found in source repository"
+          echo "::error::Aucune release trouvée dans le dépôt source"
           exit 1
         fi
 
-        # Extract release info
+        # Extraction des infos
         tag_name=$(echo "$release_data" | jq -r '.tag_name')
-        release_name=$(echo "$release_data" | jq -r '.name')
-        release_body=$(echo "$release_data" | jq -r '.body? // ""')
+        release_name=$(echo "$release_data" | jq -r '.name // "Release $tag_name"')
+        release_body=$(echo "$release_data" | jq -r '.body // ""')
         published_at=$(echo "$release_data" | jq -r '.published_at')
         is_draft=$(echo "$release_data" | jq -r '.draft')
         is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
-        
-        # Filter only .exe assets
-        exe_assets=$(echo "$release_data" | jq -r '.assets[] | select(.name | endswith(".exe")) | .id')
 
-        # Set default name if empty
-        [[ -z "$release_name" || "$release_name" == "null" ]] && release_name="Release $tag_name"
-
-        # Download assets using asset IDs (more reliable)
+        # Télécharge UNIQUEMENT les .exe
         mkdir -p release_assets
-        for asset_id in $exe_assets; do
-          echo "Downloading asset ID: $asset_id"
+        echo "$release_data" | jq -r '.assets[] | select(.name | endswith(".exe")) | .id' | while read asset_id; do
+          echo "Téléchargement de l'asset ID: $asset_id"
           gh api repos/kitokoh/saadiya/releases/assets/$asset_id \
-            --jq '.' \
             -H "Accept: application/octet-stream" \
-            > release_assets/$(gh api repos/kitokoh/saadiya/releases/assets/$asset_id --jq '.name')
+            --output "release_assets/$(gh api repos/kitokoh/saadiya/releases/assets/$asset_id --jq '.name')"
         done
 
-        # Output results
-        echo "tag_name=$(jq -n --arg tag "$tag_name" '$tag')" >> $GITHUB_OUTPUT
-        echo "release_name=$(jq -n --arg name "$release_name" '$name')" >> $GITHUB_OUTPUT
-        echo "release_body=$(jq -n --arg body "$release_body" '$body')" >> $GITHUB_OUTPUT
-        echo "published_at=$published_at" >> $GITHUB_OUTPUT
-        echo "is_draft=$is_draft" >> $GITHUB_OUTPUT
-        echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
-        echo "asset_files=$(ls release_assets/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-
-    - name: Skip draft/prerelease
-      if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
-      run: |
-        echo "Skipping draft/prerelease"
-        exit 0
-
-    - name: Verify file sizes before uploading
-      run: |
-        echo "Verifying file sizes..."
+        # Vérifie la taille des fichiers (au moins 100 Mo)
         for file in release_assets/*.exe; do
-          file_size=$(stat -c %s "$file")
-          echo "File $file size: $file_size bytes"
-          if [[ $file_size -lt 102400 ]]; then  # At least 100KB
-            echo "::error::File $file is too small ($file_size bytes) and likely corrupted"
-            ls -la release_assets/
+          size=$(stat -c %s "$file")
+          if [ "$size" -lt 100000000 ]; then
+            echo "::error::Fichier $file trop petit ($size octets) - Téléchargement corrompu ?"
             exit 1
           fi
         done
 
-    - name: Get and increment release tag if needed
-      id: prepare_tag
+        # Exporte les variables pour les étapes suivantes
+        echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+        echo "release_name=$release_name" >> $GITHUB_OUTPUT
+        echo "release_body=$release_body" >> $GITHUB_OUTPUT
+        echo "published_at=$published_at" >> $GITHUB_OUTPUT
+        echo "is_draft=$is_draft" >> $GITHUB_OUTPUT
+        echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
+        echo "asset_files=$(ls release_assets/*.exe | xargs -n 1 basename | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+
+    - name: Skip if draft/prerelease
+      if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
       run: |
-        # Get latest public release or start from v1.0.0
-        latest_tag=$(gh api repos/kitokoh/leopardo/releases/latest --jq '.tag_name' 2>/dev/null || echo "v1.0.0")
-        echo "Latest public tag: $latest_tag"
-        
-        base_tag=${latest_tag#v}
-        major=$(echo $base_tag | cut -d. -f1)
-        minor=$(echo $base_tag | cut -d. -f2)
-        patch=$(echo $base_tag | cut -d. -f3)
+        echo "Ignorer car draft ou prerelease"
+        exit 0
 
-        new_tag="v$major.$minor.$((patch + 1))"
-
-        # Verify if tag exists in public repo
-        while gh release view "$new_tag" --repo kitokoh/leopardo &> /dev/null; do
-          patch=$((patch + 1))
-          new_tag="v$major.$minor.$patch"
-          echo "Tag exists, incrementing to: $new_tag"
-        done
-
-        echo "Using new tag: $new_tag"
-        echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
-
-    - name: Create public release with EXE files
+    - name: Create public release
       if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
       run: |
-        # Create notes file with original published date
-        notes_file=$(mktemp)
-        echo -e "Released on: ${{ steps.get_release.outputs.published_at }}\n\n${{ steps.get_release.outputs.release_body }}" > "$notes_file"
+        # Crée une release dans le dépôt PUBLIC
+        gh release create "${{ steps.get_release.outputs.tag_name }}" \
+          --repo kitokoh/leopardo \
+          --title "${{ steps.get_release.outputs.release_name }}" \
+          --notes "Publié le: ${{ steps.get_release.outputs.published_at }}\n\n${{ steps.get_release.outputs.release_body }}" \
+          release_assets/*.exe
 
-        # Create release with assets
-        echo "Files to upload:"
-        ls -la release_assets/
+        echo "Release synchronisée avec succès !"
 
-        if [ -n "$(ls -A release_assets/)" ]; then
-          echo "Creating release with assets..."
-          gh release create "${{ steps.prepare_tag.outputs.new_tag }}" \
-            --repo kitokoh/leopardo \
-            --title "${{ steps.get_release.outputs.release_name }}" \
-            --notes-file "$notes_file" \
-            release_assets/*.exe
-        else
-          echo "Creating release without assets..."
-          gh release create "${{ steps.prepare_tag.outputs.new_tag }}" \
-            --repo kitokoh/leopardo \
-            --title "${{ steps.get_release.outputs.release_name }}" \
-            --notes-file "$notes_file"
-        fi
-
-        # Cleanup
-        rm "$notes_file"
-        rm -rf release_assets
-
-    - name: Cleanup on failure
-      if: failure()
-      run: |
-        rm -rf release_assets || true
+    - name: Cleanup
+      run: rm -rf release_assets
