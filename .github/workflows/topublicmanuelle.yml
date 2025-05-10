@@ -1,4 +1,4 @@
-name: Sync Release from Private to Public Repo
+name: Sync and Increment Release
 
 on:
   workflow_dispatch:
@@ -21,31 +21,28 @@ jobs:
         echo "$GH_PAT" | gh auth login --with-token
         gh auth status
 
-    - name: Get latest release data
+    - name: Get private release data
       id: get_release
       run: |
-        # Récupération des données de la release
+        # Récupération de la dernière release privée
         release_data=$(gh api repos/kitokoh/saadiya/releases/latest --jq '.' || echo "")
         
         if [[ -z "$release_data" || "$release_data" == "null" ]]; then
-          echo "::error::No release found in source repository"
+          echo "::error::Aucune release trouvée dans le dépôt source"
           exit 1
         fi
 
-        # Extraction des métadonnées (avec échappement JSON)
+        # Extraction des métadonnées
         tag_name=$(echo "$release_data" | jq -r '.tag_name')
-        release_name=$(echo "$release_data" | jq -r '.name // ""')
         release_body=$(echo "$release_data" | jq -r '.body // ""' | jq -s -R .)
-        published_at=$(echo "$release_data" | jq -r '.published_at')
         is_draft=$(echo "$release_data" | jq -r '.draft')
         is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
 
-        # Téléchargement des assets .exe
+        # Téléchargement des assets
         mkdir -p release_assets
         echo "$release_data" | jq -r '.assets[] | select(.name | endswith(".exe")) | .id' | while read asset_id; do
           asset_name=$(gh api repos/kitokoh/saadiya/releases/assets/$asset_id --jq '.name')
-          echo "Downloading $asset_name (ID: $asset_id)"
-          
+          echo "Téléchargement de $asset_name"
           curl -sL \
             -H "Authorization: token $GH_PAT" \
             -H "Accept: application/octet-stream" \
@@ -56,45 +53,65 @@ jobs:
         # Vérification des fichiers
         for file in release_assets/*.exe; do
           size=$(stat -c %s "$file")
-          if [ "$size" -lt 100000000 ]; then  # 100MB minimum
-            echo "::error::File $file is corrupted (size: $size bytes)"
-            ls -lh release_assets/
+          if [ "$size" -lt 100000000 ]; then
+            echo "::error::Fichier $file corrompu (taille: $size octets)"
             exit 1
           fi
         done
 
-        # Output avec formatage correct
-        echo "tag_name=$(echo $tag_name | jq -R -s)" >> $GITHUB_OUTPUT
-        echo "release_name=$(echo $release_name | jq -R -s)" >> $GITHUB_OUTPUT
+        echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
         echo "release_body=$release_body" >> $GITHUB_OUTPUT
-        echo "published_at=$published_at" >> $GITHUB_OUTPUT
         echo "is_draft=$is_draft" >> $GITHUB_OUTPUT
         echo "is_prerelease=$is_prerelease" >> $GITHUB_OUTPUT
-        echo "asset_files=$(ls release_assets/*.exe | xargs -n 1 basename | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
     - name: Skip if draft/prerelease
       if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
-      run: |
-        echo "Skipping draft/prerelease"
-        exit 0
+      run: exit 0
 
-    - name: Create public release
-      if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
+    - name: Delete old public release
+      id: delete_old
       run: |
-        # Création du fichier de notes
+        # Récupère la dernière release publique
+        public_release=$(gh api repos/kitokoh/leopardo/releases/latest --jq '.tag_name' 2>/dev/null || echo "")
+        
+        if [ -n "$public_release" ]; then
+          echo "Suppression de l'ancienne release: $public_release"
+          gh release delete "$public_release" --repo kitokoh/leopardo --yes
+          echo "old_tag=$public_release" >> $GITHUB_OUTPUT
+        else
+          echo "Aucune release publique à supprimer"
+          echo "old_tag=v0.0.0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate new version
+      id: version
+      run: |
+        # Extraction de la version actuelle
+        old_tag=${STEPS_DELETE_OLD_OUTPUTS_OLD_TAG#v}
+        IFS='.' read -r major minor patch <<< "$old_tag"
+
+        # Incrémentation
+        new_patch=$((patch + 1))
+        new_tag="v$major.$minor.$new_patch"
+
+        echo "Nouvelle version: $new_tag"
+        echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+
+    - name: Create new public release
+      run: |
+        # Création des notes
         notes_file=$(mktemp)
-        echo -e "Originally published on: ${{ steps.get_release.outputs.published_at }}\n\n$(echo '${{ steps.get_release.outputs.release_body }}' | jq -r)" > "$notes_file"
+        echo -e "Nouvelle version synchronisée\n\n$(echo '${{ steps.get_release.outputs.release_body }}' | jq -r)" > "$notes_file"
 
         # Création de la release
-        gh release create "${{ steps.get_release.outputs.tag_name }}" \
+        gh release create "${{ steps.version.outputs.new_tag }}" \
           --repo kitokoh/leopardo \
-          --title "$(echo '${{ steps.get_release.outputs.release_name }}' | jq -r)" \
+          --title "Version ${{ steps.version.outputs.new_tag }}" \
           --notes-file "$notes_file" \
           release_assets/*.exe
 
-        # Nettoyage
+        echo "✅ Nouvelle release ${{ steps.version.outputs.new_tag }} créée avec succès"
         rm "$notes_file"
-        echo "✅ Release synced successfully!"
 
     - name: Cleanup
       if: always()
