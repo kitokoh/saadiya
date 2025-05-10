@@ -15,52 +15,74 @@ jobs:
     steps:
     - name: Setup GitHub CLI
       run: |
-        gh auth status || gh auth login --with-token <<< "$GH_TOKEN"
+        echo "$GH_TOKEN" | gh auth login --with-token
+        gh auth status
 
-    - name: Get latest release data
+    - name: Get latest release and download .exe assets
       id: get_release
       run: |
-        release=$(gh api repos/kitokoh/saadiya/releases/latest)
-        
-        echo "$release" > release.json
-        
-        echo "tag_name=$(jq -r '.tag_name' release.json)" >> "$GITHUB_OUTPUT"
-        echo "release_name=$(jq -r '.name' release.json)" >> "$GITHUB_OUTPUT"
-        echo "release_body=$(jq -r '.body // ""' release.json)" >> "$GITHUB_OUTPUT"
-        echo "is_draft=$(jq -r '.draft' release.json)" >> "$GITHUB_OUTPUT"
-        echo "is_prerelease=$(jq -r '.prerelease' release.json)" >> "$GITHUB_OUTPUT"
-
-    - name: Exit if draft or prerelease
-      if: steps.get_release.outputs.is_draft == 'true' || steps.get_release.outputs.is_prerelease == 'true'
-      run: echo "Draft or prerelease. Skipping..."
-
-    - name: Download only .exe assets
-      if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
-      run: |
+        set -e
         mkdir -p release_assets
-        for url in $(jq -r '.assets[] | select(.name | endswith(".exe")) | .browser_download_url' release.json); do
-          echo "Downloading: $url"
-          curl -L -H "Authorization: token $GH_TOKEN" -O "$url"
-          mv *.exe release_assets/
-        done
 
-    - name: Publish release to public repo
-      if: steps.get_release.outputs.is_draft != 'true' && steps.get_release.outputs.is_prerelease != 'true'
-      run: |
-        cd release_assets
-        if [ "$(ls -1 *.exe 2>/dev/null | wc -l)" -eq 0 ]; then
-          echo "No .exe assets found, skipping release."
+        # Get latest release JSON
+        release_data=$(gh api repos/kitokoh/saadiya/releases/latest)
+        
+        # Parse values
+        tag_name=$(echo "$release_data" | jq -r '.tag_name')
+        release_name=$(echo "$release_data" | jq -r '.name // "Release " + .tag_name')
+        release_body=$(echo "$release_data" | jq -r '.body // ""')
+        is_draft=$(echo "$release_data" | jq -r '.draft')
+        is_prerelease=$(echo "$release_data" | jq -r '.prerelease')
+
+        # Stop if draft or prerelease
+        if [[ "$is_draft" == "true" || "$is_prerelease" == "true" ]]; then
+          echo "Release is a draft or prerelease. Skipping."
+          echo "skip_release=true" >> $GITHUB_OUTPUT
           exit 0
         fi
 
-        echo "${{ steps.get_release.outputs.release_body }}" > ../release_notes.md
+        # Download only .exe assets
+        asset_urls=$(echo "$release_data" | jq -r '.assets[] | select(.name | endswith(".exe")) | .browser_download_url')
+        for url in $asset_urls; do
+          filename=$(basename "$url")
+          echo "Downloading $filename"
+          curl -L -H "Authorization: token $GH_TOKEN" -o "release_assets/$filename" "$url"
+        done
 
-        gh release create "${{ steps.get_release.outputs.tag_name }}" \
-          --repo kitokoh/leopardo \
-          --title "${{ steps.get_release.outputs.release_name }}" \
-          --notes-file ../release_notes.md \
-          --clobber \
-          *.exe
+        echo "tag_name=$tag_name" >> $GITHUB_OUTPUT
+        echo "release_name=$release_name" >> $GITHUB_OUTPUT
+        echo "release_body<<EOF" >> $GITHUB_OUTPUT
+        echo "$release_body" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        echo "skip_release=false" >> $GITHUB_OUTPUT
+
+    - name: Create release in public repo
+      if: steps.get_release.outputs.skip_release == 'false'
+      run: |
+        echo "Creating release in public repo..."
+        notes_file=$(mktemp)
+        echo "${{ steps.get_release.outputs.release_body }}" > "$notes_file"
+
+        files=$(ls release_assets/*.exe 2>/dev/null || true)
+        if [[ -n "$files" ]]; then
+          gh release create "${{ steps.get_release.outputs.tag_name }}" \
+            --repo kitokoh/leopardo \
+            --title "${{ steps.get_release.outputs.release_name }}" \
+            --notes-file "$notes_file" \
+            release_assets/*.exe \
+            --draft=false \
+            --prerelease=false
+        else
+          echo "No .exe files found to upload."
+          gh release create "${{ steps.get_release.outputs.tag_name }}" \
+            --repo kitokoh/leopardo \
+            --title "${{ steps.get_release.outputs.release_name }}" \
+            --notes-file "$notes_file" \
+            --draft=false \
+            --prerelease=false
+        fi
+        rm "$notes_file"
 
     - name: Cleanup
-      run: rm -rf release_assets release.json release_notes.md || true
+      if: always()
+      run: rm -rf release_assets
