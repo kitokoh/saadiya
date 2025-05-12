@@ -1,1 +1,78 @@
+name: BAT to EXE Converter
 
+on:
+  push:
+    branches: [main]
+    paths: ['lesclesnova360/icons/batofexe/*.bat']
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create output directory
+      run: |
+        New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
+        if (-not (Test-Path "resources/leopardoLogo.png")) {
+          Write-Error "Icon file missing: resources/leopardoLogo.png"
+          exit 1
+        }
+
+    - name: Download BatToExe Converter
+      run: |
+        $url = "https://github.com/Qwertylex/Bat-To-Exe-Converter/releases/download/v3.1.3/BatToExeConverter.zip"
+        $output = "BatToExeConverter.zip"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Expand-Archive -Path $output -DestinationPath "BatToExeConverter"
+        Remove-Item $output
+
+    - name: Convert all BAT files
+      run: |
+        $iconPath = (Resolve-Path "resources/leopardoLogo.png").Path
+        
+        Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat | ForEach-Object {
+          $exePath = "lesclesnova360/icons/exes/$($_.BaseName).exe"
+          
+          Write-Host "Converting $($_.Name) to $exePath"
+          
+          & "BatToExeConverter\BatToExeConverter.exe" $_.FullName $exePath `
+            /bat `
+            /x64 /x86 `
+            /icon "$iconPath" `
+            /compress /merge `
+            /invisible /noconsole `
+            /overwrite `
+            /fileversion "1.0.0" `
+            /productname "$($_.BaseName)" `
+            /company "LesClesNova360" `
+            /description "Compiled from $($_.Name)"
+            
+          if (-not (Test-Path $exePath)) {
+            Write-Error "Failed to create $exePath"
+            exit 1
+          }
+          
+          Write-Host "Successfully created $exePath"
+        }
+
+    - name: Verify EXE files
+      run: |
+        $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
+        if ($exes.Count -eq 0) {
+          Write-Error "No EXE files were created!"
+          exit 1
+        }
+        Write-Host "Created $($exes.Count) EXE files:"
+        $exes | ForEach-Object { Write-Host " - $($_.Name)" }
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: compiled-exes
+        path: lesclesnova360/icons/exes/*.exe
+        retention-days: 5
