@@ -23,13 +23,10 @@ jobs:
           exit 1
         }
 
-    - name: Download BatToExe Converter
+    - name: Install PS2EXE module
       run: |
-        $url = "https://github.com/Qwertylex/Bat-To-Exe-Converter/releases/download/v3.1.3/BatToExeConverter.zip"
-        $output = "BatToExeConverter.zip"
-        Invoke-WebRequest -Uri $url -OutFile $output
-        Expand-Archive -Path $output -DestinationPath "BatToExeConverter"
-        Remove-Item $output
+        Install-Module -Name ps2exe -Force -AllowClobber -Scope CurrentUser
+        Import-Module ps2exe
 
     - name: Convert all BAT files
       run: |
@@ -40,17 +37,18 @@ jobs:
           
           Write-Host "Converting $($_.Name) to $exePath"
           
-          & "BatToExeConverter\BatToExeConverter.exe" $_.FullName $exePath `
-            /bat `
-            /x64 /x86 `
-            /icon "$iconPath" `
-            /compress /merge `
-            /invisible /noconsole `
-            /overwrite `
-            /fileversion "1.0.0" `
-            /productname "$($_.BaseName)" `
-            /company "LesClesNova360" `
-            /description "Compiled from $($_.Name)"
+          Invoke-PS2EXE -inputFile $_.FullName `
+                       -outputFile $exePath `
+                       -iconFile $iconPath `
+                       -noConsole `
+                       -noOutput `
+                       -x86 `
+                       -x64 `
+                       -title "$($_.BaseName)" `
+                       -company "LesClesNova360" `
+                       -product "$($_.BaseName)" `
+                       -copyright "© LesClesNova360" `
+                       -version "1.0.0"
             
           if (-not (Test-Path $exePath)) {
             Write-Error "Failed to create $exePath"
