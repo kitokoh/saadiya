@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "downloads": {
+      "count": {
+        ".read": true,
+        ".write": true
+      },
+      "downloads_list": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}

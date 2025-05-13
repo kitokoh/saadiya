@@ -1,11 +1,304 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Leopardo AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Télécharger Mon App PyQt | Version Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --text: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #adb5bd;
+            --dark-gray: #495057;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .download-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            transform: scaleY(0.4);
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .app-icon i {
+            font-size: 36px;
+            color: var(--primary);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .version {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .download-content {
+            padding: 2.5rem;
+            padding-top: 1.5rem;
+        }
+        
+        .features {
+            margin-bottom: 2rem;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .feature i {
+            color: var(--primary);
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+        
+        .download-btn {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(67, 97, 238, 0.4);
+        }
+        
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        
+        .download-stats {
+            text-align: center;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .download-count {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .download-container {
+                border-radius: 12px;
+            }
+            
+            .hero {
+                padding: 1.5rem;
+            }
+            
+            .download-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-  <h1>Bienvenue sur Leopardo AI</h1>
-  <p><a href="leopardo.exe">Télécharger l'application (.exe)</a></p>
+    <div class="download-container">
+        <div class="hero">
+            <div class="app-icon">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h1>Mon App PyQt</h1>
+            <div class="version">Version <span id="app-version">1.0.0</span></div>
+            <p>L'application premium pour vos besoins professionnels</p>
+        </div>
+        
+        <div class="download-content">
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3>Performances optimales</h3>
+                        <p>Optimisée pour une utilisation fluide</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3>Interface moderne</h3>
+                        <p>Design élégant et intuitif</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3>Sécurisée</h3>
+                        <p>Protection de vos données</p>
+                    </div>
+                </div>
+            </div>
+            
+            <a href="#" id="download-link" class="download-btn">
+                <i class="fas fa-download"></i> Télécharger maintenant
+            </a>
+            
+            <div class="download-stats">
+                <p>Rejoignez les <span class="download-count" id="download-count">0</span> utilisateurs satisfaits</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // URL de téléchargement (remplacer par votre lien GitHub Releases)
+        const GITHUB_RELEASE_URL = "https://github.com/votre-utilisateur/votre-repo/releases/download/v1.0.0/YourApp-1.0.0.exe";
+        
+        // Éléments du DOM
+        const downloadLink = document.getElementById('download-link');
+        const downloadCountEl = document.getElementById('download-count');
+        const appVersionEl = document.getElementById('app-version');
+
+        // Extraire la version de l'URL
+        const extractVersionFromUrl = (url) => {
+            const matches = url.match(/download\/v?([^/]+)\//i);
+            return matches ? matches[1] : '1.0.0';
+        };
+
+        const currentVersion = extractVersionFromUrl(GITHUB_RELEASE_URL);
+        appVersionEl.textContent = currentVersion;
+
+        // Mettre à jour le compteur de téléchargements
+        const updateDownloadCount = () => {
+            database.ref('downloads/count').on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                downloadCountEl.textContent = count.toLocaleString();
+            });
+        };
+
+        // Enregistrer un téléchargement
+        const registerDownload = () => {
+            // Envoyer les données à Firebase
+            const downloadData = {
+                version: currentVersion,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                userAgent: navigator.userAgent,
+                referrer: document.referrer || 'direct'
+            };
+
+            // Incrémenter le compteur
+            database.ref('downloads').push(downloadData);
+            database.ref('downloads/count').transaction((count) => {
+                return (count || 0) + 1;
+            });
+        };
+
+        // Configurer le lien de téléchargement
+        downloadLink.href = GITHUB_RELEASE_URL;
+        downloadLink.addEventListener('click', (e) => {
+            // Enregistrer avant la redirection
+            registerDownload();
+            
+            // Laisser le lien faire son travail normalement
+            return true;
+        });
+
+        // Démarrer le suivi des téléchargements
+        updateDownloadCount();
+    </script>
 </body>
 </html>
+

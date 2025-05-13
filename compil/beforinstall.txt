@@ -1,1 +1,42 @@
-beforinstall
+
+
+Welcome to Léopardo AI – Installation Wizard
+
+Thank you for choosing Léopardo AI, your smart companion for organizing, automating, and accelerating your digital marketing efforts. This powerful cross-platform application is designed to help you save time, stay consistent, and manage your marketing ecosystem — all in one place.
+
+ 🚀 Key Features of Léopardo AI:
+
+ Smart Media Management: Organize, tag, and schedule your media files for recurring use across your campaigns.
+ Automated Posting Assistant: Plan once, and let Léopardo assist you with posting to multiple Facebook and LinkedIn groups at scale — morning, noon, and night.
+ Multi-Platform Access: Available on Windows, Linux, macOS, and Mobile, so your work follows you wherever you go.
+ Offline Data Control: Your strategies and media stay on your device — no cloud dependency, no geopolitical risk.
+ Prospect & Workflow Manager: Track needs, deadlines, and conversations with leads — even before they become clients.
+ Built-in Descriptions Bank: Save, categorize, and reuse your best-performing descriptions to maintain consistent messaging.
+ Integrated Web Shortcuts: Quickly access frequently used websites and tools without switching tabs or windows.
+ Browser Extensions & Assisted Publishing: Publish faster with intelligent multi-tab group launching and copy-ready content suggestions.
+ Multilingual Interface: Use Léopardo in your preferred language: English, French, or Arabic.
+ Secure & Private: All your data is stored locally and encrypted — your strategy remains yours.
+
+---
+
+ 💻 System Requirements:
+
+ Operating System: Windows 10 or 11 (64-bit), macOS, or Linux
+ RAM: 4 GB minimum (8 GB recommended)
+ Disk Space: 100 MB of free storage
+ Processor: Dual-core or better
+
+---
+
+ ℹ️ Additional Information:
+
+ Developer: Léopardo AI by Turk NovaTech
+ Website: [https://leopardo-ai.web.app](https://leopardo-ai.web.app)
+ License Agreement: By continuing, you agree to our \[End User License Agreement (EULA)].
+ Support: Need help? Visit our [Support Page](https://leopardo-ai.web.app/support) or email us at [support@leopardo-ai.web.app](mailto:support@leopardo-ai.web.app).
+
+---
+
+Click Next to begin the installation and unlock the power of Léopardo AI.
+
+---

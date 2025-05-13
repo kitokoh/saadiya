@@ -1,1 +1,34 @@
-afterinstall
+
+## ✅ Installation Complete!
+
+🎉 Congratulations! Léopardo AI has been successfully installed on your system.
+
+You’re now ready to take control of your digital marketing like never before.
+
+---
+
+ 🚀 What’s Next?
+
+ Launch the App: Click the Léopardo AI icon on your desktop or find it in your Start Menu to get started.
+ First-Time Setup Wizard: We’ll guide you step by step to configure your preferred languages, platforms, and workspace.
+ Discover the Features: From automated group publishing to local media management — explore everything using our [User Guide](https://leopardo-ai.web.app/docs).
+
+---
+
+ 📚 Need Help?
+
+ Help Center: Access answers to frequently asked questions here → [Help Center](https://leopardo-ai.web.app/help)
+ Video Tutorials: Watch quick demos on setting up campaigns, managing files, and publishing smartly → [Tutorials](https://leopardo-ai.web.app/tutorials)
+ Direct Support: Contact us anytime at [support@leopardo-ai.web.app](mailto:support@leopardo-ai.web.app) — we’re here to help!
+
+---
+
+ 🔄 Stay Connected & Updated:
+
+ Automatic Updates: Léopardo AI keeps itself up to date with the latest features and security fixes — no manual effort needed.
+ User Community: Join our vibrant [User Forum](https://leopardo-ai.web.app/community) to exchange tips, strategies, and inspiration with fellow marketers and entrepreneurs.
+
+---
+
+Thank you for trusting Léopardo AI — the intelligent assistant built for serious marketers and brand builders.
+Now go create impact, faster than ever! 💼✨

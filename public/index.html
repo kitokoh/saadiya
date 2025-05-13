@@ -1,11 +1,1894 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Leopardo AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Leopardo AI - Plateforme intelligente de marketing et communication avec IA">
+    <meta name="keywords" content="IA, marketing, intelligence artificielle, Leopardo, automatisation">
+    <meta property="og:title" content="Leopardo AI | Plateforme Intelligente de Marketing">
+    <meta property="og:description" content="L'IA révolutionnaire pour votre marketing et communication">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://leopardo.ai">
+    <meta property="og:image" content="https://leopardo.ai/images/og-image.jpg">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="leopardoLogo.png">
+    <title>Leopardo AI | Plateforme Intelligente de Marketing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52E0;
+            --primary-light: #8E85FF;
+            --secondary: #4D44DB;
+            --text: #2B2D42;
+            --light: #F8F9FA;
+            --gray: #ADB5BD;
+            --dark-gray: #495057;
+            --success: #28A745;
+            --warning: #FFC107;
+            --error: #DC3545;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.15);
+            --border-radius: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e6e9f2 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .download-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: 1;
+        }
+        
+        .hero::after {
+            content: "";
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            transform: scaleY(0.4);
+            z-index: 2;
+        }
+        
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            z-index: 3;
+            transition: var(--transition);
+            border: 3px solid rgba(255,255,255,0.2);
+        }
+        
+        .app-icon:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .app-icon img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 3;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .version {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 3;
+            font-weight: 500;
+        }
+        
+        .hero p {
+            position: relative;
+            z-index: 3;
+            max-width: 80%;
+            margin: 0 auto;
+            opacity: 0.9;
+            font-size: 1.05rem;
+        }
+        
+        .download-content {
+            padding: 2.5rem;
+            padding-top: 1.5rem;
+            position: relative;
+        }
+        
+        /* Nouveau style pour les features - plus compact */
+        .features {
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .feature {
+            background: var(--light);
+            padding: 1.5rem 1rem;
+            border-radius: 10px;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .feature::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: var(--transition);
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .feature:hover::after {
+            transform: scaleX(1);
+        }
+        
+        .feature i {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            transition: var(--transition);
+            background: rgba(108, 99, 255, 0.1);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .feature:hover i {
+            transform: scale(1.1);
+            background: rgba(108, 99, 255, 0.2);
+        }
+        
+        .feature h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .feature p {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            line-height: 1.5;
+            margin-bottom: 0;
+        }
+        
+        .platform-selector {
+            margin-bottom: 2rem;
+        }
+        
+        .platform-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        
+        .platform-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .platform-tab.active {
+            color: var(--primary);
+        }
+        
+        .platform-tab.active::after {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .platform-tab:hover:not(.active) {
+            color: var(--primary-light);
+            background: rgba(108, 99, 255, 0.05);
+        }
+        
+        .platform-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .platform-content.active {
+            display: block;
+        }
+        
+        .download-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1.25rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            margin-bottom: 1rem;
+            box-shadow: 0 5px 20px rgba(108, 99, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .download-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 45%,
+                rgba(255, 255, 255, 0.3) 48%,
+                rgba(255, 255, 255, 0) 52%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+        }
+        
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        
+        .download-btn.disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .download-btn.disabled::after {
+            display: none;
+        }
+        
+        .download-stats {
+            text-align: center;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stats-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+        }
+        
+        .update-info {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin: 1.5rem auto 0;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            background: rgba(40, 167, 69, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: pulse 2s infinite;
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+        
+        .new-version {
+            color: var(--success);
+            font-weight: 600;
+        }
+        
+        .language-switcher {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+        
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .lang-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+        
+        .release-notes-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            padding: 0.5rem 0;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .release-notes-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-modal:hover {
+            color: var(--text);
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .modal h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+        
+        .release-notes {
+            white-space: pre-line;
+            line-height: 1.7;
+        }
+        
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .qr-code {
+            width: 150px;
+            height: 150px;
+            background: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .qr-instruction {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            text-align: center;
+            max-width: 200px;
+        }
+        
+        .file-size {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 400;
+            margin-left: 0.25rem;
+        }
+        
+        /* Nouveaux styles ajoutés */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .download-speed {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .download-complete {
+            display: none;
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        
+        .testimonials {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(108, 99, 255, 0.03);
+            border-radius: var(--border-radius);
+        }
+        
+        .testimonial-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 1.5rem;
+            padding: 1rem 0;
+            scrollbar-width: none; /* Firefox */
+        }
+        
+        .testimonial-slider::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        
+        .testimonial {
+            min-width: 100%;
+            scroll-snap-align: start;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+        
+        .testimonial::before {
+            content: """;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 3rem;
+            color: rgba(108, 99, 255, 0.1);
+            font-family: serif;
+            line-height: 1;
+        }
+        
+        .testimonial-content {
+            margin-bottom: 1rem;
+            font-style: italic;
+            color: var(--dark-gray);
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .author-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .author-title {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .slider-dot.active {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+        }
+        
+        .security-badge i {
+            color: var(--success);
+        }
+        
+        .social-share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: var(--transition);
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .twitter { background: #1DA1F2; }
+        .facebook { background: #4267B2; }
+        .linkedin { background: #0077B5; }
+        .whatsapp { background: #25D366; }
+        
+        .download-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(108, 99, 255, 0.05);
+            border-radius: 12px;
+            border: 1px dashed rgba(108, 99, 255, 0.3);
+        }
+        
+        .download-section-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .platform-requirements {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            20% { transform: translateX(100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            color: transparent;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Tooltip for disabled buttons */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--text);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--text) transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .download-container {
+                border-radius: 12px;
+            }
+            
+            .hero {
+                padding: 2rem 1.5rem;
+            }
+            
+            .hero p {
+                max-width: 90%;
+            }
+            
+            .app-icon {
+                width: 80px;
+                height: 80px;
+                border-radius: 18px;
+            }
+            
+            .app-icon img {
+                width: 50px;
+                height: 50px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .download-content {
+                padding: 1.75rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .platform-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .platform-tab {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .stats-container {
+                gap: 1.5rem;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+            
+            .download-section {
+                padding: 1rem;
+            }
+            
+            .testimonial {
+                padding: 1rem;
+            }
+        }
+        
+        /* RTL support for Arabic */
+        body[dir="rtl"] {
+            text-align: right;
+        }
+        
+        body[dir="rtl"] .feature {
+            text-align: right;
+        }
+        
+        body[dir="rtl"] .language-switcher {
+            right: auto;
+            left: 1rem;
+        }
+        
+        body[dir="rtl"] .platform-tab {
+            flex-direction: row-reverse;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text: #F8F9FA;
+                --light: #2B2D42;
+                --dark-gray: #ADB5BD;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #121218 0%, #1E1E2A 100%);
+            }
+            
+            .download-container {
+                background: #1E1E2A;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+            
+            .feature {
+                background: #2B2D42;
+                border-color: rgba(255,255,255,0.05);
+            }
+            
+            .feature p {
+                color: var(--gray);
+            }
+            
+            .platform-tabs {
+                border-color: rgba(255,255,255,0.1);
+            }
+            
+            .modal-content {
+                background: #1E1E2A;
+            }
+            
+            .qr-code {
+                background: #2B2D42;
+                border-color: rgba(255,255,255,0.1);
+            }
+            
+            .download-section {
+                background: rgba(108, 99, 255, 0.1);
+                border-color: rgba(108, 99, 255, 0.2);
+            }
+            
+            /* Skeleton in dark mode */
+            .skeleton {
+                background: linear-gradient(90deg, #2B2D42 25%, #3D405B 50%, #2B2D42 75%);
+            }
+            
+            .testimonial {
+                background: #2B2D42;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Bienvenue sur Leopardo AI</h1>
-  <p><a href="leopardo.exe">Télécharger l'application (.exe)</a></p>
+    <div class="download-container">
+        <div class="language-switcher">
+            <button class="lang-btn active" id="lang-fr">🇫🇷 FR</button>
+            <button class="lang-btn" id="lang-en">🇬🇧 EN</button>
+            <button class="lang-btn" id="lang-ar">🇸🇦 العربية</button>
+            <button class="lang-btn" id="lang-pt">🇧🇷 PT</button>
+        </div>
+        
+        <div class="hero">
+            <div class="app-icon">
+                <img src="leopardoLogo.png" alt="Leopardo AI Icon">
+            </div>
+            <h1 data-lang="fr">Leopardo AI</h1>
+            <h1 data-lang="en" style="display:none">Leopardo AI</h1>
+            <h1 data-lang="ar" style="display:none">ليوباردو الذكاء الاصطناعي</h1>
+            <h1 data-lang="pt" style="display:none">Leopardo AI</h1>
+            
+            <div class="version" data-lang="fr">Version <span id="app-version">Chargement...</span></div>
+            <div class="version" data-lang="en" style="display:none">Version <span id="app-version-en">Loading...</span></div>
+            <div class="version" data-lang="ar" style="display:none">الإصدار <span id="app-version-ar">جار التحميل...</span></div>
+            <div class="version" data-lang="pt" style="display:none">Versão <span id="app-version-pt">Carregando...</span></div>
+            
+            <p data-lang="fr">L'IA révolutionnaire pour votre marketing et communication</p>
+            <p data-lang="en" style="display:none">The revolutionary AI for your marketing and communication</p>
+            <p data-lang="ar" style="display:none">الذكاء الاصطناعي الثوري للتسويق والاتصالات</p>
+            <p data-lang="pt" style="display:none">A IA revolucionária para seu marketing e comunicação</p>
+        </div>
+        
+        <div class="download-content">
+            <!-- Section de téléchargement mise en avant -->
+            <div class="download-section">
+                <div class="download-stats">
+                    <p data-lang="fr">Rejoignez notre communauté de professionnels</p>
+                    <p data-lang="en" style="display:none">Join our community of professionals</p>
+                    <p data-lang="ar" style="display:none">انضم إلى مجتمعنا من المحترفين</p>
+                    <p data-lang="pt" style="display:none">Junte-se à nossa comunidade de profissionais</p>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-value" id="download-count">0</div>
+                            <div class="stat-label" data-lang="fr">Téléchargements</div>
+                            <div class="stat-label" data-lang="en" style="display:none">Downloads</div>
+                            <div class="stat-label" data-lang="ar" style="display:none">التنزيلات</div>
+                            <div class="stat-label" data-lang="pt" style="display:none">Downloads</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="active-users">0</div>
+                            <div class="stat-label" data-lang="fr">Utilisateurs actifs</div>
+                            <div class="stat-label" data-lang="en" style="display:none">Active users</div>
+                            <div class="stat-label" data-lang="ar" style="display:none">المستخدمون النشطون</div>
+                            <div class="stat-label" data-lang="pt" style="display:none">Usuários ativos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="countries">0</div>
+                            <div class="stat-label" data-lang="fr">Pays</div>
+                            <div class="stat-label" data-lang="en" style="display:none">Countries</div>
+                            <div class="stat-label" data-lang="ar" style="display:none">الدول</div>
+                            <div class="stat-label" data-lang="pt" style="display:none">Países</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="platform-selector">
+                    <div class="platform-tabs">
+                        <div class="platform-tab active" data-platform="windows">
+                            <i class="fab fa-windows"></i>
+                            <span data-lang="fr">Windows</span>
+                            <span data-lang="en" style="display:none">Windows</span>
+                            <span data-lang="ar" style="display:none">ويندوز</span>
+                            <span data-lang="pt" style="display:none">Windows</span>
+                        </div>
+                        <div class="platform-tab" data-platform="macos">
+                            <i class="fab fa-apple"></i>
+                            <span data-lang="fr">macOS</span>
+                            <span data-lang="en" style="display:none">macOS</span>
+                            <span data-lang="ar" style="display:none">ماك</span>
+                            <span data-lang="pt" style="display:none">macOS</span>
+                        </div>
+                        <div class="platform-tab" data-platform="ubuntu">
+                            <i class="fab fa-ubuntu"></i>
+                            <span data-lang="fr">Ubuntu</span>
+                            <span data-lang="en" style="display:none">Ubuntu</span>
+                            <span data-lang="ar" style="display:none">أوبونتو</span>
+                            <span data-lang="pt" style="display:none">Ubuntu</span>
+                        </div>
+                    </div>
+                    
+                    <div class="platform-content active" id="windows-content">
+                        <a href="#" id="windows-download" class="download-btn tooltip">
+                            <i class="fas fa-download"></i> 
+                            <span data-lang="fr">Télécharger pour Windows</span>
+                            <span data-lang="en" style="display:none">Download for Windows</span>
+                            <span data-lang="ar" style="display:none">تنزيل لنظام ويندوز</span>
+                            <span data-lang="pt" style="display:none">Baixar para Windows</span>
+                            <span class="file-size" id="windows-size"></span>
+                            <span class="tooltiptext" data-lang="fr">Version Windows 10/11 64-bit</span>
+                            <span class="tooltiptext" data-lang="en" style="display:none">Windows 10/11 64-bit version</span>
+                            <span class="tooltiptext" data-lang="ar" style="display:none">إصدار ويندوز 10/11 64 بت</span>
+                            <span class="tooltiptext" data-lang="pt" style="display:none">Versão Windows 10/11 64-bit</span>
+                        </a>
+                        <div class="progress-container" id="windows-progress">
+                            <div class="progress-bar" id="windows-progress-bar"></div>
+                        </div>
+                        <div class="download-speed" id="windows-speed"></div>
+                        <div class="download-complete" id="windows-complete"></div>
+                        <p class="platform-requirements" data-lang="fr">Windows 10/11 64-bit</p>
+                        <p class="platform-requirements" data-lang="en" style="display:none">Windows 10/11 64-bit</p>
+                        <p class="platform-requirements" data-lang="ar" style="display:none">Windows 10/11 64-bit</p>
+                        <p class="platform-requirements" data-lang="pt" style="display:none">Windows 10/11 64-bit</p>
+                    </div>
+                    
+                    <div class="platform-content" id="macos-content">
+                        <a href="#" id="macos-download" class="download-btn tooltip">
+                            <i class="fas fa-download"></i> 
+                            <span data-lang="fr">Télécharger pour macOS</span>
+                            <span data-lang="en" style="display:none">Download for macOS</span>
+                            <span data-lang="ar" style="display:none">تنزيل لنظام ماك</span>
+                            <span data-lang="pt" style="display:none">Baixar para macOS</span>
+                            <span class="file-size" id="macos-size"></span>
+                            <span class="tooltiptext" data-lang="fr">Version macOS 11.0+ (Apple Silicon & Intel)</span>
+                            <span class="tooltiptext" data-lang="en" style="display:none">macOS 11.0+ version (Apple Silicon & Intel)</span>
+                            <span class="tooltiptext" data-lang="ar" style="display:none">إصدار macOS 11.0+ (Apple Silicon و Intel)</span>
+                            <span class="tooltiptext" data-lang="pt" style="display:none">Versão macOS 11.0+ (Apple Silicon & Intel)</span>
+                        </a>
+                        <div class="progress-container" id="macos-progress">
+                            <div class="progress-bar" id="macos-progress-bar"></div>
+                        </div>
+                        <div class="download-speed" id="macos-speed"></div>
+                        <div class="download-complete" id="macos-complete"></div>
+                        <p class="platform-requirements" data-lang="fr">macOS 11.0+ (Apple Silicon & Intel)</p>
+                        <p class="platform-requirements" data-lang="en" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
+                        <p class="platform-requirements" data-lang="ar" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
+                        <p class="platform-requirements" data-lang="pt" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
+                    </div>
+                    
+                    <div class="platform-content" id="ubuntu-content">
+                        <a href="#" id="ubuntu-download" class="download-btn tooltip">
+                            <i class="fas fa-download"></i> 
+                            <span data-lang="fr">Télécharger pour Ubuntu</span>
+                            <span data-lang="en" style="display:none">Download for Ubuntu</span>
+                            <span data-lang="ar" style="display:none">تنزيل لأوبونتو</span>
+                            <span data-lang="pt" style="display:none">Baixar para Ubuntu</span>
+                            <span class="file-size" id="ubuntu-size"></span>
+                            <span class="tooltiptext" data-lang="fr">Version Ubuntu 20.04 LTS ou supérieur</span>
+                            <span class="tooltiptext" data-lang="en" style="display:none">Ubuntu 20.04 LTS or higher version</span>
+                            <span class="tooltiptext" data-lang="ar" style="display:none">إصدار Ubuntu 20.04 LTS أو أحدث</span>
+                            <span class="tooltiptext" data-lang="pt" style="display:none">Versão Ubuntu 20.04 LTS ou superior</span>
+                        </a>
+                        <div class="progress-container" id="ubuntu-progress">
+                            <div class="progress-bar" id="ubuntu-progress-bar"></div>
+                        </div>
+                        <div class="download-speed" id="ubuntu-speed"></div>
+                        <div class="download-complete" id="ubuntu-complete"></div>
+                        <p class="platform-requirements" data-lang="fr">Ubuntu 20.04 LTS ou supérieur</p>
+                        <p class="platform-requirements" data-lang="en" style="display:none">Ubuntu 20.04 LTS or higher</p>
+                        <p class="platform-requirements" data-lang="ar" style="display:none">Ubuntu 20.04 LTS أو أحدث</p>
+                        <p class="platform-requirements" data-lang="pt" style="display:none">Ubuntu 20.04 LTS ou superior</p>
+                    </div>
+                </div>
+                
+                <div class="update-info" id="update-info" style="display:none">
+                    <i class="fas fa-bell"></i>
+                    <p data-lang="fr"><span class="new-version">Nouveau !</span> Version <span id="latest-version"></span> disponible</p>
+                    <p data-lang="en" style="display:none"><span class="new-version">New !</span> Version <span id="latest-version-en"></span> available</p>
+                    <p data-lang="ar" style="display:none"><span class="new-version">جديد !</span> الإصدار <span id="latest-version-ar"></span> متاح الآن</p>
+                    <p data-lang="pt" style="display:none"><span class="new-version">Novo !</span> Versão <span id="latest-version-pt"></span> disponível</p>
+                </div>
+            </div>
+            
+            <!-- Section témoignages -->
+            <div class="testimonials">
+                <h3 data-lang="fr" style="text-align: center; margin-bottom: 1rem;">Ce que disent nos utilisateurs</h3>
+                <h3 data-lang="en" style="text-align: center; margin-bottom: 1rem; display:none">What our users say</h3>
+                <h3 data-lang="ar" style="text-align: center; margin-bottom: 1rem; display:none">ما يقوله مستخدمونا</h3>
+                <h3 data-lang="pt" style="text-align: center; margin-bottom: 1rem; display:none">O que nossos usuários dizem</h3>
+                
+                <div class="testimonial-slider" id="testimonial-slider">
+                    <div class="testimonial">
+                        <div class="testimonial-content" data-lang="fr">Leopardo AI a révolutionné notre façon de faire du marketing. L'analyse prédictive est incroyablement précise.</div>
+                        <div class="testimonial-content" data-lang="en" style="display:none">Leopardo AI revolutionized our marketing approach. The predictive analysis is incredibly accurate.</div>
+                        <div class="testimonial-content" data-lang="ar" style="display:none">غيرت Leopardo AI طريقة تسويقنا. التحليل التنبؤي دقيق بشكل لا يصدق</div>
+                        <div class="testimonial-content" data-lang="pt" style="display:none">Leopardo AI revolucionou nossa abordagem de marketing. A análise preditiva é incrivelmente precisa.</div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">JD</div>
+                            <div class="author-info">
+                                <div class="author-name">Jean Dupont</div>
+                                <div class="author-title" data-lang="fr">Directeur Marketing</div>
+                                <div class="author-title" data-lang="en" style="display:none">Marketing Director</div>
+                                <div class="author-title" data-lang="ar" style="display:none">مدير التسويق</div>
+                                <div class="author-title" data-lang="pt" style="display:none">Diretor de Marketing</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="testimonial-content" data-lang="fr">L'automatisation nous fait gagner 20 heures par semaine. Un outil indispensable pour notre équipe.</div>
+                        <div class="testimonial-content" data-lang="en" style="display:none">The automation saves us 20 hours per week. An essential tool for our team.</div>
+                        <div class="testimonial-content" data-lang="ar" style="display:none">التشغيل الآلي يوفر لنا 20 ساعة في الأسبوع. أداة أساسية لفريقنا</div>
+                        <div class="testimonial-content" data-lang="pt" style="display:none">A automação nos economiza 20 horas por semana. Uma ferramenta essencial para nossa equipe.</div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">SM</div>
+                            <div class="author-info">
+                                <div class="author-name">Sarah Martin</div>
+                                <div class="author-title" data-lang="fr">Chef de projet digital</div>
+                                <div class="author-title" data-lang="en" style="display:none">Digital Project Manager</div>
+                                <div class="author-title" data-lang="ar" style="display:none">مدير المشاريع الرقمية</div>
+                                <div class="author-title" data-lang="pt" style="display:none">Gerente de Projetos Digitais</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial">
+                        <div class="testimonial-content" data-lang="fr">Les recommandations personnalisées ont augmenté notre taux de conversion de 35%. Impressionnant !</div>
+                        <div class="testimonial-content" data-lang="en" style="display:none">Personalized recommendations increased our conversion rate by 35%. Impressive!</div>
+                        <div class="testimonial-content" data-lang="ar" style="display:none">زادت التوصيات الشخصية معدل التحويل لدينا بنسبة 35٪. مثير للإعجاب!</div>
+                        <div class="testimonial-content" data-lang="pt" style="display:none">As recomendações personalizadas aumentaram nossa taxa de conversão em 35%. Impressionante!</div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">TL</div>
+                            <div class="author-info">
+                                <div class="author-name">Thomas Leroy</div>
+                                <div class="author-title" data-lang="fr">Responsable e-commerce</div>
+                                <div class="author-title" data-lang="en" style="display:none">E-commerce Manager</div>
+                                <div class="author-title" data-lang="ar" style="display:none">مدير التجارة الإلكترونية</div>
+                                <div class="author-title" data-lang="pt" style="display:none">Gerente de E-commerce</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slider-controls">
+                    <div class="slider-dot active" data-index="0"></div>
+                    <div class="slider-dot" data-index="1"></div>
+                    <div class="slider-dot" data-index="2"></div>
+                </div>
+            </div>
+            
+            <!-- Features plus compactes et discrètes -->
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h3 data-lang="fr">Analyse Intelligente</h3>
+                        <h3 data-lang="en" style="display:none">Smart Analysis</h3>
+                        <h3 data-lang="ar" style="display:none">تحليل ذكي</h3>
+                        <h3 data-lang="pt" style="display:none">Análise Inteligente</h3>
+                        <p data-lang="fr">Décryptez les tendances et comportements clients avec notre IA avancée</p>
+                        <p data-lang="en" style="display:none">Decrypt trends and customer behaviors with our advanced AI</p>
+                        <p data-lang="ar" style="display:none">فك تشفير الاتجاهات وسلوكيات العملاء باستخدام الذكاء الاصطناعي المتقدم</p>
+                        <p data-lang="pt" style="display:none">Decifre tendências e comportamentos dos clientes com nossa IA avançada</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-robot"></i>
+                    <div>
+                        <h3 data-lang="fr">Automatisation Avancée</h3>
+                        <h3 data-lang="en" style="display:none">Advanced Automation</h3>
+                        <h3 data-lang="ar" style="display:none">الأتمتة المتقدمة</h3>
+                        <h3 data-lang="pt" style="display:none">Automação Avançada</h3>
+                        <p data-lang="fr">Optimisez vos campagnes marketing automatiquement 24h/24</p>
+                        <p data-lang="en" style="display:none">Optimize your marketing campaigns automatically 24/7</p>
+                        <p data-lang="ar" style="display:none">قم بتحسين حملاتك التسويقية تلقائيًا على مدار الساعة</p>
+                        <p data-lang="pt" style="display:none">Otimize suas campanhas de marketing automaticamente 24/7</p>
+                    </div>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-lightbulb"></i>
+                    <div>
+                        <h3 data-lang="fr">Recommandations Personnalisées</h3>
+                        <h3 data-lang="en" style="display:none">Personalized Recommendations</h3>
+                        <h3 data-lang="ar" style="display:none">توصيات شخصية</h3>
+                        <h3 data-lang="pt" style="display:none">Recomendações Personalizadas</h3>
+                        <p data-lang="fr">Des insights adaptés à votre marché en temps réel</p>
+                        <p data-lang="en" style="display:none">Real-time insights tailored to your market</p>
+                        <p data-lang="ar" style="display:none">رؤى في الوقت الحقيقي مصممة خصيصًا لسوقك</p>
+                        <p data-lang="pt" style="display:none">Insights em tempo real personalizados para seu mercado</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span data-lang="fr">Téléchargement sécurisé et vérifié</span>
+                <span data-lang="en" style="display:none">Secure and verified download</span>
+                <span data-lang="ar" style="display:none">تنزيل آمن ومتحقق منه</span>
+                <span data-lang="pt" style="display:none">Download seguro e verificado</span>
+            </div>
+            
+            <div class="release-notes-btn" id="release-notes-btn" data-lang="fr">Voir les notes de version</div>
+            <div class="release-notes-btn" id="release-notes-btn" data-lang="en" style="display:none">View release notes</div>
+            <div class="release-notes-btn" id="release-notes-btn" data-lang="ar" style="display:none">عرض ملاحظات الإصدار</div>
+            <div class="release-notes-btn" id="release-notes-btn" data-lang="pt" style="display:none">Ver notas da versão</div>
+            
+            <div class="social-share">
+                <a href="#" class="social-btn twitter" id="share-twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-btn facebook" id="share-facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-btn linkedin" id="share-linkedin"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="social-btn whatsapp" id="share-whatsapp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            
+            <div class="qr-section">
+                <div class="qr-code" id="qr-code"></div>
+                <p class="qr-instruction" data-lang="fr">Scannez pour installer sur mobile</p>
+                <p class="qr-instruction" data-lang="en" style="display:none">Scan to install on mobile</p>
+                <p class="qr-instruction" data-lang="ar" style="display:none">امسح لتنزيل على الهاتف</p>
+                <p class="qr-instruction" data-lang="pt" style="display:none">Escaneie para instalar no celular</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Release Notes Modal -->
+    <div class="modal" id="release-notes-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 data-lang="fr">Notes de version <span id="modal-version"></span></h2>
+            <h2 data-lang="en" style="display:none">Release notes <span id="modal-version-en"></span></h2>
+            <h2 data-lang="ar" style="display:none">ملاحظات الإصدار <span id="modal-version-ar"></span></h2>
+            <h2 data-lang="pt" style="display:none">Notas da versão <span id="modal-version-pt"></span></h2>
+            <div class="release-notes" id="release-notes"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <!-- QR Code Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    
+    <script>
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "leopardo-ai.firebaseapp.com",
+            databaseURL: "https://leopardo-ai.firebaseio.com",
+            projectId: "leopardo-ai",
+            storageBucket: "leopardo-ai.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
+        };
+
+        // Initialiser Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const analytics = firebase.analytics();
+
+        // Configuration GitHub
+        const GITHUB_REPO = "kitokoh/leopardo";
+        const APP_DOWNLOAD_PAGE = "https://leopardo.ai/download";
+        let currentVersion = "1.0.0";
+        let downloadUrls = {
+            windows: "",
+            macos: "",
+            ubuntu: ""
+        };
+        let fileSizes = {
+            windows: "",
+            macos: "",
+            ubuntu: ""
+        };
+        let releaseNotes = "";
+
+        // Éléments du DOM
+        const platformTabs = document.querySelectorAll('.platform-tab');
+        const platformContents = document.querySelectorAll('.platform-content');
+        const windowsDownloadBtn = document.getElementById('windows-download');
+        const macosDownloadBtn = document.getElementById('macos-download');
+        const ubuntuDownloadBtn = document.getElementById('ubuntu-download');
+        const downloadCountEl = document.getElementById('download-count');
+        const activeUsersEl = document.getElementById('active-users');
+        const countriesEl = document.getElementById('countries');
+        const appVersionEls = {
+            fr: document.getElementById('app-version'),
+            en: document.getElementById('app-version-en'),
+            ar: document.getElementById('app-version-ar'),
+            pt: document.getElementById('app-version-pt')
+        };
+        const latestVersionEls = {
+            fr: document.getElementById('latest-version'),
+            en: document.getElementById('latest-version-en'),
+            ar: document.getElementById('latest-version-ar'),
+            pt: document.getElementById('latest-version-pt')
+        };
+        const modalVersionEls = {
+            fr: document.getElementById('modal-version'),
+            en: document.getElementById('modal-version-en'),
+            ar: document.getElementById('modal-version-ar'),
+            pt: document.getElementById('modal-version-pt')
+        };
+        const updateInfoEl = document.getElementById('update-info');
+        const langButtons = {
+            fr: document.getElementById('lang-fr'),
+            en: document.getElementById('lang-en'),
+            ar: document.getElementById('lang-ar'),
+            pt: document.getElementById('lang-pt')
+        };
+        const releaseNotesBtn = document.getElementById('release-notes-btn');
+        const releaseNotesModal = document.getElementById('release-notes-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const releaseNotesContent = document.getElementById('release-notes');
+        const qrCodeEl = document.getElementById('qr-code');
+        const fileSizeEls = {
+            windows: document.getElementById('windows-size'),
+            macos: document.getElementById('macos-size'),
+            ubuntu: document.getElementById('ubuntu-size')
+        };
+
+        // Nouveaux éléments pour le téléchargement
+        const progressContainers = {
+            windows: document.getElementById('windows-progress'),
+            macos: document.getElementById('macos-progress'),
+            ubuntu: document.getElementById('ubuntu-progress')
+        };
+        
+        const progressBars = {
+            windows: document.getElementById('windows-progress-bar'),
+            macos: document.getElementById('macos-progress-bar'),
+            ubuntu: document.getElementById('ubuntu-progress-bar')
+        };
+        
+        const speedEls = {
+            windows: document.getElementById('windows-speed'),
+            macos: document.getElementById('macos-speed'),
+            ubuntu: document.getElementById('ubuntu-speed')
+        };
+        
+        const completeEls = {
+            windows: document.getElementById('windows-complete'),
+            macos: document.getElementById('macos-complete'),
+            ubuntu: document.getElementById('ubuntu-complete')
+        };
+        
+        // Éléments pour le slider de témoignages
+        const testimonialSlider = document.getElementById('testimonial-slider');
+        const sliderDots = document.querySelectorAll('.slider-dot');
+        let currentSlide = 0;
+        let slideInterval;
+
+        // Gestion du multilinguisme
+        function setLanguage(lang) {
+            document.querySelectorAll(`[data-lang]`).forEach(el => {
+                el.style.display = el.getAttribute('data-lang') === lang ? '' : 'none';
+            });
+            
+            // Mettre à jour les boutons de langue
+            Object.values(langButtons).forEach(btn => btn.classList.remove('active'));
+            langButtons[lang].classList.add('active');
+            
+            // Stocker la préférence
+            localStorage.setItem('leopardo_lang', lang);
+            
+            // Appliquer la direction RTL pour l'arabe
+            document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+            
+            // Envoyer l'événement d'analyse
+            analytics.logEvent('language_change', { language: lang });
+        }
+
+        // Gestion des onglets de plateforme
+        function setActivePlatform(platform) {
+            platformTabs.forEach(tab => tab.classList.remove('active'));
+            platformContents.forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.platform-tab[data-platform="${platform}"]`).classList.add('active');
+            document.getElementById(`${platform}-content`).classList.add('active');
+            
+            // Envoyer l'événement d'analyse
+            analytics.logEvent('platform_select', { platform });
+        }
+
+        // Formater la taille du fichier
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Récupérer la dernière version depuis GitHub
+        async function fetchLatestRelease() {
+            try {
+                // Afficher le skeleton pendant le chargement
+                Object.values(appVersionEls).forEach(el => {
+                    el.textContent = '';
+                    el.classList.add('skeleton');
+                });
+
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
+                if (!response.ok) throw new Error("Failed to fetch release");
+                
+                const data = await response.json();
+                const version = data.tag_name.replace(/^v/, '');
+                
+                // Trouver les assets pour chaque plateforme
+                const assets = {
+                    windows: data.assets.find(asset => 
+                        asset.name.match(/(\.exe|windows|win)/i) && 
+                        !asset.name.match(/debug|symbols/i)
+                    ),
+                    macos: data.assets.find(asset => 
+                        asset.name.match(/(\.dmg|macos|mac|\.pkg)/i) && 
+                        !asset.name.match(/debug|symbols/i)
+                    ),
+                    ubuntu: data.assets.find(asset => 
+                        asset.name.match(/(\.deb|ubuntu|linux)/i) && 
+                        !asset.name.match(/debug|symbols/i)
+                    )
+                };
+                
+                // Récupérer les tailles de fichiers
+                const sizes = {
+                    windows: assets.windows?.size ? formatFileSize(assets.windows.size) : '',
+                    macos: assets.macos?.size ? formatFileSize(assets.macos.size) : '',
+                    ubuntu: assets.ubuntu?.size ? formatFileSize(assets.ubuntu.size) : ''
+                };
+                
+                return {
+                    version,
+                    downloadUrls: {
+                        windows: assets.windows?.browser_download_url || '',
+                        macos: assets.macos?.browser_download_url || '',
+                        ubuntu: assets.ubuntu?.browser_download_url || ''
+                    },
+                    fileSizes: sizes,
+                    notes: data.body
+                };
+            } catch (error) {
+                console.error("Error fetching GitHub release:", error);
+                return null;
+            } finally {
+                // Retirer le skeleton
+                Object.values(appVersionEls).forEach(el => el.classList.remove('skeleton'));
+            }
+        }
+
+        // Mettre à jour l'interface avec les données de la release
+        function updateUIWithRelease(release) {
+            currentVersion = release.version;
+            downloadUrls = release.downloadUrls;
+            fileSizes = release.fileSizes;
+            releaseNotes = release.notes;
+            
+            // Mettre à jour les versions affichées
+            Object.values(appVersionEls).forEach(el => el.textContent = currentVersion);
+            Object.values(modalVersionEls).forEach(el => el.textContent = currentVersion);
+            
+            // Configurer les liens de téléchargement
+            windowsDownloadBtn.href = downloadUrls.windows || '#';
+            macosDownloadBtn.href = downloadUrls.macos || '#';
+            ubuntuDownloadBtn.href = downloadUrls.ubuntu || '#';
+            
+            // Mettre à jour les tailles de fichiers
+            fileSizeEls.windows.textContent = fileSizes.windows ? `(${fileSizes.windows})` : '';
+            fileSizeEls.macos.textContent = fileSizes.macos ? `(${fileSizes.macos})` : '';
+            fileSizeEls.ubuntu.textContent = fileSizes.ubuntu ? `(${fileSizes.ubuntu})` : '';
+            
+            // Désactiver les boutons si pas de lien disponible
+            windowsDownloadBtn.classList.toggle('disabled', !downloadUrls.windows);
+            macosDownloadBtn.classList.toggle('disabled', !downloadUrls.macos);
+            ubuntuDownloadBtn.classList.toggle('disabled', !downloadUrls.ubuntu);
+            
+            // Générer le QR code
+            generateQRCode();
+            
+            // Vérifier si une nouvelle version est disponible
+            checkForNewVersion();
+        }
+
+        // Générer le QR code
+        function generateQRCode() {
+            const qr = qrcode(0, 'L');
+            qr.addData(APP_DOWNLOAD_PAGE);
+            qr.make();
+            qrCodeEl.innerHTML = qr.createImgTag(4);
+            qrCodeEl.querySelector('img').style.width = '100%';
+            qrCodeEl.querySelector('img').style.height = '100%';
+        }
+
+        // Vérifier si une nouvelle version est disponible
+        async function checkForNewVersion() {
+            const storedVersion = localStorage.getItem('leopardo_last_version');
+            if (storedVersion && storedVersion !== currentVersion) {
+                Object.values(latestVersionEls).forEach(el => el.textContent = storedVersion);
+                updateInfoEl.style.display = 'flex';
+            }
+            
+            // Vérifier aussi sur GitHub pour les mises à jour futures
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases`);
+                if (response.ok) {
+                    const releases = await response.json();
+                    if (releases.length > 0 && releases[0].tag_name.replace(/^v/, '') !== currentVersion) {
+                        database.ref('releases/latest').set({
+                            version: releases[0].tag_name.replace(/^v/, ''),
+                            timestamp: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking for updates:", error);
+            }
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            // Compteur de téléchargements
+            database.ref('downloads/count').on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                animateCounter(downloadCountEl, count);
+            });
+            
+            // Utilisateurs actifs
+            database.ref('stats/active_users').on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                animateCounter(activeUsersEl, count);
+            });
+            
+            // Pays
+            database.ref('stats/countries').on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                animateCounter(countriesEl, count);
+            });
+        }
+
+        // Animation du compteur
+        function animateCounter(element, target) {
+            const current = parseInt(element.textContent.replace(/,/g, '')) || 0;
+            const increment = target > current ? 1 : -1;
+            let currentValue = current;
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                element.textContent = currentValue.toLocaleString();
+                
+                if ((increment === 1 && currentValue >= target) || 
+                    (increment === -1 && currentValue <= target)) {
+                    clearInterval(timer);
+                    element.textContent = target.toLocaleString();
+                }
+            }, 20);
+        }
+
+        // Simuler le téléchargement avec une barre de progression
+        function simulateDownload(platform) {
+            const progressBar = progressBars[platform];
+            const speedEl = speedEls[platform];
+            const completeEl = completeEls[platform];
+            const progressContainer = progressContainers[platform];
+            
+            let progress = 0;
+            let speed = Math.random() * 2 + 1; // MB/s aléatoire entre 1 et 3
+            
+            progressContainer.style.display = 'block';
+            speedEl.style.display = 'block';
+            completeEl.style.display = 'none';
+            
+            const downloadInterval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress > 100) progress = 100;
+                
+                progressBar.style.width = `${progress}%`;
+                speedEl.textContent = `${speed.toFixed(1)} MB/s`;
+                
+                if (progress === 100) {
+                    clearInterval(downloadInterval);
+                    speedEl.style.display = 'none';
+                    completeEl.style.display = 'block';
+                    
+                    if (localStorage.getItem('leopardo_lang') === 'fr') {
+                        completeEl.textContent = 'Téléchargement terminé !';
+                    } else if (localStorage.getItem('leopardo_lang') === 'en') {
+                        completeEl.textContent = 'Download complete!';
+                    } else if (localStorage.getItem('leopardo_lang') === 'ar') {
+                        completeEl.textContent = 'اكتمل التنزيل!';
+                    } else {
+                        completeEl.textContent = 'Download completo!';
+                    }
+                    
+                    // Réinitialiser après 5 secondes
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        completeEl.style.display = 'none';
+                        progressBar.style.width = '0%';
+                    }, 5000);
+                }
+            }, 200);
+        }
+
+        // Enregistrer un téléchargement
+        function registerDownload(e) {
+            e.preventDefault();
+            const platform = document.querySelector('.platform-tab.active').getAttribute('data-platform');
+            const language = localStorage.getItem('leopardo_lang') || 'fr';
+            
+            // Empêcher le téléchargement si désactivé
+            if ((platform === 'windows' && !downloadUrls.windows) ||
+                (platform === 'macos' && !downloadUrls.macos) ||
+                (platform === 'ubuntu' && !downloadUrls.ubuntu)) {
+                return;
+            }
+            
+            // Simuler le téléchargement
+            simulateDownload(platform);
+            
+            // Détecter le pays
+            const country = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/')[0] || 'unknown';
+
+            const downloadData = {
+                version: currentVersion,
+                platform,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                userAgent: navigator.userAgent,
+                referrer: document.referrer || 'direct',
+                language,
+                country
+            };
+
+            // Envoyer les données
+            database.ref('downloads').push(downloadData);
+            
+            // Incrémenter le compteur
+            database.ref('downloads/count').transaction((count) => {
+                return (count || 0) + 1;
+            });
+            
+            // Mettre à jour les statistiques pays
+            database.ref(`countries/${country}`).transaction((count) => {
+                return (count || 0) + 1;
+            });
+            
+            // Mettre à jour le nombre total de pays uniques
+            database.ref('countries').once('value').then((snapshot) => {
+                const countriesCount = snapshot.numChildren();
+                database.ref('stats/countries').set(countriesCount);
+            });
+            
+            // Stocker la version installée
+            localStorage.setItem('leopardo_last_version', currentVersion);
+            updateInfoEl.style.display = 'none';
+            
+            // Envoyer l'événement d'analyse
+            analytics.logEvent('download', { 
+                platform,
+                version: currentVersion,
+                language,
+                country
+            });
+            
+            // Rediriger vers le téléchargement après un court délai
+            setTimeout(() => {
+                window.location.href = downloadUrls[platform];
+            }, 1500);
+        }
+
+        // Gestion du slider de témoignages
+        function goToSlide(index) {
+            currentSlide = index;
+            testimonialSlider.scrollTo({
+                left: testimonialSlider.clientWidth * index,
+                behavior: 'smooth'
+            });
+            
+            // Mettre à jour les points de navigation
+            sliderDots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+        
+        function startSlider() {
+            slideInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % sliderDots.length;
+                goToSlide(currentSlide);
+            }, 5000);
+        }
+        
+        function stopSlider() {
+            clearInterval(slideInterval);
+        }
+
+        // Partager sur les réseaux sociaux
+        function setupSocialSharing() {
+            const shareUrl = encodeURIComponent(window.location.href);
+            const shareText = encodeURIComponent("Découvrez Leopardo AI - La plateforme révolutionnaire de marketing intelligent");
+            
+            document.getElementById('share-twitter').href = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareText}`;
+            document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+            document.getElementById('share-linkedin').href = `https://www.linkedin.com/shareArticle?mini=true&url=${shareUrl}&title=${shareText}`;
+            document.getElementById('share-whatsapp').href = `https://wa.me/?text=${shareText}%20${shareUrl}`;
+        }
+
+        // Afficher les notes de version
+        function showReleaseNotes() {
+            releaseNotesContent.textContent = releaseNotes;
+            Object.values(modalVersionEls).forEach(el => el.textContent = currentVersion);
+            releaseNotesModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Envoyer l'événement d'analyse
+            analytics.logEvent('view_release_notes', { version: currentVersion });
+        }
+
+        // Fermer la modal
+        function closeModal() {
+            releaseNotesModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Initialisation
+        async function init() {
+            // Configurer les écouteurs d'événements
+            platformTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    setActivePlatform(tab.getAttribute('data-platform'));
+                });
+            });
+            
+            Object.entries(langButtons).forEach(([lang, btn]) => {
+                btn.addEventListener('click', () => setLanguage(lang));
+            });
+            
+            windowsDownloadBtn.addEventListener('click', registerDownload);
+            macosDownloadBtn.addEventListener('click', registerDownload);
+            ubuntuDownloadBtn.addEventListener('click', registerDownload);
+            
+            // Gérer plusieurs boutons de notes de version (un par langue)
+            document.querySelectorAll('#release-notes-btn').forEach(btn => {
+                btn.addEventListener('click', showReleaseNotes);
+            });
+            
+            closeModalBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', (e) => {
+                if (e.target === releaseNotesModal) closeModal();
+            });
+            
+            // Configurer le slider de témoignages
+            testimonialSlider.addEventListener('mouseenter', stopSlider);
+            testimonialSlider.addEventListener('mouseleave', startSlider);
+            
+            sliderDots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    goToSlide(parseInt(dot.getAttribute('data-index')));
+                });
+            });
+            
+            startSlider();
+            
+            // Configurer le partage social
+            setupSocialSharing();
+            
+            // Vérifier la langue préférée
+            const userLang = localStorage.getItem('leopardo_lang') || 
+                           (navigator.language.startsWith('fr') ? 'fr' :
+                           navigator.language.startsWith('ar') ? 'ar' :
+                           navigator.language.startsWith('pt') ? 'pt' : 'en');
+            setLanguage(userLang);
+            
+            // Charger les données
+            updateStats();
+            
+            // Simuler des utilisateurs actifs (à remplacer par des données réelles)
+            database.ref('stats/active_users').set(Math.floor(Math.random() * 5000) + 1000);
+            
+            const release = await fetchLatestRelease();
+            if (release) {
+                updateUIWithRelease(release);
+                
+                // Stocker la dernière version dans Firebase pour référence
+                database.ref('releases/latest').set({
+                    version: release.version,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    windows: !!release.downloadUrls.windows,
+                    macos: !!release.downloadUrls.macos,
+                    ubuntu: !!release.downloadUrls.ubuntu,
+                    notes: release.notes
+                });
+            } else {
+                // Fallback si GitHub échoue
+                currentVersion = "1.2.3";
+                downloadUrls = {
+                    windows: "https://github.com/kitokoh/leopardo/releases/download/v1.2.3/Leopardo-ai.exe",
+                    macos: "https://github.com/kitokoh/leopardo/releases/download/v1.2.3/Leopardo-ai.dmg",
+                    ubuntu: "https://github.com/kitokoh/leopardo/releases/download/v1.2.3/Leopardo-ai.deb"
+                };
+                fileSizes = {
+                    windows: "45.2 MB",
+                    macos: "52.7 MB",
+                    ubuntu: "48.5 MB"
+                };
+                releaseNotes = "Version initiale de Leopardo AI avec toutes les fonctionnalités de base.";
+                updateUIWithRelease({version: currentVersion, downloadUrls, fileSizes, notes: releaseNotes});
+            }
+            
+            // Envoyer l'événement d'analyse de page vue
+            analytics.logEvent('page_view', {
+                page_title: 'Download Page',
+                page_location: window.location.href,
+                user_language: localStorage.getItem('leopardo_lang') || navigator.language
+            });
+        }
+
+        // Démarrer l'application
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
