@@ -21,19 +21,17 @@ jobs:
 
       - name: ⬇️ Download PS2EXE
         run: |
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/Module/ps2exe.ps1" -OutFile "ps2exe.ps1"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/ps2exe.ps1" -OutFile "ps2exe.ps1"
         shell: pwsh
 
       - name: ⚙️ Convert PS1 to EXE
         run: |
-          . .\ps2exe.ps1  # Charger le script dans la session actuelle
-
           $ps1Files = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.ps1
 
           foreach ($ps1File in $ps1Files) {
             $exePath = "lesclesnova360/icons/exes/$($ps1File.BaseName).exe"
 
-            Invoke-ps2exe -inputFile $ps1File.FullName -outputFile $exePath -noConsole -noOutput
+            powershell -ExecutionPolicy Bypass -File .\ps2exe.ps1 -inputFile "$($ps1File.FullName)" -outputFile "$exePath" -noConsole -noOutput
 
             if (Test-Path $exePath) {
               Write-Host "✅ Created: $exePath"
