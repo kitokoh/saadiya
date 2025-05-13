@@ -17,64 +17,80 @@ jobs:
 
     - name: Setup environment
       run: |
+        # Crée les répertoires nécessaires
         New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
+        
+        # Vérifie la présence de l'icône
         if (-not (Test-Path "resources/leopardoLogo.png")) {
-          Write-Error "Icon file missing: resources/leopardoLogo.png"
+          Write-Error "Le fichier d'icône est introuvable: resources/leopardoLogo.png"
           exit 1
         }
 
-    - name: Install required modules
+    - name: Download Bat to Exe Converter (version portable)
       run: |
-        Install-Module -Name ps2exe -Force -AllowClobber -Scope CurrentUser
-        Install-Module -Name BatToPowershell -Force -AllowClobber -Scope CurrentUser
+        # Télécharge depuis le site officiel
+        $url = "https://www.f2ko.de/downloads/B2E_Portable.zip"
+        $output = "B2E_Portable.zip"
+        
+        try {
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Expand-Archive -Path $output -DestinationPath "BatToExeConverter"
+          Remove-Item $output
+        } catch {
+          Write-Error "Échec du téléchargement de BatToExe Converter"
+          Write-Error $_
+          exit 1
+        }
 
-    - name: Convert BAT to PS1 then to EXE
+    - name: Convert all BAT files
       run: |
         $iconPath = (Resolve-Path "resources/leopardoLogo.png").Path
         
         Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat | ForEach-Object {
           $batPath = $_.FullName
-          $ps1Path = "$($_.DirectoryName)/$($_.BaseName).ps1"
           $exePath = "lesclesnova360/icons/exes/$($_.BaseName).exe"
           
-          # Convert BAT to PS1
-          Write-Host "Converting $($_.Name) to PowerShell script..."
-          Convert-BatToPs1 -BatFile $batPath -Ps1File $ps1Path
+          Write-Host "Conversion de $($_.Name) en $exePath"
           
-          # Compile PS1 to EXE
-          Write-Host "Compiling to $exePath"
-          Invoke-PS2EXE -inputFile $ps1Path `
-                       -outputFile $exePath `
-                       -iconFile $iconPath `
-                       -noConsole `
-                       -noOutput `
-                       -x86 `
-                       -x64 `
-                       -title "$($_.BaseName)" `
-                       -company "LesClesNova360" `
-                       -copyright "© LesClesNova360" `
-                       -version "1.0.0"
-            
+          # Paramètres de compilation optimisés
+          $arguments = @(
+            "`"$batPath`"",
+            "`"$exePath`"",
+            "/bat",                # Source est un fichier BAT
+            "/icon `"$iconPath`"",  # Icône personnalisée
+            "/compress",           # Compression pour réduire la taille
+            "/merge",             # Fusionne tout en un seul EXE
+            "/invisible",         # Exécution invisible
+            "/noconsole",         # Pas de fenêtre console
+            "/overwrite",         # Écrase si le fichier existe
+            "/uac",              # Demande les droits admin si besoin
+            "/fileversion 1.0.0",
+            "/productname `"$($_.BaseName)`"",
+            "/company `"LesClesNova360`"",
+            "/description `"Script automatisé`""
+          ) -join " "
+          
+          # Exécute le compilateur
+          & "BatToExeConverter\BatToExeConverter.exe" $arguments
+          
+          # Vérification du résultat
           if (-not (Test-Path $exePath)) {
-            Write-Error "Failed to create $exePath"
+            Write-Error "Échec de la création de $exePath"
             exit 1
           }
           
-          # Cleanup temporary PS1 file
-          Remove-Item $ps1Path -Force
-          
-          Write-Host "Successfully created $exePath"
+          Write-Host "Fichier EXE créé avec succès: $exePath"
         }
 
     - name: Verify EXE files
       run: |
         $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
         if ($exes.Count -eq 0) {
-          Write-Error "No EXE files were created!"
+          Write-Error "Aucun fichier EXE n'a été créé!"
           exit 1
         }
-        Write-Host "Created $($exes.Count) EXE files:"
-        $exes | ForEach-Object { Write-Host " - $($_.Name)" }
+        Write-Host "$($exes.Count) fichiers EXE créés avec succès:"
+        $exes | ForEach-Object { Write-Host "- $($_.Name)" }
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
