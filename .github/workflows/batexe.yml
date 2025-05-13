@@ -1,9 +1,6 @@
 name: BAT to EXE Converter
 
 on:
-  push:
-    branches: [main]
-    paths: ['lesclesnova360/icons/batofexe/*.bat']
   workflow_dispatch:
 
 jobs:
