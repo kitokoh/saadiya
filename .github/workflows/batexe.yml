@@ -21,7 +21,7 @@ jobs:
 
       - name: Download PS2EXE
         run: |
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/source/ps2exe.ps1" -OutFile "ps2exe.ps1"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/Module/ps2exe.ps1" -OutFile "ps2exe.ps1"
         shell: pwsh
 
       - name: Convert BAT to EXE
