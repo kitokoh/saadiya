@@ -1,86 +1,67 @@
-::[Bat To Exe Converter]
-::
-::YAwzoRdxOk+EWAjk
-::fBw5plQjdCyDJGyX8VAjFDpQQQ2MNXiuFLQI5/rH/OuGpkQEVd4zfZz41rGdDu8F6xayJaok1XVUi/cFDxRWcRSudgoIr29Bs2aKOMzRugzuRAWZ6Ex9TDIkylTZgi80d8Amk8AMsw==
-::YAwzuBVtJxjWCl3EqQJgSA==
-::ZR4luwNxJguZRRnk
-::Yhs/ulQjdF+5
-::cxAkpRVqdFKZSDk=
-::cBs/ulQjdF+5
-::ZR41oxFsdFKZSDk=
-::eBoioBt6dFKZSDk=
-::cRo6pxp7LAbNWATEpCI=
-::egkzugNsPRvcWATEpCI=
-::dAsiuh18IRvcCxnZtBJQ
-::cRYluBh/LU+EWAnk
-::YxY4rhs+aU+JeA==
-::cxY6rQJ7JhzQF1fEqQJQ
-::ZQ05rAF9IBncCkqN+0xwdVs0
-::ZQ05rAF9IAHYFVzEqQJQ
-::eg0/rx1wNQPfEVWB+kM9LVsJDGQ=
-::fBEirQZwNQPfEVWB+kM9LVsJDGQ=
-::cRolqwZ3JBvQF1fEqQJQ
-::dhA7uBVwLU+EWDk=
-::YQ03rBFzNR3SWATElA==
-::dhAmsQZ3MwfNWATElA==
-::ZQ0/vhVqMQ3MEVWAtB9wSA==
-::Zg8zqx1/OA3MEVWAtB9wSA==
-::dhA7pRFwIByZRRnk
-::Zh4grVQjdCyDJGyX8VAjFDpQQQ2MNXiuFLQI5/rH/OuGpkQEVd4zfZz41rGdDu8F6xayJaok1XVUi/cFDxRWcRSudgoIr2x9pGuHONPL/Qr5Tyg=
-::YB416Ek+ZG8=
-::
-::
-::978f952a14a936cc963da21a135fa983
-@ECHO OFF
-chcp 65001 > nul
+# Forcer l'encodage en UTF-8 pour l'affichage
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new()
 
-:: Définir les couleurs : texte blanc sur fond bleu
-COLOR 1F
+# Définir les couleurs de la console : texte blanc sur fond bleu (équivalent à COLOR 1F)
+$host.UI.RawUI.BackgroundColor = "DarkBlue"
+$host.UI.RawUI.ForegroundColor = "White"
+Clear-Host
 
-:: Définir le titre de la fenêtre CMD et réduire sa taille
-TITLE AI FB ROBOT PRO - Robot 7
-MODE con: cols=60 lines=15
+# Définir le titre de la fenêtre
+$host.UI.RawUI.WindowTitle = "AI FB ROBOT PRO - Robot 7"
 
-:: Effacer l'écran
-CLS
+# Redimensionner la console (équivalent à MODE con)
+$size = $host.UI.RawUI.WindowSize
+$size.Width = 60
+$size.Height = 15
+$host.UI.RawUI.WindowSize = $size
+$host.UI.RawUI.BufferSize = $size
 
-:: Afficher la bannière
-ECHO ==============================================================================
-ECHO                              AI FB ROBOT PRO                                  
-ECHO ==============================================================================
-ECHO                  Démarrage de Robot 7 en cours...                    
-ECHO ==============================================================================
-ECHO.
+# Bannière
+Write-Host "===============================================================================" 
+Write-Host "                             AI FB ROBOT PRO                                   "
+Write-Host "===============================================================================" 
+Write-Host "                 Démarrage de Robot 7 en cours...                              "
+Write-Host "===============================================================================" 
+Write-Host ""
 
-:: Vérifier si le répertoire de Robot 7 existe
-IF NOT EXIST "C:\bon\robot7" (
-    ECHO Le répertoire de Robot 7 est introuvable !
-    ECHO ==============================================================================
-    PAUSE
-    EXIT /B
-)
+# Vérifier l'existence du répertoire
+$robotPath = "C:\bon\robot7"
+if (-Not (Test-Path $robotPath)) {
+    Write-Host "Le répertoire de Robot 7 est introuvable !"
+    Write-Host "===============================================================================" 
+    Pause
+    exit
+}
 
-:: Activer l'environnement virtuel de Robot 7
-ECHO ==============================================================================
-ECHO Activation de l'environnement pour Robot 7...
-ECHO ==============================================================================
-cd /d C:\bon\robot7\env1\Scripts
-call activate
+# Activation de l'environnement virtuel
+Write-Host "===============================================================================" 
+Write-Host "Activation de l'environnement pour Robot 7..."
+Write-Host "===============================================================================" 
+$envPath = "C:\bon\robot7\env1\Scripts\Activate.ps1"
+if (Test-Path $envPath) {
+    & $envPath
+} elseif (Test-Path "C:\bon\robot7\env1\Scripts\activate.bat") {
+    cmd /c "C:\bon\robot7\env1\Scripts\activate.bat"
+} else {
+    Write-Host "[ERREUR] Environnement virtuel introuvable."
+    Pause
+    exit
+}
 
-:: Naviguer vers le répertoire de Robot 7
-ECHO ==============================================================================
-ECHO Navigation vers le répertoire de Robot 7...
-ECHO ==============================================================================
-cd /d C:\bon\robot7
+# Navigation vers le dossier du robot
+Write-Host "===============================================================================" 
+Write-Host "Navigation vers le répertoire de Robot 7..."
+Write-Host "===============================================================================" 
+Set-Location "C:\bon\robot7"
 
-:: Exécuter le script Python de Robot 7
-ECHO ==============================================================================
-ECHO Exécution du script de Robot 7...
-ECHO ==============================================================================
+# Exécuter le script Python
+Write-Host "===============================================================================" 
+Write-Host "Exécution du script de Robot 7..."
+Write-Host "===============================================================================" 
 python __post_in_groups__.py
 
-:: Afficher un message de fin
-ECHO ==============================================================================
-ECHO Le processus de Robot 7 est terminé.
-ECHO ==============================================================================
-PAUSE
+# Fin
+Write-Host "===============================================================================" 
+Write-Host "Le processus de Robot 7 est terminé."
+Write-Host "===============================================================================" 
+Pause
