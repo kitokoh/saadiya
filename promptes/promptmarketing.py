@@ -391,7 +391,7 @@ class MarketingAIAnalyzer(QMainWindow):
         center_layout.setSpacing(0)
         
         # Header
-        header = QLabel("AI Marketing Assistant")
+        header = QLabel("Hi, I am Leopardo Assistant")
         header.setObjectName("mainHeader")
         
         subheader = QLabel("Describe your marketing need to get customized solutions")
