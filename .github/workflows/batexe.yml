@@ -20,7 +20,7 @@ jobs:
 
     - name: Install PS2EXE
       run: |
-        # Téléchargement de ps2exe.ps1
+        # Download ps2exe.ps1
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/ps2exe.ps1" -OutFile "ps2exe.ps1"
 
     - name: Convert BAT to EXE
@@ -30,14 +30,15 @@ jobs:
         foreach ($batFile in $batFiles) {
           $ps1Path = "$($batFile.DirectoryName)/$($batFile.BaseName).ps1"
           $exePath = "lesclesnova360/icons/exes/$($batFile.BaseName).exe"
+          $batContent = Get-Content -Path $batFile.FullName -Raw
           
-          # Conversion BAT vers PS1
+          # Create PS1 file
           @"
-# Converti depuis $($batFile.Name)
-`$batContent = @'
-$(Get-Content -Path $batFile.FullName -Raw)
+# Converted from $($batFile.Name)
+`$batScript = @'
+$batContent
 '@
-`$lines = `$batContent -split "`r`n"
+`$lines = `$batScript -split "`r`n"
 foreach (`$line in `$lines) {
     if (`$line -match "^::") { continue }
     if (`$line -match "^@") { continue }
@@ -46,28 +47,28 @@ foreach (`$line in `$lines) {
 }
 "@ | Out-File -FilePath $ps1Path -Encoding utf8
 
-          # Compilation PS1 vers EXE
+          # Compile to EXE
           .\ps2exe.ps1 -inputFile $ps1Path -outputFile $exePath -noConsole -noOutput
           
-          # Nettoyage
+          # Cleanup
           Remove-Item $ps1Path -Force
           
           if (Test-Path $exePath) {
-            Write-Host "Fichier EXE créé : $exePath"
+            Write-Host "Successfully created $exePath"
           } else {
-            Write-Error "Échec de la création de $exePath"
+            Write-Error "Failed to create $exePath"
             exit 1
           }
         }
 
-    - name: Verify EXE files
+    - name: Verify results
       run: |
-        $exeFiles = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
-        if ($exeFiles.Count -eq 0) {
-          Write-Error "Aucun fichier EXE créé !"
+        $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
+        if ($exes.Count -eq 0) {
+          Write-Error "No EXE files were created!"
           exit 1
         }
-        Write-Host "$($exeFiles.Count) fichiers EXE créés avec succès"
+        Write-Host "Successfully created $($exes.Count) EXE files"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
