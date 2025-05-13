@@ -23,39 +23,45 @@ jobs:
           exit 1
         }
 
-    - name: Download BatToExe Converter
+    - name: Install required modules
       run: |
-        $url = "https://www.f2ko.de/downloads/B2E_Portable.zip"
-        $output = "B2E_Portable.zip"
-        Invoke-WebRequest -Uri $url -OutFile $output
-        Expand-Archive -Path $output -DestinationPath "BatToExeConverter"
-        Remove-Item $output
+        Install-Module -Name ps2exe -Force -AllowClobber -Scope CurrentUser
+        Install-Module -Name BatToPowershell -Force -AllowClobber -Scope CurrentUser
 
-    - name: Convert all BAT files
+    - name: Convert BAT to PS1 then to EXE
       run: |
         $iconPath = (Resolve-Path "resources/leopardoLogo.png").Path
         
         Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat | ForEach-Object {
+          $batPath = $_.FullName
+          $ps1Path = "$($_.DirectoryName)/$($_.BaseName).ps1"
           $exePath = "lesclesnova360/icons/exes/$($_.BaseName).exe"
           
-          Write-Host "Converting $($_.Name) to $exePath"
+          # Convert BAT to PS1
+          Write-Host "Converting $($_.Name) to PowerShell script..."
+          Convert-BatToPs1 -BatFile $batPath -Ps1File $ps1Path
           
-          & "BatToExeConverter/BatToExeConverter.exe" $_.FullName $exePath `
-            /bat `
-            /icon "$iconPath" `
-            /compress `
-            /merge `
-            /invisible `
-            /noconsole `
-            /overwrite `
-            /fileversion "1.0.0" `
-            /productname "$($_.BaseName)" `
-            /company "LesClesNova360"
+          # Compile PS1 to EXE
+          Write-Host "Compiling to $exePath"
+          Invoke-PS2EXE -inputFile $ps1Path `
+                       -outputFile $exePath `
+                       -iconFile $iconPath `
+                       -noConsole `
+                       -noOutput `
+                       -x86 `
+                       -x64 `
+                       -title "$($_.BaseName)" `
+                       -company "LesClesNova360" `
+                       -copyright "© LesClesNova360" `
+                       -version "1.0.0"
             
           if (-not (Test-Path $exePath)) {
             Write-Error "Failed to create $exePath"
             exit 1
           }
+          
+          # Cleanup temporary PS1 file
+          Remove-Item $ps1Path -Force
           
           Write-Host "Successfully created $exePath"
         }
