@@ -2143,8 +2143,8 @@ class Browser(QMainWindow):
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("Marketing tools"), []),
                 ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
                 # ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
-                ("🪙", self.tr("Crypto Mining"), "Management", self.open_management, self.tr("Management tools"), []),
-                ("🪙", self.tr("Tading"), "Management", self.open_management, self.tr("Management tools"), []),
+                # ("🪙", self.tr("Crypto Mining"), "Management", self.open_management, self.tr("Management tools"), []),
+                # ("🪙", self.tr("Tading"), "Management", self.open_management, self.tr("Management tools"), []),
 
             ]),
             
@@ -2595,7 +2595,7 @@ class Browser(QMainWindow):
         self.notification_menu.addAction(notif_header)
         self.notification_menu.addSeparator()
 
-        self.add_sample_notification("Nouveau message", "Vous avez reçu un nouveau message de l'équipe", "5 min")
+        self.add_sample_notification("Nouveau message", "Visite https://leopardo-ai.web.app/ ", "5 min")
         self.notification_button.setMenu(self.notification_menu)
         self.notification_button.setPopupMode(QToolButton.InstantPopup)
 

@@ -4,3 +4,7 @@ ici  je vais presenter et organiserser tout mon strategie afin d etre un pro de 
 
 metatrader5 
 username koubay pass pRjDWrki
+
+
+https://www.vernimmen.net/
+murphymorris.com 
