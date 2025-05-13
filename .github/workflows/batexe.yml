@@ -15,7 +15,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Create output directory
+    - name: Setup environment
       run: |
         New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
         if (-not (Test-Path "resources/leopardoLogo.png")) {
@@ -23,10 +23,13 @@ jobs:
           exit 1
         }
 
-    - name: Install PS2EXE module
+    - name: Download BatToExe Converter
       run: |
-        Install-Module -Name ps2exe -Force -AllowClobber -Scope CurrentUser
-        Import-Module ps2exe
+        $url = "https://www.f2ko.de/downloads/B2E_Portable.zip"
+        $output = "B2E_Portable.zip"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Expand-Archive -Path $output -DestinationPath "BatToExeConverter"
+        Remove-Item $output
 
     - name: Convert all BAT files
       run: |
@@ -37,18 +40,17 @@ jobs:
           
           Write-Host "Converting $($_.Name) to $exePath"
           
-          Invoke-PS2EXE -inputFile $_.FullName `
-                       -outputFile $exePath `
-                       -iconFile $iconPath `
-                       -noConsole `
-                       -noOutput `
-                       -x86 `
-                       -x64 `
-                       -title "$($_.BaseName)" `
-                       -company "LesClesNova360" `
-                       -product "$($_.BaseName)" `
-                       -copyright "© LesClesNova360" `
-                       -version "1.0.0"
+          & "BatToExeConverter/BatToExeConverter.exe" $_.FullName $exePath `
+            /bat `
+            /icon "$iconPath" `
+            /compress `
+            /merge `
+            /invisible `
+            /noconsole `
+            /overwrite `
+            /fileversion "1.0.0" `
+            /productname "$($_.BaseName)" `
+            /company "LesClesNova360"
             
           if (-not (Test-Path $exePath)) {
             Write-Error "Failed to create $exePath"
