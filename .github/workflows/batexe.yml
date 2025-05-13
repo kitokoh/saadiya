@@ -1,13 +1,13 @@
-name: BAT to EXE Converter
+name: PS1 to EXE Converter
 
 on:
   push:
     branches: [main]
-    paths: ['lesclesnova360/icons/batofexe/*.bat']
+    paths: ['lesclesnova360/icons/batofexe/*.ps1']
   workflow_dispatch:
 
 jobs:
-  convert:
+  compile:
     runs-on: windows-latest
     timeout-minutes: 10
 
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create output directory
+      - name: Create output directory for EXEs
         run: New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
         shell: pwsh
 
@@ -24,45 +24,35 @@ jobs:
           Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/Module/ps2exe.ps1" -OutFile "ps2exe.ps1"
         shell: pwsh
 
-      - name: Convert BAT to EXE
+      - name: Compile PS1 to EXE
         run: |
-          $batFiles = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat
+          $ps1Files = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.ps1
 
-          foreach ($batFile in $batFiles) {
-            $ps1Path = "$($batFile.DirectoryName)\$($batFile.BaseName).ps1"
-            $exePath = "lesclesnova360/icons/exes/$($batFile.BaseName).exe"
+          foreach ($ps1File in $ps1Files) {
+            $exePath = "lesclesnova360/icons/exes/$($ps1File.BaseName).exe"
 
-            # Convert BAT to PS1
-            $lines = Get-Content $batFile.FullName
-            $converted = $lines | ForEach-Object { "Start-Process cmd -ArgumentList '/c $_'" }
-            $converted | Out-File -FilePath $ps1Path -Encoding utf8
-
-            # Compile to EXE
-            powershell -ExecutionPolicy Bypass -File .\ps2exe.ps1 -inputFile $ps1Path -outputFile $exePath -noConsole -noOutput
-
-            # Cleanup
-            Remove-Item $ps1Path -Force
+            powershell -ExecutionPolicy Bypass -File .\ps2exe.ps1 -inputFile $ps1File.FullName -outputFile $exePath -noConsole -noOutput
 
             if (Test-Path $exePath) {
-              Write-Host "Successfully created $exePath"
+              Write-Host "✅ Successfully created $exePath"
             } else {
-              Write-Error "Failed to create $exePath"
+              Write-Error "❌ Failed to create $exePath"
               exit 1
             }
           }
         shell: pwsh
 
-      - name: Verify results
+      - name: Verify EXE results
         run: |
           $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
           if ($exes.Count -eq 0) {
-            Write-Error "No EXE files were created!"
+            Write-Error "❌ No EXE files were created!"
             exit 1
           }
-          Write-Host "Successfully created $($exes.Count) EXE files"
+          Write-Host "✅ Successfully created $($exes.Count) EXE files"
         shell: pwsh
 
-      - name: Upload artifacts
+      - name: Upload EXE artifacts
         uses: actions/upload-artifact@v4
         with:
           name: compiled-exes
