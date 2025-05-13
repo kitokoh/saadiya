@@ -28,12 +28,13 @@ jobs:
         Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat | ForEach-Object {
           $ps1Path = "$($_.DirectoryName)/$($_.BaseName).ps1"
           $exePath = "lesclesnova360/icons/exes/$($_.BaseName).exe"
+          $batContent = Get-Content -Path $_.FullName -Raw
           
           # Convert BAT to PS1
           @"
 # Converted from $($_.Name)
 `$batScript = @'
-$(Get-Content -Path $_.FullName -Raw)
+$batContent
 '@
 `$lines = `$batScript -split "`r`n"
 foreach (`$line in `$lines) {
