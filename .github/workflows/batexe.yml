@@ -17,80 +17,93 @@ jobs:
 
     - name: Setup environment
       run: |
-        # Crée les répertoires nécessaires
         New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
-        
-        # Vérifie la présence de l'icône
         if (-not (Test-Path "resources/leopardoLogo.png")) {
-          Write-Error "Le fichier d'icône est introuvable: resources/leopardoLogo.png"
+          Write-Error "Icon file missing: resources/leopardoLogo.png"
           exit 1
         }
 
-    - name: Download Bat to Exe Converter (version portable)
+    - name: Install PS2EXE (méthode alternative sans module)
       run: |
-        # Télécharge depuis le site officiel
-        $url = "https://www.f2ko.de/downloads/B2E_Portable.zip"
-        $output = "B2E_Portable.zip"
-        
-        try {
-          Invoke-WebRequest -Uri $url -OutFile $output
-          Expand-Archive -Path $output -DestinationPath "BatToExeConverter"
-          Remove-Item $output
-        } catch {
-          Write-Error "Échec du téléchargement de BatToExe Converter"
-          Write-Error $_
-          exit 1
-        }
+        # Télécharge directement le script PS2EXE.ps1
+        $url = "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/ps2exe.ps1"
+        $output = "ps2exe.ps1"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        # Crée un wrapper pour l'utiliser comme module
+        New-Item -ItemType Directory -Path "ps2exe-module"
+        @'
+function Invoke-PS2EXE {
+    param(
+        [string]$inputFile,
+        [string]$outputFile,
+        [string]$iconFile,
+        [switch]$noConsole,
+        [switch]$noOutput,
+        [switch]$x86,
+        [switch]$x64
+    )
+    & "$PSScriptRoot\..\ps2exe.ps1" @PSBoundParameters
+}
+'@ | Out-File -FilePath "ps2exe-module\ps2exe.psm1" -Encoding utf8
 
-    - name: Convert all BAT files
+    - name: Convert BAT to EXE
       run: |
         $iconPath = (Resolve-Path "resources/leopardoLogo.png").Path
         
         Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat | ForEach-Object {
-          $batPath = $_.FullName
+          $batContent = Get-Content -Path $_.FullName -Raw
+          $ps1Path = "$($_.DirectoryName)/$($_.BaseName).ps1"
           $exePath = "lesclesnova360/icons/exes/$($_.BaseName).exe"
           
-          Write-Host "Conversion de $($_.Name) en $exePath"
+          # Convertit le BAT en PS1
+          @"
+# Converted from $($_.Name)
+`$batScript = @'
+$batContent
+'@
+`$lines = `$batScript -split "`r`n"
+foreach (`$line in `$lines) {
+    if (`$line -match "^::") { continue }
+    if (`$line -match "^@") { continue }
+    if (`$line -match "^ECHO OFF") { continue }
+    if (`$line -match "^SET ") { 
+        `$var = `$line.Substring(4).Split('=')[0].Trim()
+        `$value = `$line.Split('=',2)[1].Trim()
+        Set-Variable -Name `$var -Value `$value -Scope Script
+        continue
+    }
+    Invoke-Expression `$line
+}
+"@ | Out-File -FilePath $ps1Path -Encoding utf8
           
-          # Paramètres de compilation optimisés
-          $arguments = @(
-            "`"$batPath`"",
-            "`"$exePath`"",
-            "/bat",                # Source est un fichier BAT
-            "/icon `"$iconPath`"",  # Icône personnalisée
-            "/compress",           # Compression pour réduire la taille
-            "/merge",             # Fusionne tout en un seul EXE
-            "/invisible",         # Exécution invisible
-            "/noconsole",         # Pas de fenêtre console
-            "/overwrite",         # Écrase si le fichier existe
-            "/uac",              # Demande les droits admin si besoin
-            "/fileversion 1.0.0",
-            "/productname `"$($_.BaseName)`"",
-            "/company `"LesClesNova360`"",
-            "/description `"Script automatisé`""
-          ) -join " "
+          # Compile en EXE
+          Import-Module ./ps2exe-module
+          Invoke-PS2EXE -inputFile $ps1Path `
+                       -outputFile $exePath `
+                       -iconFile $iconPath `
+                       -noConsole `
+                       -noOutput `
+                       -x86 `
+                       -x64
           
-          # Exécute le compilateur
-          & "BatToExeConverter\BatToExeConverter.exe" $arguments
-          
-          # Vérification du résultat
+          # Vérification
           if (-not (Test-Path $exePath)) {
-            Write-Error "Échec de la création de $exePath"
+            Write-Error "Failed to create $exePath"
             exit 1
           }
           
-          Write-Host "Fichier EXE créé avec succès: $exePath"
+          # Nettoyage
+          Remove-Item $ps1Path -Force
         }
 
     - name: Verify EXE files
       run: |
         $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
         if ($exes.Count -eq 0) {
-          Write-Error "Aucun fichier EXE n'a été créé!"
+          Write-Error "No EXE files were created!"
           exit 1
         }
-        Write-Host "$($exes.Count) fichiers EXE créés avec succès:"
-        $exes | ForEach-Object { Write-Host "- $($_.Name)" }
+        Write-Host "Successfully created $($exes.Count) EXE files"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
