@@ -12,31 +12,31 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Create output directory
-      run: New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
+      - name: Create output directory
+        run: New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
+        shell: pwsh
 
-    - name: Install PS2EXE
-      run: |
-        # Download ps2exe.ps1
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/ps2exe.ps1" -OutFile "ps2exe.ps1"
+      - name: Install PS2EXE
+        run: |
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/ps2exe.ps1" -OutFile "ps2exe.ps1"
+        shell: pwsh
 
-    - name: Convert BAT to EXE
-      run: |
-        $batFiles = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat
-        
-        foreach ($batFile in $batFiles) {
-          $ps1Path = "$($batFile.DirectoryName)/$($batFile.BaseName).ps1"
-          $exePath = "lesclesnova360/icons/exes/$($batFile.BaseName).exe"
-          $batContent = Get-Content -Path $batFile.FullName -Raw
-          
-          # Create PS1 file
-          @"
-# Converted from $($batFile.Name)
+      - name: Convert BAT to EXE
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $batFiles = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.bat
+
+          foreach ($batFile in $batFiles) {
+            $exePath = "lesclesnova360/icons/exes/$($batFile.BaseName).exe"
+
+            # Create PS1 content as a temp file
+            $ps1Content = @"
 `$batScript = @'
-$batContent
+$(Get-Content -Path $batFile.FullName -Raw)
 '@
 `$lines = `$batScript -split "`r`n"
 foreach (`$line in `$lines) {
@@ -45,34 +45,38 @@ foreach (`$line in `$lines) {
     if (`$line -match "^ECHO OFF") { continue }
     Invoke-Expression `$line
 }
-"@ | Out-File -FilePath $ps1Path -Encoding utf8
+"@
 
-          # Compile to EXE
-          .\ps2exe.ps1 -inputFile $ps1Path -outputFile $exePath -noConsole -noOutput
-          
-          # Cleanup
-          Remove-Item $ps1Path -Force
-          
-          if (Test-Path $exePath) {
-            Write-Host "Successfully created $exePath"
-          } else {
-            Write-Error "Failed to create $exePath"
+            $ps1Path = "$($batFile.DirectoryName)/$($batFile.BaseName).ps1"
+            $ps1Content | Out-File -FilePath $ps1Path -Encoding UTF8
+
+            # Compile to EXE
+            powershell -ExecutionPolicy Bypass -File .\ps2exe.ps1 -inputFile $ps1Path -outputFile $exePath -noConsole -noOutput
+
+            # Cleanup
+            Remove-Item $ps1Path -Force
+
+            if (Test-Path $exePath) {
+              Write-Host "Successfully created $exePath"
+            } else {
+              Write-Error "Failed to create $exePath"
+              exit 1
+            }
+          }
+
+      - name: Verify results
+        shell: pwsh
+        run: |
+          $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
+          if ($exes.Count -eq 0) {
+            Write-Error "No EXE files were created!"
             exit 1
           }
-        }
+          Write-Host "Successfully created $($exes.Count) EXE files"
 
-    - name: Verify results
-      run: |
-        $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
-        if ($exes.Count -eq 0) {
-          Write-Error "No EXE files were created!"
-          exit 1
-        }
-        Write-Host "Successfully created $($exes.Count) EXE files"
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: compiled-exes
-        path: lesclesnova360/icons/exes/*.exe
-        retention-days: 3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-exes
+          path: lesclesnova360/icons/exes/*.exe
+          retention-days: 3
