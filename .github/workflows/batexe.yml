@@ -1,0 +1,60 @@
+name: PS1 to EXE Converter
+
+on:
+  push:
+    branches: [main]
+    paths: ['lesclesnova360/icons/batofexe/*.ps1']
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create output directory for EXEs
+        run: New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
+        shell: pwsh
+
+      - name: Download PS2EXE
+        run: |
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/Module/ps2exe.ps1" -OutFile "ps2exe.ps1"
+        shell: pwsh
+
+      - name: Compile PS1 to EXE
+        run: |
+          $ps1Files = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.ps1
+
+          foreach ($ps1File in $ps1Files) {
+            $exePath = "lesclesnova360/icons/exes/$($ps1File.BaseName).exe"
+
+            powershell -ExecutionPolicy Bypass -File .\ps2exe.ps1 -inputFile $ps1File.FullName -outputFile $exePath -noConsole -noOutput
+
+            if (Test-Path $exePath) {
+              Write-Host "✅ Successfully created $exePath"
+            } else {
+              Write-Error "❌ Failed to create $exePath"
+              exit 1
+            }
+          }
+        shell: pwsh
+
+      - name: Verify EXE results
+        run: |
+          $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
+          if ($exes.Count -eq 0) {
+            Write-Error "❌ No EXE files were created!"
+            exit 1
+          }
+          Write-Host "✅ Successfully created $($exes.Count) EXE files"
+        shell: pwsh
+
+      - name: Upload EXE artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-exes
+          path: lesclesnova360/icons/exes/*.exe
+          retention-days: 3
