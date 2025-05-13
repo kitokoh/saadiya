@@ -21,7 +21,7 @@ jobs:
 
       - name: Download PS2EXE
         run: |
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/ps2exe.ps1" -OutFile "ps2exe.ps1"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/MScholtes/PS2EXE/master/source/ps2exe.ps1" -OutFile "ps2exe.ps1"
         shell: pwsh
 
       - name: Convert BAT to EXE
@@ -32,7 +32,7 @@ jobs:
             $ps1Path = "$($batFile.DirectoryName)\$($batFile.BaseName).ps1"
             $exePath = "lesclesnova360/icons/exes/$($batFile.BaseName).exe"
 
-            # Convert BAT to PS1 line by line
+            # Convert BAT to PS1
             $lines = Get-Content $batFile.FullName
             $converted = $lines | ForEach-Object { "Start-Process cmd -ArgumentList '/c $_'" }
             $converted | Out-File -FilePath $ps1Path -Encoding utf8
