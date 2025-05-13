@@ -14,20 +14,51 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtCore import QObject
 
+class Constants:
+    """Classe pour stocker les constantes de l'application"""
+    PRIMARY_COLOR = "#4f46e5"
+    PRIMARY_HOVER = "#4338ca"
+    BACKGROUND_COLOR = "#f8fafc"
+    TEXT_COLOR = "#1e293b"
+    TEXT_SECONDARY = "#64748b"
+    SUCCESS_COLOR = "#10b981"
+    ERROR_COLOR = "#ef4444"
+    CARD_BG = "#f8fafc"
+    CARD_BORDER = "#e2e8f0"
+    WHATSAPP_GREEN = "#25D366"
+    
+    PLATFORM_ICONS = {
+        'whatsapp': '💬',
+        'instagram': '📸',
+        'facebook': '👍',
+        'linkedin': '💼',
+        'tiktok': '🎵',
+        'email': '✉️',
+        'twitter': '🐦',
+        'youtube': '▶️',
+        'analytics': '📊',
+        'seo': '🔍'
+    }
+
 class ActionHandler(QObject):
+    """Gestionnaire des actions JavaScript vers Python"""
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
     
     @pyqtSlot(str)
     def handleAction(self, action_data):
+        """Gère les actions envoyées depuis JavaScript"""
         try:
             data = json.loads(action_data)
             self.parent.execute_action(data)
+        except json.JSONDecodeError as e:
+            print(f"Erreur de décodage JSON: {e}")
         except Exception as e:
-            print(f"Error handling action: {e}")
+            print(f"Erreur lors du traitement de l'action: {e}")
 
 class AnalysisThread(QThread):
+    """Thread pour l'analyse asynchrone des prompts"""
     analysis_complete = pyqtSignal(str, list)
     error_occurred = pyqtSignal(str)
     progress_updated = pyqtSignal(int)
@@ -39,19 +70,20 @@ class AnalysisThread(QThread):
         self._is_running = True
 
     def run(self):
+        """Exécution principale du thread d'analyse"""
         conn = None
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             
-            # Progress simulation
+            # Simulation de progression
             for i in range(1, 101):
                 if not self._is_running:
                     return
                 time.sleep(0.02)
                 self.progress_updated.emit(i)
             
-            # Real analysis
+            # Analyse réelle
             prompt_lower = self.prompt_text.lower()
             detected = []
             
@@ -67,75 +99,83 @@ class AnalysisThread(QThread):
             analysis_text = self.generate_analysis_html(prompt_lower, detected)
             self.analysis_complete.emit(analysis_text, detected)
             
+        except sqlite3.Error as e:
+            self.error_occurred.emit(f"Erreur de base de données: {str(e)}")
         except Exception as e:
-            self.error_occurred.emit(f"Analysis error: {str(e)}")
+            self.error_occurred.emit(f"Erreur d'analyse: {str(e)}")
         finally:
             if conn:
                 conn.close()
 
+    def stop(self):
+        """Arrête proprement le thread"""
+        self._is_running = False
+        self.wait()
+
     def generate_analysis_html(self, prompt, detected):
-        html = """
+        """Génère le HTML pour afficher les résultats d'analyse"""
+        html = f"""
         <style>
-            :root {
-                --primary: #4f46e5;
-                --primary-hover: #4338ca;
+            :root {{
+                --primary: {Constants.PRIMARY_COLOR};
+                --primary-hover: {Constants.PRIMARY_HOVER};
                 --background: #ffffff;
-                --text: #1e293b;
-                --text-secondary: #64748b;
-                --card-bg: #f8fafc;
-                --card-border: #e2e8f0;
-                --success: #10b981;
-                --error: #ef4444;
-            }
+                --text: {Constants.TEXT_COLOR};
+                --text-secondary: {Constants.TEXT_SECONDARY};
+                --card-bg: {Constants.CARD_BG};
+                --card-border: {Constants.CARD_BORDER};
+                --success: {Constants.SUCCESS_COLOR};
+                --error: {Constants.ERROR_COLOR};
+            }}
             
-            body {
+            body {{
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                 background: var(--background);
                 color: var(--text);
                 line-height: 1.5;
                 padding: 0;
                 margin: 0;
-            }
+            }}
             
-            .container {
+            .container {{
                 max-width: 800px;
                 margin: 0 auto;
                 padding: 20px;
-            }
+            }}
             
-            .platform-section {
+            .platform-section {{
                 margin-bottom: 1.5rem;
                 background: var(--background);
                 border-radius: 12px;
                 border: 1px solid var(--card-border);
                 overflow: hidden;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            }
+            }}
             
-            .platform-header {
+            .platform-header {{
                 padding: 1rem 1.5rem;
                 background: var(--card-bg);
                 border-bottom: 1px solid var(--card-border);
                 display: flex;
                 align-items: center;
-            }
+            }}
             
-            .platform-icon {
+            .platform-icon {{
                 font-size: 1.5rem;
                 margin-right: 0.75rem;
-            }
+            }}
             
-            .platform-title {
+            .platform-title {{
                 font-size: 1.125rem;
                 font-weight: 600;
                 margin: 0;
-            }
+            }}
             
-            .options-container {
+            .options-container {{
                 padding: 1rem 1.5rem;
-            }
+            }}
             
-            .option-card {
+            .option-card {{
                 padding: 1rem;
                 margin-bottom: 0.75rem;
                 background: var(--card-bg);
@@ -143,26 +183,26 @@ class AnalysisThread(QThread):
                 border-radius: 8px;
                 transition: all 0.2s ease;
                 cursor: pointer;
-            }
+            }}
             
-            .option-card:hover {
+            .option-card:hover {{
                 transform: translateY(-2px);
                 box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
                 border-color: var(--primary);
-            }
+            }}
             
-            .option-title {
+            .option-title {{
                 font-weight: 600;
                 margin-bottom: 0.25rem;
-            }
+            }}
             
-            .option-desc {
+            .option-desc {{
                 color: var(--text-secondary);
                 font-size: 0.875rem;
                 margin-bottom: 0.75rem;
-            }
+            }}
             
-            .action-btn {
+            .action-btn {{
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -175,13 +215,13 @@ class AnalysisThread(QThread):
                 font-weight: 500;
                 cursor: pointer;
                 transition: background 0.2s;
-            }
+            }}
             
-            .action-btn:hover {
+            .action-btn:hover {{
                 background: var(--primary-hover);
-            }
+            }}
             
-            .keyword-tag {
+            .keyword-tag {{
                 display: inline-block;
                 background: #e0e7ff;
                 color: #4f46e5;
@@ -190,12 +230,12 @@ class AnalysisThread(QThread):
                 font-size: 0.75rem;
                 margin-right: 0.5rem;
                 margin-bottom: 0.5rem;
-            }
+            }}
         </style>
         
         <div class="container">
             <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">✨ Suggestions</h1>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Here's what I can do for you:</p>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Voici ce que je peux faire pour vous :</p>
         """
         
         if not detected:
@@ -203,12 +243,12 @@ class AnalysisThread(QThread):
             <div class="platform-section">
                 <div class="platform-header">
                     <div class="platform-icon">💡</div>
-                    <h2 class="platform-title">General Advice</h2>
+                    <h2 class="platform-title">Conseils généraux</h2>
                 </div>
                 <div class="options-container">
-                    <p style="margin-bottom: 1rem;">I didn't detect a specific request. Here are some suggestions:</p>
+                    <p style="margin-bottom: 1rem;">Je n'ai pas détecté de demande spécifique. Voici quelques suggestions :</p>
                     <button class="action-btn" onclick='pyHandler.handleAction(`{"type":"general_advice"}`)'>
-                        Show marketing tips
+                        Afficher des conseils marketing
                     </button>
                 </div>
             </div>
@@ -222,18 +262,7 @@ class AnalysisThread(QThread):
                 platforms[platform].append(item)
             
             for platform, items in platforms.items():
-                icon = {
-                    'whatsapp': '💬',
-                    'instagram': '📸',
-                    'facebook': '👍',
-                    'linkedin': '💼',
-                    'tiktok': '🎵',
-                    'email': '✉️',
-                    'twitter': '🐦',
-                    'youtube': '▶️',
-                    'analytics': '📊',
-                    'seo': '🔍'
-                }.get(platform, '📌')
+                icon = Constants.PLATFORM_ICONS.get(platform, '📌')
                 
                 html += f"""
                 <div class="platform-section">
@@ -252,9 +281,9 @@ class AnalysisThread(QThread):
                         "action": "{action_type}"
                     }}`)'>
                         <div class="option-title">{template}</div>
-                        <div class="option-desc">Based on your mention: <span class="keyword-tag">{keyword}</span></div>
+                        <div class="option-desc">Basé sur votre mention : <span class="keyword-tag">{keyword}</span></div>
                         <button class="action-btn">
-                            Execute this action
+                            Exécuter cette action
                         </button>
                     </div>
                     """
@@ -268,30 +297,32 @@ class AnalysisThread(QThread):
         return html
 
 class MarketingAIAnalyzer(QMainWindow):
+    """Fenêtre principale de l'application"""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Leopardo - AI Marketing Assistant")
+        self.setWindowTitle("Leopardo - Assistant Marketing IA")
         self.setMinimumSize(1000, 700)
         
         # Configuration
-        self.current_user = "User"
+        self.current_user = "Utilisateur"
         self.settings = {
             "dark_mode": False,
             "animations": True
         }
         
-        # Initialization
+        # Initialisation
         self.init_db()
         self.init_ui()
+        self.setup_connections()
         
     def init_db(self):
-        """Initialize database with complete dataset"""
+        """Initialise la base de données avec le jeu de données complet"""
         from imports import DB_PATH_prompt_command
         self.db_path = DB_PATH_prompt_command
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        # Create tables
+        # Création des tables
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS detection_rules (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -302,42 +333,42 @@ class MarketingAIAnalyzer(QMainWindow):
             )
         ''')
         
-        # Check for existing data
+        # Vérification des données existantes
         cursor.execute("SELECT COUNT(*) FROM detection_rules")
         if cursor.fetchone()[0] == 0:
-            # Insert complete dataset
+            # Insertion du jeu de données complet
             rules = [
                 # WhatsApp
-                ("whatsapp", "whatsapp", "Complete WhatsApp automation", "whatsapp_auto"),
-                ("whatsapp message", "whatsapp", "Send personal WhatsApp message", "whatsapp_personal"),
-                ("whatsapp group", "whatsapp", "Send message to WhatsApp group", "whatsapp_group"),
-                ("whatsapp campaign", "whatsapp", "Launch WhatsApp campaign", "whatsapp_campaign"),
-                ("automate whatsapp", "whatsapp", "Automate WhatsApp replies", "whatsapp_auto_reply"),
+                ("whatsapp", "whatsapp", "Automatisation WhatsApp complète", "whatsapp_auto"),
+                ("whatsapp message", "whatsapp", "Envoyer un message WhatsApp personnel", "whatsapp_personal"),
+                ("whatsapp group", "whatsapp", "Envoyer un message à un groupe WhatsApp", "whatsapp_group"),
+                ("whatsapp campaign", "whatsapp", "Lancer une campagne WhatsApp", "whatsapp_campaign"),
+                ("automate whatsapp", "whatsapp", "Automatiser les réponses WhatsApp", "whatsapp_auto_reply"),
                 
                 # Instagram
-                ("instagram", "instagram", "Create Instagram post", "instagram_post"),
-                ("instagram story", "instagram", "Create Instagram story", "instagram_story"),
-                ("instagram reels", "instagram", "Create Instagram Reel", "instagram_reel"),
-                ("instagram campaign", "instagram", "Launch Instagram ad campaign", "instagram_ads"),
-                ("instagram hashtag", "instagram", "Generate optimized hashtags", "instagram_hashtags"),
+                ("instagram", "instagram", "Créer une publication Instagram", "instagram_post"),
+                ("instagram story", "instagram", "Créer une story Instagram", "instagram_story"),
+                ("instagram reels", "instagram", "Créer un Reel Instagram", "instagram_reel"),
+                ("instagram campaign", "instagram", "Lancer une campagne publicitaire Instagram", "instagram_ads"),
+                ("instagram hashtag", "instagram", "Générer des hashtags optimisés", "instagram_hashtags"),
                 
                 # Facebook
-                ("facebook", "facebook", "Create Facebook post", "facebook_post"),
-                ("facebook ad", "facebook", "Launch Facebook ad", "facebook_ads"),
-                ("facebook page", "facebook", "Optimize your Facebook page", "facebook_page"),
+                ("facebook", "facebook", "Créer une publication Facebook", "facebook_post"),
+                ("facebook ad", "facebook", "Lancer une publicité Facebook", "facebook_ads"),
+                ("facebook page", "facebook", "Optimiser votre page Facebook", "facebook_page"),
                 
-                # Other platforms
-                ("linkedin", "linkedin", "Create LinkedIn post", "linkedin_post"),
-                ("tiktok", "tiktok", "Create TikTok video", "tiktok_video"),
-                ("youtube", "youtube", "Optimize YouTube video", "youtube_optimize"),
-                ("email", "email", "Create email campaign", "email_campaign"),
-                ("newsletter", "email", "Create newsletter", "email_newsletter"),
+                # Autres plateformes
+                ("linkedin", "linkedin", "Créer une publication LinkedIn", "linkedin_post"),
+                ("tiktok", "tiktok", "Créer une vidéo TikTok", "tiktok_video"),
+                ("youtube", "youtube", "Optimiser une vidéo YouTube", "youtube_optimize"),
+                ("email", "email", "Créer une campagne email", "email_campaign"),
+                ("newsletter", "email", "Créer une newsletter", "email_newsletter"),
                 
-                # General
-                ("strategy", "general", "Develop marketing strategy", "marketing_strategy"),
-                ("analysis", "analytics", "Analyze performance", "performance_analysis"),
-                ("seo", "seo", "SEO optimization", "seo_optimization"),
-                ("content", "content", "Plan content", "content_planning")
+                # Général
+                ("strategy", "general", "Développer une stratégie marketing", "marketing_strategy"),
+                ("analysis", "analytics", "Analyser les performances", "performance_analysis"),
+                ("seo", "seo", "Optimisation SEO", "seo_optimization"),
+                ("content", "content", "Planifier du contenu", "content_planning")
             ]
             
             cursor.executemany('''
@@ -349,7 +380,7 @@ class MarketingAIAnalyzer(QMainWindow):
         conn.close()
         
     def init_ui(self):
-        """Initialize user interface with modern design"""
+        """Initialise l'interface utilisateur avec un design moderne"""
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         
@@ -357,92 +388,89 @@ class MarketingAIAnalyzer(QMainWindow):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
         
-        # Content area
+        # Zone de contenu
         self.content_area = QWidget()
         self.content_area.setObjectName("contentArea")
         self.content_layout = QVBoxLayout(self.content_area)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Stack for different views
+        # Stack pour différentes vues
         self.stacked_widget = QStackedWidget()
         self.content_layout.addWidget(self.stacked_widget)
         
-        # Main view
+        # Vue principale
         self.setup_main_view()
         
         self.main_layout.addWidget(self.content_area)
         
-        # Apply global style
+        # Applique le style global
         self.update_styles()
         
     def setup_main_view(self):
-        """Configure main view with optimized UX"""
+        """Configure la vue principale avec une UX optimisée"""
         main_view = QWidget()
         main_view.setObjectName("mainView")
         layout = QVBoxLayout(main_view)
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(0)
         
-        # Center container
+        # Conteneur central
         center_container = QWidget()
         center_container.setMaximumWidth(800)
         center_layout = QVBoxLayout(center_container)
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(0)
         
-        # Header
-        header = QLabel("AI Marketing Assistant")
+        # En-tête
+        header = QLabel("Bonjour, je suis l'assistant Leopardo")
         header.setObjectName("mainHeader")
         
-        subheader = QLabel("Describe your marketing need to get customized solutions")
+        subheader = QLabel("Décrivez votre besoin marketing pour obtenir des solutions personnalisées")
         subheader.setObjectName("mainSubheader")
         
-        # Unified prompt area with button
+        # Zone de prompt unifiée avec bouton
         prompt_container = QWidget()
         prompt_container.setObjectName("promptContainer")
         prompt_layout = QVBoxLayout(prompt_container)
         prompt_layout.setContentsMargins(0, 0, 0, 0)
         prompt_layout.setSpacing(0)
         
-        # Text area with styled placeholder
+        # Zone de texte avec placeholder stylé
         self.prompt_input = QTextEdit()
         self.prompt_input.setObjectName("promptInput")
-        self.prompt_input.setPlaceholderText("Ex: I want to automate my WhatsApp posts for my clothing business...")
+        self.prompt_input.setPlaceholderText("Ex : Je souhaite automatiser mes publications WhatsApp pour mon entreprise de vêtements...")
         
-        # Integrated send button
-        self.send_btn = QPushButton("Analyze")
+        # Bouton d'envoi intégré
+        self.send_btn = QPushButton("Analyser")
         self.send_btn.setObjectName("sendButton")
         self.send_btn.setIcon(QIcon.fromTheme("edit-find"))
-        self.send_btn.clicked.connect(self.analyze_prompt)
         
-        # Progress bar
+        # Barre de progression
         self.progress_bar = QProgressBar()
         self.progress_bar.setObjectName("progressBar")
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setTextVisible(False)
         self.progress_bar.hide()
         
-        # Prompt suggestions
+        # Suggestions de prompts
         self.setup_prompt_suggestions()
         
-        # Results area
+        # Zone de résultats
         self.analysis_display = QWebEngineView()
         self.analysis_display.setObjectName("analysisDisplay")
         self.analysis_display.hide()
         
-        # Communication channel setup
+        # Configuration du canal de communication
         self.channel = QWebChannel()
         self.handler = ActionHandler(self)
         self.channel.registerObject('pyHandler', self.handler)
         self.analysis_display.page().setWebChannel(self.channel)
         
-        # Spacer to push content up
+        # Espacement pour centrer le contenu
         self.top_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        
-        # Spacer to center content
         self.bottom_spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         
-        # Assemble components
+        # Assemblage des composants
         prompt_layout.addWidget(self.prompt_input)
         prompt_layout.addWidget(self.send_btn, alignment=Qt.AlignRight)
         prompt_layout.addWidget(self.progress_bar)
@@ -462,13 +490,17 @@ class MarketingAIAnalyzer(QMainWindow):
         
         self.stacked_widget.addWidget(main_view)
         
+    def setup_connections(self):
+        """Configure les connexions des signaux et slots"""
+        self.send_btn.clicked.connect(self.analyze_prompt)
+        
     def setup_prompt_suggestions(self):
-        """Configure predefined prompt suggestions"""
+        """Configure les suggestions de prompts prédéfinies"""
         self.suggestions_layout = QVBoxLayout()
         self.suggestions_layout.setContentsMargins(0, 0, 0, 0)
         self.suggestions_layout.setSpacing(10)
         
-        title = QLabel("💡 Example queries:")
+        title = QLabel("💡 Exemples de requêtes :")
         title.setObjectName("suggestionsTitle")
         
         suggestions_grid = QGridLayout()
@@ -476,12 +508,12 @@ class MarketingAIAnalyzer(QMainWindow):
         suggestions_grid.setSpacing(10)
         
         suggestions = [
-            ("📱", "Social media", "Create a strategy for Instagram and Facebook"),
-            ("📈", "Analysis", "Analyze performance of my last campaign"),
-            ("✉️", "Email", "Write a newsletter for my clients"),
-            ("💬", "WhatsApp", "Automate WhatsApp messages for my business"),
-            ("🔍", "SEO", "Optimize my website for search engines"),
-            ("📊", "Report", "Generate monthly marketing report")
+            ("📱", "Réseaux sociaux", "Créer une stratégie pour Instagram et Facebook"),
+            ("📈", "Analyse", "Analyser les performances de ma dernière campagne"),
+            ("✉️", "Email", "Rédiger une newsletter pour mes clients"),
+            ("💬", "WhatsApp", "Automatiser les messages WhatsApp pour mon entreprise"),
+            ("🔍", "SEO", "Optimiser mon site web pour les moteurs de recherche"),
+            ("📊", "Rapport", "Générer un rapport marketing mensuel")
         ]
         
         for i, (icon, title_text, prompt_text) in enumerate(suggestions):
@@ -496,52 +528,52 @@ class MarketingAIAnalyzer(QMainWindow):
         self.suggestions_layout.addLayout(suggestions_grid)
         
     def update_styles(self):
-        """Apply CSS styles to the application"""
-        self.setStyleSheet("""
-            QWidget {
+        """Applique les styles CSS à l'application"""
+        self.setStyleSheet(f"""
+            QWidget {{
                 font-family: 'Segoe UI', sans-serif;
-            }
+            }}
             
-            QWidget#contentArea {
-                background: #f8fafc;
-            }
+            QWidget#contentArea {{
+                background: {Constants.BACKGROUND_COLOR};
+            }}
             
-            QLabel#mainHeader {
+            QLabel#mainHeader {{
                 font-size: 28px;
                 font-weight: bold;
-                color: #1e293b;
+                color: {Constants.TEXT_COLOR};
                 margin-bottom: 5px;
-            }
+            }}
             
-            QLabel#mainSubheader {
+            QLabel#mainSubheader {{
                 font-size: 16px;
-                color: #64748b;
+                color: {Constants.TEXT_SECONDARY};
                 margin-bottom: 30px;
-            }
+            }}
             
-            QWidget#promptContainer {
+            QWidget#promptContainer {{
                 background: white;
                 border-radius: 12px;
-                border: 1px solid #e2e8f0;
+                border: 1px solid {Constants.CARD_BORDER};
                 padding: 1px;
-            }
+            }}
             
-            QTextEdit#promptInput {
+            QTextEdit#promptInput {{
                 background: white;
                 border: none;
                 font-size: 16px;
                 padding: 20px;
                 border-radius: 12px;
                 min-height: 120px;
-                color: #1e293b;
-            }
+                color: {Constants.TEXT_COLOR};
+            }}
             
-            QTextEdit#promptInput:focus {
+            QTextEdit#promptInput:focus {{
                 border: none;
-            }
+            }}
             
-            QPushButton#sendButton {
-                background: #4f46e5;
+            QPushButton#sendButton {{
+                background: {Constants.PRIMARY_COLOR};
                 color: white;
                 border: none;
                 padding: 12px 24px;
@@ -549,73 +581,73 @@ class MarketingAIAnalyzer(QMainWindow):
                 font-size: 16px;
                 margin: 10px;
                 margin-top: 0;
-            }
+            }}
             
-            QPushButton#sendButton:hover {
-                background: #4338ca;
-            }
+            QPushButton#sendButton:hover {{
+                background: {Constants.PRIMARY_HOVER};
+            }}
             
-            QPushButton#sendButton:disabled {
+            QPushButton#sendButton:disabled {{
                 background: #a5b4fc;
-            }
+            }}
             
-            QProgressBar#progressBar {
+            QProgressBar#progressBar {{
                 height: 6px;
                 background: #e2e8f0;
                 border-radius: 3px;
                 margin: 0 10px 10px 10px;
-            }
+            }}
             
-            QProgressBar#progressBar::chunk {
-                background: #4f46e5;
+            QProgressBar#progressBar::chunk {{
+                background: {Constants.PRIMARY_COLOR};
                 border-radius: 3px;
-            }
+            }}
             
-            QLabel#suggestionsTitle {
+            QLabel#suggestionsTitle {{
                 font-size: 14px;
-                color: #64748b;
+                color: {Constants.TEXT_SECONDARY};
                 margin-bottom: 5px;
-            }
+            }}
             
-            QPushButton#suggestionButton {
+            QPushButton#suggestionButton {{
                 background: white;
-                border: 1px solid #e2e8f0;
+                border: 1px solid {Constants.CARD_BORDER};
                 border-radius: 8px;
                 padding: 12px;
                 font-size: 14px;
                 text-align: left;
-                color: #1e293b;
-            }
+                color: {Constants.TEXT_COLOR};
+            }}
             
-            QPushButton#suggestionButton:hover {
+            QPushButton#suggestionButton:hover {{
                 background: #f1f5f9;
                 border-color: #cbd5e1;
-            }
+            }}
             
-            QWebEngineView#analysisDisplay {
+            QWebEngineView#analysisDisplay {{
                 background: white;
                 border-radius: 12px;
-                border: 1px solid #e2e8f0;
+                border: 1px solid {Constants.CARD_BORDER};
                 min-height: 300px;
-            }
+            }}
         """)
         
     def analyze_prompt(self):
-        """Start prompt analysis"""
+        """Démarre l'analyse du prompt"""
         prompt = self.prompt_input.toPlainText().strip()
         if not prompt:
-            self.show_error("Please enter your request")
+            self.show_error("Veuillez saisir votre demande")
             return
         
-        # Disable button during analysis
+        # Désactive le bouton pendant l'analyse
         self.send_btn.setEnabled(False)
         self.progress_bar.show()
         self.analysis_display.hide()
         
-        # Adjust spacer to center content
+        # Ajuste l'espacement pour centrer le contenu
         self.top_spacer.changeSize(20, 10, QSizePolicy.Minimum, QSizePolicy.Minimum)
         
-        # Loading animation
+        # Animation de chargement
         self.loading_animation = QPropertyAnimation(self.progress_bar, b"value")
         self.loading_animation.setDuration(2000)
         self.loading_animation.setStartValue(0)
@@ -623,7 +655,7 @@ class MarketingAIAnalyzer(QMainWindow):
         self.loading_animation.setEasingCurve(QEasingCurve.InOutQuad)
         self.loading_animation.start()
         
-        # Launch analysis in separate thread
+        # Lance l'analyse dans un thread séparé
         self.analysis_thread = AnalysisThread(prompt, self.db_path)
         self.analysis_thread.analysis_complete.connect(self.show_results)
         self.analysis_thread.error_occurred.connect(self.show_error)
@@ -631,17 +663,17 @@ class MarketingAIAnalyzer(QMainWindow):
         self.analysis_thread.start()
         
     def show_results(self, html, detected_platforms):
-        """Show analysis results"""
+        """Affiche les résultats de l'analyse"""
         self.send_btn.setEnabled(True)
         self.progress_bar.hide()
         self.analysis_display.setHtml(html)
         self.analysis_display.show()
         
-        # Adjust spacers to push content up
+        # Ajuste les espacements
         self.top_spacer.changeSize(20, 10, QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.bottom_spacer.changeSize(20, 10, QSizePolicy.Minimum, QSizePolicy.Minimum)
         
-        # Fade-in animation
+        # Animation de fondu
         fade_in = QPropertyAnimation(self.analysis_display, b"windowOpacity")
         fade_in.setDuration(300)
         fade_in.setStartValue(0)
@@ -649,19 +681,19 @@ class MarketingAIAnalyzer(QMainWindow):
         fade_in.start()
         
     def show_error(self, message):
-        """Show error message"""
+        """Affiche un message d'erreur"""
         self.send_btn.setEnabled(True)
         self.progress_bar.hide()
         self.analysis_display.setHtml(f"""
             <div style="padding: 20px; font-family: 'Segoe UI', sans-serif;">
-                <h3 style="color: #ef4444;">❌ Error</h3>
-                <p style="color: #64748b;">{message}</p>
+                <h3 style="color: {Constants.ERROR_COLOR};">❌ Erreur</h3>
+                <p style="color: {Constants.TEXT_SECONDARY};">{message}</p>
             </div>
         """)
         self.analysis_display.show()
         
     def execute_action(self, action_data):
-        """Execute specific action"""
+        """Exécute une action spécifique"""
         try:
             action_type = action_data.get("type")
             
@@ -673,13 +705,13 @@ class MarketingAIAnalyzer(QMainWindow):
                     self.handle_whatsapp_action(action)
                 elif platform == "instagram":
                     self.handle_instagram_action(action)
-                # Add other platforms here...
+                # Ajouter d'autres plateformes ici...
                 
         except Exception as e:
-            print(f"Execution error: {e}")
+            print(f"Erreur d'exécution: {e}")
             
     def handle_whatsapp_action(self, action):
-        """Handle WhatsApp actions"""
+        """Gère les actions WhatsApp"""
         if action == "whatsapp_personal":
             self.show_whatsapp_personal_ui()
         elif action == "whatsapp_group":
@@ -688,147 +720,153 @@ class MarketingAIAnalyzer(QMainWindow):
             self.show_whatsapp_general_ui()
             
     def show_whatsapp_personal_ui(self):
-        """Show UI for personal WhatsApp messages"""
+        """Affiche l'UI pour les messages WhatsApp personnels"""
         html = f"""
         <div style="padding: 20px; font-family: 'Segoe UI', sans-serif;">
-            <h2 style="color: #1e293b; margin-bottom: 20px;">💬 Personal WhatsApp Message</h2>
+            <h2 style="color: {Constants.TEXT_COLOR}; margin-bottom: 20px;">💬 Message WhatsApp Personnel</h2>
             
-            <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                <h3 style="color: #1e293b; margin-bottom: 15px;">📋 Message Settings</h3>
+            <div style="background: {Constants.CARD_BG}; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: {Constants.TEXT_COLOR}; margin-bottom: 15px;">📋 Paramètres du message</h3>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #64748b; margin-bottom: 8px;">Message Type:</label>
-                    <select style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                        <option>Standard message</option>
-                        <option>Message with image</option>
-                        <option>Message with document</option>
+                    <label style="display: block; color: {Constants.TEXT_SECONDARY}; margin-bottom: 8px;">Type de message :</label>
+                    <select style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};">
+                        <option>Message standard</option>
+                        <option>Message avec image</option>
+                        <option>Message avec document</option>
                     </select>
                 </div>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #64748b; margin-bottom: 8px;">Message Content:</label>
-                    <textarea style="width: 100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;"></textarea>
+                    <label style="display: block; color: {Constants.TEXT_SECONDARY}; margin-bottom: 8px;">Contenu du message :</label>
+                    <textarea style="width: 100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};"></textarea>
                 </div>
             </div>
             
-            <button style="background: #25D366; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer;"
+            <button style="background: {Constants.WHATSAPP_GREEN}; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer;"
                     onclick="pyHandler.handleAction(`{{'type':'whatsapp_send','message_type':'personal'}}`)">
-                Send Message
+                Envoyer le message
             </button>
         </div>
         """
         self.analysis_display.setHtml(html)
         
     def show_whatsapp_group_ui(self):
-        """Show UI for WhatsApp group messages"""
+        """Affiche l'UI pour les messages de groupe WhatsApp"""
         html = f"""
         <div style="padding: 20px; font-family: 'Segoe UI', sans-serif;">
-            <h2 style="color: #1e293b; margin-bottom: 20px;">👥 WhatsApp Group Message</h2>
+            <h2 style="color: {Constants.TEXT_COLOR}; margin-bottom: 20px;">👥 Message de groupe WhatsApp</h2>
             
-            <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                <h3 style="color: #1e293b; margin-bottom: 15px;">📋 Group Selection</h3>
+            <div style="background: {Constants.CARD_BG}; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="color: {Constants.TEXT_COLOR}; margin-bottom: 15px;">📋 Sélection des groupes</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
-                        <input type="checkbox" style="margin-right: 8px;"> Client Group
+                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};">
+                        <input type="checkbox" style="margin-right: 8px;"> Groupe clients
                     </label>
-                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
-                        <input type="checkbox" style="margin-right: 8px;"> Supplier Group
+                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};">
+                        <input type="checkbox" style="margin-right: 8px;"> Groupe fournisseurs
                     </label>
-                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
-                        <input type="checkbox" style="margin-right: 8px;"> Team Group
+                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};">
+                        <input type="checkbox" style="margin-right: 8px;"> Groupe équipe
                     </label>
-                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid #e2e8f0;">
-                        <input type="checkbox" style="margin-right: 8px;"> VIP Group
+                    <label style="display: flex; align-items: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};">
+                        <input type="checkbox" style="margin-right: 8px;"> Groupe VIP
                     </label>
                 </div>
                 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; color: #64748b; margin-bottom: 8px;">Message Content:</label>
-                    <textarea style="width: 100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;"></textarea>
+                    <label style="display: block; color: {Constants.TEXT_SECONDARY}; margin-bottom: 8px;">Contenu du message :</label>
+                    <textarea style="width: 100%; height: 100px; padding: 10px; border-radius: 6px; border: 1px solid {Constants.CARD_BORDER};"></textarea>
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
-                    <button style="flex: 1; background: white; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; cursor: pointer;">
-                        Add Attachment
+                    <button style="flex: 1; background: white; border: 1px solid {Constants.CARD_BORDER}; padding: 10px; border-radius: 6px; cursor: pointer;">
+                        Ajouter une pièce jointe
                     </button>
-                    <button style="flex: 1; background: white; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; cursor: pointer;">
-                        Preview
+                    <button style="flex: 1; background: white; border: 1px solid {Constants.CARD_BORDER}; padding: 10px; border-radius: 6px; cursor: pointer;">
+                        Aperçu
                     </button>
                 </div>
             </div>
             
-            <button style="background: #25D366; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer;"
+            <button style="background: {Constants.WHATSAPP_GREEN}; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer;"
                     onclick="pyHandler.handleAction(`{{'type':'whatsapp_send','message_type':'group'}}`)">
-                Send to Selected Groups
+                Envoyer aux groupes sélectionnés
             </button>
         </div>
         """
         self.analysis_display.setHtml(html)
         
     def show_whatsapp_general_ui(self):
-        """Show general WhatsApp UI"""
+        """Affiche l'UI générale pour WhatsApp"""
         html = f"""
         <div style="padding: 20px; font-family: 'Segoe UI', sans-serif;">
-            <h2 style="color: #1e293b; margin-bottom: 20px;">📱 WhatsApp Automation</h2>
+            <h2 style="color: {Constants.TEXT_COLOR}; margin-bottom: 20px;">📱 Automatisation WhatsApp</h2>
             
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
                 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; cursor: pointer;"
                      onclick="pyHandler.handleAction(`{{'type':'whatsapp_action','action':'personal'}}`)">
-                    <h3 style="color: #166534; margin-bottom: 10px;">💬 Personal Messages</h3>
-                    <p style="color: #64748b;">Send individual messages to your contacts</p>
+                    <h3 style="color: #166534; margin-bottom: 10px;">💬 Messages personnels</h3>
+                    <p style="color: {Constants.TEXT_SECONDARY};">Envoyer des messages individuels à vos contacts</p>
                 </div>
                 
                 <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; cursor: pointer;"
                      onclick="pyHandler.handleAction(`{{'type':'whatsapp_action','action':'group'}}`)">
-                    <h3 style="color: #075985; margin-bottom: 10px;">👥 Group Messages</h3>
-                    <p style="color: #64748b;">Send messages to multiple groups</p>
+                    <h3 style="color: #075985; margin-bottom: 10px;">👥 Messages de groupe</h3>
+                    <p style="color: {Constants.TEXT_SECONDARY};">Envoyer des messages à plusieurs groupes</p>
                 </div>
                 
                 <div style="background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 20px; cursor: pointer;"
                      onclick="pyHandler.handleAction(`{{'type':'whatsapp_action','action':'auto_reply'}}`)">
-                    <h3 style="color: #6d28d9; margin-bottom: 10px;">🤖 Auto Replies</h3>
-                    <p style="color: #64748b;">Configure automatic replies</p>
+                    <h3 style="color: #6d28d9; margin-bottom: 10px;">🤖 Réponses automatiques</h3>
+                    <p style="color: {Constants.TEXT_SECONDARY};">Configurer des réponses automatiques</p>
                 </div>
                 
                 <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 20px; cursor: pointer;"
                      onclick="pyHandler.handleAction(`{{'type':'whatsapp_action','action':'campaign'}}`)">
-                    <h3 style="color: #9a3412; margin-bottom: 10px;">📢 Campaign</h3>
-                    <p style="color: #64748b;">Launch WhatsApp campaign</p>
+                    <h3 style="color: #9a3412; margin-bottom: 10px;">📢 Campagne</h3>
+                    <p style="color: {Constants.TEXT_SECONDARY};">Lancer une campagne WhatsApp</p>
                 </div>
             </div>
             
-            <div style="background: #f8fafc; border-radius: 8px; padding: 20px;">
-                <h3 style="color: #1e293b; margin-bottom: 15px;">📊 Recent Statistics</h3>
+            <div style="background: {Constants.CARD_BG}; border-radius: 8px; padding: 20px;">
+                <h3 style="color: {Constants.TEXT_COLOR}; margin-bottom: 15px;">📊 Statistiques récentes</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px;">
                     <div style="background: white; border-radius: 6px; padding: 15px; text-align: center;">
-                        <div style="font-size: 24px; font-weight: bold; color: #4f46e5;">42</div>
-                        <div style="color: #64748b; font-size: 14px;">Messages Sent</div>
+                        <div style="font-size: 24px; font-weight: bold; color: {Constants.PRIMARY_COLOR};">42</div>
+                        <div style="color: {Constants.TEXT_SECONDARY}; font-size: 14px;">Messages envoyés</div>
                     </div>
                     <div style="background: white; border-radius: 6px; padding: 15px; text-align: center;">
-                        <div style="font-size: 24px; font-weight: bold; color: #10b981;">78%</div>
-                        <div style="color: #64748b; font-size: 14px;">Read Rate</div>
+                        <div style="font-size: 24px; font-weight: bold; color: {Constants.SUCCESS_COLOR};">78%</div>
+                        <div style="color: {Constants.TEXT_SECONDARY}; font-size: 14px;">Taux de lecture</div>
                     </div>
                     <div style="background: white; border-radius: 6px; padding: 15px; text-align: center;">
-                        <div style="font-size: 24px; font-weight: bold; color: #ef4444;">12</div>
-                        <div style="color: #64748b; font-size: 14px;">Blocked Contacts</div>
+                        <div style="font-size: 24px; font-weight: bold; color: {Constants.ERROR_COLOR};">12</div>
+                        <div style="color: {Constants.TEXT_SECONDARY}; font-size: 14px;">Contacts bloqués</div>
                     </div>
                 </div>
                 
-                <button style="background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
-                    View Full Report
+                <button style="background: {Constants.PRIMARY_COLOR}; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                    Voir le rapport complet
                 </button>
             </div>
         </div>
         """
         self.analysis_display.setHtml(html)
 
+    def closeEvent(self, event):
+        """Gère la fermeture de l'application"""
+        if hasattr(self, 'analysis_thread') and self.analysis_thread.isRunning():
+            self.analysis_thread.stop()
+        event.accept()
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
-    # Set color palette for modern look
+    # Définit la palette de couleurs pour un look moderne
     palette = QPalette()
     palette.setColor(QPalette.Window, QColor(248, 250, 252))
     palette.setColor(QPalette.WindowText, QColor(30, 41, 59))
@@ -843,6 +881,10 @@ if __name__ == "__main__":
     palette.setColor(QPalette.Highlight, QColor(79, 70, 229))
     palette.setColor(QPalette.HighlightedText, QColor(255, 255, 255))
     app.setPalette(palette)
+    
+    # Définit les polices par défaut
+    font = QFont("Segoe UI", 10)
+    app.setFont(font)
     
     window = MarketingAIAnalyzer()
     window.show()

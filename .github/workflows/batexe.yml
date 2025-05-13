@@ -1,0 +1,60 @@
+name: BAT to EXE Converter
+
+on:
+  push:
+    branches: [main]
+    paths: ['lesclesnova360/icons/batofexe/*.ps1']
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create output directory
+        run: |
+          New-Item -Path "lesclesnova360/icons/exes" -ItemType Directory -Force
+        shell: pwsh
+
+      - name: Install PS2EXE module
+        run: |
+          Install-Module -Name ps2exe -Force -Scope CurrentUser
+        shell: pwsh
+
+      - name: Convert PS1 to EXE
+        run: |
+          $ps1Files = Get-ChildItem -Path "lesclesnova360/icons/batofexe" -Filter *.ps1
+
+          foreach ($ps1File in $ps1Files) {
+            $exePath = "lesclesnova360/icons/exes/$($ps1File.BaseName).exe"
+
+            try {
+              Invoke-ps2exe -inputFile $ps1File.FullName -outputFile $exePath -noConsole -noOutput
+              Write-Host "✅ Successfully created $exePath"
+            } catch {
+              Write-Error "❌ Failed to create $exePath. Error: $_"
+              exit 1
+            }
+          }
+        shell: pwsh
+
+      - name: Verify results
+        run: |
+          $exes = Get-ChildItem -Path "lesclesnova360/icons/exes" -Filter *.exe
+          if ($exes.Count -eq 0) {
+            Write-Error "❌ No EXE files were created!"
+            exit 1
+          }
+          Write-Host "✅ Successfully created $($exes.Count) EXE files"
+        shell: pwsh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-exes
+          path: lesclesnova360/icons/exes/*.exe
+          retention-days: 3
