@@ -2180,6 +2180,8 @@ class Browser(QMainWindow):
             # Data section
             ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
                 # ("📝", self.tr("Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
+                ("🎭", self.tr("Persona"), "Persona", self.open_statistics_window, self.tr("View statistics"), []),
+
                 ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
                 ("📜", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
                 ("📥", self.tr("Import Data"), "import", self.open_imports_window, self.tr("Import data"), []),
