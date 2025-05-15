@@ -1,0 +1,15 @@
+name: Cleanup old artifacts
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # tous les jours à minuit
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/delete-package-versions@v4
+        with:
+          package-name: '*' 
+          min-versions-to-keep: 5
