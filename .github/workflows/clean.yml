@@ -1,15 +1,17 @@
-name: Cleanup old artifacts
+name: Cleanup old workflows
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # tous les jours à minuit
+    - cron: '0 3 * * *'  # tous les jours à 03:00
   workflow_dispatch:
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/delete-package-versions@v4
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
         with:
-          package-name: '*' 
-          min-versions-to-keep: 5
+          token: ${{ secrets.GITHUB_TOKEN }}
+          retain_days: 7           # garde les workflows des 7 derniers jours
+          keep_minimum_runs: 5     # garde au moins 5 runs même si plus anciens
