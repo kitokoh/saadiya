@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QThread
 from PyQt5.QtGui import QFont, QColor, QPalette, QIcon, QLinearGradient, QPainter
 from imports import DB_PATH_notes
 
-class DescriptionManager(QWidget):
+class DescriptionManager1(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.tr = self.init_translations()
@@ -700,6 +700,70 @@ class LinkProcessor(QThread):
         """Stop processing"""
         self._should_stop = True
         self._is_paused = False
+
+
+
+
+from manuelleRobot.description import MainWindow1
+
+
+
+
+from PyQt5.QtWidgets import QStackedWidget
+from PyQt5.QtWidgets import QRadioButton
+
+from manuelleRobot.statusmanuelle import SocialMediaPublisher
+class DescriptionManager(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Partie gauche
+        self.left_panel = DescriptionManager1()
+
+        # Créer le QStackedWidget avec les deux panneaux
+        self.stacked_right_panel = QStackedWidget()
+        self.right_panel1 = MainWindow1()
+        self.right_panel2 = SocialMediaPublisher()
+        self.stacked_right_panel.addWidget(self.right_panel1)
+        self.stacked_right_panel.addWidget(self.right_panel2)
+        self.stacked_right_panel.setCurrentIndex(0)
+
+        # Boutons radio (affichés en horizontal pour meilleur rendu)
+        self.radio1 = QRadioButton("Description")
+        self.radio2 = QRadioButton("Status Publisher")
+        self.radio1.setChecked(True)
+
+        self.radio1.toggled.connect(lambda: self.stacked_right_panel.setCurrentIndex(0))
+        self.radio2.toggled.connect(lambda: self.stacked_right_panel.setCurrentIndex(1))
+
+        # Layout horizontal pour les boutons radio
+        radio_layout = QHBoxLayout()
+        radio_layout.addWidget(self.radio1)
+        radio_layout.addWidget(self.radio2)
+        radio_layout.addStretch()  # pousse les boutons à gauche
+
+        # Conteneur pour les boutons
+        radio_container = QWidget()
+        radio_container.setLayout(radio_layout)
+
+        # Layout principal de droite (radio en haut + widget en dessous)
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(radio_container)
+        right_layout.addWidget(self.stacked_right_panel)
+        right_layout.setStretch(1, 1)  # donne tout l'espace dispo au stacked panel
+
+        right_container = QWidget()
+        right_container.setLayout(right_layout)
+
+        # Layout global
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(self.left_panel, 2)
+        main_layout.addWidget(right_container, 3)  # un peu plus large
+
+        self.setLayout(main_layout)
+        self.resize(1200, 700)
+
+
 
 if __name__ == "__main__":
     import sys

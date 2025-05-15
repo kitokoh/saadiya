@@ -453,7 +453,7 @@ class HomePage(QMainWindow):
             middle_layout = QHBoxLayout()
  # Ajouter une image de fond au format .webp
         features = [
-            ("FB Robot Pro", "resources/icons/facebook-icon-png-770-Windows.ico", "#E91E63", self.open_facebook, "facebook_bot"),
+            ("FB Grup Robot", "resources/icons/facebook-icon-png-770-Windows.ico", "#E91E63", self.open_facebook, "facebook_bot"),
             ("WhatsApping", "resources/icons/whatsapp-512.png", "#4CAF50", self.open_whatsapp, "whatsapp_bot"),
             ("Blogging", "resources/icons/Hopstarter-Soft-Scraps-Edit-Document.ico", "#4CAF50", self.open_blogging, "blogging_bot"),
             ("Insta Pro", "resources/icons/instagram-icon-956-Windows.ico", "#4CAF50", self.open_instagram, "instagram_bot"),
@@ -627,11 +627,11 @@ class HomePage(QMainWindow):
 
         duplicate_features = [
             ("Twitter Bot", "resources/icons/aquicon-icon-18708-Windows.ico", "#1DA1F2", self.open_twitter1, "twitter_bot"),
-            ("LinkedIn Pro", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5", self.open_linkedin, "linkedin_bot"),
-            ("Pinterest Bot", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C", self.open_pinterest1, "pinterest_bot"),
-            ("Snapchat Bot", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00", self.open_snapchat1, "snapchat_bot"),
+            ("LinkedIn Job", "resources/icons/aquicon-icon-18717-Windows.ico", "#0077B5", self.open_linkedin, "linkedin_bot"),
+            ("Reddit Group", "resources/icons/subscribe-png-574-Windows.ico", "#BD081C", self.open_pinterest1, "pinterest_bot"),
+            ("Snapchat ", "resources/icons/snapchat-icon-1707-Windows.ico", "#FFFC00", self.open_snapchat1, "snapchat_bot"),
             ("TikTok Pro", "resources/icons/camera-icon-59-Windows.ico", "#010101", self.open_tiktok1, "tiktok_bot"),
-            ("Reddit Bot", "resources/icons/camera-icon-59-Windows.ico", "#FF4500", self.open_reddit1, "reddit_bot"),
+            ("Discord Grup", "resources/icons/camera-icon-59-Windows.ico", "#FF4500", self.open_reddit1, "reddit_bot"),
             ("YouTube Pro", "resources/icons/youtube-logo-png-3580-Windows.ico", "#FF0000", self.open_youtube1, "youtube_bot"),
         ]
         duplicate_layout = QHBoxLayout()
