@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPN html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -767,6 +767,86 @@
             margin-top: 0.5rem;
         }
         
+        /* Nouveau: Section avantages */
+        .benefits {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.05) 0%, rgba(77, 68, 219, 0.05) 100%);
+            border-radius: var(--border-radius);
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .benefit-icon {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .benefit-content h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+        }
+        
+        .benefit-content p {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            line-height: 1.5;
+        }
+        
+        /* Nouveau: Floating action button */
+        .fab-help {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            z-index: 50;
+            transition: var(--transition);
+        }
+        
+        .fab-help:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+        
+        /* Nouveau: Animation pour les éléments */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
         @keyframes rotate {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -911,6 +991,18 @@
             .testimonial {
                 padding: 1rem;
             }
+            
+            /* Nouveau: Ajustements mobile */
+            .fab-help {
+                bottom: 1rem;
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         /* RTL support for Arabic */
@@ -984,36 +1076,54 @@
                 background: #2B2D42;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             }
+            
+            /* Nouveau: Dark mode pour les avantages */
+            .benefits {
+                background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(77, 68, 219, 0.1) 100%);
+            }
+            
+            .benefit-content p {
+                color: var(--gray);
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Floating Help Button -->
+    <div class="fab-help" id="help-button">
+        <i class="fas fa-question"></i>
+    </div>
+    
     <div class="download-container">
         <div class="language-switcher">
             <button class="lang-btn active" id="lang-fr">🇫🇷 FR</button>
             <button class="lang-btn" id="lang-en">🇬🇧 EN</button>
             <button class="lang-btn" id="lang-ar">🇸🇦 العربية</button>
             <button class="lang-btn" id="lang-pt">🇧🇷 PT</button>
+            <button class="lang-btn" id="lang-tr">🇹🇷 TR</button>
         </div>
         
         <div class="hero">
-            <div class="app-icon">
+            <div class="app-icon floating">
                 <img src="leopardoLogo.png" alt="Leopardo AI Icon">
             </div>
             <h1 data-lang="fr">Leopardo AI</h1>
             <h1 data-lang="en" style="display:none">Leopardo AI</h1>
             <h1 data-lang="ar" style="display:none">ليوباردو الذكاء الاصطناعي</h1>
             <h1 data-lang="pt" style="display:none">Leopardo AI</h1>
+            <h1 data-lang="tr" style="display:none">Leopardo AI</h1>
             
             <div class="version" data-lang="fr">Version <span id="app-version">Chargement...</span></div>
             <div class="version" data-lang="en" style="display:none">Version <span id="app-version-en">Loading...</span></div>
             <div class="version" data-lang="ar" style="display:none">الإصدار <span id="app-version-ar">جار التحميل...</span></div>
             <div class="version" data-lang="pt" style="display:none">Versão <span id="app-version-pt">Carregando...</span></div>
+            <div class="version" data-lang="tr" style="display:none">Sürüm <span id="app-version-tr">Yükleniyor...</span></div>
             
             <p data-lang="fr">L'IA révolutionnaire pour votre marketing et communication</p>
             <p data-lang="en" style="display:none">The revolutionary AI for your marketing and communication</p>
             <p data-lang="ar" style="display:none">الذكاء الاصطناعي الثوري للتسويق والاتصالات</p>
             <p data-lang="pt" style="display:none">A IA revolucionária para seu marketing e comunicação</p>
+            <p data-lang="tr" style="display:none">Pazarlama ve iletişim için devrimci yapay zeka</p>
         </div>
         
         <div class="download-content">
@@ -1024,13 +1134,15 @@
                     <p data-lang="en" style="display:none">Join our community of professionals</p>
                     <p data-lang="ar" style="display:none">انضم إلى مجتمعنا من المحترفين</p>
                     <p data-lang="pt" style="display:none">Junte-se à nossa comunidade de profissionais</p>
+                    <p data-lang="tr" style="display:none">Profesyonel topluluğumuza katılın</p>
                     <div class="stats-container">
                         <div class="stat-item">
-                            <div class="stat-value" id="download-count">0</div>
+                            <div class="stat-value" id="download-count">98203</div>
                             <div class="stat-label" data-lang="fr">Téléchargements</div>
                             <div class="stat-label" data-lang="en" style="display:none">Downloads</div>
                             <div class="stat-label" data-lang="ar" style="display:none">التنزيلات</div>
                             <div class="stat-label" data-lang="pt" style="display:none">Downloads</div>
+                            <div class="stat-label" data-lang="tr" style="display:none">İndirmeler</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value" id="active-users">0</div>
@@ -1038,13 +1150,15 @@
                             <div class="stat-label" data-lang="en" style="display:none">Active users</div>
                             <div class="stat-label" data-lang="ar" style="display:none">المستخدمون النشطون</div>
                             <div class="stat-label" data-lang="pt" style="display:none">Usuários ativos</div>
+                            <div class="stat-label" data-lang="tr" style="display:none">Aktif kullanıcılar</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value" id="countries">0</div>
+                            <div class="stat-value" id="countries">93</div>
                             <div class="stat-label" data-lang="fr">Pays</div>
                             <div class="stat-label" data-lang="en" style="display:none">Countries</div>
                             <div class="stat-label" data-lang="ar" style="display:none">الدول</div>
                             <div class="stat-label" data-lang="pt" style="display:none">Países</div>
+                            <div class="stat-label" data-lang="tr" style="display:none">Ülkeler</div>
                         </div>
                     </div>
                 </div>
@@ -1057,6 +1171,7 @@
                             <span data-lang="en" style="display:none">Windows</span>
                             <span data-lang="ar" style="display:none">ويندوز</span>
                             <span data-lang="pt" style="display:none">Windows</span>
+                            <span data-lang="tr" style="display:none">Windows</span>
                         </div>
                         <div class="platform-tab" data-platform="macos">
                             <i class="fab fa-apple"></i>
@@ -1064,6 +1179,7 @@
                             <span data-lang="en" style="display:none">macOS</span>
                             <span data-lang="ar" style="display:none">ماك</span>
                             <span data-lang="pt" style="display:none">macOS</span>
+                            <span data-lang="tr" style="display:none">macOS</span>
                         </div>
                         <div class="platform-tab" data-platform="ubuntu">
                             <i class="fab fa-ubuntu"></i>
@@ -1071,6 +1187,7 @@
                             <span data-lang="en" style="display:none">Ubuntu</span>
                             <span data-lang="ar" style="display:none">أوبونتو</span>
                             <span data-lang="pt" style="display:none">Ubuntu</span>
+                            <span data-lang="tr" style="display:none">Ubuntu</span>
                         </div>
                     </div>
                     
@@ -1081,11 +1198,13 @@
                             <span data-lang="en" style="display:none">Download for Windows</span>
                             <span data-lang="ar" style="display:none">تنزيل لنظام ويندوز</span>
                             <span data-lang="pt" style="display:none">Baixar para Windows</span>
+                            <span data-lang="tr" style="display:none">Windows için indir</span>
                             <span class="file-size" id="windows-size"></span>
                             <span class="tooltiptext" data-lang="fr">Version Windows 10/11 64-bit</span>
                             <span class="tooltiptext" data-lang="en" style="display:none">Windows 10/11 64-bit version</span>
                             <span class="tooltiptext" data-lang="ar" style="display:none">إصدار ويندوز 10/11 64 بت</span>
                             <span class="tooltiptext" data-lang="pt" style="display:none">Versão Windows 10/11 64-bit</span>
+                            <span class="tooltiptext" data-lang="tr" style="display:none">Windows 10/11 64-bit sürümü</span>
                         </a>
                         <div class="progress-container" id="windows-progress">
                             <div class="progress-bar" id="windows-progress-bar"></div>
@@ -1096,6 +1215,7 @@
                         <p class="platform-requirements" data-lang="en" style="display:none">Windows 10/11 64-bit</p>
                         <p class="platform-requirements" data-lang="ar" style="display:none">Windows 10/11 64-bit</p>
                         <p class="platform-requirements" data-lang="pt" style="display:none">Windows 10/11 64-bit</p>
+                        <p class="platform-requirements" data-lang="tr" style="display:none">Windows 10/11 64-bit</p>
                     </div>
                     
                     <div class="platform-content" id="macos-content">
@@ -1105,11 +1225,13 @@
                             <span data-lang="en" style="display:none">Download for macOS</span>
                             <span data-lang="ar" style="display:none">تنزيل لنظام ماك</span>
                             <span data-lang="pt" style="display:none">Baixar para macOS</span>
+                            <span data-lang="tr" style="display:none">macOS için indir</span>
                             <span class="file-size" id="macos-size"></span>
                             <span class="tooltiptext" data-lang="fr">Version macOS 11.0+ (Apple Silicon & Intel)</span>
                             <span class="tooltiptext" data-lang="en" style="display:none">macOS 11.0+ version (Apple Silicon & Intel)</span>
                             <span class="tooltiptext" data-lang="ar" style="display:none">إصدار macOS 11.0+ (Apple Silicon و Intel)</span>
                             <span class="tooltiptext" data-lang="pt" style="display:none">Versão macOS 11.0+ (Apple Silicon & Intel)</span>
+                            <span class="tooltiptext" data-lang="tr" style="display:none">macOS 11.0+ sürümü (Apple Silicon & Intel)</span>
                         </a>
                         <div class="progress-container" id="macos-progress">
                             <div class="progress-bar" id="macos-progress-bar"></div>
@@ -1120,6 +1242,7 @@
                         <p class="platform-requirements" data-lang="en" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
                         <p class="platform-requirements" data-lang="ar" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
                         <p class="platform-requirements" data-lang="pt" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
+                        <p class="platform-requirements" data-lang="tr" style="display:none">macOS 11.0+ (Apple Silicon & Intel)</p>
                     </div>
                     
                     <div class="platform-content" id="ubuntu-content">
@@ -1129,11 +1252,13 @@
                             <span data-lang="en" style="display:none">Download for Ubuntu</span>
                             <span data-lang="ar" style="display:none">تنزيل لأوبونتو</span>
                             <span data-lang="pt" style="display:none">Baixar para Ubuntu</span>
+                            <span data-lang="tr" style="display:none">Ubuntu için indir</span>
                             <span class="file-size" id="ubuntu-size"></span>
                             <span class="tooltiptext" data-lang="fr">Version Ubuntu 20.04 LTS ou supérieur</span>
                             <span class="tooltiptext" data-lang="en" style="display:none">Ubuntu 20.04 LTS or higher version</span>
                             <span class="tooltiptext" data-lang="ar" style="display:none">إصدار Ubuntu 20.04 LTS أو أحدث</span>
                             <span class="tooltiptext" data-lang="pt" style="display:none">Versão Ubuntu 20.04 LTS ou superior</span>
+                            <span class="tooltiptext" data-lang="tr" style="display:none">Ubuntu 20.04 LTS veya üzeri sürüm</span>
                         </a>
                         <div class="progress-container" id="ubuntu-progress">
                             <div class="progress-bar" id="ubuntu-progress-bar"></div>
@@ -1144,6 +1269,7 @@
                         <p class="platform-requirements" data-lang="en" style="display:none">Ubuntu 20.04 LTS or higher</p>
                         <p class="platform-requirements" data-lang="ar" style="display:none">Ubuntu 20.04 LTS أو أحدث</p>
                         <p class="platform-requirements" data-lang="pt" style="display:none">Ubuntu 20.04 LTS ou superior</p>
+                        <p class="platform-requirements" data-lang="tr" style="display:none">Ubuntu 20.04 LTS veya üzeri</p>
                     </div>
                 </div>
                 
@@ -1153,6 +1279,70 @@
                     <p data-lang="en" style="display:none"><span class="new-version">New !</span> Version <span id="latest-version-en"></span> available</p>
                     <p data-lang="ar" style="display:none"><span class="new-version">جديد !</span> الإصدار <span id="latest-version-ar"></span> متاح الآن</p>
                     <p data-lang="pt" style="display:none"><span class="new-version">Novo !</span> Versão <span id="latest-version-pt"></span> disponível</p>
+                    <p data-lang="tr" style="display:none"><span class="new-version">Yeni !</span> <span id="latest-version-tr"></span> sürümü mevcut</p>
+                </div>
+            </div>
+            
+            <!-- Nouvelle section: Avantages -->
+            <div class="benefits">
+                <h3 data-lang="fr" style="text-align: center;">Pourquoi choisir Leopardo AI ?</h3>
+                <h3 data-lang="en" style="text-align: center; display:none">Why choose Leopardo AI?</h3>
+                <h3 data-lang="ar" style="text-align: center; display:none">لماذا تختار ليوباردو الذكاء الاصطناعي؟</h3>
+                <h3 data-lang="pt" style="text-align: center; display:none">Por que escolher Leopardo AI?</h3>
+                <h3 data-lang="tr" style="text-align: center; display:none">Neden Leopardo AI'yı seçmelisiniz?</h3>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h4 data-lang="fr">Performance optimisée</h4>
+                            <h4 data-lang="en" style="display:none">Optimized performance</h4>
+                            <h4 data-lang="ar" style="display:none">أداء محسن</h4>
+                            <h4 data-lang="pt" style="display:none">Desempenho otimizado</h4>
+                            <h4 data-lang="tr" style="display:none">Optimize performans</h4>
+                            <p data-lang="fr">Moteur IA ultra-rapide pour des résultats en temps réel</p>
+                            <p data-lang="en" style="display:none">Ultra-fast AI engine for real-time results</p>
+                            <p data-lang="ar" style="display:none">محرك ذكاء اصطناعي فائق السرعة لنتائج فورية</p>
+                            <p data-lang="pt" style="display:none">Motor de IA ultrarrápido para resultados em tempo real</p>
+                            <p data-lang="tr" style="display:none">Gerçek zamanlı sonuçlar için ultra hızlı AI motoru</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h4 data-lang="fr">Sécurité renforcée</h4>
+                            <h4 data-lang="en" style="display:none">Enhanced security</h4>
+                            <h4 data-lang="ar" style="display:none">أمان معزز</h4>
+                            <h4 data-lang="pt" style="display:none">Segurança aprimorada</h4>
+                            <h4 data-lang="tr" style="display:none">Gelişmiş güvenlik</h4>
+                            <p data-lang="fr">Protection des données et chiffrement de bout en bout</p>
+                            <p data-lang="en" style="display:none">Data protection and end-to-end encryption</p>
+                            <p data-lang="ar" style="display:none">حماية البيانات والتشفير من طرف إلى طرف</p>
+                            <p data-lang="pt" style="display:none">Proteção de dados e criptografia ponta a ponta</p>
+                            <p data-lang="tr" style="display:none">Veri koruma ve uçtan uca şifreleme</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h4 data-lang="fr">Mises à jour automatiques</h4>
+                            <h4 data-lang="en" style="display:none">Automatic updates</h4>
+                            <h4 data-lang="ar" style="display:none">تحديثات تلقائية</h4>
+                            <h4 data-lang="pt" style="display:none">Atualizações automáticas</h4>
+                            <h4 data-lang="tr" style="display:none">Otomatik güncellemeler</h4>
+                            <p data-lang="fr">Bénéficiez des dernières fonctionnalités sans intervention</p>
+                            <p data-lang="en" style="display:none">Get the latest features without any intervention</p>
+                            <p data-lang="ar" style="display:none">احصل على أحدث الميزات دون أي تدخل</p>
+                            <p data-lang="pt" style="display:none">Obtenha os recursos mais recentes sem intervenção</p>
+                            <p data-lang="tr" style="display:none">Müdahale olmadan en son özellikleri edinin</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -1162,6 +1352,7 @@
                 <h3 data-lang="en" style="text-align: center; margin-bottom: 1rem; display:none">What our users say</h3>
                 <h3 data-lang="ar" style="text-align: center; margin-bottom: 1rem; display:none">ما يقوله مستخدمونا</h3>
                 <h3 data-lang="pt" style="text-align: center; margin-bottom: 1rem; display:none">O que nossos usuários dizem</h3>
+                <h3 data-lang="tr" style="text-align: center; margin-bottom: 1rem; display:none">Kullanıcılarımız ne diyor?</h3>
                 
                 <div class="testimonial-slider" id="testimonial-slider">
                     <div class="testimonial">
@@ -1169,6 +1360,7 @@
                         <div class="testimonial-content" data-lang="en" style="display:none">Leopardo AI revolutionized our marketing approach. The predictive analysis is incredibly accurate.</div>
                         <div class="testimonial-content" data-lang="ar" style="display:none">غيرت Leopardo AI طريقة تسويقنا. التحليل التنبؤي دقيق بشكل لا يصدق</div>
                         <div class="testimonial-content" data-lang="pt" style="display:none">Leopardo AI revolucionou nossa abordagem de marketing. A análise preditiva é incrivelmente precisa.</div>
+                        <div class="testimonial-content" data-lang="tr" style="display:none">Leopardo AI pazarlama yaklaşımımızda devrim yarattı. Tahmine dayalı analiz inanılmaz derecede doğru.</div>
                         <div class="testimonial-author">
                             <div class="author-avatar">JD</div>
                             <div class="author-info">
@@ -1177,6 +1369,7 @@
                                 <div class="author-title" data-lang="en" style="display:none">Marketing Director</div>
                                 <div class="author-title" data-lang="ar" style="display:none">مدير التسويق</div>
                                 <div class="author-title" data-lang="pt" style="display:none">Diretor de Marketing</div>
+                                <div class="author-title" data-lang="tr" style="display:none">Pazarlama Müdürü</div>
                             </div>
                         </div>
                     </div>
@@ -1185,6 +1378,7 @@
                         <div class="testimonial-content" data-lang="en" style="display:none">The automation saves us 20 hours per week. An essential tool for our team.</div>
                         <div class="testimonial-content" data-lang="ar" style="display:none">التشغيل الآلي يوفر لنا 20 ساعة في الأسبوع. أداة أساسية لفريقنا</div>
                         <div class="testimonial-content" data-lang="pt" style="display:none">A automação nos economiza 20 horas por semana. Uma ferramenta essencial para nossa equipe.</div>
+                        <div class="testimonial-content" data-lang="tr" style="display:none">Otomasyon bize haftada 20 saat kazandırıyor. Ekibimiz için vazgeçilmez bir araç.</div>
                         <div class="testimonial-author">
                             <div class="author-avatar">SM</div>
                             <div class="author-info">
@@ -1193,6 +1387,7 @@
                                 <div class="author-title" data-lang="en" style="display:none">Digital Project Manager</div>
                                 <div class="author-title" data-lang="ar" style="display:none">مدير المشاريع الرقمية</div>
                                 <div class="author-title" data-lang="pt" style="display:none">Gerente de Projetos Digitais</div>
+                                <div class="author-title" data-lang="tr" style="display:none">Dijital Proje Yöneticisi</div>
                             </div>
                         </div>
                     </div>
@@ -1201,6 +1396,7 @@
                         <div class="testimonial-content" data-lang="en" style="display:none">Personalized recommendations increased our conversion rate by 35%. Impressive!</div>
                         <div class="testimonial-content" data-lang="ar" style="display:none">زادت التوصيات الشخصية معدل التحويل لدينا بنسبة 35٪. مثير للإعجاب!</div>
                         <div class="testimonial-content" data-lang="pt" style="display:none">As recomendações personalizadas aumentaram nossa taxa de conversão em 35%. Impressionante!</div>
+                        <div class="testimonial-content" data-lang="tr" style="display:none">Kişiselleştirilmiş öneriler dönüşüm oranımızı %35 artırdı. Etkileyici!</div>
                         <div class="testimonial-author">
                             <div class="author-avatar">TL</div>
                             <div class="author-info">
@@ -1209,6 +1405,7 @@
                                 <div class="author-title" data-lang="en" style="display:none">E-commerce Manager</div>
                                 <div class="author-title" data-lang="ar" style="display:none">مدير التجارة الإلكترونية</div>
                                 <div class="author-title" data-lang="pt" style="display:none">Gerente de E-commerce</div>
+                                <div class="author-title" data-lang="tr" style="display:none">E-ticaret Müdürü</div>
                             </div>
                         </div>
                     </div>
@@ -1230,10 +1427,12 @@
                         <h3 data-lang="en" style="display:none">Smart Analysis</h3>
                         <h3 data-lang="ar" style="display:none">تحليل ذكي</h3>
                         <h3 data-lang="pt" style="display:none">Análise Inteligente</h3>
+                        <h3 data-lang="tr" style="display:none">Akıllı Analiz</h3>
                         <p data-lang="fr">Décryptez les tendances et comportements clients avec notre IA avancée</p>
                         <p data-lang="en" style="display:none">Decrypt trends and customer behaviors with our advanced AI</p>
                         <p data-lang="ar" style="display:none">فك تشفير الاتجاهات وسلوكيات العملاء باستخدام الذكاء الاصطناعي المتقدم</p>
                         <p data-lang="pt" style="display:none">Decifre tendências e comportamentos dos clientes com nossa IA avançada</p>
+                        <p data-lang="tr" style="display:none">Gelişmiş yapay zekamızla trendleri ve müşteri davranışlarını çözün</p>
                     </div>
                 </div>
                 <div class="feature">
@@ -1243,10 +1442,12 @@
                         <h3 data-lang="en" style="display:none">Advanced Automation</h3>
                         <h3 data-lang="ar" style="display:none">الأتمتة المتقدمة</h3>
                         <h3 data-lang="pt" style="display:none">Automação Avançada</h3>
+                        <h3 data-lang="tr" style="display:none">Gelişmiş Otomasyon</h3>
                         <p data-lang="fr">Optimisez vos campagnes marketing automatiquement 24h/24</p>
                         <p data-lang="en" style="display:none">Optimize your marketing campaigns automatically 24/7</p>
                         <p data-lang="ar" style="display:none">قم بتحسين حملاتك التسويقية تلقائيًا على مدار الساعة</p>
                         <p data-lang="pt" style="display:none">Otimize suas campanhas de marketing automaticamente 24/7</p>
+                        <p data-lang="tr" style="display:none">Pazarlama kampanyalarınızı 7/24 otomatik olarak optimize edin</p>
                     </div>
                 </div>
                 <div class="feature">
@@ -1256,10 +1457,12 @@
                         <h3 data-lang="en" style="display:none">Personalized Recommendations</h3>
                         <h3 data-lang="ar" style="display:none">توصيات شخصية</h3>
                         <h3 data-lang="pt" style="display:none">Recomendações Personalizadas</h3>
+                        <h3 data-lang="tr" style="display:none">Kişiselleştirilmiş Öneriler</h3>
                         <p data-lang="fr">Des insights adaptés à votre marché en temps réel</p>
                         <p data-lang="en" style="display:none">Real-time insights tailored to your market</p>
                         <p data-lang="ar" style="display:none">رؤى في الوقت الحقيقي مصممة خصيصًا لسوقك</p>
                         <p data-lang="pt" style="display:none">Insights em tempo real personalizados para seu mercado</p>
+                        <p data-lang="tr" style="display:none">Pazarınıza özel gerçek zamanlı içgörüler</p>
                     </div>
                 </div>
             </div>
@@ -1270,12 +1473,14 @@
                 <span data-lang="en" style="display:none">Secure and verified download</span>
                 <span data-lang="ar" style="display:none">تنزيل آمن ومتحقق منه</span>
                 <span data-lang="pt" style="display:none">Download seguro e verificado</span>
+                <span data-lang="tr" style="display:none">Güvenli ve doğrulanmış indirme</span>
             </div>
             
             <div class="release-notes-btn" id="release-notes-btn" data-lang="fr">Voir les notes de version</div>
             <div class="release-notes-btn" id="release-notes-btn" data-lang="en" style="display:none">View release notes</div>
             <div class="release-notes-btn" id="release-notes-btn" data-lang="ar" style="display:none">عرض ملاحظات الإصدار</div>
             <div class="release-notes-btn" id="release-notes-btn" data-lang="pt" style="display:none">Ver notas da versão</div>
+            <div class="release-notes-btn" id="release-notes-btn" data-lang="tr" style="display:none">Sürüm notlarını görüntüle</div>
             
             <div class="social-share">
                 <a href="#" class="social-btn twitter" id="share-twitter"><i class="fab fa-twitter"></i></a>
@@ -1290,6 +1495,7 @@
                 <p class="qr-instruction" data-lang="en" style="display:none">Scan to install on mobile</p>
                 <p class="qr-instruction" data-lang="ar" style="display:none">امسح لتنزيل على الهاتف</p>
                 <p class="qr-instruction" data-lang="pt" style="display:none">Escaneie para instalar no celular</p>
+                <p class="qr-instruction" data-lang="tr" style="display:none">Mobil cihaza yüklemek için tarayın</p>
             </div>
         </div>
     </div>
@@ -1302,7 +1508,89 @@
             <h2 data-lang="en" style="display:none">Release notes <span id="modal-version-en"></span></h2>
             <h2 data-lang="ar" style="display:none">ملاحظات الإصدار <span id="modal-version-ar"></span></h2>
             <h2 data-lang="pt" style="display:none">Notas da versão <span id="modal-version-pt"></span></h2>
+            <h2 data-lang="tr" style="display:none">Sürüm notları <span id="modal-version-tr"></span></h2>
             <div class="release-notes" id="release-notes"></div>
+        </div>
+    </div>
+    
+    <!-- Help Modal -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 data-lang="fr">Aide & Support</h2>
+            <h2 data-lang="en" style="display:none">Help & Support</h2>
+            <h2 data-lang="ar" style="display:none">مساعدة ودعم</h2>
+            <h2 data-lang="pt" style="display:none">Ajuda & Suporte</h2>
+            <h2 data-lang="tr" style="display:none">Yardım & Destek</h2>
+            
+            <div class="benefits-grid" style="margin-top: 1.5rem;">
+                <div class="benefit-item">
+                    <div class="benefit-icon" style="background: var(--success);">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4 data-lang="fr">Documentation</h4>
+                        <h4 data-lang="en" style="display:none">Documentation</h4>
+                        <h4 data-lang="ar" style="display:none">توثيق</h4>
+                        <h4 data-lang="pt" style="display:none">Documentação</h4>
+                        <h4 data-lang="tr" style="display:none">Dokümantasyon</h4>
+                        <p data-lang="fr">Consultez notre documentation complète</p>
+                        <p data-lang="en" style="display:none">Check out our comprehensive documentation</p>
+                        <p data-lang="ar" style="display:none">تحقق من وثائقنا الشاملة</p>
+                        <p data-lang="pt" style="display:none">Consulte nossa documentação abrangente</p>
+                        <p data-lang="tr" style="display:none">Kapsamlı dokümantasyonumuzu inceleyin</p>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary);" data-lang="fr">Accéder à la documentation →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="en">Access documentation →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="ar">الوصول إلى الوثائق →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="pt">Acessar documentação →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="tr">Dokümantasyona eriş →</a>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon" style="background: var(--warning);">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4 data-lang="fr">FAQ</h4>
+                        <h4 data-lang="en" style="display:none">FAQ</h4>
+                        <h4 data-lang="ar" style="display:none">أسئلة شائعة</h4>
+                        <h4 data-lang="pt" style="display:none">FAQ</h4>
+                        <h4 data-lang="tr" style="display:none">SSS</h4>
+                        <p data-lang="fr">Trouvez des réponses aux questions fréquentes</p>
+                        <p data-lang="en" style="display:none">Find answers to frequently asked questions</p>
+                        <p data-lang="ar" style="display:none">ابحث عن إجابات للأسئلة الشائعة</p>
+                        <p data-lang="pt" style="display:none">Encontre respostas para perguntas frequentes</p>
+                        <p data-lang="tr" style="display:none">Sık sorulan soruların yanıtlarını bulun</p>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary);" data-lang="fr">Voir les questions →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="en">View questions →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="ar">عرض الأسئلة →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="pt">Ver perguntas →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="tr">Soruları gör →</a>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon" style="background: var(--error);">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h4 data-lang="fr">Support technique</h4>
+                        <h4 data-lang="en" style="display:none">Technical support</h4>
+                        <h4 data-lang="ar" style="display:none">الدعم الفني</h4>
+                        <h4 data-lang="pt" style="display:none">Suporte técnico</h4>
+                        <h4 data-lang="tr" style="display:none">Teknik destek</h4>
+                        <p data-lang="fr">Contactez notre équipe pour toute assistance</p>
+                        <p data-lang="en" style="display:none">Contact our team for any assistance</p>
+                        <p data-lang="ar" style="display:none">اتصل بفريقنا للحصول على أي مساعدة</p>
+                        <p data-lang="pt" style="display:none">Contate nossa equipe para qualquer assistência</p>
+                        <p data-lang="tr" style="display:none">Yardım için ekibimizle iletişime geçin</p>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary);" data-lang="fr">Contacter le support →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="en">Contact support →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="ar">اتصل بالدعم →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="pt">Contatar suporte →</a>
+                        <a href="#" style="font-size: 0.85rem; color: var(--primary); display:none" data-lang="tr">Destekle iletişim →</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1317,14 +1605,14 @@
     <script>
         // Configuration Firebase
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
+            apiKey: "AIzaSyDMEs2f8IBooNo-rWVZ_fEZYPEpPvnyNC4",
             authDomain: "leopardo-ai.firebaseapp.com",
-            databaseURL: "https://leopardo-ai.firebaseio.com",
+            databaseURL: "https://leopardo-ai-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "leopardo-ai",
-            storageBucket: "leopardo-ai.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID",
-            measurementId: "YOUR_MEASUREMENT_ID"
+            storageBucket: "leopardo-ai.firebasestorage.app",
+            messagingSenderId: "838044402284",
+            appId: "1:838044402284:web:3e8c53eb13fdac6b6e4e49",
+            measurementId: "G-4NFRX042CB"
         };
 
         // Initialiser Firebase
@@ -1361,30 +1649,36 @@
             fr: document.getElementById('app-version'),
             en: document.getElementById('app-version-en'),
             ar: document.getElementById('app-version-ar'),
-            pt: document.getElementById('app-version-pt')
+            pt: document.getElementById('app-version-pt'),
+            tr: document.getElementById('app-version-tr')
         };
         const latestVersionEls = {
             fr: document.getElementById('latest-version'),
             en: document.getElementById('latest-version-en'),
             ar: document.getElementById('latest-version-ar'),
-            pt: document.getElementById('latest-version-pt')
+            pt: document.getElementById('latest-version-pt'),
+            tr: document.getElementById('latest-version-tr')
         };
         const modalVersionEls = {
             fr: document.getElementById('modal-version'),
             en: document.getElementById('modal-version-en'),
             ar: document.getElementById('modal-version-ar'),
-            pt: document.getElementById('modal-version-pt')
+            pt: document.getElementById('modal-version-pt'),
+            tr: document.getElementById('modal-version-tr')
         };
         const updateInfoEl = document.getElementById('update-info');
         const langButtons = {
             fr: document.getElementById('lang-fr'),
             en: document.getElementById('lang-en'),
             ar: document.getElementById('lang-ar'),
-            pt: document.getElementById('lang-pt')
+            pt: document.getElementById('lang-pt'),
+            tr: document.getElementById('lang-tr')
         };
         const releaseNotesBtn = document.getElementById('release-notes-btn');
         const releaseNotesModal = document.getElementById('release-notes-modal');
-        const closeModalBtn = document.querySelector('.close-modal');
+        const helpButton = document.getElementById('help-button');
+        const helpModal = document.getElementById('help-modal');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
         const releaseNotesContent = document.getElementById('release-notes');
         const qrCodeEl = document.getElementById('qr-code');
         const fileSizeEls = {
@@ -1655,15 +1949,17 @@
                     speedEl.style.display = 'none';
                     completeEl.style.display = 'block';
                     
-                    if (localStorage.getItem('leopardo_lang') === 'fr') {
-                        completeEl.textContent = 'Téléchargement terminé !';
-                    } else if (localStorage.getItem('leopardo_lang') === 'en') {
-                        completeEl.textContent = 'Download complete!';
-                    } else if (localStorage.getItem('leopardo_lang') === 'ar') {
-                        completeEl.textContent = 'اكتمل التنزيل!';
-                    } else {
-                        completeEl.textContent = 'Download completo!';
-                    }
+                    const lang = localStorage.getItem('leopardo_lang') || 'fr';
+                    
+                    const completeMessages = {
+                        fr: 'Téléchargement terminé !',
+                        en: 'Download complete!',
+                        ar: 'اكتمل التنزيل!',
+                        pt: 'Download completo!',
+                        tr: 'İndirme tamamlandı!'
+                    };
+                    
+                    completeEl.textContent = completeMessages[lang];
                     
                     // Réinitialiser après 5 secondes
                     setTimeout(() => {
@@ -1741,7 +2037,87 @@
             }, 1500);
         }
 
+        // function registerDownload(e) {
+        //     e.preventDefault();
+        //     const platform = document.querySelector('.platform-tab.active').getAttribute('data-platform');
+        //     const language = localStorage.getItem('leopardo_lang') || 'fr';
+            
+        //     // Empêcher le téléchargement si désactivé
+        //     if ((platform === 'windows' && !downloadUrls.windows) ||
+        //         (platform === 'macos' && !downloadUrls.macos) ||
+        //         (platform === 'ubuntu' && !downloadUrls.ubuntu)) {
+        //         return;
+        //     }
+            
+        //     // Simuler le téléchargement
+        //     simulateDownload(platform);
+            
+        //     // Détecter le pays
+        //     const country = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/')[0] || 'unknown';
+
+        //     const downloadData = {
+        //         version: currentVersion,
+        //         platform,
+        //         timestamp: firebase.database.ServerValue.TIMESTAMP,
+        //         userAgent: navigator.userAgent,
+        //         referrer: document.referrer || 'direct',
+        //         language,
+        //         country
+        //     };
+
+        //     // Envoyer les données
+        //     database.ref('downloads').push(downloadData);
+            
+        //     // Incrémenter le compteur
+        //     database.ref('downloads/count').transaction((count) => {
+        //         return (count || 0) + 1;
+        //     });
+            
+        //     // Mettre à jour les statistiques pays
+        //     database.ref(`countries/${country}`).transaction((count) => {
+        //         return (count || 0) + 1;
+        //     });
+            
+        //     // Mettre à jour le nombre total de pays uniques
+        //     database.ref('countries').once('value').then((snapshot) => {
+        //         const countriesCount = snapshot.numChildren();
+        //         database.ref('stats/countries').set(countriesCount);
+        //     });
+            
+        //     // Stocker la version installée
+        //     localStorage.setItem('leopardo_last_version', currentVersion);
+        //     updateInfoEl.style.display = 'none';
+            
+        //     // Envoyer l'événement d'analyse
+        //     analytics.logEvent('download', { 
+        //         platform,
+        //         version: currentVersion,
+        //         language,
+        //         country
+        //     });
+            
+        //     // Rediriger vers le téléchargement après un court délai
+        //     setTimeout(() => {
+        //         window.location.href = downloadUrls[platform];
+        //     }, 1500);
+        // }
+
         // Gestion du slider de témoignages
+        function setupDownloadCounter() {
+            // Écouter les changements sur le compteur
+            database.ref('downloads/count').on('value', (snapshot) => {
+                const count = snapshot.val() || 0;
+                document.getElementById('download-count').textContent = count.toLocaleString();
+            });
+            
+            // Initialiser avec la valeur actuelle
+            database.ref('downloads/count').once('value').then((snapshot) => {
+                const count = snapshot.val() || 0;
+                document.getElementById('download-count').textContent = count.toLocaleString();
+            });
+        }   
+       
+       
         function goToSlide(index) {
             currentSlide = index;
             testimonialSlider.scrollTo({
@@ -1787,10 +2163,20 @@
             // Envoyer l'événement d'analyse
             analytics.logEvent('view_release_notes', { version: currentVersion });
         }
+        
+        // Afficher l'aide
+        function showHelp() {
+            helpModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Envoyer l'événement d'analyse
+            analytics.logEvent('view_help');
+        }
 
         // Fermer la modal
         function closeModal() {
             releaseNotesModal.style.display = 'none';
+            helpModal.style.display = 'none';
             document.body.style.overflow = 'auto';
         }
 
@@ -1810,15 +2196,19 @@
             windowsDownloadBtn.addEventListener('click', registerDownload);
             macosDownloadBtn.addEventListener('click', registerDownload);
             ubuntuDownloadBtn.addEventListener('click', registerDownload);
-            
+            setupDownloadCounter();
+ 
             // Gérer plusieurs boutons de notes de version (un par langue)
             document.querySelectorAll('#release-notes-btn').forEach(btn => {
                 btn.addEventListener('click', showReleaseNotes);
             });
             
-            closeModalBtn.addEventListener('click', closeModal);
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', closeModal);
+            });
+            
             window.addEventListener('click', (e) => {
-                if (e.target === releaseNotesModal) closeModal();
+                if (e.target === releaseNotesModal || e.target === helpModal) closeModal();
             });
             
             // Configurer le slider de témoignages
@@ -1831,6 +2221,9 @@
                 });
             });
             
+            // Configurer le bouton d'aide
+            helpButton.addEventListener('click', showHelp);
+            
             startSlider();
             
             // Configurer le partage social
@@ -1840,7 +2233,8 @@
             const userLang = localStorage.getItem('leopardo_lang') || 
                            (navigator.language.startsWith('fr') ? 'fr' :
                            navigator.language.startsWith('ar') ? 'ar' :
-                           navigator.language.startsWith('pt') ? 'pt' : 'en');
+                           navigator.language.startsWith('pt') ? 'pt' :
+                           navigator.language.startsWith('tr') ? 'tr' : 'en');
             setLanguage(userLang);
             
             // Charger les données
