@@ -923,7 +923,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS groups (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            link TEXT NOT NULL,
+            link TEXT NOT NULL UNIQUE,
             remarks TEXT,
             category_group_id INTEGER,
             description TEXT,
@@ -1017,9 +1017,38 @@ def init_db():
 
     # Groupes par défaut
     groups = [
-        ('Group1', 'http://example.com/group1', 'Remarks 1', 1, 'Description 1', 'Keywords1'),
-        ('Group2', 'http://example.com/group2', 'Remarks 2', 1, 'Description 2', 'Keywords2')
+        ('Group1', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group2', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group3', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group4', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group5', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group6', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group7', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group8', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group9', 'https://www.facebook.com/groups/865531597256624', '', 1, '', ''),
+        ('Group10', 'https://www.facebook.com/groups/1533868653533875/', '', 1, '', ''),
+        ('Group11', 'https://www.facebook.com/groups/2309210009291237/', '', 1, '', ''),
+        ('Group12', 'https://www.facebook.com/groups/119929018423623/', '', 1, '', ''),
+        ('Group13', 'https://www.facebook.com/groups/1914166852277174/', '', 1, '', ''),
+        ('Group14', 'https://www.facebook.com/groups/249218873426277/', '', 1, '', ''),
+        ('Group15', 'https://www.facebook.com/groups/382896815533960/', '', 1, '', ''),
+        ('Group16', 'https://www.facebook.com/groups/501089116661238/', '', 1, '', ''),
+        ('Group17', 'https://www.facebook.com/groups/313539295727010/', '', 1, '', ''),
+        ('Group18', 'https://www.facebook.com/groups/2939025449709547/', '', 1, '', ''),
+        ('Group19', 'https://www.facebook.com/groups/753693605432949/', '', 1, '', ''),
+        ('Group20', 'https://www.facebook.com/groups/785886162129417/', '', 1, '', ''),
+        ('Group21', 'https://www.facebook.com/groups/887867051269561/', '', 1, '', ''),
+        ('Group22', 'https://www.facebook.com/groups/pressegypt/', '', 1, '', ''),
+        ('Group23', 'https://www.facebook.com/groups/208073056046127/', '', 1, '', ''),
+        ('Group24', 'https://www.facebook.com/groups/1335838006878557/', '', 1, '', ''),
+        ('Group25', 'https://www.facebook.com/groups/1980706472159891/', '', 1, '', ''),
+        ('Group26', 'https://www.facebook.com/groups/2245742298849513/', '', 1, '', ''),
+        ('Group27', 'https://www.facebook.com/groups/266563507144846/', '', 1, '', ''),
+        ('Group28', 'https://www.facebook.com/groups/1713003238853136/', '', 1, '', ''),
+        ('Group29', 'https://www.facebook.com/groups/668946039826955', '', 1, '', ''),
+        ('Group30', 'https://www.facebook.com/groups/1090039738545144/', '', 1, '', ''),
     ]
+
     cursor.executemany('''
         INSERT OR IGNORE INTO groups (name, link, remarks, category_group_id, description, keywords)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -4816,14 +4845,38 @@ class GroupTable(QWidget):
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to add new group: {str(e)}")
             
+    # def verify_link(self, row):
+    #     """Ouvre le lien dans le navigateur par défaut"""
+    #     if row >= len(self.filtered_groups):
+    #         return
+            
+    #     link = self.table.item(row, 2).text()
+    #     if link:
+    #         QDesktopServices.openUrl(QUrl(link))
+
     def verify_link(self, row):
-        """Ouvre le lien dans le navigateur par défaut"""
+        """Ouvre le lien uniquement dans Google Chrome"""
         if row >= len(self.filtered_groups):
             return
-            
+
         link = self.table.item(row, 2).text()
         if link:
-            QDesktopServices.openUrl(QUrl(link))
+            try:
+                # Détection de l'OS
+                if sys.platform.startswith('win'):
+                    # Windows
+                    chrome_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+                    if not os.path.exists(chrome_path):
+                        chrome_path = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+                    subprocess.Popen([chrome_path, link])
+                elif sys.platform.startswith('linux'):
+                    # Linux
+                    subprocess.Popen(['google-chrome', link])
+                elif sys.platform.startswith('darwin'):
+                    # macOS
+                    subprocess.Popen(['open', '-a', 'Google Chrome', link])
+            except Exception as e:
+                print(f"Erreur lors de l'ouverture du lien avec Chrome : {e}")
             
     def delete_group(self, row):
         """Supprime un groupe de la base de données"""

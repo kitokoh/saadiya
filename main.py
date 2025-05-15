@@ -564,6 +564,36 @@ class Browser(QMainWindow):
         # Charger les données en arrière-plan
         QTimer.singleShot(1000, lambda: self.load_statistics_content(new_tab_index))
 
+    def open_persona_window(self):
+        """
+        Ouvre un nouvel onglet avec un écran de chargement,
+        puis charge le tableau de bord dans cet onglet une fois prêt.
+        """
+        tab_name = self.tr("statistiques")
+
+        # Vérifier si l'onglet existe déjà
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Créer un widget contenant l'écran de chargement
+        loading_screen = LoadingScreen(self)
+        loading_widget = QWidget()
+        layout = QVBoxLayout()
+        layout.addWidget(loading_screen)
+        loading_widget.setLayout(layout)
+
+        # Ajouter un nouvel onglet avec l'écran de chargement
+        new_tab_index = self.add_custom_ta(loading_widget, tab_name, "resources/icons/multi_fb.ico")
+        if new_tab_index is None:
+            raise RuntimeError("Failed to add a new tab. add_custom_tab returned None.")
+
+        self.tab_widget.setCurrentIndex(new_tab_index)
+
+        # Charger les données en arrière-plan
+        QTimer.singleShot(1000, lambda: self.load_statistics_content(new_tab_index))
+
     def open_accueil_window(self):
         from Installsweb.installdisign import InstallerPage
         tab_name = self.tr("Home")
@@ -2123,25 +2153,33 @@ class Browser(QMainWindow):
             # Tools section (dynamic)
             ("🧰", self.tr("Tools"), "tools", None, self.tr("Document tools"), [
                 ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
-                ("🌍", self.tr("Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
+                ("🌍", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
 
-                ("👥", self.tr("Contacts"), "contact", self.open_contacts_window, self.tr("Contact list"), []),
+                ("👥", self.tr("Address book"), "contact", self.open_contacts_window, self.tr("Contact list"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
                 # ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
                 # ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
                 # ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
                  ("📝", self.tr("Desc & Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
 
-                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+                ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
 
             ]),
             
             # Beta Features section
-            ("✨", self.tr("Robots"), "robot", None, self.tr("robot options"), [
+            ("✨", self.tr("Plans"), "Plans", None, self.tr("Plans options"), [
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
                 # ("🏛️", self.tr("Licenses"), "enterprise", self.open_upgrade_window, self.tr("Enterprise features"), []),
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("Marketing tools"), []),
-                ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
+                ("📜", self.tr("Protocles"), "Protocoles", self.open_management, self.tr("Protocoles tools"), []),
+
+                # ("____________", self.tr(""), "Ads", self.open_management, self.tr("Ads tools"), []),
+                ("♟️", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
+
+
+                ("💸", self.tr("ADS"), "Ads", self.open_management, self.tr("Ads tools"), []),
+                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+
                 # ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
                 # ("🪙", self.tr("Crypto Mining"), "Management", self.open_management, self.tr("Management tools"), []),
                 # ("🪙", self.tr("Tading"), "Management", self.open_management, self.tr("Management tools"), []),
@@ -2149,12 +2187,7 @@ class Browser(QMainWindow):
             ]),
             
 
-            # Support section
-            ("🆘", self.tr("Support"), "support", None, self.tr("Support resources"), [
-                ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
-                ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
-                ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
-            ]),
+
             # Settings section
             ("⏯️", self.tr("Run"), "Run", None, self.tr("Run Now"), [
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
@@ -2178,10 +2211,12 @@ class Browser(QMainWindow):
             # Upgrade button
 
             # Data section
-            ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
+            ("💡", self.tr("Data Banks"), "data", None, self.tr("Data management"), [
                 # ("📝", self.tr("Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
+                ("🎭", self.tr("Prospects "), "Persona", self.open_persona_window, self.tr("View statistics"), []),
+                ("🌍", self.tr("Groups "), "grups", self.open_grups_window, self.tr("Group list"), []),
+                
                 ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
-                ("📜", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
                 ("📥", self.tr("Import Data"), "import", self.open_imports_window, self.tr("Import data"), []),
                 ("🗃️", self.tr("ADN Backup"), "backup", self.open_imports_window, self.tr("Backup enterprise data"), []),
             ]),
@@ -2194,6 +2229,12 @@ class Browser(QMainWindow):
                     ("🕋", self.tr("Arabic"), "arabic", lambda: self.switch_language("ar"), self.tr("Arabic language"), []),
                     ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
                     ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
+            ]),
+                        # Support section
+            ("🆘", self.tr("Support"), "support", None, self.tr("Support resources"), [
+                ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
+                ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
+                ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
             ]),
         ]
 
@@ -2391,7 +2432,7 @@ class Browser(QMainWindow):
         self.settings_action = self.user_menu.addAction("⚙️ Settings")
         self.switch_action = self.user_menu.addAction("👥 Switch Account")
         self.subscription_action = self.user_menu.addAction("🛒 Subscription")
-        
+        self.my_persona_action = self.user_menu.addAction(" 🎭 My Persona")        
         # Connect actions
         self.login_action.triggered.connect(self.user_login)
         self.logout_action.triggered.connect(self.user_logout)
@@ -2400,6 +2441,7 @@ class Browser(QMainWindow):
         self.settings_action.triggered.connect(self.open_user_settings)
         self.switch_action.triggered.connect(self.switch_account)
         self.subscription_action.triggered.connect(self.open_subscription)
+        self.my_persona_action.triggered.connect(self.open_my_persona)
         
         self.user_button.setMenu(self.user_menu)
         self.top_menu_layout.addWidget(self.user_button)
@@ -3047,7 +3089,9 @@ class Browser(QMainWindow):
                 ("👤", "Personal Mode", self.switch_to_personal),
                 ("⚙️", "Settings", self.open_user_settings),
                 ("👥", "Switch Account", self.switch_account),
-                ("🛒", "Subscription", self.open_subscription)
+                ("🛒", "Subscription", self.open_subscription),
+                ("🎭", "My Persona", self.open_my_persona)
+
             ]
         else:
             user_actions = [
@@ -3166,8 +3210,10 @@ class Browser(QMainWindow):
     def open_account_settings(self):
         """Open account settings"""
         print("Account settings opened")
-
     def open_subscription(self):
+        """Open subscription page"""
+        print("Subscription page opened")
+    def open_my_persona(self):
         """Open subscription page"""
         print("Subscription page opened")
 
