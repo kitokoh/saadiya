@@ -1137,7 +1137,7 @@ class Browser(QMainWindow):
 
     def open_manuelle_window(self):
         from manuelleRobot.open import DescriptionManager
-        tab_name = self.tr("Manu")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("▶️ Run")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1147,11 +1147,11 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, 'Manu') or self.Manu is None:
+        if not hasattr(self, '▶️ Run') or self.Manu is None:
             self.Manu = DescriptionManager(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
-        self.add_custom_tab(self.Manu, tab_name, "resources/icons/multi_fb.ico")
+        self.add_custom_tab(self.Manu, tab_name, "resources/icons/multi_sfb.ico")
     def open_telecommande_window(self):
         tab_name = self.tr("Remote Control")  # Tab name (matches the label used in add_custom_tab)
 
@@ -2178,7 +2178,7 @@ class Browser(QMainWindow):
 
 
                 ("💸", self.tr("ADS"), "Ads", self.open_management, self.tr("Ads tools"), []),
-                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+                ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
 
                 # ("💵", self.tr("Finances"), "finances", self.open_finance, self.tr("Financial tools"), []),
                 # ("🪙", self.tr("Crypto Mining"), "Management", self.open_management, self.tr("Management tools"), []),
@@ -2189,17 +2189,17 @@ class Browser(QMainWindow):
 
 
             # Settings section
-            ("⏯️", self.tr("Run"), "Run", None, self.tr("Run Now"), [
+            ("⏯️", self.tr("Run"), "Run", self.open_manuelle_window, self.tr("Run Now"), [
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
-                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
-                ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
-                ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
+                # ("🛠️", self.tr("Manual"), "Manuelle", self.open_manuelle_window, self.tr("Manual tools"), []),
 
             ]),          
             
             # Settings section
             ("⚙️", self.tr("Settings"), "settings", None, self.tr("Configuration"), [
                 # ("✨", self.tr("AI BETA"), "features", self.open_accueil_window, self.tr("Additional features"), []),
+                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
+                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), []),
 
                 ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("Add app"), []),
                 # ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), []),
