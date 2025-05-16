@@ -422,64 +422,76 @@ class MainWindow1(QMainWindow):
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.update_status()
-
     def setup_style(self):
         self.setStyleSheet("""
             QMainWindow {
-                background-color: #f8f9fa;
+                background-color: #f8f8f8;
             }
             QTableView {
-                border: 1px solid #dee2e6;
+                border: 1px solid #e0e0e0;
                 background-color: white;
-                alternate-background-color: #f8f9fa;
-                selection-background-color: #4a6fa5;
-                selection-color: white;
-                gridline-color: #dee2e6;
+                alternate-background-color: #f8f8f8;
+                selection-background-color: #d0d0d0;
+                selection-color: #333333;
+                gridline-color: #e0e0e0;
+                border-radius: 8px;
             }
             QHeaderView::section {
-                background-color: #4a6fa5;
-                color: white;
-                padding: 8px;
+                background-color: #e0e0e0;
+                color: #333333;
+                padding: 12px;
                 font-weight: bold;
                 border: none;
+                border-radius: 4px;
             }
             QComboBox, QLineEdit, QPushButton {
-                padding: 8px;
+                padding: 10px;
                 font-size: 14px;
-                border: 1px solid #ced4da;
-                border-radius: 4px;
-                min-height: 30px;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                min-height: 36px;
             }
             QPushButton {
-                background-color: #4a6fa5;
-                color: white;
+                background-color: #e0e0e0;
+                color: #333333;
                 border: none;
+                border-radius: 6px;
             }
             QPushButton:hover {
-                background-color: #3a5a8f;
+                background-color: #d0d0d0;
             }
             QPushButton:pressed {
-                background-color: #2a4a7f;
+                background-color: #c0c0c0;
             }
             QPushButton#clear_search, QPushButton#clear_paste {
-                background-color: #dc3545;
+                background-color: #a0a0a0;
             }
             QPushButton#clear_search:hover, QPushButton#clear_paste:hover {
-                background-color: #c82333;
+                background-color: #909090;
             }
             QLineEdit[placeholderText="Rechercher dans les descriptions..."] {
                 background-color: white;
+                border-radius: 6px;
             }
             QLineEdit[placeholderText="Appuyez sur Entrée pour ajouter"] {
-                background-color: #f1f8ff;
-                border: 1px dashed #4a6fa5;
+                background-color: #f8f8f8;
+                border: 1px dashed #e0e0e0;
+                border-radius: 6px;
             }
             QStatusBar {
-                background-color: #e9ecef;
-                color: #495057;
-                border-top: 1px solid #dee2e6;
+                background-color: #f8f8f8;
+                color: #333333;
+                border-top: 1px solid #e0e0e0;
+            }
+            QTextEdit {
+                background-color: white;
+                border: 1px solid #e0e0e0;
+                border-radius: 6px;
+                padding: 10px;
             }
         """)
+
+
 
     def setup_tray_icon(self):
         if QSystemTrayIcon.isSystemTrayAvailable():
