@@ -1,16 +1,18 @@
 {
   "rules": {
     "downloads": {
-      ".read": "auth != null",
-      ".write": true,
       "count": {
         ".read": true,
         ".write": true
+      },
+      "countries": {
+        ".read": true,
+        ".write": true
+      },
+      "list": {
+        ".read": true,
+        ".write": true
       }
-    },
-    "releases": {
-      ".read": true,
-      ".write": "auth != null"
     }
   }
 }
