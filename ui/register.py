@@ -387,3 +387,461 @@ class RegisterModule(QDialog):
         self.password_input.clear()
         self.confirm_password_input.clear()
         self.email_input.clear()
+
+
+import hashlib
+import sqlite3
+import os
+import re
+from datetime import datetime
+from PyQt5.QtCore import Qt, QTranslator, QLocale, pyqtSignal
+from PyQt5.QtGui import QFont, QPixmap, QIcon
+from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QLineEdit, QPushButton, 
+                            QLabel, QMessageBox, QHBoxLayout, QComboBox, QWidget)
+from PyQt5.QtWidgets import QFrame
+
+# class RegisterModule(QDialog):
+
+#     registration_success = pyqtSignal(str)  # Signal avec le nom d'utilisateur
+    
+
+
+#     def create_input_field(self, placeholder, icon_name, is_password):
+#         """Crée un champ de saisie stylisé"""
+#         frame = QFrame()
+#         frame.setStyleSheet("""
+#             QFrame {
+#                 background-color: #F5F8FA;
+#                 border-radius: 8px;
+#                 border: 2px solid #2D74DA;
+#             }
+#         """)
+        
+#         layout = QHBoxLayout(frame)
+#         layout.setContentsMargins(5, 5, 5, 5)
+        
+#         # Icône
+#         icon_label = QLabel()
+#         icon_label.setPixmap(QPixmap(f"resources/icons/{icon_name}").scaled(20, 20))
+#         layout.addWidget(icon_label)
+        
+#         # Champ de saisie
+#         field = QLineEdit()
+#         field.setPlaceholderText(placeholder)
+#         field.setStyleSheet("""
+#             QLineEdit {
+#                 border: none;
+#                 background: transparent;
+#                 font-size: 14px;
+#                 padding: 5px;
+#             }
+#         """)
+        
+#         if is_password:
+#             field.setEchoMode(QLineEdit.Password)
+#             # Bouton pour afficher/masquer le mot de passe
+#             toggle_btn = QPushButton()
+#             toggle_btn.setIcon(QIcon("resources/icons/eye.png"))
+#             toggle_btn.setStyleSheet("border: none; background: transparent;")
+#             toggle_btn.setCheckable(True)
+#             toggle_btn.toggled.connect(
+#                 lambda state, f=field: f.setEchoMode(QLineEdit.Normal if state else QLineEdit.Password))
+#             layout.addWidget(field)
+#             layout.addWidget(toggle_btn)
+#         else:
+#             layout.addWidget(field)
+        
+#         return frame
+
+#     def get_combo_style(self):
+#         """Retourne le style CSS pour la combo box"""
+#         return """
+#             QComboBox {
+#                 padding: 10px;
+#                 border-radius: 8px;
+#                 border: 2px solid #2D74DA;
+#                 background-color: #F5F8FA;
+#                 font-size: 14px;
+#             }
+#             QComboBox:hover {
+#                 border-color: #1A59A0;
+#             }
+#             QComboBox::drop-down {
+#                 border: none;
+#                 width: 30px;
+#             }
+#             QComboBox::down-arrow {
+#                 image: url('resources/icons/telgrampng.png');
+#             }
+#         """
+
+#     def get_button_style(self):
+#         """Retourne le style CSS pour les boutons"""
+#         return """
+#             QPushButton {
+#                 background-color: #2D74DA;
+#                 color: white;
+#                 padding: 12px;
+#                 border-radius: 8px;
+#                 font-size: 16px;
+#                 font-weight: bold;
+#                 border: 2px solid #1A59A0;
+#             }
+#             QPushButton:hover {
+#                 background-color: #1A59A0;
+#             }
+#             QPushButton:pressed {
+#                 background-color: #154273;
+#             }
+#         """
+
+
+#     def init_translations(self):
+#         """Initialise le système de traduction"""
+#         self.translator = QTranslator()
+#         self.translator_manager = TranslatorManager()
+#         self.translator_manager.load_translations()
+        
+#         # Charger la langue par défaut
+#         settings_path = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "settings.json")
+#         if os.path.exists(settings_path):
+#             with open(settings_path) as f:
+#                 lang = json.load(f).get('language', 'fr')
+#                 self.switch_language(lang)
+
+#     def switch_language(self, language):
+#         """Change la langue de l'interface"""
+#         translations_path = os.path.join(
+#             os.path.expanduser("~"), 
+#             "AppData", "Roaming", "saadiya", 
+#             "resources", "lang", 
+#             f"{language}_{language.upper()}", 
+#             "ui", "register_translated.qm"
+#         )
+        
+#         if os.path.exists(translations_path):
+#             self.translator.load(translations_path)
+#             QApplication.instance().installTranslator(self.translator)
+#             self.retranslate_ui()
+
+#     def retranslate_ui(self):
+#         """Retraduit l'interface"""
+#         self.setWindowTitle(self.tr("Créer un compte"))
+#         # Mettre à jour les autres éléments textuels si nécessaire
+
+#     def validate_inputs(self):
+#         """Valide tous les champs du formulaire"""
+#         username = self.username_input.findChild(QLineEdit).text().strip()
+#         password = self.password_input.findChild(QLineEdit).text()
+#         confirm_password = self.confirm_password_input.findChild(QLineEdit).text()
+#         email = self.email_input.findChild(QLineEdit).text().strip()
+#         license_type = self.license_combo.currentText()
+        
+#         errors = []
+        
+#         # Validation du nom d'utilisateur
+#         if len(username) < 3:
+#             errors.append(self.tr("Le nom d'utilisateur doit contenir au moins 3 caractères"))
+#         elif not re.match(r'^[a-zA-Z0-9_]+$', username):
+#             errors.append(self.tr("Le nom d'utilisateur ne peut contenir que des lettres, chiffres et underscores"))
+        
+#         # Validation du mot de passe
+#         if len(password) < 8:
+#             errors.append(self.tr("Le mot de passe doit contenir au moins 8 caractères"))
+#         elif password != confirm_password:
+#             errors.append(self.tr("Les mots de passe ne correspondent pas"))
+        
+#         # Validation de l'email
+#         if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+#             errors.append(self.tr("L'adresse email n'est pas valide"))
+        
+#         # Vérification des doublons dans la DB
+#         try:
+#             self.cursor.execute("SELECT id FROM users WHERE username = ? OR email = ?", (username, email))
+#             if self.cursor.fetchone():
+#                 errors.append(self.tr("Ce nom d'utilisateur ou email est déjà utilisé"))
+#         except sqlite3.Error as e:
+#             errors.append(self.tr("Erreur de vérification des données"))
+#             print(f"Erreur DB: {e}")
+        
+#         if errors:
+#             QMessageBox.warning(self, self.tr("Erreurs de validation"), "\n".join(errors))
+#             return False
+        
+#         return True
+
+#     def handle_registration(self):
+#         """Gère le processus d'inscription"""
+#         if not self.validate_inputs():
+#             return
+            
+#         username = self.username_input.findChild(QLineEdit).text().strip()
+#         password = self.password_input.findChild(QLineEdit).text()
+#         email = self.email_input.findChild(QLineEdit).text().strip()
+#         license_type = self.license_combo.currentText()
+        
+#         try:
+#             # Hachage du mot de passe
+#             hashed_pwd = hashlib.sha256(password.encode()).hexdigest()
+            
+#             # Création du token de vérification
+#             verification_token = hashlib.sha256(f"{username}{email}{datetime.now()}".encode()).hexdigest()
+            
+#             # Insertion dans la DB
+#             self.cursor.execute("""
+#                 INSERT INTO users (username, password_hash, email, license_type, verification_token)
+#                 VALUES (?, ?, ?, ?, ?)
+#             """, (username, hashed_pwd, email, license_type, verification_token))
+            
+#             self.conn.commit()
+            
+#             # Envoi des emails
+#             Mailer1().send_email_to_user(
+#                 user_email=email,
+#                 email_type='welcome',
+#                 extra_data={'username': username, 'token': verification_token}
+#             )
+            
+#             Mailer2().send_email(
+#                 email_type="new_user_notification",
+#                 extra_subject=f"Nouvel utilisateur: {username}"
+#             )
+            
+#             # Message de succès
+#             QMessageBox.information(
+#                 self, 
+#                 self.tr("🎉 Inscription réussie !"), 
+#                 self.tr("""Votre compte a été créé avec succès !
+                
+# Un email de confirmation vous a été envoyé à {email}.
+
+# Vous pouvez maintenant vous connecter et commencer à utiliser Leopardo AI.""").format(email=email)
+#             )
+            
+#             self.registration_success.emit(username)
+#             self.accept()
+            
+#         except sqlite3.Error as e:
+#             QMessageBox.critical(
+#                 self, 
+#                 self.tr("Erreur"), 
+#                 self.tr("Une erreur est survenue lors de la création du compte. Veuillez réessayer.")
+#             )
+#             print(f"Erreur DB: {e}")
+
+#     def clear_form(self):
+#         """Réinitialise le formulaire"""
+#         self.username_input.findChild(QLineEdit).clear()
+#         self.password_input.findChild(QLineEdit).clear()
+#         self.confirm_password_input.findChild(QLineEdit).clear()
+#         self.email_input.findChild(QLineEdit).clear()
+#         self.license_combo.setCurrentIndex(0)
+
+#     def closeEvent(self, event):
+#         """Gère la fermeture de la fenêtre"""
+#         self.conn.close()
+#         super().closeEvent(event)
+
+
+
+
+#     registration_success = pyqtSignal(str)  # Signal avec le nom d'utilisateur
+    
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         # Configuration DB
+#         self.db_path = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "data", "users.db")
+        
+#         # Initialisation dans le bon ordre
+#         self.init_db()  # Doit être appelé en premier
+#         self.init_ui()
+#         self.init_translations()
+
+#     def init_db(self):
+#         """Initialise la base de données SQLite"""
+#         try:
+#             os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+            
+#             self.conn = sqlite3.connect(self.db_path)
+#             self.cursor = self.conn.cursor()
+            
+#             # Création des tables si elles n'existent pas
+#             # Création des tables si elles n'existent pas
+#             self.cursor.execute("""
+#                 CREATE TABLE IF NOT EXISTS users (
+#                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                     username TEXT UNIQUE NOT NULL,
+#                     password_hash TEXT NOT NULL,
+#                     email TEXT UNIQUE NOT NULL,
+#                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#                     last_login TIMESTAMP,
+#                     is_active BOOLEAN DEFAULT 1,
+#                     failed_attempts INTEGER DEFAULT 0,
+#                     verification_token TEXT,
+#                     license_type TEXT NOT NULL,
+#                     license_expiration TIMESTAMP,
+#                     is_verified BOOLEAN DEFAULT 0,
+#                     is_locked BOOLEAN DEFAULT 0,
+#                     lockout_time TIMESTAMP,
+#                     last_active TIMESTAMP
+
+
+#                 )
+#             """)
+
+
+#             self.cursor.execute("""
+#                 CREATE TABLE IF NOT EXISTS licenses (
+#                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                     name TEXT UNIQUE NOT NULL,
+#                     duration_days INTEGER,
+#                     price REAL,
+#                     features TEXT
+#                 )
+#             """)
+            
+
+
+#             self.cursor.execute("""
+#                 CREATE TABLE IF NOT EXISTS sessions (
+#                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                     user_id INTEGER REFERENCES users(id),
+#                     session_token TEXT UNIQUE NOT NULL,
+#                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#                     expires_at TIMESTAMP NOT NULL,
+#                     is_valid BOOLEAN DEFAULT 1,
+#                     session_timeout INTEGER DEFAULT 14400,
+#                     session_start TIMESTAMP,
+#                     session_end TIMESTAMP,  
+#                     session_valid BOOLEAN DEFAULT 1,
+#                     session_expiration TIMESTAMP,
+#                     session_last_active TIMESTAMP
+#                 )
+#             """)       
+
+#             # Insertion des licences par défaut si nécessaire
+#             self.cursor.execute("SELECT COUNT(*) FROM licenses")
+#             if self.cursor.fetchone()[0] == 0:
+#                 licenses = [
+#                     ("demo", 7, 0.0, "Fonctionnalités de base"),
+#                     ("mensuelle", 30, 9.99, "Accès complet mensuel"),
+#                     ("annuelle", 365, 99.99, "Accès complet annuel"),
+#                     ("lifetime", None, 299.99, "Accès permanent")
+#                 ]
+#                 self.cursor.executemany(
+#                     "INSERT INTO licenses (name, duration_days, price, features) VALUES (?, ?, ?, ?)",
+#                     licenses
+#                 )
+            
+#             self.conn.commit()
+            
+#         except sqlite3.Error as e:
+#             print(f"Erreur lors de l'initialisation de la base de données: {e}")
+#             # Fallback: recréer la connexion
+#             self.conn = sqlite3.connect(self.db_path)
+#             self.cursor = self.conn.cursor()
+
+#     def init_ui(self):
+#         """Initialise l'interface utilisateur"""
+#         self.setWindowTitle(self.tr("Créer un compte"))
+#         self.setWindowIcon(QIcon('resources/icons/878952-Hornet-Secure.ico'))
+#         self.setFixedSize(700, 500)
+        
+#         # Layout principal
+#         main_layout = QHBoxLayout(self)
+#         main_layout.setContentsMargins(0, 0, 0, 0)
+        
+#         # Image de fond (50%)
+#         self.image_label = QLabel()
+#         self.image_label.setPixmap(QPixmap("resources/images/7.jpg").scaled(
+#             350, 500, Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation))
+#         main_layout.addWidget(self.image_label)
+        
+#         # Formulaire (50%)
+#         form_frame = QFrame()
+#         form_frame.setStyleSheet("""
+#             QFrame {
+#                 background-color: rgba(255, 255, 255, 0.95);
+#                 border-radius: 10px;
+#             }
+#         """)
+        
+#         form_layout = QVBoxLayout(form_frame)
+#         form_layout.setContentsMargins(30, 30, 30, 30)
+#         form_layout.setSpacing(15)
+        
+#         # Titre
+#         title = QLabel(self.tr("Créer un compte"))
+#         title.setStyleSheet("""
+#             font-size: 24px;
+#             font-weight: bold;
+#             color: #2c3e50;
+#         """)
+#         title.setAlignment(Qt.AlignCenter)
+#         form_layout.addWidget(title)
+        
+#         # Champs de formulaire
+#         fields = [
+#             (self.tr("Nom d'utilisateur"), "user.png", False),
+#             (self.tr("Mot de passe"), "lock.png", True),
+#             (self.tr("Confirmer le mot de passe"), "lock.png", True),
+#             (self.tr("Adresse e-mail"), "email.png", False)
+#         ]
+        
+#         self.username_input = self.create_input_field(*fields[0])
+#         self.password_input = self.create_input_field(*fields[1])
+#         self.confirm_password_input = self.create_input_field(*fields[2])
+#         self.email_input = self.create_input_field(*fields[3])
+        
+#         form_layout.addWidget(self.username_input)
+#         form_layout.addWidget(self.password_input)
+#         form_layout.addWidget(self.confirm_password_input)
+#         form_layout.addWidget(self.email_input)
+        
+#         # Liste déroulante des licences
+#         self.license_combo = QComboBox()
+#         self.license_combo.setStyleSheet(self.get_combo_style())
+#         self.populate_license_combo()  # Appelé après l'initialisation de la DB
+#         form_layout.addWidget(self.license_combo)
+        
+#         # Bouton d'inscription
+#         self.register_btn = QPushButton(self.tr("Créer un compte"))
+#         self.register_btn.setStyleSheet(self.get_button_style())
+#         self.register_btn.clicked.connect(self.handle_registration)
+#         form_layout.addWidget(self.register_btn)
+        
+#         main_layout.addWidget(form_frame)
+
+#     def populate_license_combo(self):
+#         """Remplit la liste déroulante des licences"""
+#         try:
+#             # Vérification que le curseur est bien initialisé
+#             if not hasattr(self, 'cursor') or not self.cursor:
+#                 self.init_db()  # Réinitialisation si nécessaire
+                
+#             self.cursor.execute("SELECT name FROM licenses ORDER BY price")
+#             licenses = self.cursor.fetchall()
+            
+#             self.license_combo.clear()
+#             for license in licenses:
+#                 self.license_combo.addItem(license[0])
+            
+#             # Sélection par défaut sur "demo"
+#             index = self.license_combo.findText("demo")
+#             if index >= 0:
+#                 self.license_combo.setCurrentIndex(index)
+                
+#         except sqlite3.Error as e:
+#             print(f"Erreur lors du chargement des licences: {e}")
+#             # Solution de repli avec des valeurs par défaut
+#             self.license_combo.clear()
+#             self.license_combo.addItems(["demo", "mensuelle", "annuelle", "lifetime"])
+#             self.license_combo.setCurrentIndex(0)
+            
+#             # Tentative de réparation de la base de données
+#             try:
+#                 self.init_db()
+#             except Exception as e:
+#                 print(f"Échec de la réinitialisation de la base de données: {e}")
+
+#     # ... (le reste des méthodes reste inchangé)

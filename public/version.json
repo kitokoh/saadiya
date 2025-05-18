@@ -1,6 +1,5 @@
 {
-    "version": "2.0.0",
-    "url": "https://github.com/ton-utilisateur/leopardo/releases/download/v2.0.0/leopardo.exe",
-    "notes": "Ajout de la génération automatique, traduction arabe, correction des bugs"
-  }
-  
+  "latest_version": "2.1.0",
+  "url": "https://github.com/kitokoh/leopardo/releases/download/v1.2.3n/main.exe",
+  "release_notes": "Améliorations de performance, corrections de bugs, et nouvelle interface utilisateur."
+}

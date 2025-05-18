@@ -558,3 +558,501 @@ class LoginModule(QWidget):
         except (FileNotFoundError, json.JSONDecodeError, ValueError):
             return False
 
+
+
+
+
+
+# import hashlib
+# import sqlite3
+# import os
+# from datetime import datetime, timedelta
+# from PyQt5.QtCore import Qt, QTranslator, QLocale, pyqtSignal
+# from PyQt5.QtGui import QFont, QIcon, QPixmap
+# from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLineEdit, QPushButton, 
+#                             QLabel, QMessageBox, QHBoxLayout, QFrame, QCheckBox)
+# from PyQt5.QtCore import QTimer
+# from PyQt5.QtWidgets import QInputDialog
+
+# class LoginModule(QWidget):
+#     connection_successful = pyqtSignal(str)  # Signal avec username
+    
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         self.failed_attempts = 0
+#         self.max_attempts = 5
+#         self.lockout_time = None
+#         self.session_timeout = 1440  # 24h en minutes
+        
+#         # Initialisation DB
+#         self.db_path = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "data", "users.db")
+#         self.init_db()
+        
+#         # UI Setup
+#         self.init_ui()
+#         self.init_translations()
+#         self.check_existing_session()
+
+#     def init_db(self):
+#         """Initialise la base de données SQLite"""
+#         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        
+#         self.conn = sqlite3.connect(self.db_path)
+#         self.cursor = self.conn.cursor()
+        
+#         # Création des tables si elles n'existent pas
+#         self.cursor.execute("""
+#             CREATE TABLE IF NOT EXISTS users (
+#                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                 username TEXT UNIQUE NOT NULL,
+#                 password_hash TEXT NOT NULL,
+#                 email TEXT UNIQUE NOT NULL,
+#                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#                 last_login TIMESTAMP,
+#                 is_active BOOLEAN DEFAULT 1,
+#                 failed_attempts INTEGER DEFAULT 0,
+#                 verification_token TEXT,
+#                 license_type TEXT NOT NULL,
+#                 license_expiration TIMESTAMP,
+#                 is_verified BOOLEAN DEFAULT 0,
+#                 is_locked BOOLEAN DEFAULT 0,
+#                 lockout_time TIMESTAMP,
+#                 last_active TIMESTAMP
+
+
+#             )
+#         """)
+
+
+#         self.cursor.execute("""
+#             CREATE TABLE IF NOT EXISTS licenses (
+#                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                 name TEXT UNIQUE NOT NULL,
+#                 duration_days INTEGER,
+#                 price REAL,
+#                 features TEXT
+#             )
+#         """)
+        
+
+
+#         self.cursor.execute("""
+#             CREATE TABLE IF NOT EXISTS sessions (
+#                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                 user_id INTEGER REFERENCES users(id),
+#                 session_token TEXT UNIQUE NOT NULL,
+#                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#                 expires_at TIMESTAMP NOT NULL,
+#                 is_valid BOOLEAN DEFAULT 1,
+#                 session_timeout INTEGER DEFAULT 14400,
+#                 session_start TIMESTAMP,
+#                 session_end TIMESTAMP,  
+#                 session_valid BOOLEAN DEFAULT 1,
+#                 session_expiration TIMESTAMP,
+#                 session_last_active TIMESTAMP
+#             )
+#         """)
+        
+#         self.conn.commit()
+
+#     def init_ui(self):
+#         """Initialise l'interface utilisateur"""
+#         self.setWindowTitle(self.tr("Connexion - Leopardo AI"))
+#         self.setWindowIcon(QIcon('resources/icons/house-key-icon-41543-Windows.ico'))
+#         self.setStyleSheet("background-color: #F5F5F5;")
+#         self.setFixedSize(800, 500)
+        
+#         # Layout principal
+#         main_layout = QHBoxLayout(self)
+#         main_layout.setContentsMargins(0, 0, 0, 0)
+        
+#         # Carrousel d'images (50% de l'espace)
+#         self.carousel = CarouselWidget()
+#         main_layout.addWidget(self.carousel, stretch=1)
+        
+#         # Formulaire de connexion (50% de l'espace)
+#         form_frame = QFrame()
+#         form_frame.setStyleSheet("""
+#             QFrame {
+#                 background-color: rgba(255, 255, 255, 0.95);
+#                 border-radius: 12px;
+#             }
+#         """)
+        
+#         form_layout = QVBoxLayout(form_frame)
+#         form_layout.setContentsMargins(40, 40, 40, 40)
+#         form_layout.setSpacing(20)
+        
+#         # Titre
+#         title = QLabel(self.tr("Connexion à Leopardo AI"))
+#         title.setStyleSheet("""
+#             font-size: 26px;
+#             font-weight: bold;
+#             color: #2D74DA;
+#         """)
+#         title.setAlignment(Qt.AlignCenter)
+#         form_layout.addWidget(title)
+        
+#         # Champs de formulaire
+#         self.username_input = self.create_input_field(self.tr("Nom d'utilisateur"), "user.png")
+#         self.password_input = self.create_input_field(self.tr("Mot de passe"), "lock.png", True)
+        
+#         form_layout.addWidget(self.username_input)
+#         form_layout.addWidget(self.password_input)
+        
+#         # Bouton de connexion
+#         self.login_btn = QPushButton(self.tr("Se connecter"))
+#         self.login_btn.setIcon(QIcon("resources/icons/house-key-icon-41543-Windows.ico"))
+#         self.login_btn.setStyleSheet(self.get_button_style())
+#         self.login_btn.clicked.connect(self.handle_login)
+#         form_layout.addWidget(self.login_btn)
+        
+#         # Options
+#         options_layout = QHBoxLayout()
+        
+#         self.remember_me = QCheckBox(self.tr("Se souvenir de moi"))
+#         self.remember_me.setStyleSheet("color: #34495e;")
+        
+#         forgot_pwd = QPushButton(self.tr("Mot de passe oublié ?"))
+#         forgot_pwd.setStyleSheet("""
+#             QPushButton {
+#                 color: #3498db;
+#                 border: none;
+#                 text-decoration: underline;
+#             }
+#         """)
+#         forgot_pwd.clicked.connect(self.handle_password_recovery)
+        
+#         options_layout.addWidget(self.remember_me)
+#         options_layout.addStretch()
+#         options_layout.addWidget(forgot_pwd)
+#         form_layout.addLayout(options_layout)
+        
+#         # Séparateur
+#         separator = QFrame()
+#         separator.setFrameShape(QFrame.HLine)
+#         separator.setStyleSheet("color: #ecf0f1;")
+#         form_layout.addWidget(separator)
+        
+#         # Bouton d'inscription
+#         signup_btn = QPushButton(self.tr("Créer un compte"))
+#         signup_btn.setIcon(QIcon("resources/icons/878952-Hornet-Secure.ico"))
+#         signup_btn.setStyleSheet(self.get_button_style(primary=False))
+#         signup_btn.clicked.connect(self.show_register_form)
+#         form_layout.addWidget(signup_btn)
+        
+#         main_layout.addWidget(form_frame, stretch=1)
+        
+#         # Timer pour verrouillage
+#         self.lockout_timer = QTimer()
+#         self.lockout_timer.timeout.connect(self.check_lockout_status)
+
+#     def create_input_field(self, placeholder, icon_name, is_password=False):
+#         """Crée un champ de saisie stylisé"""
+#         frame = QFrame()
+#         frame.setStyleSheet("""
+#             QFrame {
+#                 background-color: #F5F8FA;
+#                 border-radius: 8px;
+#                 border: 2px solid #2D74DA;
+#             }
+#         """)
+        
+#         layout = QHBoxLayout(frame)
+#         layout.setContentsMargins(5, 5, 5, 5)
+        
+#         # Icône
+#         icon_label = QLabel()
+#         icon_label.setPixmap(QPixmap(f"resources/icons/{icon_name}").scaled(20, 20))
+#         layout.addWidget(icon_label)
+        
+#         # Champ de saisie
+#         field = QLineEdit()
+#         field.setPlaceholderText(placeholder)
+#         field.setStyleSheet("""
+#             QLineEdit {
+#                 border: none;
+#                 background: transparent;
+#                 font-size: 14px;
+#                 padding: 5px;
+#             }
+#         """)
+        
+#         if is_password:
+#             field.setEchoMode(QLineEdit.Password)
+#             # Bouton pour afficher/masquer le mot de passe
+#             toggle_btn = QPushButton()
+#             toggle_btn.setIcon(QIcon("resources/icons/eye.png"))
+#             toggle_btn.setStyleSheet("border: none; background: transparent;")
+#             toggle_btn.setCheckable(True)
+#             toggle_btn.toggled.connect(
+#                 lambda state, f=field: f.setEchoMode(QLineEdit.Normal if state else QLineEdit.Password))
+#             layout.addWidget(field)
+#             layout.addWidget(toggle_btn)
+#         else:
+#             layout.addWidget(field)
+        
+#         return frame
+
+#     def get_button_style(self, primary=True):
+#         """Retourne le style CSS pour les boutons"""
+#         if primary:
+#             return """
+#                 QPushButton {
+#                     background-color: #2D74DA;
+#                     color: white;
+#                     padding: 14px 28px;
+#                     border-radius: 40px;
+#                     font-size: 16px;
+#                     font-weight: bold;
+#                     border: 2px solid #1A59A0;
+#                 }
+#                 QPushButton:hover {
+#                     background-color: #1A59A0;
+#                 }
+#                 QPushButton:disabled {
+#                     background-color: #95a5a6;
+#                 }
+#             """
+#         else:
+#             return """
+#                 QPushButton {
+#                     background-color: #28A745;
+#                     color: white;
+#                     padding: 14px 28px;
+#                     border-radius: 40px;
+#                     font-size: 16px;
+#                     font-weight: bold;
+#                     border: 2px solid #218838;
+#                 }
+#                 QPushButton:hover {
+#                     background-color: #218838;
+#                 }
+#             """
+
+#     def init_translations(self):
+#         """Initialise le système de traduction"""
+#         self.translator = QTranslator()
+#         self.translator_manager = TranslatorManager()
+#         self.translator_manager.load_translations()
+        
+#         # Charger la langue par défaut
+#         if os.path.exists(os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "settings.json")):
+#             with open(os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "settings.json")) as f:
+#                 lang = json.load(f).get('language', 'fr')
+#                 self.switch_language(lang)
+
+#     def switch_language(self, language):
+#         """Change la langue de l'interface"""
+#         if language == "fr":
+#             self.translator.load(os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "resources", "lang", "fr_FR", "ui", "login_translated.qm"))
+#         elif language == "en":
+#             self.translator.load(os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya", "resources", "lang", "en_US", "ui", "login_translated.qm"))
+        
+#         QApplication.instance().installTranslator(self.translator)
+#         self.retranslate_ui()
+
+#     def retranslate_ui(self):
+#         """Retraduit l'interface"""
+#         # Implémentez la mise à jour des textes si nécessaire
+#         pass
+
+#     def check_existing_session(self):
+#         """Vérifie s'il existe une session valide"""
+#         try:
+#             self.cursor.execute("""
+#                 SELECT u.username, s.expires_at 
+#                 FROM sessions s
+#                 JOIN users u ON s.user_id = u.id
+#                 WHERE s.is_valid = 1 AND s.expires_at > datetime('now')
+#                 ORDER BY s.created_at DESC
+#                 LIMIT 1
+#             """)
+#             session = self.cursor.fetchone()
+            
+#             if session:
+#                 username, expires_at = session
+#                 if datetime.now() < datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S"):
+#                     self.login_success.emit(username)
+#         except sqlite3.Error as e:
+#             print(f"Erreur DB: {e}")
+
+#     def handle_login(self):
+#         """Gère la tentative de connexion"""
+#         if self.lockout_time and datetime.now() < self.lockout_time:
+#             remaining = (self.lockout_time - datetime.now()).seconds // 60
+#             QMessageBox.warning(self, self.tr("Compte verrouillé"),
+#                               self.tr(f"Trop de tentatives. Réessayez dans {remaining} minutes."))
+#             return
+        
+#         username = self.username_input.findChild(QLineEdit).text().strip()
+#         password = self.password_input.findChild(QLineEdit).text()
+        
+#         if not self.validate_credentials(username, password):
+#             self.failed_attempts += 1
+#             if self.failed_attempts >= self.max_attempts:
+#                 self.lockout_time = datetime.now() + timedelta(minutes=15)
+#                 self.lockout_timer.start(60000)
+#                 self.login_btn.setEnabled(False)
+#                 self.update_failed_attempts(username)
+#             return
+            
+#         if self.authenticate_user(username, password):
+#             self.create_user_session(username)
+#             self.show_welcome_message(username)
+#             self.login_success.emit(username)
+#             self.close()
+
+#     def validate_credentials(self, username, password):
+#         """Valide le format des identifiants"""
+#         errors = []
+        
+#         if len(username) < 3:
+#             errors.append(self.tr("Nom d'utilisateur trop court"))
+            
+#         if len(password) < 6:
+#             errors.append(self.tr("Mot de passe trop court"))
+            
+#         if errors:
+#             QMessageBox.warning(self, self.tr("Erreur de validation"), "\n".join(errors))
+#             return False
+            
+#         return True
+
+#     def authenticate_user(self, username, password):
+#         """Authentifie l'utilisateur avec la DB"""
+#         try:
+#             hashed_pwd = hashlib.sha256(password.encode()).hexdigest()
+            
+#             self.cursor.execute("""
+#                 SELECT id, password_hash, is_active 
+#                 FROM users 
+#                 WHERE username = ? 
+#                 LIMIT 1
+#             """, (username,))
+#             user = self.cursor.fetchone()
+            
+#             if not user:
+#                 QMessageBox.warning(self, self.tr("Échec de connexion"),
+#                                   self.tr("Identifiants incorrects"))
+#                 return False
+                
+#             user_id, db_hash, is_active = user
+            
+#             if not is_active:
+#                 QMessageBox.warning(self, self.tr("Compte désactivé"),
+#                                   self.tr("Votre compte a été désactivé. Contactez le support."))
+#                 return False
+                
+#             if db_hash != hashed_pwd:
+#                 QMessageBox.warning(self, self.tr("Échec de connexion"),
+#                                   self.tr("Identifiants incorrects"))
+#                 return False
+                
+#             # Réinitialiser les tentatives échouées
+#             self.cursor.execute("""
+#                 UPDATE users 
+#                 SET failed_attempts = 0, last_login = datetime('now')
+#                 WHERE id = ?
+#             """, (user_id,))
+#             self.conn.commit()
+            
+#             return True
+            
+#         except sqlite3.Error as e:
+#             print(f"Erreur DB: {e}")
+#             return False
+
+#     def update_failed_attempts(self, username):
+#         """Met à jour le compteur de tentatives échouées"""
+#         try:
+#             self.cursor.execute("""
+#                 UPDATE users 
+#                 SET failed_attempts = failed_attempts + 1
+#                 WHERE username = ?
+#             """, (username,))
+#             self.conn.commit()
+#         except sqlite3.Error as e:
+#             print(f"Erreur DB: {e}")
+
+#     def create_user_session(self, username):
+#         """Crée une session utilisateur dans la DB"""
+#         try:
+#             # Récupérer l'ID utilisateur
+#             self.cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+#             user_id = self.cursor.fetchone()[0]
+            
+#             # Créer un token de session
+#             session_token = hashlib.sha256(f"{username}{datetime.now()}".encode()).hexdigest()
+#             expires_at = (datetime.now() + timedelta(minutes=self.session_timeout)).strftime("%Y-%m-%d %H:%M:%S")
+            
+#             # Insérer la session
+#             self.cursor.execute("""
+#                 INSERT INTO sessions (user_id, session_token, expires_at)
+#                 VALUES (?, ?, ?)
+#             """, (user_id, session_token, expires_at))
+            
+#             self.conn.commit()
+            
+#             # Envoyer un email de notification
+#             Mailer1().send_email(email_type="mail1")
+            
+#         except sqlite3.Error as e:
+#             print(f"Erreur DB: {e}")
+
+#     def show_welcome_message(self, username):
+#         """Affiche le message de bienvenue"""
+#         dialog = WelcomeDialog(username)
+#         dialog.exec_()
+        
+#         QMessageBox.information(
+#             self,
+#             self.tr("🎉 Bienvenue chez Leopardo.ai!"),
+#             self.tr(
+#                 "<div style='background-color:#F0F8FF; padding:20px; border-radius:10px;'>"
+#                 "<h1 style='color:#2E86C1; font-size:24px; text-align:center;'>Bienvenue, {}</h1>"
+#                 # ... (votre message HTML existant) ...
+#                 "</div>"
+#             ).format(username)
+#         )
+
+#     def check_lockout_status(self):
+#         """Vérifie si le verrouillage doit être levé"""
+#         if self.lockout_time and datetime.now() >= self.lockout_time:
+#             self.lockout_time = None
+#             self.failed_attempts = 0
+#             self.login_btn.setEnabled(True)
+#             self.lockout_timer.stop()
+
+#     def handle_password_recovery(self):
+#         """Gère la récupération de mot de passe"""
+#         email, ok = QInputDialog.getText(self, 
+#                                        self.tr("Récupération de mot de passe"),
+#                                        self.tr("Entrez votre email:"))
+        
+#         if ok and email:
+#             try:
+#                 self.cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+#                 if self.cursor.fetchone():
+#                     # Envoyer un email de réinitialisation (simulé)
+#                     Mailer1().send_email_to_user(user_email=email, email_type='password_reset')
+#                     QMessageBox.information(self, self.tr("Succès"), 
+#                                           self.tr("Un email de réinitialisation a été envoyé."))
+#                 else:
+#                     QMessageBox.warning(self, self.tr("Erreur"), 
+#                                       self.tr("Aucun compte associé à cet email."))
+#             except sqlite3.Error as e:
+#                 print(f"Erreur DB: {e}")
+
+#     def show_register_form(self):
+#         """Affiche le formulaire d'inscription"""
+#         self.register_module = RegisterModule()
+#         self.register_module.show()
+#         self.close()
+
+#     def closeEvent(self, event):
+#         """Gère la fermeture de la fenêtre"""
+#         self.lockout_timer.stop()
+#         self.conn.close()
+#         super().closeEvent(event)
+

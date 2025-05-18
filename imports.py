@@ -63,6 +63,10 @@ DB_PATH_instances = DB_PATH
 DB_PATH_finances = DB_PATH
 DB_PATH_contacts = DB_PATH
 DB_PATH_licence = DB_PATH
+DB_PATH_update = DB_PATH
+
+APP_INFO_FILE = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'APP_INFO_FILE.json')
+# DB_PATH_update = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'update.db')
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
 # _curentfolder = os.getcwd()  # Ou définissez-le comme un chemin spécifique si nécessaire
 
