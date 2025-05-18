@@ -8,7 +8,7 @@ commment faire pour que chaque ordi qui veux miner pour moi commence d abord par
 commment faire pour que chaque ordi qui veut miner pour moi  considerer le button eteindre comme un button qui de sactive juste l ecran etque le minage continue en back ground 
 
 comment faire pour que ma configuration pour les minages ne prenne pas plus d espace que les autre logicielle utiliser dans l ordinateur et que les minage auccupe dynamiquement les espace vides 
-
+sss
 
 je veux ealiser un code qui porra me permetre de pouvoir rendre un ordinateur miner du monero en un clic comment devrais je le faie et quelles sont les fonctionalite a ajouter 
 j aimerais que ca soit le plus discret possible donc jaurrais peut pas besoin de l ui  non genre je veux un programme qui des qu il sexecutete intalle et parmettre tout ce quil faut pour que lordi commmence par miner du monero
