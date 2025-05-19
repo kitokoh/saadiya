@@ -2752,17 +2752,17 @@ class Browser(QMainWindow):
         menu_items = [
             ("🏠", self.tr("Home"), "home", self.open_home, self.tr("Main dashboard"), []),
             ("🧰", self.tr("Tools"), "tools", None, self.tr("Document tools"), [
+                ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
+
                 ("📺", self.tr("Media"), "media", self.add_media_page, self.tr("Media Management"), []),
                 ("🌍", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
                 ("👥", self.tr("Address book"), "contact", self.open_contacts_window, self.tr("Contact list"), []),
                 ("🔗", self.tr("Links"), "links", self.open_links_window, self.tr("Manage links"), []),
                 ("📝", self.tr("Desc & Prompts"), "prompts", self.open_prompts_window, self.tr("Useful prompts"), []),
-                ("🧠", self.tr("Management"), "Management", self.open_management, self.tr("Management tools"), []),
             ]),
             ("✨", self.tr("Plans"), "Plans", None, self.tr("Plans options"), [
                 ("🎯", self.tr("Marketing"), "Marketing", self.open_marketing, self.tr("Marketing tools"), []),
                 ("📜", self.tr("Protocles"), "Protocoles", self.open_management, self.tr("Protocoles tools"), []),
-                ("♟️", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
                 ("💸", self.tr("ADS"), "Ads", self.open_management, self.tr("Ads tools"), []),
                 ("⏰", self.tr("Scheduler"), "scheduler", self.open_sheduling_window, self.tr("Task scheduling"), []),
             ]),
@@ -2774,8 +2774,11 @@ class Browser(QMainWindow):
                 ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), []),
                 ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), []),
                 ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), []),
+                ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
+                ("♟️", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), []),
+
             ]),
-            ("💡", self.tr("Data Banks"), "data", None, self.tr("Data management"), [
+            ("💡", self.tr("Data"), "data", None, self.tr("Data management"), [
                 ("🎭", self.tr("Prospects "), "Persona", self.open_persona_window, self.tr("View statistics"), []),
                 ("🌍", self.tr("Groups "), "grups", self.open_grups_window, self.tr("Group list"), []),
                 ("📈", self.tr("Stats"), "stats", self.open_statistics_window, self.tr("View statistics"), []),
@@ -2789,11 +2792,11 @@ class Browser(QMainWindow):
                 ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), []),
                 ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), []),
             ]),
-            ("🆘", self.tr("Support"), "support", None, self.tr("Support resources"), [
-                ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
-                ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
-                ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
-            ]),
+            # ("🆘", self.tr("Support"), "support", None, self.tr("Support resources"), [
+            #     ("ℹ️", self.tr("About"), "about", self.open_about_window, self.tr("About this app"), []),
+            #     ("📜", self.tr("Documents"), "documents", self.open_certif_window, self.tr("View licenses"), []),
+            #     ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), []),
+            # ]),
         ]
 
         # Création des boutons de menu

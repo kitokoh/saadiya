@@ -8629,7 +8629,7 @@ class UpdateRobotDialog(QDialog):
     def format_posts_for_facebook(self, media_data):
         """Format posts for Facebook"""
         return [{
-            "text": f"{item['nom']}\n\n{item['description']}".strip(),
+            "text": f"{item['description']}".strip(),
             "image": item['preview_path'],
             "timestamp": datetime.now().isoformat()
         } for item in media_data]
