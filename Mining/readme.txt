@@ -1,3 +1,10 @@
+j envoie sur github 
+creer le realease gh release create v1.0.0 --title "Ma release 1.0.0" --notes "Première version stable"
+
+
+
+
+
 ici je vais rpondre aux besoin technique de ma strateei de mining et stocker toutes les cles necessaire pour le minage 
 
 

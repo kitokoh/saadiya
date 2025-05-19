@@ -1,5 +1,7 @@
 {
   "latest_version": "2.1.0",
+  "version_mine": "2.1.0",
+
   "url": "https://github.com/kitokoh/leopardo/releases/download/v1.2.3n/main.exe",
   "release_notes": "Améliorations de performance, corrections de bugs, et nouvelle interface utilisateur."
 }
