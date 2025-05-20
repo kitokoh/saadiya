@@ -10,7 +10,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import QDialog
 
 # Import existing update functions (they should be in a separate module)
-from AutoUpdater.autoupdatefonctionnelle1 import perform_update, is_admin, elevate_privileges, load_app_info, fetch_update_info
+from Updater.autoupdatefonctionnelle1 import perform_update, is_admin, elevate_privileges, load_app_info, fetch_update_info
 import sys
 import os
 import json

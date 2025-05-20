@@ -1,3 +1,996 @@
+import hashlib
+import json
+import os
+import re
+import sys
+from PyQt5.QtCore import Qt, QTranslator, QLocale, QUrl, QSize
+from PyQt5.QtGui import (QFont, QPixmap, QIcon, QDesktopServices, 
+                         QColor, QLinearGradient, QPainter, QRegExpValidator)
+from PyQt5.QtWidgets import (
+    QDialog, QVBoxLayout, QLineEdit, QPushButton, QLabel,
+    QMessageBox, QHBoxLayout, QComboBox, QFrame, QSizePolicy, 
+    QInputDialog, QSpacerItem, QGraphicsDropShadowEffect, QApplication
+)
+from mail.mail_in_to_in import Mailer1
+from mail.mail_in_to_out import Mailer2
+import firebase_admin
+from firebase_admin import auth, credentials
+from google_auth_oauthlib.flow import Flow
+from PyQt5.QtWidgets import QCheckBox
+from PyQt5.QtCore import QRegExp
+from PyQt5.QtCore import QPropertyAnimation
+
+# Configuration des chemins
+user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")
+os.makedirs(user_data_dir, exist_ok=True)
+
+class GradientFrame(QFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMinimumSize(400, 700)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        gradient = QLinearGradient(0, 0, 0, self.height())
+        gradient.setColorAt(0, QColor("#4361ee"))
+        gradient.setColorAt(1, QColor("#3a0ca3"))
+        painter.fillRect(self.rect(), gradient)
+        painter.end()
+
+class RegisterModule(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+        self.init_firebase()
+        self.setup_google_auth()
+        self.set_styles()
+        self.add_shadows()
+        self.setup_validators()
+        self.translator = QTranslator()
+        self.init_language()
+
+    def setup_ui(self):
+        """Configure l'interface utilisateur moderne"""
+        self.setWindowTitle(self.tr("Créer un compte"))
+        self.setWindowIcon(QIcon('resources/icons/878952-Hornet-Secure.ico'))
+        self.setFixedSize(1000, 700)
+        self.setStyleSheet("background-color: #f5f7fa;")
+
+        # Layout principal
+        main_layout = QHBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        # Section gradient (côté gauche)
+        self.setup_gradient_section(main_layout)
+
+        # Section formulaire (côté droit)
+        self.setup_form_section(main_layout)
+
+    def setup_gradient_section(self, main_layout):
+        """Configure la section avec dégradé moderne"""
+        gradient_frame = GradientFrame()
+        gradient_frame.setFixedWidth(450)
+
+        content_layout = QVBoxLayout(gradient_frame)
+        content_layout.setContentsMargins(40, 40, 40, 40)
+        content_layout.setSpacing(30)
+
+        # Logo moderne
+        logo_label = QLabel()
+        logo_pixmap = QPixmap("resources/icons/logo.png").scaled(100, 100, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        logo_label.setPixmap(logo_pixmap)
+        logo_label.setAlignment(Qt.AlignCenter)
+
+        # Texte d'accroche
+        title_label = QLabel(self.tr("Rejoignez notre communauté"))
+        title_label.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 28px;
+                font-weight: bold;
+                margin-top: 20px;
+            }
+        """)
+        title_label.setAlignment(Qt.AlignCenter)
+
+        subtitle_label = QLabel(self.tr("Créez votre compte en quelques secondes"))
+        subtitle_label.setStyleSheet("""
+            QLabel {
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+        """)
+        subtitle_label.setAlignment(Qt.AlignCenter)
+
+        # Image illustrative
+        image_label = QLabel()
+        pixmap = QPixmap("resources/images/register_illustration.png")
+        if not pixmap.isNull():
+            image_label.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        image_label.setAlignment(Qt.AlignCenter)
+
+        # Ajout des éléments
+        content_layout.addWidget(logo_label)
+        content_layout.addWidget(title_label)
+        content_layout.addWidget(subtitle_label)
+        content_layout.addWidget(image_label)
+        content_layout.addStretch()
+
+        main_layout.addWidget(gradient_frame)
+
+    def setup_form_section(self, main_layout):
+        """Configure la section formulaire moderne"""
+        form_frame = QFrame()
+        form_frame.setStyleSheet("""
+            QFrame {
+                background-color: white;
+                border-radius: 0;
+            }
+        """)
+        form_frame.setFixedWidth(550)
+
+        form_layout = QVBoxLayout(form_frame)
+        form_layout.setContentsMargins(60, 50, 60, 50)
+        form_layout.setSpacing(25)
+
+        # Titre du formulaire
+        form_title = QLabel(self.tr("Commençons l'aventure"))
+        form_title.setStyleSheet("""
+            QLabel {
+                color: #2b2d42;
+                font-size: 32px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+        """)
+        form_title.setAlignment(Qt.AlignLeft)
+
+        form_subtitle = QLabel(self.tr("Remplissez les champs ci-dessous"))
+        form_subtitle.setStyleSheet("""
+            QLabel {
+                color: #8d99ae;
+                font-size: 14px;
+                margin-bottom: 30px;
+            }
+        """)
+        form_subtitle.setAlignment(Qt.AlignLeft)
+
+        form_layout.addWidget(form_title)
+        form_layout.addWidget(form_subtitle)
+
+        # Formulaire
+        self.setup_input_fields(form_layout)
+
+        # Checkbox conditions
+        self.terms_checkbox = QCheckBox(self.tr("J'accepte les conditions d'utilisation"))
+        self.terms_checkbox.setCursor(Qt.PointingHandCursor)
+        form_layout.addWidget(self.terms_checkbox)
+
+        # Bouton d'inscription
+        signup_btn = QPushButton(self.tr("S'inscrire maintenant"))
+        signup_btn.setCursor(Qt.PointingHandCursor)
+        signup_btn.setMinimumHeight(50)
+        signup_btn.clicked.connect(self.handle_classic_signup)
+        self.signup_button = signup_btn
+
+        form_layout.addWidget(signup_btn)
+        form_layout.addSpacing(15)
+
+        # Séparateur
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setStyleSheet("border-color: #edf2f4;")
+
+        or_label = QLabel(self.tr("OU"))
+        or_label.setStyleSheet("""
+            QLabel {
+                color: #8d99ae;
+                font-size: 12px;
+                background-color: white;
+                padding: 0 15px;
+            }
+        """)
+        or_label.setAlignment(Qt.AlignCenter)
+
+        sep_layout = QHBoxLayout()
+        sep_layout.addWidget(separator)
+        sep_layout.addWidget(or_label)
+        sep_layout.addWidget(separator)
+
+        form_layout.addLayout(sep_layout)
+        form_layout.addSpacing(15)
+
+        # Boutons sociaux
+        self.setup_social_buttons(form_layout)
+
+        # Lien de connexion
+        self.setup_login_link(form_layout)
+
+        main_layout.addWidget(form_frame)
+
+    def setup_input_fields(self, layout):
+        """Configure les champs de saisie modernes"""
+        # Nom d'utilisateur
+        self.username_input = QLineEdit()
+        self.username_input.setPlaceholderText(self.tr("Nom d'utilisateur"))
+        self.username_input.setMinimumHeight(50)
+        self.username_input.setProperty("class", "input-field")
+
+        # Email
+        self.email_input = QLineEdit()
+        self.email_input.setPlaceholderText(self.tr("Adresse e-mail"))
+        self.email_input.setMinimumHeight(50)
+        self.email_input.setProperty("class", "input-field")
+
+        # Mot de passe
+        self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText(self.tr("Mot de passe (8 caractères minimum)"))
+        self.password_input.setMinimumHeight(50)
+        self.password_input.setEchoMode(QLineEdit.Password)
+        self.password_input.setProperty("class", "input-field")
+
+        # Confirmation mot de passe
+        self.confirm_password_input = QLineEdit()
+        self.confirm_password_input.setPlaceholderText(self.tr("Confirmer le mot de passe"))
+        self.confirm_password_input.setMinimumHeight(50)
+        self.confirm_password_input.setEchoMode(QLineEdit.Password)
+        self.confirm_password_input.setProperty("class", "input-field")
+
+        # Licence
+        self.licence_combo = QComboBox()
+        self.licence_combo.addItems([
+            self.tr("Version d'essai (gratuite)"),
+            self.tr("Abonnement mensuel - 9.99€"),
+            self.tr("Abonnement annuel - 99.99€"),
+            self.tr("Licence perpétuelle - 299.99€")
+        ])
+        self.licence_combo.setMinimumHeight(50)
+        self.licence_combo.setProperty("class", "combo-field")
+
+        # Ajout des champs
+        layout.addWidget(self.username_input)
+        layout.addWidget(self.email_input)
+        layout.addWidget(self.password_input)
+        layout.addWidget(self.confirm_password_input)
+        layout.addWidget(self.licence_combo)
+
+    def setup_social_buttons(self, layout):
+        """Configure les boutons de connexion sociale"""
+        google_btn = QPushButton(self.tr("Continuer avec Google"))
+        google_btn.setIcon(QIcon("resources/icons/google-icon.png"))
+        google_btn.setIconSize(QSize(24, 24))
+        google_btn.setCursor(Qt.PointingHandCursor)
+        google_btn.setMinimumHeight(50)
+        google_btn.setProperty("class", "social-btn")
+        google_btn.clicked.connect(self.handle_google_auth)
+
+        facebook_btn = QPushButton(self.tr("Continuer avec Facebook"))
+        facebook_btn.setIcon(QIcon("resources/icons/facebook-icon.png"))
+        facebook_btn.setIconSize(QSize(24, 24))
+        facebook_btn.setCursor(Qt.PointingHandCursor)
+        facebook_btn.setMinimumHeight(50)
+        facebook_btn.setProperty("class", "social-btn")
+        # facebook_btn.clicked.connect(self.handle_facebook_auth)
+
+        layout.addWidget(google_btn)
+        layout.addWidget(facebook_btn)
+
+    def setup_login_link(self, layout):
+        """Configure le lien de connexion"""
+        login_layout = QHBoxLayout()
+        login_layout.setContentsMargins(0, 20, 0, 0)
+        login_layout.setSpacing(5)
+
+        account_label = QLabel(self.tr("Vous avez déjà un compte ?"))
+        account_label.setStyleSheet("color: #8d99ae; font-size: 14px;")
+
+        login_link = QPushButton(self.tr("Se connecter"))
+        login_link.setStyleSheet("""
+            QPushButton {
+                color: #4361ee;
+                font-size: 14px;
+                font-weight: bold;
+                border: none;
+                background: transparent;
+                padding: 0;
+            }
+            QPushButton:hover {
+                text-decoration: underline;
+            }
+        """)
+        login_link.setCursor(Qt.PointingHandCursor)
+        login_link.clicked.connect(self.show_login)
+
+        login_layout.addWidget(account_label)
+        login_layout.addWidget(login_link)
+        login_layout.setAlignment(Qt.AlignCenter)
+
+        layout.addLayout(login_layout)
+
+    def set_styles(self):
+        """Définit les styles CSS modernes"""
+# Ajoutez ce code dans la méthode set_styles de votre classe RegisterModule
+
+        self.setStyleSheet("""
+            /* Style général */
+            QDialog {
+                background-color: #f5f7fa;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+
+            /* Champs de saisie */
+            QLineEdit {
+                padding: 0 20px;
+                border: 2px solid #edf2f4;
+                border-radius: 10px;
+                font-size: 15px;
+                background-color: #f8f9fa;
+                color: #2b2d42;
+            }
+
+            QLineEdit:focus {
+                border-color: #4361ee;
+                background-color: white;
+            }
+
+            /* Combo box */
+            QComboBox {
+                padding: 0 15px;
+                border: 2px solid #edf2f4;
+                border-radius: 10px;
+                font-size: 15px;
+                background-color: #f8f9fa;
+                color: #2b2d42;
+            }
+
+            QComboBox:hover {
+                border-color: #adb5bd;
+            }
+
+            QComboBox:focus {
+                border-color: #4361ee;
+            }
+
+            /* Bouton principal */
+            QPushButton {
+                background-color: #4361ee;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 0 25px;
+            }
+
+            QPushButton:hover {
+                background-color: #3a56d4;
+            }
+
+            QPushButton:pressed {
+                background-color: #3a0ca3;
+            }
+
+            /* Boutons sociaux */
+            .social-btn {
+                background-color: white;
+                color: #2b2d42;
+                border: 2px solid #edf2f4;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 500;
+                padding: 0 20px;
+            }
+
+            .social-btn:hover {
+                background-color: #f8f9fa;
+                border-color: #dee2e6;
+            }
+
+            .social-btn:pressed {
+                background-color: #e9ecef;
+            }
+
+            /* Checkbox */
+            QCheckBox {
+                color: #4a4e69;
+                font-size: 14px;
+                spacing: 10px;
+            }
+
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #adb5bd;
+                border-radius: 4px;
+            }
+
+            QCheckBox::indicator:checked {
+                background-color: #4361ee;
+                border: 2px solid #4361ee;
+            }
+        """)
+
+
+    def add_shadows(self):
+        """Ajoute des ombres portées pour un effet de profondeur"""
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(0)
+        shadow.setYOffset(5)
+        shadow.setColor(QColor(0, 0, 0, 30))
+        self.signup_button.setGraphicsEffect(shadow)
+
+    def setup_validators(self):
+        """Configure les validateurs pour les champs de saisie"""
+        # Validateur pour le nom d'utilisateur (lettres, chiffres, underscores)
+        username_regex = QRegExp("[a-zA-Z0-9_]+")
+        username_validator = QRegExpValidator(username_regex, self.username_input)
+        self.username_input.setValidator(username_validator)
+
+        # Validateur pour l'email
+        email_regex = QRegExp("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
+        email_validator = QRegExpValidator(email_regex, self.email_input)
+        self.email_input.setValidator(email_validator)
+
+    def init_firebase(self):
+        """Initialise la connexion Firebase"""
+        try:
+            cred_path = os.path.join(user_data_dir, 'resources', 'firebase', 'credentials.json')
+            if not firebase_admin._apps and os.path.exists(cred_path):
+                cred = credentials.Certificate(cred_path)
+                firebase_admin.initialize_app(cred)
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Impossible d'initialiser Firebase: {str(e)}")
+
+    def setup_google_auth(self):
+        """Configure l'authentification Google"""
+        try:
+            client_secret_path = os.path.join(user_data_dir, 'resources', 'firebase', 'client_secret.json')
+            if os.path.exists(client_secret_path):
+                self.flow = Flow.from_client_secrets_file(
+                    client_secret_path,
+                    scopes=['openid', 'https://www.googleapis.com/auth/userinfo.email', 
+                           'https://www.googleapis.com/auth/userinfo.profile'],
+                    redirect_uri='urn:ietf:wg:oauth:2.0:oob'
+                )
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Configuration Google Auth échouée: {str(e)}")
+
+    def handle_google_auth(self):
+        """Gère l'authentification Google"""
+        try:
+            auth_url, _ = self.flow.authorization_url(prompt='consent')
+            QDesktopServices.openUrl(QUrl(auth_url))
+            self.show_google_code_dialog()
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur d'authentification Google: {str(e)}")
+
+    def show_google_code_dialog(self):
+        """Affiche une boîte de dialogue pour entrer le code Google"""
+        code, ok = QInputDialog.getText(
+            self,
+            self.tr("Authentification Google"),
+            self.tr("Veuillez entrer le code d'autorisation Google:"),
+            QLineEdit.Normal
+        )
+
+        if ok and code:
+            self.process_google_token(code)
+
+    def process_google_token(self, code):
+        """Traite le token Google et crée le compte"""
+        try:
+            self.flow.fetch_token(code=code)
+            credentials = self.flow.credentials
+            id_info = auth.verify_id_token(credentials.id_token)
+
+            email = id_info['email']
+            username = id_info.get('name', email.split('@')[0])
+
+            if not self.terms_checkbox.isChecked():
+                QMessageBox.warning(self, "Conditions requises", "Vous devez accepter les conditions d'utilisation")
+                return
+
+            # Création du compte Firebase
+            user_record = auth.create_user(
+                uid=id_info['sub'],
+                email=email,
+                display_name=username
+            )
+
+            # Enregistrement local
+            user_data = self.load_user_data()
+            user_data.append({
+                "uid": user_record.uid,
+                "username": username,
+                "email": email,
+                "auth_method": "google",
+                "license": "free",
+                "created_at": firebase_admin._utils.datetime_to_timestamp(firebase_admin._utils.datetime.datetime.utcnow())
+            })
+            self.save_user_data(user_data)
+
+            # Envoi d'email
+            Mailer1().send_email_to_user(email, 'welcome_google')
+
+            QMessageBox.information(
+                self,
+                self.tr("Bienvenue !"),
+                self.tr("Votre compte Google a été créé avec succès !")
+            )
+            self.accept()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                self.tr("Erreur"),
+                self.tr(f"Une erreur est survenue: {str(e)}")
+            )
+
+    def handle_classic_signup(self):
+        """Gère l'inscription classique par email/mot de passe"""
+        username = self.username_input.text().strip()
+        email = self.email_input.text().strip()
+        password = self.password_input.text().strip()
+        confirm = self.confirm_password_input.text().strip()
+        license_type = self.licence_combo.currentText()
+
+        if not self.terms_checkbox.isChecked():
+            QMessageBox.warning(self, "Conditions requises", "Vous devez accepter les conditions d'utilisation")
+            return
+
+        if not self.validate_form(username, email, password, confirm):
+            return
+
+        try:
+            # Création du compte Firebase
+            user_record = auth.create_user(
+                email=email,
+                password=password,
+                display_name=username
+            )
+
+            # Enregistrement local
+            user_data = self.load_user_data()
+            user_data.append({
+                "uid": user_record.uid,
+                "username": username,
+                "email": email,
+                "password": self.hash_password(password),
+                "auth_method": "email",
+                "license": license_type,
+                "created_at": firebase_admin._utils.datetime_to_timestamp(firebase_admin._utils.datetime.datetime.utcnow())
+            })
+            self.save_user_data(user_data)
+
+            # Envoi d'emails
+            Mailer1().send_email_to_user(email, 'welcome')
+            Mailer2().send_email(email_type="new_user_notification")
+
+            QMessageBox.information(
+                self,
+                self.tr("Bienvenue !"),
+                self.tr("Votre compte a été créé avec succès !")
+            )
+            self.accept()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                self.tr("Erreur"),
+                self.tr(f"Une erreur est survenue: {str(e)}")
+            )
+
+    def validate_form(self, username, email, password, confirm):
+        """Valide les données du formulaire"""
+        errors = []
+        
+        if len(username) < 3:
+            errors.append("Le nom d'utilisateur doit contenir au moins 3 caractères")
+            
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            errors.append("Veuillez entrer une adresse email valide")
+            
+        if len(password) < 8:
+            errors.append("Le mot de passe doit contenir au moins 8 caractères")
+            
+        if password != confirm:
+            errors.append("Les mots de passe ne correspondent pas")
+            
+        if self.user_exists(username, email, self.load_user_data()):
+            errors.append("Un compte avec ce nom d'utilisateur ou email existe déjà")
+            
+        if errors:
+            QMessageBox.warning(
+                self,
+                "Erreurs de validation",
+                "\n".join(f"• {error}" for error in errors)
+            )
+            return False
+            
+        return True
+
+    def load_user_data(self):
+        """Charge les données utilisateur depuis le fichier JSON"""
+        data_path = os.path.join(user_data_dir, 'resources', 'data', 'users.json')
+        try:
+            os.makedirs(os.path.dirname(data_path), exist_ok=True)
+            if os.path.exists(data_path):
+                with open(data_path, 'r') as f:
+                    return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        return []
+
+    def save_user_data(self, data):
+        """Sauvegarde les données utilisateur dans un fichier JSON"""
+        data_path = os.path.join(user_data_dir, 'resources', 'data', 'users.json')
+        try:
+            with open(data_path, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            print(f"Erreur lors de la sauvegarde: {str(e)}")
+
+    def user_exists(self, username, email, user_data):
+        """Vérifie si un utilisateur existe déjà"""
+        return any(u for u in user_data if u.get('username') == username or u.get('email') == email)
+
+    def hash_password(self, password):
+        """Hash le mot de passe avec SHA-256"""
+        return hashlib.sha256(password.encode()).hexdigest()
+
+    def show_login(self):
+        """Ouvre la fenêtre de connexion"""
+        from login import LoginModule  # Import local pour éviter les dépendances circulaires
+        self.login_window = LoginModule()
+        self.login_window.show()
+        self.close()
+
+    def init_language(self):
+        """Initialise la langue de l'interface"""
+        try:
+            settings_path = os.path.join(user_data_dir, 'resources', 'settings.json')
+            if os.path.exists(settings_path):
+                with open(settings_path, 'r') as f:
+                    settings = json.load(f)
+                    lang = settings.get('language', 'fr')
+            else:
+                lang = 'fr'  # Français par défaut
+            
+            self.load_translation(lang)
+        except Exception as e:
+            print(f"Erreur de chargement de la langue: {str(e)}")
+
+    def load_translation(self, lang):
+        """Charge le fichier de traduction"""
+        translation_dir = os.path.join(user_data_dir, 'resources', 'lang')
+        translation_file = f"register_{lang}.qm"
+        translation_path = os.path.join(translation_dir, lang, 'ui', translation_file)
+        
+        if os.path.exists(translation_path):
+            if self.translator.load(translation_path):
+                QApplication.instance().installTranslator(self.translator)
+            else:
+                print(f"Échec du chargement de la traduction: {translation_path}")
+
+    def retranslateUi(self):
+        """Retraduit l'interface lorsque la langue change"""
+        # Titres
+        self.setWindowTitle(self.tr("Créer un compte"))
+        
+        # Boutons
+        self.signup_button.setText(self.tr("S'inscrire maintenant"))
+        
+        # Placeholders
+        self.username_input.setPlaceholderText(self.tr("Nom d'utilisateur"))
+        self.email_input.setPlaceholderText(self.tr("Adresse e-mail"))
+        self.password_input.setPlaceholderText(self.tr("Mot de passe (8 caractères minimum)"))
+        self.confirm_password_input.setPlaceholderText(self.tr("Confirmer le mot de passe"))
+        
+        # Items de la combobox
+        self.licence_combo.clear()
+        self.licence_combo.addItems([
+            self.tr("Version d'essai (gratuite)"),
+            self.tr("Abonnement mensuel - 9.99€"),
+            self.tr("Abonnement annuel - 99.99€"),
+            self.tr("Licence perpétuelle - 299.99€")
+        ])
+
+    def setup_input_fields(self, layout):
+        """Configure les champs de saisie avec des améliorations UX"""
+        # Nom d'utilisateur avec icône
+        self.username_input = QLineEdit()
+        self.username_input.setPlaceholderText(self.tr("Nom d'utilisateur"))
+        self.username_input.setMinimumHeight(50)
+        self.username_input.setProperty("class", "input-field")
+        self.add_input_icon(self.username_input, "resources/icons/user.png")
+
+        # Email avec icône
+        self.email_input = QLineEdit()
+        self.email_input.setPlaceholderText(self.tr("Adresse e-mail"))
+        self.email_input.setMinimumHeight(50)
+        self.email_input.setProperty("class", "input-field")
+        self.add_input_icon(self.email_input, "resources/icons/email.png")
+
+        # Mot de passe avec icône et bouton de visibilité
+        self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText(self.tr("Mot de passe (8 caractères minimum)"))
+        self.password_input.setMinimumHeight(50)
+        self.password_input.setEchoMode(QLineEdit.Password)
+        self.password_input.setProperty("class", "input-field")
+        self.add_input_icon(self.password_input, "resources/icons/lock.png")
+        self.add_visibility_toggle(self.password_input)
+
+        # Confirmation mot de passe avec icône et bouton de visibilité
+        self.confirm_password_input = QLineEdit()
+        self.confirm_password_input.setPlaceholderText(self.tr("Confirmer le mot de passe"))
+        self.confirm_password_input.setMinimumHeight(50)
+        self.confirm_password_input.setEchoMode(QLineEdit.Password)
+        self.confirm_password_input.setProperty("class", "input-field")
+        self.add_input_icon(self.confirm_password_input, "resources/icons/lock.png")
+        self.add_visibility_toggle(self.confirm_password_input)
+
+        # Licence avec style amélioré
+        self.licence_combo = QComboBox()
+        self.licence_combo.addItems([
+            self.tr("Version d'essai (gratuite)"),
+            self.tr("Abonnement mensuel - 9.99€"),
+            self.tr("Abonnement annuel - 99.99€"),
+            self.tr("Licence perpétuelle - 299.99€")
+        ])
+        self.licence_combo.setMinimumHeight(50)
+        self.licence_combo.setProperty("class", "combo-field")
+        
+        # Ajout des champs avec espacement
+        layout.addWidget(self.username_input)
+        layout.addWidget(self.email_input)
+        layout.addWidget(self.password_input)
+        layout.addWidget(self.confirm_password_input)
+        layout.addWidget(self.licence_combo)
+
+    def add_input_icon(self, input_field, icon_path):
+        """Ajoute une icône à gauche d'un champ de saisie"""
+        if os.path.exists(icon_path):
+            input_field.setStyleSheet(f"""
+                QLineEdit {{
+                    padding-left: 40px;
+                    background-image: url({icon_path});
+                    background-position: left center;
+                    background-repeat: no-repeat;
+                    background-origin: content;
+                    padding-left: 40px;
+                }}
+            """)
+
+    def add_visibility_toggle(self, input_field):
+        """Ajoute un bouton de visibilité pour les champs de mot de passe"""
+        toggle_button = QPushButton()
+        toggle_button.setCursor(Qt.PointingHandCursor)
+        toggle_button.setCheckable(True)
+        toggle_button.setStyleSheet("""
+            QPushButton {
+                border: none;
+                background: transparent;
+                padding: 0;
+            }
+        """)
+        
+        # Définir les icônes
+        toggle_button.setIcon(QIcon("resources/icons/eye-closed.png"))
+        toggle_button.setIconSize(QSize(20, 20))
+        
+        # Positionner le bouton à droite
+        layout = QHBoxLayout(input_field)
+        layout.setContentsMargins(0, 0, 10, 0)
+        layout.addStretch()
+        layout.addWidget(toggle_button)
+        
+        # Connecter le signal
+        toggle_button.toggled.connect(lambda checked: self.toggle_password_visibility(input_field, toggle_button, checked))
+
+    def toggle_password_visibility(self, input_field, button, show):
+        """Basculer la visibilité du mot de passe"""
+        if show:
+            input_field.setEchoMode(QLineEdit.Normal)
+            button.setIcon(QIcon("resources/icons/eye-open.png"))
+        else:
+            input_field.setEchoMode(QLineEdit.Password)
+            button.setIcon(QIcon("resources/icons/eye-closed.png"))
+
+    def handle_classic_signup(self):
+        """Gère l'inscription avec des feedbacks visuels améliorés"""
+        # Désactiver le bouton pendant le traitement
+        self.signup_button.setEnabled(False)
+        self.signup_button.setText(self.tr("Traitement en cours..."))
+        
+        # Animation de chargement
+        loading_animation = QPropertyAnimation(self.signup_button, b"iconSize")
+        loading_animation.setDuration(1000)
+        loading_animation.setLoopCount(-1)  # Infini
+        loading_animation.setStartValue(QSize(0, 0))
+        loading_animation.setEndValue(QSize(20, 20))
+        loading_animation.start()
+
+        try:
+            # Le reste de la méthode existante...
+            username = self.username_input.text().strip()
+            email = self.email_input.text().strip()
+            password = self.password_input.text().strip()
+            confirm = self.confirm_password_input.text().strip()
+            license_type = self.licence_combo.currentText()
+
+            if not self.terms_checkbox.isChecked():
+                QMessageBox.warning(self, "Conditions requises", "Vous devez accepter les conditions d'utilisation")
+                return
+
+            if not self.validate_form(username, email, password, confirm):
+                return
+
+            # Création du compte Firebase
+            user_record = auth.create_user(
+                email=email,
+                password=password,
+                display_name=username
+            )
+
+            # Enregistrement local
+            user_data = self.load_user_data()
+            user_data.append({
+                "uid": user_record.uid,
+                "username": username,
+                "email": email,
+                "password": self.hash_password(password),
+                "auth_method": "email",
+                "license": license_type,
+                "created_at": firebase_admin._utils.datetime_to_timestamp(firebase_admin._utils.datetime.datetime.utcnow())
+            })
+            self.save_user_data(user_data)
+
+            # Envoi d'emails
+            Mailer1().send_email_to_user(email, 'welcome')
+            Mailer2().send_email(email_type="new_user_notification")
+
+            # Message de succès amélioré
+            success_msg = QMessageBox()
+            success_msg.setIconPixmap(QPixmap("resources/icons/success.png").scaled(64, 64))
+            success_msg.setWindowTitle(self.tr("Bienvenue !"))
+            success_msg.setText(self.tr("Votre compte a été créé avec succès !"))
+            success_msg.setStyleSheet("""
+                QMessageBox {
+                    background-color: white;
+                    border-radius: 10px;
+                }
+                QLabel {
+                    color: #2b2d42;
+                    font-size: 14px;
+                }
+            """)
+            success_msg.exec_()
+            
+            self.accept()
+
+        except Exception as e:
+            # Message d'erreur amélioré
+            error_msg = QMessageBox()
+            error_msg.setIconPixmap(QPixmap("resources/icons/error.png").scaled(64, 64))
+            error_msg.setWindowTitle(self.tr("Erreur"))
+            error_msg.setText(self.tr(f"Une erreur est survenue: {str(e)}"))
+            error_msg.setStyleSheet("""
+                QMessageBox {
+                    background-color: white;
+                    border-radius: 10px;
+                }
+                QLabel {
+                    color: #2b2d42;
+                    font-size: 14px;
+                }
+            """)
+            error_msg.exec_()
+            
+        finally:
+            # Réactiver le bouton
+            loading_animation.stop()
+            self.signup_button.setEnabled(True)
+            self.signup_button.setText(self.tr("S'inscrire maintenant"))
+            self.signup_button.setIcon(QIcon())
+
+    def validate_form(self, username, email, password, confirm):
+        """Valide les données du formulaire avec des feedbacks visuels"""
+        errors = []
+        
+        # Réinitialiser les styles
+        for field in [self.username_input, self.email_input, 
+                     self.password_input, self.confirm_password_input]:
+            field.setStyleSheet("""
+                QLineEdit {
+                    border: 2px solid #edf2f4;
+                    background-color: #f8f9fa;
+                }
+            """)
+        
+        if len(username) < 3:
+            errors.append("Le nom d'utilisateur doit contenir au moins 3 caractères")
+            self.highlight_error(self.username_input)
+            
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            errors.append("Veuillez entrer une adresse email valide")
+            self.highlight_error(self.email_input)
+            
+        if len(password) < 8:
+            errors.append("Le mot de passe doit contenir au moins 8 caractères")
+            self.highlight_error(self.password_input)
+            
+        if password != confirm:
+            errors.append("Les mots de passe ne correspondent pas")
+            self.highlight_error(self.password_input)
+            self.highlight_error(self.confirm_password_input)
+            
+        if self.user_exists(username, email, self.load_user_data()):
+            errors.append("Un compte avec ce nom d'utilisateur ou email existe déjà")
+            self.highlight_error(self.username_input)
+            self.highlight_error(self.email_input)
+            
+        if errors:
+            # Créer un message d'erreur stylisé
+            error_box = QMessageBox()
+            error_box.setIconPixmap(QPixmap("resources/icons/warning.png").scaled(64, 64))
+            error_box.setWindowTitle("Erreurs de validation")
+            
+            # Liste à puces des erreurs
+            error_text = "<ul>"
+            for error in errors:
+                error_text += f"<li>{error}</li>"
+            error_text += "</ul>"
+            
+            error_box.setTextFormat(Qt.RichText)
+            error_box.setText(error_text)
+            error_box.setStyleSheet("""
+                QMessageBox {
+                    background-color: white;
+                    border-radius: 10px;
+                }
+                QLabel {
+                    color: #2b2d42;
+                    font-size: 14px;
+                }
+            """)
+            error_box.exec_()
+            return False
+            
+        return True
+
+    def highlight_error(self, field):
+        """Met en évidence un champ en erreur"""
+        field.setStyleSheet("""
+            QLineEdit {
+                border: 2px solid #ef233c;
+                background-color: #fff0f1;
+            }
+        """)
+        
+        # Animation de tremblement
+        animation = QPropertyAnimation(field, b"pos")
+        animation.setDuration(100)
+        animation.setKeyValueAt(0, field.pos())
+        animation.setKeyValueAt(0.2, field.pos() + QPoint(-3, 0))
+        animation.setKeyValueAt(0.4, field.pos() + QPoint(3, 0))
+        animation.setKeyValueAt(0.6, field.pos() + QPoint(-3, 0))
+        animation.setKeyValueAt(0.8, field.pos() + QPoint(3, 0))
+        animation.setKeyValueAt(1, field.pos())
+        animation.start()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = RegisterModule()
+    window.show()
+    sys.exit(app.exec_())
+
+
+
+
+
+
 import hashlib  # Pour le hachage des mots de passe
 import json
 import os

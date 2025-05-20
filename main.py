@@ -1137,7 +1137,7 @@ class Browser(QMainWindow):
 
     def open_manuelle_window(self):
         from manuelleRobot.open import DescriptionManager
-        tab_name = self.tr("▶️ Run")  # Tab name (matches the label used in add_custom_tab)
+        tab_name = self.tr("🚀 Run")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -1147,7 +1147,7 @@ class Browser(QMainWindow):
             return
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
-        if not hasattr(self, '▶️ Run') or self.Manu is None:
+        if not hasattr(self, ' 🚀 Run') or self.Manu is None:
             self.Manu = DescriptionManager(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
@@ -3882,7 +3882,7 @@ class Browser(QMainWindow):
 
     def open_user_settings(self):
         """Switch to personal mode"""
-        from AutoUpdater.auto import UpdaterWindow
+        from Updater.auto import UpdaterWindow
         window = UpdaterWindow(parent=self)
         window.show()
 
