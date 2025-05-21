@@ -1527,7 +1527,37 @@ class FreqtradeManager(QMainWindow):
                             "L'installation semble incomplète.\n"
                             "Veuillez vérifier la sortie pour les erreurs.")
 
-
+    def get_install_commands(self, version):
+        """Commandes d'installation optimisées pour Windows"""
+        commands = []
+        
+        # 1. Installer les prérequis système
+        commands.append("@echo Installation des outils de compilation...")
+        commands.append("winget install Python.Python.3 --silent")
+        commands.append("winget install Git.Git --silent")
+        commands.append("winget install Microsoft.VisualStudio.2022.BuildTools --silent --override \"--wait --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended\"")
+        
+        # 2. Configuration de l'environnement
+        commands.append("@echo Configuration de l'environnement...")
+        commands.append(f"mkdir \"{self.base_dir}\" 2>nul || echo Répertoire existe déjà")
+        commands.append(f"mkdir \"{self.freqtrade_dir}\" 2>nul || echo Répertoire existe déjà")
+        
+        # 3. Clonage du dépôt
+        if not os.path.exists(os.path.join(self.freqtrade_dir, ".git")):
+            commands.append("@echo Clonage du dépôt Freqtrade...")
+            commands.append(f"git clone https://github.com/freqtrade/freqtrade.git \"{self.freqtrade_dir}\"")
+        
+        # 4. Mise à jour
+        commands.append("@echo Mise à jour du dépôt...")
+        commands.append(f"cd \"{self.freqtrade_dir}\" && git checkout {version} && git pull")
+        
+        # 5. Installation avec wheel précompilé
+        commands.append("@echo Installation des dépendances...")
+        commands.append(f"cd \"{self.freqtrade_dir}\" && python -m pip install --upgrade pip setuptools wheel")
+        commands.append(f"cd \"{self.freqtrade_dir}\" && python -m pip install numpy --only-binary=:all:")
+        commands.append(f"cd \"{self.freqtrade_dir}\" && python -m pip install . --use-pep517")
+        
+        return commands
 
 
 import sys

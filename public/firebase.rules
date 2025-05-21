@@ -1,5 +1,9 @@
 {
   "rules": {
+        "contacts": {
+      ".read": "auth != null",
+      ".write": true 
+    },
     "downloads": {
       "count": {
         ".read": true,
