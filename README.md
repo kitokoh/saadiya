@@ -1,3 +1,11 @@
+Publicitee et promotion 
+propose moi un prompt et plan qui frappe vraiement pour la realisation de notre video de promo une video qui doit revolutionner le monde 
+une video qui donne envie de tester la solution leopardo ai et surtout si possible tu me donne les outil ai capable de generner cette video cette video sera publier sur youtube facebook et partout pour annoncer la revolution leopardo ai
+
+sample 
+defini moi une application pyqt capable d inserer le max des donnee dans les different tables ci apres pour les media il va aller
+recuperer depuis mon application firebase ou plutot si cest mieux recupere de media directement d un site que tu connais pour les restes des tables qu il fasse attention pour que tout soit parfait 
+
 cette pplication et bonne et fonctionnelle 
 
 
