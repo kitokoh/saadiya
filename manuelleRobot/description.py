@@ -310,7 +310,7 @@ class MainWindow1(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Gestionnaire de Descriptions Multilingues Pro")
-        self.resize(1000, 700)
+        # self.resize(1000, 700)
 
         self.db_manager = DatabaseManager()
         self.model = DescriptionModel(self.db_manager)

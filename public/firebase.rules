@@ -1,8 +1,20 @@
 {
   "rules": {
-        "contacts": {
+    "contacts": {
       ".read": "auth != null",
-      ".write": true 
+      ".write": "auth != null",
+      "$category": {
+        "$contactId": {
+          ".validate": "newData.hasChildren(['name', 'category'])",
+          "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+          "email": { ".validate": "newData.isString()" },
+          "phone": { ".validate": "newData.isString()" },
+          "company": { ".validate": "newData.isString()" },
+          "category": { ".validate": "newData.isString()" },
+          "importedAt": { ".validate": "newData.isNumber()" },
+          "lastUpdated": { ".validate": "newData.isNumber()" }
+        }
+      }
     },
     "downloads": {
       "count": {

@@ -1,5 +1,5 @@
 firebase deploy --only hosting 
-
+ /contacts pour les donnee de contacts 
 
 index.html
 partials/

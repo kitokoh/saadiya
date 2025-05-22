@@ -6,17 +6,17 @@ from datetime import datetime
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QLabel, QCheckBox, QGroupBox, QPushButton, QMessageBox,
                              QListWidget, QTabWidget, QTimeEdit, QSystemTrayIcon, QMenu,
-                             QGridLayout)
+                             QGridLayout, QComboBox)
 from PyQt5.QtCore import Qt, QTimer, QTime, QSettings
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QTextEdit
-
+from imports import DB_PATH_status
 class SocialMediaPublisher(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Ultimate Social Publisher")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 900, 650)
         self.setWindowIcon(QIcon("icon.png"))
 
         # Configuration des paramètres
@@ -53,7 +53,7 @@ class SocialMediaPublisher(QMainWindow):
             return "/usr/bin/google-chrome"
 
     def init_db(self):
-        self.conn = sqlite3.connect('social_media.db')
+        self.conn = sqlite3.connect(DB_PATH_status)
         self.cursor = self.conn.cursor()
 
         self.cursor.execute('''
@@ -69,6 +69,7 @@ class SocialMediaPublisher(QMainWindow):
             CREATE TABLE IF NOT EXISTS publication_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 platforms TEXT,
+                content_type TEXT,
                 timestamp DATETIME,
                 scheduled INTEGER DEFAULT 0,
                 scheduled_time TEXT
@@ -79,6 +80,7 @@ class SocialMediaPublisher(QMainWindow):
             CREATE TABLE IF NOT EXISTS scheduled_posts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 platforms TEXT,
+                content_type TEXT,
                 scheduled_time TEXT,
                 executed INTEGER DEFAULT 0
             )
@@ -153,6 +155,31 @@ class SocialMediaPublisher(QMainWindow):
             QTimeEdit {
                 padding: 5px;
                 font-size: 14px;
+            }
+            QComboBox {
+                padding: 5px;
+                font-size: 14px;
+            }
+            .publish-btn {
+                font-weight: bold;
+                padding: 10px 15px;
+                min-width: 150px;
+            }
+            #status_btn {
+                background-color: #4267B2;
+                color: white;
+            }
+            #reel_btn {
+                background-color: #C13584;
+                color: white;
+            }
+            #post_btn {
+                background-color: #25D366;
+                color: white;
+            }
+            #combo_btn {
+                background-color: #6c757d;
+                color: white;
             }
         """)
 
@@ -261,21 +288,55 @@ class SocialMediaPublisher(QMainWindow):
         options_group.setLayout(options_layout)
         layout.addWidget(options_group)
 
-        # Boutons d'action
+        # Boutons d'action - Nouveau design avec 3 boutons principaux + combo
         btn_layout = QHBoxLayout()
-
-        self.publish_btn = QPushButton("Publier maintenant")
-        self.publish_btn.setStyleSheet("background-color: #28a745; color: white; font-weight: bold;")
-        self.publish_btn.clicked.connect(self.publish_now)
-
-        self.schedule_btn = QPushButton("Planifier")
-        self.schedule_btn.setStyleSheet("background-color: #17a2b8; color: white;")
-        self.schedule_btn.setEnabled(False)
-        self.schedule_btn.clicked.connect(self.schedule_publication)
-
-        btn_layout.addWidget(self.publish_btn)
-        btn_layout.addWidget(self.schedule_btn)
+        
+        # Bouton pour statut
+        self.status_btn = QPushButton("Publier Statut")
+        self.status_btn.setObjectName("status_btn")
+        self.status_btn.setProperty("class", "publish-btn")
+        self.status_btn.clicked.connect(lambda: self.publish_now("status"))
+        
+        # Bouton pour reel
+        self.reel_btn = QPushButton("Publier Reel")
+        self.reel_btn.setObjectName("reel_btn")
+        self.reel_btn.setProperty("class", "publish-btn")
+        self.reel_btn.clicked.connect(lambda: self.publish_now("reel"))
+        
+        # Bouton pour post
+        self.post_btn = QPushButton("Publier Post")
+        self.post_btn.setObjectName("post_btn")
+        self.post_btn.setProperty("class", "publish-btn")
+        self.post_btn.clicked.connect(lambda: self.publish_now("post"))
+        
+        # Bouton combo pour options avancées
+        self.combo_btn = QPushButton("Options")
+        self.combo_btn.setObjectName("combo_btn")
+        self.combo_btn.setProperty("class", "publish-btn")
+        
+        # Menu déroulant pour le bouton combo
+        combo_menu = QMenu()
+        combo_menu.addAction("Planifier", self.schedule_publication)
+        combo_menu.addAction("Tout sélectionner", self.select_all_platforms)
+        combo_menu.addAction("Tout désélectionner", self.deselect_all_platforms)
+        self.combo_btn.setMenu(combo_menu)
+        
+        btn_layout.addWidget(self.status_btn)
+        btn_layout.addWidget(self.reel_btn)
+        btn_layout.addWidget(self.post_btn)
+        btn_layout.addWidget(self.combo_btn)
+        
         layout.addLayout(btn_layout)
+
+    def select_all_platforms(self):
+        """Sélectionne toutes les plateformes"""
+        for checkbox in self.platform_checkboxes:
+            checkbox.setChecked(True)
+
+    def deselect_all_platforms(self):
+        """Désélectionne toutes les plateformes"""
+        for checkbox in self.platform_checkboxes:
+            checkbox.setChecked(False)
 
     def create_history_tab(self):
         """Crée l'onglet d'historique"""
@@ -359,8 +420,7 @@ class SocialMediaPublisher(QMainWindow):
         """Active/désactive l'interface de planification"""
         enabled = state == Qt.Checked
         self.time_edit.setEnabled(enabled)
-        self.schedule_btn.setEnabled(enabled)
-        self.publish_btn.setEnabled(not enabled)
+        self.combo_btn.setEnabled(enabled)
 
     def toggle_favorite(self, platform):
         """Marque/démarque une plateforme comme favorite"""
@@ -409,9 +469,8 @@ class SocialMediaPublisher(QMainWindow):
         self.load_history()
         self.load_scheduled()
 
-    def publish_now(self):
+    def publish_now(self, content_type="status"):
         """Publie immédiatement sur les plateformes sélectionnées"""
-
         # Récupérer les plateformes sélectionnées
         selected_platforms = []
         for platform, url, short in self.platforms_data:
@@ -434,19 +493,19 @@ class SocialMediaPublisher(QMainWindow):
         # Exécuter la publication dans un thread séparé
         threading.Thread(
             target=self.execute_publication,
-            args=(selected_platforms,),
+            args=(selected_platforms, content_type),
             daemon=True
         ).start()
 
         # Enregistrer dans l'historique
-        self.save_to_history([p[0] for p in selected_platforms])
+        self.save_to_history([p[0] for p in selected_platforms], content_type)
 
         # Confirmation
         self.show_notification("Succès", f"Publication sur {len(selected_platforms)} plateforme(s)")
         QMessageBox.information(
             self,
             "Publication en cours",
-            f"Votre publication est en cours sur: {', '.join([p[0] for p in selected_platforms])}\n\n"
+            f"Votre {content_type} est en cours sur: {', '.join([p[0] for p in selected_platforms])}\n\n"
             "Les onglets vont s'ouvrir dans Chrome."
         )
 
@@ -455,6 +514,18 @@ class SocialMediaPublisher(QMainWindow):
 
     def schedule_publication(self):
         """Planifie une publication pour plus tard"""
+        # Demander le type de contenu
+        content_type, ok = QInputDialog.getItem(
+            self, 
+            "Type de contenu", 
+            "Sélectionnez le type de contenu:", 
+            ["status", "reel", "post"], 
+            0, 
+            False
+        )
+        
+        if not ok:
+            return
 
         # Récupérer les plateformes sélectionnées
         selected_platforms = []
@@ -480,14 +551,15 @@ class SocialMediaPublisher(QMainWindow):
 
         # Enregistrer la planification
         self.cursor.execute(
-            "INSERT INTO scheduled_posts (platforms, scheduled_time) VALUES (?, ?)",
-            (", ".join([p[0] for p in selected_platforms]), scheduled_time)
+            "INSERT INTO scheduled_posts (platforms, content_type, scheduled_time) VALUES (?, ?, ?)",
+            (", ".join([p[0] for p in selected_platforms]), content_type, scheduled_time)
         )
         self.conn.commit()
 
         # Enregistrer dans l'historique comme planifié
         self.save_to_history(
             [p[0] for p in selected_platforms],
+            content_type,
             scheduled=True,
             scheduled_time=scheduled_time
         )
@@ -497,7 +569,7 @@ class SocialMediaPublisher(QMainWindow):
         QMessageBox.information(
             self,
             "Publication planifiée",
-            f"Votre publication est prévue à {scheduled_time} sur: {', '.join([p[0] for p in selected_platforms])}"
+            f"Votre {content_type} est prévu à {scheduled_time} sur: {', '.join([p[0] for p in selected_platforms])}"
         )
 
         # Recharger les données
@@ -507,15 +579,28 @@ class SocialMediaPublisher(QMainWindow):
         # Réinitialiser le formulaire
         self.schedule_check.setChecked(False)
 
-    def execute_publication(self, platforms):
+    def execute_publication(self, platforms, content_type="status"):
         """Exécute la publication sur les plateformes sélectionnées"""
         try:
             # Configurer Chrome comme navigateur
             webbrowser.register('chrome', None, webbrowser.BackgroundBrowser(self.chrome_path))
 
             for platform, base_url in platforms:
+                # Construire l'URL en fonction du type de contenu
+                final_url = base_url
+                if platform == "Facebook":
+                    if content_type == "reel":
+                        final_url = "https://www.facebook.com/reels/create"
+                    elif content_type == "post":
+                        final_url = "https://www.facebook.com/"
+                elif platform == "Instagram":
+                    if content_type == "reel":
+                        final_url = "https://www.instagram.com/reels/create"
+                    elif content_type == "post":
+                        final_url = "https://www.instagram.com/create/post"
+
                 # Ouvrir dans Chrome avec un nouvel onglet
-                webbrowser.get('chrome').open_new_tab(base_url)
+                webbrowser.get('chrome').open_new_tab(final_url)
 
                 # Petite pause entre les ouvertures pour éviter le blocage
                 import time
@@ -523,14 +608,14 @@ class SocialMediaPublisher(QMainWindow):
         except Exception as e:
             self.show_notification("Erreur", f"Problème lors de l'ouverture: {str(e)}")
 
-    def save_to_history(self, platforms, scheduled=False, scheduled_time=None):
+    def save_to_history(self, platforms, content_type="status", scheduled=False, scheduled_time=None):
         """Enregistre dans l'historique"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         self.cursor.execute(
-            "INSERT INTO publication_history (platforms, timestamp, scheduled, scheduled_time) "
-            "VALUES (?, ?, ?, ?)",
-            (", ".join(platforms), timestamp, 1 if scheduled else 0, scheduled_time)
+            "INSERT INTO publication_history (platforms, content_type, timestamp, scheduled, scheduled_time) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (", ".join(platforms), content_type, timestamp, 1 if scheduled else 0, scheduled_time)
         )
         self.conn.commit()
 
@@ -539,17 +624,26 @@ class SocialMediaPublisher(QMainWindow):
         self.history_list.clear()
 
         self.cursor.execute("""
-            SELECT id, platforms, timestamp, scheduled, scheduled_time
+            SELECT id, platforms, content_type, timestamp, scheduled, scheduled_time
             FROM publication_history
             ORDER BY timestamp DESC
             LIMIT 100
         """)
 
-        for id, platforms, timestamp, scheduled, scheduled_time in self.cursor.fetchall():
+        for id, platforms, content_type, timestamp, scheduled, scheduled_time in self.cursor.fetchall():
             status = "🕒 Planifié" if scheduled else "✅ Publié"
             time_info = f"à {scheduled_time}" if scheduled else ""
 
-            item_text = f"{status} {time_info} | {timestamp}\n"
+            # Icône pour le type de contenu
+            content_icon = ""
+            if content_type == "status":
+                content_icon = "📝"
+            elif content_type == "reel":
+                content_icon = "🎬"
+            elif content_type == "post":
+                content_icon = "📸"
+
+            item_text = f"{content_icon} {status} {time_info} | {timestamp}\n"
             item_text += f"Plateformes: {platforms}"
 
             item = QListWidgetItem(item_text)
@@ -561,14 +655,23 @@ class SocialMediaPublisher(QMainWindow):
         self.scheduled_list.clear()
 
         self.cursor.execute("""
-            SELECT id, platforms, scheduled_time
+            SELECT id, platforms, content_type, scheduled_time
             FROM scheduled_posts
             WHERE executed = 0
             ORDER BY scheduled_time
         """)
 
-        for id, platforms, scheduled_time in self.cursor.fetchall():
-            item_text = f"🕒 {scheduled_time} | Plateformes: {platforms}"
+        for id, platforms, content_type, scheduled_time in self.cursor.fetchall():
+            # Icône pour le type de contenu
+            content_icon = ""
+            if content_type == "status":
+                content_icon = "📝"
+            elif content_type == "reel":
+                content_icon = "🎬"
+            elif content_type == "post":
+                content_icon = "📸"
+
+            item_text = f"{content_icon} 🕒 {scheduled_time} | Plateformes: {platforms}"
 
             item = QListWidgetItem(item_text)
             item.setData(Qt.UserRole, id)
@@ -579,18 +682,19 @@ class SocialMediaPublisher(QMainWindow):
         item_id = item.data(Qt.UserRole)
 
         self.cursor.execute("""
-            SELECT platforms, timestamp, scheduled, scheduled_time
+            SELECT platforms, content_type, timestamp, scheduled, scheduled_time
             FROM publication_history
             WHERE id = ?
         """, (item_id,))
 
-        platforms, timestamp, scheduled, scheduled_time = self.cursor.fetchone()
+        platforms, content_type, timestamp, scheduled, scheduled_time = self.cursor.fetchone()
 
         details = QMessageBox(self)
         details.setWindowTitle("Détails de la publication")
         details.setIcon(QMessageBox.Information)
 
-        text = f"<b>Date:</b> {timestamp}<br>"
+        text = f"<b>Type:</b> {content_type.capitalize()}<br>"
+        text += f"<b>Date:</b> {timestamp}<br>"
         if scheduled:
             text += f"<b>Planifié pour:</b> {scheduled_time}<br>"
         text += f"<b>Plateformes:</b> {platforms}"
@@ -603,18 +707,19 @@ class SocialMediaPublisher(QMainWindow):
         item_id = item.data(Qt.UserRole)
 
         self.cursor.execute("""
-            SELECT platforms, scheduled_time
+            SELECT platforms, content_type, scheduled_time
             FROM scheduled_posts
             WHERE id = ?
         """, (item_id,))
 
-        platforms, scheduled_time = self.cursor.fetchone()
+        platforms, content_type, scheduled_time = self.cursor.fetchone()
 
         details = QMessageBox(self)
         details.setWindowTitle("Détails de la planification")
         details.setIcon(QMessageBox.Information)
 
-        text = f"<b>Planifié pour:</b> {scheduled_time}<br>"
+        text = f"<b>Type:</b> {content_type.capitalize()}<br>"
+        text += f"<b>Planifié pour:</b> {scheduled_time}<br>"
         text += f"<b>Plateformes:</b> {platforms}"
 
         details.setText(text)
@@ -674,18 +779,18 @@ class SocialMediaPublisher(QMainWindow):
         now = datetime.now().strftime("%H:%M")
 
         self.cursor.execute("""
-            SELECT id, platforms
+            SELECT id, platforms, content_type
             FROM scheduled_posts
             WHERE executed = 0 AND scheduled_time <= ?
         """, (now,))
 
-        for post_id, platforms in self.cursor.fetchall():
+        for post_id, platforms, content_type in self.cursor.fetchall():
             platform_list = [(p.strip(), "") for p in platforms.split(",")]
 
             # Exécuter la publication dans un thread séparé
             threading.Thread(
                 target=self.execute_publication,
-                args=(platform_list,),
+                args=(platform_list, content_type),
                 daemon=True
             ).start()
 
