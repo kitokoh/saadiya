@@ -64,6 +64,7 @@ DB_PATH_finances = DB_PATH
 DB_PATH_contacts = DB_PATH
 DB_PATH_licence = DB_PATH
 DB_PATH_update = DB_PATH
+DB_PATH_status = DB_PATH
 
 APP_INFO_FILE = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'APP_INFO_FILE.json')
 # DB_PATH_update = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'update.db')
