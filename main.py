@@ -4622,7 +4622,7 @@ class Browser(QMainWindow):
             
             # 3. Sales
             ("💰", self.tr("Sales"), "sales", None, self.tr("Sales tools"), [
-                ("📂", self.tr("Project Management"), "project_management", self.open_project_management, self.tr("Manage sales projects"), []),
+                ("📂", self.tr("Project Management"), "project_management", self.open_management, self.tr("Manage sales projects"), []),
                 ("🛠️", self.tr("SAV"), "sav", self.open_sav, self.tr("After-sales service management"), []),
                 ("🔗", self.tr("Short Links & Trackers"), "links", self.open_links_window, self.tr("Manage and track links"), []),
                 ("👥", self.tr("Prospection & Relances"), "contact", self.open_contacts_window, self.tr("Contact list and follow-ups"), []),
@@ -4638,7 +4638,7 @@ class Browser(QMainWindow):
             ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
                 ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
                 ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
-                ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
+                # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
                 ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
                 ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
                 ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
@@ -4653,13 +4653,13 @@ class Browser(QMainWindow):
             # 7. Upgrade
             ("🚀", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), []),
             
-            # Anciens menus (regroupés)
-            ("🗃️", self.tr("Legacy"), "legacy", None, self.tr("Old menu items"), [
-                ("🧰", self.tr("Old Tools"), "old_tools", self.open_management, self.tr("Deprecated tools"), []),
-                ("📜", self.tr("Old Protocols"), "protocoles", self.open_management, self.tr("Deprecated protocols"), []),
-                ("📥", self.tr("Old Import Data"), "import", self.open_imports_window, self.tr("Deprecated import tools"), []),
-                ("🗂️", self.tr("Old ADN Backup"), "backup", self.open_imports_window, self.tr("Deprecated backup"), []),
-            ]),
+            # # Anciens menus (regroupés)
+            # ("🗃️", self.tr("Legacy"), "legacy", None, self.tr("Old menu items"), [
+            #     ("🧰", self.tr("Old Tools"), "old_tools", self.open_management, self.tr("Deprecated tools"), []),
+            #     ("📜", self.tr("Old Protocols"), "protocoles", self.open_management, self.tr("Deprecated protocols"), []),
+            #     ("📥", self.tr("Old Import Data"), "import", self.open_imports_window, self.tr("Deprecated import tools"), []),
+            #     ("🗂️", self.tr("Old ADN Backup"), "backup", self.open_imports_window, self.tr("Deprecated backup"), []),
+            # ]),
         ]
 
         # Création des boutons de menu principal
