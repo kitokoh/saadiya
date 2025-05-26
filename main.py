@@ -221,12 +221,19 @@ class Browser(QMainWindow):
                 'Support': True
             }
         }
-        
+        self.control_application()
         # Load saved configuration
         self.load_menu_config() 
 
 
 
+
+
+    def control_application(self):
+        # from demarrage.demarage import ApplicationController
+        # controller = ApplicationController()
+        pass
+        # controller.ex
 
 
     def show_splash_screen(self):
@@ -755,7 +762,30 @@ class Browser(QMainWindow):
         Open the 'Upgrade' window.
         """
         # QMessageBox.information(self, "Upgrade", "Upgrade your plan.")
-        self.add_new_tab(QUrl("https://www.nova360.turknovatech.com/pricing"), self.tr("Upgrade"), "resources/icons/tok.ico")
+        self.add_new_tab(QUrl("https://www.nova360.turknovatech.com/pricing"), self.tr("🚀 Upgrade"), "resources/icons/tok.ico")
+    def open_upgrade_window(self):
+        """
+        Ouvre la page d'abonnement + affiche une fenêtre spéciale d'offre.
+        """
+        # Nom de l'onglet
+        tab_name = self.tr("🚀 Upgrade")
+
+        # Ouvre le lien pricing dans un nouvel onglet
+        self.add_new_tab(QUrl("https://www.nova360.turknovatech.com/pricing"), tab_name, "resources/icons/tokk.ico")
+        from Upgrade.upgrade import ContactDialog # Import ici si besoin
+        self.upgrades = ContactDialog()
+        self.upgrades.show()
+        # Ajoute aussi le module SpecialOfferWindow dans un onglet si non déjà ouvert
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'upgrades') or self.upgrades is None:
+            from Upgrade.upgrade import ContactDialog # Import ici si besoin
+            self.upgrades = ContactDialog(parent=self)
+            self.upgrades.show()
+        self.add_custom_tab(self.upgrades, tab_name, "resources/icons/multi_fb.ico")
 
     # Add methods for the buttons
     def minimize_window(self):
@@ -5055,6 +5085,32 @@ class Browser(QMainWindow):
             print("Opening Trader Tools")
         else:
             self.check_pro_mode(lambda: None)
+
+    def open_trader(self):
+        """
+        Ouvre la page d'abonnement + affiche une fenêtre spéciale d'offre.
+        """
+        # Nom de l'onglet
+        tab_name = self.tr("🚀 Upgrade")
+
+        # Ouvre le lien pricing dans un nouvel onglet
+        # self.add_new_tab(QUrl("https://www.nova360.turknovatech.com/pricing"), tab_name, "resources/icons/tokk.ico")
+        from Upgrade.upgrade import ContactDialog # Import ici si besoin
+        from Home.homefinance import MainWindow
+        upgrades = MainWindow(parent=self)
+        upgrades.show()
+        # Ajoute aussi le module SpecialOfferWindow dans un onglet si non déjà ouvert
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, 'upgrades') or self.upgrades is None:
+            from Upgrade.upgrade import ContactDialog # Import ici si besoin
+            self.upgrades = ContactDialog(parent=self)
+            self.upgrades.show()
+        self.add_custom_tab(self.upgrades, tab_name, "resources/icons/multi_fb.ico")
+
 
 class AccueilWidget(QWidget):
     """Widget for the 'Accueil' tab."""
