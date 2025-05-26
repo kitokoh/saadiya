@@ -3,7 +3,7 @@ import json
 import psutil  # Pour la surveillance du CPU
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit,
-    QLabel, QWidget, QFileDialog, QMessageBox, QTabWidget, QFormLayout, QSpinBox,
+    QLabel, QWidget, QFileDialo, QTabWidget, QFormLayout, QSpinBox,
     QComboBox, QCheckBox, QSlider, QProgressBar
 )
 from PyQt5.QtCore import Qt, QTimer

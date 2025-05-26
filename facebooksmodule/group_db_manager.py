@@ -1,58 +1,39 @@
 import sqlite3
 import os
 import csv
+import sys
+import subprocess
 from datetime import datetime
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QUrl
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QUrl, QDateTime
 from PyQt5.QtWidgets import (
     QFileDialog, QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton,
     QHeaderView, QAbstractItemView, QLineEdit, QHBoxLayout, QCheckBox, QMenu, QAction,
-    QComboBox, QScrollBar, QFrame, QDialog, QFormLayout, QMessageBox, QProgressBar
+    QComboBox, QScrollBar, QFrame, QDialog, QFormLayout, QMessageBox, QProgressBar,
+    QApplication, QStyledItemDelegate, QStyleOptionViewItem, QTextEdit
 )
-from PyQt5.QtGui import QDesktopServices, QIcon
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QFormLayout, QLineEdit, QPushButton, QMessageBox, QComboBox
-import sqlite3
-from PyQt5.QtGui import QPalette, QColor  # Pour PyQt5
-# OU
-#from test import ManageArchivesDialog
-from PyQt5.QtGui import QPixmap
-import math
+from PyQt5.QtGui import QDesktopServices, QIcon, QPalette, QColor, QPixmap, QRegExpValidator, QFont
+from PyQt5.Qt import QApplication
 
-from PyQt5.QtWidgets import QComboBox
-from PyQt5.QtWidgets import QComboBox, QLineEdit, QDateTimeEdit, QMessageBox
-from PyQt5.QtCore import QDateTime
-from imports import *
+# Chemin vers la base de données SQLite
+DB_PATH = "nova360.db"
 
-from ui.header import HeaderSection
-from ui.footer import FooterSection
-# def load_categories():
-#     """Charge toutes les catégories depuis la base de données."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT * FROM category')
-#     categories = cursor.fetchall()
-#     conn.close()
-#     return [dict(zip(['id', 'name', 'label', 'description', 'date_creation', 'date_modification', 'date_suppression'], cat)) for cat in categories]
+def load_categories():
+    """Charge toutes les catégories depuis la base de données."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM category')
+    categories = cursor.fetchall()
+    conn.close()
+    return [dict(zip(['id', 'name', 'label', 'description', 'date_creation', 'date_modification', 'date_suppression'], cat)) for cat in categories]
 
-# def load_reseaux_sociaux():
-#     """Charge tous les réseaux sociaux depuis la base de données."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('SELECT * FROM reseaux_sociaux')
-#     reseaux_sociaux = cursor.fetchall()
-#     conn.close()
-#     return [dict(zip(['id', 'name', 'description', 'date_creation', 'date_modification', 'date_suppression'], rs)) for rs in reseaux_sociaux]
-
-# def save_robot(robot):
-#     """Sauvegarde un nouveau robot dans la base de données."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         INSERT INTO robots (name, label, description, category_id, reseau_social_id)
-#         VALUES (?, ?, ?, ?, ?)
-#     ''', (robot['name'], robot.get('label', ''), robot.get('description', ''), robot['category_id'], robot['reseau_social_id']))
-#     conn.commit()
-#     conn.close()
-
+def load_reseaux_sociaux():
+    """Charge tous les réseaux sociaux depuis la base de données."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM reseaux_sociaux')
+    reseaux_sociaux = cursor.fetchall()
+    conn.close()
+    return [dict(zip(['id', 'name', 'description', 'date_creation', 'date_modification', 'date_suppression'], rs)) for rs in reseaux_sociaux]
 
 def save_reseau_social(reseau_social):
     """Sauvegarde un nouveau réseau social dans la base de données."""
@@ -64,42 +45,44 @@ def save_reseau_social(reseau_social):
     ''', (reseau_social['name'], reseau_social.get('description', '')))
     conn.commit()
     conn.close()
+
 def update_category(category):
     """
     Met à jour une catégorie dans la base de données.
-    
+
     Args:
         category (dict): Un dictionnaire contenant les informations de la catégorie.
                          Doit contenir les clés 'id', 'name', 'label', et 'description'.
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     # Mettre à jour la catégorie dans la table
     cursor.execute('''
         UPDATE category
         SET name = ?, label = ?, description = ?, date_modification = CURRENT_TIMESTAMP
         WHERE id = ?
     ''', (category['name'], category.get('label', ''), category.get('description', ''), category['id']))
-    
+
     conn.commit()
     conn.close()
 
 def delete_category(category_id):
     """
     Supprime une catégorie de la base de données.
-    
+
     Args:
         category_id (int): L'ID de la catégorie à supprimer.
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     # Supprimer la catégorie de la table
     cursor.execute('DELETE FROM category WHERE id = ?', (category_id,))
-    
+
     conn.commit()
     conn.close()
+
 def update_reseau_social(reseau_social):
     """Met à jour un réseau social dans la base de données."""
     conn = sqlite3.connect(DB_PATH)
@@ -119,35 +102,26 @@ def delete_reseau_social(reseau_social_id):
     cursor.execute('DELETE FROM reseaux_sociaux WHERE id = ?', (reseau_social_id,))
     conn.commit()
     conn.close()
+
 def save_category(category):
     """
     Sauvegarde une nouvelle catégorie dans la base de données.
-    
+
     Args:
         category (dict): Un dictionnaire contenant les informations de la catégorie.
                          Doit contenir les clés 'name', 'label', et 'description'.
     """
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     # Insérer la nouvelle catégorie dans la table
     cursor.execute('''
         INSERT INTO category (name, label, description)
         VALUES (?, ?, ?)
     ''', (category['name'], category.get('label', ''), category.get('description', '')))
-    
+
     conn.commit()
     conn.close()
-
-def load_reseaux_sociaux():
-    """Charge tous les réseaux sociaux depuis la base de données."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM reseaux_sociaux')
-    reseaux_sociaux = cursor.fetchall()
-    conn.close()
-    return [dict(zip(['id', 'name', 'description', 'date_creation', 'date_modification', 'date_suppression'], rs)) for rs in reseaux_sociaux]
-
 
 def load_media_types():
     """Charge tous les types de médias depuis la base de données."""
@@ -198,29 +172,6 @@ def load_robots():
     conn.close()
     return [dict(zip(['id', 'name', 'label', 'description', 'category', 'reseau_social', 'date_creation', 'date_modification', 'date_suppression'], r)) for r in robots]
 
-# def save_robot(robot):
-#     """Sauvegarde un nouveau robot dans la base de données."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         INSERT INTO robots (name, label, description, category, reseau_social)
-#         VALUES (?, ?, ?, ?, ?)
-#     ''', (robot['name'], robot.get('label', ''), robot.get('description', ''), robot.get('category', ''), robot.get('reseau_social', '')))
-#     conn.commit()
-#     conn.close()
-
-# def update_robot(robot):
-#     """Met à jour un robot dans la base de données."""
-#     conn = sqlite3.connect(DB_PATH)
-#     cursor = conn.cursor()
-#     cursor.execute('''
-#         UPDATE robots
-#         SET name = ?, label = ?, description = ?, category = ?, reseau_social = ?, date_modification = CURRENT_TIMESTAMP
-#         WHERE id = ?
-#     ''', (robot['name'], robot.get('label', ''), robot.get('description', ''), robot.get('category', ''), robot.get('reseau_social', ''), robot['id']))
-#     conn.commit()
-#     conn.close()
-
 def delete_robot(robot_id):
     """Supprime un robot de la base de données."""
     conn = sqlite3.connect(DB_PATH)
@@ -228,595 +179,6 @@ def delete_robot(robot_id):
     cursor.execute('DELETE FROM robots WHERE id = ?', (robot_id,))
     conn.commit()
     conn.close()
-
-
-import sys
-import sqlite3
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem,
-    QPushButton, QHeaderView, QDialog, QLineEdit, QHBoxLayout, QMessageBox
-)
-from PyQt5.QtCore import Qt
-
-
-
-# Boîte de dialogue pour éditer un réseau social
-class EditReseauSocialDialog(QDialog):
-    def __init__(self, reseau_social_id, parent=None):
-        super().__init__(parent)
-        self.reseau_social_id = reseau_social_id
-        self.setWindowTitle("Edit Reseau Social")
-        self.setFixedSize(400, 200)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Charger les données du réseau social
-        self.reseau_social = self.load_reseau_social_data()
-
-        # Champs de saisie
-        self.name_input = QLineEdit(self.reseau_social['name'], self)
-        self.name_input.setPlaceholderText("Enter name...")
-        layout.addWidget(self.name_input)
-
-        self.description_input = QLineEdit(self.reseau_social.get('description', ''), self)
-        self.description_input.setPlaceholderText("Enter description...")
-        layout.addWidget(self.description_input)
-
-        # Boutons
-        button_layout = QHBoxLayout()
-        self.save_button = QPushButton("Save", self)
-        self.save_button.clicked.connect(self.save_reseau_social)
-        button_layout.addWidget(self.save_button)
-
-        self.cancel_button = QPushButton("Cancel", self)
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-    def load_reseau_social_data(self):
-        """Charge les données du réseau social à modifier."""
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM reseaux_sociaux WHERE id = ?', (self.reseau_social_id,))
-        reseau_social = cursor.fetchone()
-        conn.close()
-        return dict(zip(['id', 'name', 'description', 'date_creation', 'date_modification', 'date_suppression'], reseau_social))
-
-    def save_reseau_social(self):
-        """Sauvegarde les modifications du réseau social."""
-        name = self.name_input.text().strip()
-        description = self.description_input.text().strip()
-
-        if name:
-            reseau_social = {
-                'id': self.reseau_social_id,
-                'name': name,
-                'description': description
-            }
-            update_reseau_social(reseau_social)
-            self.accept()
-        else:
-            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
-
-# Tableau principal avec modification directe et boutons d'action
-class ReseauSocialTable(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Reseau Social Management")
-        self.setFixedSize(800, 600)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Tableau
-        self.table = QTableWidget(self)
-        self.table.setColumnCount(5)
-        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Date Creation", "Actions"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        self.table.setEditTriggers(QTableWidget.AllEditTriggers)  # Permettre la modification directe
-        layout.addWidget(self.table)
-
-        # Charger les données
-        self.load_data()
-
-    def load_data(self):
-        """Charge les données des réseaux sociaux dans le tableau."""
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM reseaux_sociaux')
-        reseaux_sociaux = cursor.fetchall()
-        conn.close()
-
-        self.table.setRowCount(len(reseaux_sociaux))
-        for row, reseau in enumerate(reseaux_sociaux):
-            for col, data in enumerate(reseau):
-                self.table.setItem(row, col, QTableWidgetItem(str(data)))
-
-            # Bouton "Edit"
-            edit_button = QPushButton("Edit", self)
-            edit_button.clicked.connect(lambda _, r=row: self.edit_reseau_social(r))
-            self.table.setCellWidget(row, 4, edit_button)
-
-    def edit_reseau_social(self, row):
-        """Ouvre la boîte de dialogue pour éditer un réseau social."""
-        reseau_social_id = int(self.table.item(row, 0).text())
-        dialog = EditReseauSocialDialog(reseau_social_id, self)
-        if dialog.exec_() == QDialog.Accepted:
-            self.load_data()  # Recharger les données après modification
-
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QPushButton, QHBoxLayout
-from PyQt5.QtGui import QIcon
-
-class FilterByRobotDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Filter by Robot")
-        self.setWindowIcon(QIcon("icons/filter.png"))  # Ajouter une icône
-        self.setFixedSize(300, 150)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Robots ComboBox
-        self.robots_combo = QComboBox(self)
-        self.robots_combo.setStyleSheet("padding: 8px; font-size: 14px;")
-        robots = load_robots()
-        self.robots_combo.addItem("All Robots", None)  # Option pour afficher tous les groupes
-        for robot in robots:
-            self.robots_combo.addItem(robot['name'], robot['id'])
-        layout.addWidget(self.robots_combo)
-
-        # Buttons
-        button_layout = QHBoxLayout()
-        self.filter_button = QPushButton("Filter", self)
-        self.filter_button.setIcon(QIcon("icons/filter.png"))  # Ajouter une icône
-        self.filter_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #2196F3; color: white;")
-        self.filter_button.clicked.connect(self.accept)
-        button_layout.addWidget(self.filter_button)
-
-        self.cancel_button = QPushButton("Cancel", self)
-        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
-        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-        self.selected_robot_id = None
-
-    def accept(self):
-        self.selected_robot_id = self.robots_combo.currentData()
-        super().accept()
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-
-class CategoryManagementDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Category Management")
-        self.setWindowIcon(QIcon("icons/category.png"))  # Ajouter une icône
-        self.setFixedSize(600, 400)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Table to display categories
-        self.table = QTableWidget(self)
-        self.table.setColumnCount(5)  # Ajouter une colonne "Actions"
-        self.table.setHorizontalHeaderLabels(["ID", "Name", "Label", "Description", "Actions"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)  # Redimensionnement manuel
-        self.table.setEditTriggers(QTableWidget.AllEditTriggers)  # Permettre la modification directe
-        layout.addWidget(self.table)
-
-        # Buttons for Add
-        button_layout = QHBoxLayout()
-        self.add_button = QPushButton("Add Category", self)
-        self.add_button.setIcon(QIcon("icons/add.png"))  # Ajouter une icône
-        self.add_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
-        self.add_button.clicked.connect(self.add_category)
-        button_layout.addWidget(self.add_button)
-
-        layout.addLayout(button_layout)
-
-        # Charger les catégories
-        self.load_categories()
-
-    def load_categories(self):
-        """Charge les catégories dans la table."""
-        categories = load_categories()
-        self.table.setRowCount(len(categories))
-        for row, category in enumerate(categories):
-            # Colonne ID
-            self.table.setItem(row, 0, QTableWidgetItem(str(category['id'])))
-            self.table.item(row, 0).setFlags(self.table.item(row, 0).flags() & ~Qt.ItemIsEditable)  # ID non modifiable
-
-            # Colonne Name
-            self.table.setItem(row, 1, QTableWidgetItem(category['name']))
-
-            # Colonne Label
-            self.table.setItem(row, 2, QTableWidgetItem(category.get('label', '')))
-
-            # Colonne Description
-            self.table.setItem(row, 3, QTableWidgetItem(category.get('description', '')))
-
-            # Colonne Actions
-            action_button_layout = QHBoxLayout()
-            
-            edit_button = QPushButton("Edit", self)
-            edit_button.setIcon(QIcon("icons/edit.png"))
-            edit_button.setStyleSheet("""
-                QPushButton {
-                    padding: 5px;
-                    font-size: 12px;
-                    background-color: #FFC107;
-                    color: black;
-                    border-radius: 5px;
-                }
-                QPushButton:hover {
-                    background-color: #e0a800;
-                }
-            """)
-            edit_button.clicked.connect(lambda _, r=row: self.edit_category(r))
-            action_button_layout.addWidget(edit_button)
-
-            delete_button = QPushButton("Delete", self)
-            delete_button.setIcon(QIcon("icons/delete.png"))
-            delete_button.setStyleSheet("""
-                QPushButton {
-                    padding: 5px;
-                    font-size: 12px;
-                    background-color: #f44336;
-                    color: white;
-                    border-radius: 5px;
-                }
-                QPushButton:hover {
-                    background-color: #d32f2f;
-                }
-            """)
-            delete_button.clicked.connect(lambda _, r=row: self.delete_category(r))
-            action_button_layout.addWidget(delete_button)
-
-            action_widget = QWidget()
-            action_widget.setLayout(action_button_layout)
-            self.table.setCellWidget(row, 4, action_widget)
-
-
-    def add_category(self):
-        """Ouvre une boîte de dialogue pour ajouter une catégorie."""
-        dialog = AddCategoryDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
-            self.load_categories()
-
-    def edit_category(self, row):
-        """Ouvre une boîte de dialogue pour modifier une catégorie."""
-        category_id = int(self.table.item(row, 0).text())
-        dialog = EditCategoryDialog(category_id, self)
-        if dialog.exec_() == QDialog.Accepted:
-            self.load_categories()
-
-    def delete_category(self, row):
-        """Supprime la catégorie sélectionnée."""
-        category_id = int(self.table.item(row, 0).text())
-        confirm = QMessageBox.question(
-            self, "Confirm Delete", "Are you sure you want to delete this category?",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        if confirm == QMessageBox.Yes:
-            delete_category(category_id)
-            self.load_categories()
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-
-class AddReseauSocialDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Add Reseau Social")
-        self.setWindowIcon(QIcon("icons/add.png"))  # Ajouter une icône
-        self.setFixedSize(400, 200)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Input fields
-        self.name_input = QLineEdit(self)
-        self.name_input.setPlaceholderText("Name")
-        self.name_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.name_input)
-
-        self.description_input = QLineEdit(self)
-        self.description_input.setPlaceholderText("Description")
-        self.description_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.description_input)
-
-        # Buttons
-        button_layout = QHBoxLayout()
-        self.save_button = QPushButton("Save", self)
-        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
-        self.save_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
-        self.save_button.clicked.connect(self.save_reseau_social)
-        button_layout.addWidget(self.save_button)
-
-        self.cancel_button = QPushButton("Cancel", self)
-        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
-        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-    def save_reseau_social(self):
-        """Sauvegarde le nouveau réseau social."""
-        name = self.name_input.text().strip()
-        description = self.description_input.text().strip()
-
-        if not name:
-            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
-            return
-
-        reseau_social = {
-            'name': name,
-            'description': description
-        }
-        save_reseau_social(reseau_social)
-        self.accept()
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-
-class AddCategoryDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Add Category")
-        self.setWindowIcon(QIcon("icons/add.png"))  # Ajouter une icône
-        self.setFixedSize(400, 250)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Input fields
-        self.name_input = QLineEdit(self)
-        self.name_input.setPlaceholderText("Name")
-        self.name_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.name_input)
-
-        self.label_input = QLineEdit(self)
-        self.label_input.setPlaceholderText("Label")
-        self.label_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.label_input)
-
-        self.description_input = QLineEdit(self)
-        self.description_input.setPlaceholderText("Description")
-        self.description_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.description_input)
-
-        # Buttons
-        button_layout = QHBoxLayout()
-        self.save_button = QPushButton("Save", self)
-        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
-        self.save_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
-        self.save_button.clicked.connect(self.save_category)
-        button_layout.addWidget(self.save_button)
-
-        self.cancel_button = QPushButton("Cancel", self)
-        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
-        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-    def save_category(self):
-        """Sauvegarde la nouvelle catégorie."""
-        name = self.name_input.text().strip()
-        label = self.label_input.text().strip()
-        description = self.description_input.text().strip()
-
-        if not name:
-            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
-            return
-
-        category = {
-            'name': name,
-            'label': label,
-            'description': description
-        }
-        save_category(category)
-        self.accept()
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-
-class EditCategoryDialog(QDialog):
-    def __init__(self, category_id, parent=None):
-        super().__init__(parent)
-        self.category_id = category_id
-        self.setWindowTitle("Edit Category")
-        self.setWindowIcon(QIcon("icons/edit.png"))  # Ajouter une icône
-        self.setFixedSize(400, 250)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Charger les données de la catégorie
-        self.category = self.load_category_data()
-
-        # Input fields
-        self.name_input = QLineEdit(self.category['name'], self)
-        self.name_input.setPlaceholderText("Name")
-        self.name_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.name_input)
-
-        self.label_input = QLineEdit(self.category.get('label', ''), self)
-        self.label_input.setPlaceholderText("Label")
-        self.label_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.label_input)
-
-        self.description_input = QLineEdit(self.category.get('description', ''), self)
-        self.description_input.setPlaceholderText("Description")
-        self.description_input.setStyleSheet("padding: 8px; font-size: 14px;")
-        layout.addWidget(self.description_input)
-
-        # Buttons
-        button_layout = QHBoxLayout()
-        self.save_button = QPushButton("Save", self)
-        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
-        self.save_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
-        self.save_button.clicked.connect(self.save_category)
-        button_layout.addWidget(self.save_button)
-
-        self.cancel_button = QPushButton("Cancel", self)
-        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
-        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
-        self.cancel_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.cancel_button)
-
-        layout.addLayout(button_layout)
-
-    def load_category_data(self):
-        """Charge les données de la catégorie à modifier."""
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM category WHERE id = ?', (self.category_id,))
-        category = cursor.fetchone()
-        conn.close()
-        return dict(zip(['id', 'name', 'label', 'description', 'date_creation', 'date_modification', 'date_suppression'], category))
-
-    def save_category(self):
-        """Sauvegarde les modifications de la catégorie."""
-        name = self.name_input.text().strip()
-        label = self.label_input.text().strip()
-        description = self.description_input.text().strip()
-
-        if not name:
-            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
-            return
-
-        category = {
-            'id': self.category_id,
-            'name': name,
-            'label': label,
-            'description': description
-        }
-        update_category(category)
-        self.accept()
-
-from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton,
-    QHBoxLayout, QHeaderView, QMessageBox
-)
-from PyQt5.QtCore import Qt
-
-class ReseauSocialManagementDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Reseau Social Management")
-        self.setFixedSize(800, 600)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Table to display reseaux sociaux
-        self.table = QTableWidget(self)
-        self.table.setColumnCount(4)  # Ajouter une colonne "Actions"
-        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Actions"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)  # Redimensionnement manuel
-        self.table.setEditTriggers(QTableWidget.AllEditTriggers)  # Permettre la modification directe
-        layout.addWidget(self.table)
-
-        # Buttons for Add
-        button_layout = QHBoxLayout()
-        self.add_button = QPushButton("Add Reseau Social", self)
-        self.add_button.clicked.connect(self.add_reseau_social)
-        button_layout.addWidget(self.add_button)
-
-        layout.addLayout(button_layout)
-
-        # Charger les réseaux sociaux
-        self.load_reseaux_sociaux()
-
-    def load_reseaux_sociaux(self):
-        """Charge les réseaux sociaux dans la table."""
-        reseaux_sociaux = load_reseaux_sociaux()
-        self.table.setRowCount(len(reseaux_sociaux))
-        for row, reseau in enumerate(reseaux_sociaux):
-            # Colonne ID
-            self.table.setItem(row, 0, QTableWidgetItem(str(reseau['id'])))
-            self.table.item(row, 0).setFlags(self.table.item(row, 0).flags() & ~Qt.ItemIsEditable)  # ID non modifiable
-
-            # Colonne Name
-            self.table.setItem(row, 1, QTableWidgetItem(reseau['name']))
-
-            # Colonne Description
-            self.table.setItem(row, 2, QTableWidgetItem(reseau.get('description', '')))
-
-            # Colonne Actions
-            action_button_layout = QHBoxLayout()
-            edit_button = QPushButton("Edit", self)
-            edit_button.clicked.connect(lambda _, r=row: self.edit_reseau_social(r))
-            action_button_layout.addWidget(edit_button)
-
-            delete_button = QPushButton("Delete", self)
-            delete_button.clicked.connect(lambda _, r=row: self.delete_reseau_social(r))
-            action_button_layout.addWidget(delete_button)
-
-            action_widget = QWidget()
-            action_widget.setLayout(action_button_layout)
-            self.table.setCellWidget(row, 3, action_widget)
-
-    def add_reseau_social(self):
-        """Ouvre une boîte de dialogue pour ajouter un réseau social."""
-        dialog = AddReseauSocialDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
-            self.load_reseaux_sociaux()
-
-    def edit_reseau_social(self, row):
-        """Ouvre une boîte de dialogue pour modifier un réseau social."""
-        reseau_id = int(self.table.item(row, 0).text())
-        dialog = EditReseauSocialDialog(reseau_id, self)
-        if dialog.exec_() == QDialog.Accepted:
-            self.load_reseaux_sociaux()
-
-    def delete_reseau_social(self, row):
-        """Supprime le réseau social sélectionné."""
-        reseau_id = int(self.table.item(row, 0).text())
-        confirm = QMessageBox.question(
-            self, "Confirm Delete", "Are you sure you want to delete this reseau social?",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        if confirm == QMessageBox.Yes:
-            delete_reseau_social(reseau_id)
-            self.load_reseaux_sociaux()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Chemin vers la base de données SQLite
-
-
-
 
 def init_db():
     """Initialise la base de données SQLite avec des tables et des données par défaut."""
@@ -958,7 +320,6 @@ def init_db():
         )
     ''')
 
-
     # Table pour les archives
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS archive (
@@ -1077,24 +438,6 @@ def load_groups(robot_id=None):
     conn.close()
     return [dict(zip(['id', 'name', 'link', 'remarks', 'category_group_id', 'description', 'keywords'], group)) for group in groups]
 
-def load_robots():
-    """Charge les robots depuis la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM robots')
-    robots = cursor.fetchall()
-    conn.close()
-    return [dict(zip(['id', 'name', 'label', 'description', 'creation_date', 'category', 'status', 'reseau_social_id', 'date_creation', 'date_modification', 'date_suppression'], robot)) for robot in robots]
-
-def load_categories():
-    """Charge les catégories depuis la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM category')
-    categories = cursor.fetchall()
-    conn.close()
-    return [dict(zip(['id', 'name', 'label', 'description', 'date_creation', 'date_modification', 'date_suppression'], category)) for category in categories]
-
 def save_group(group):
     """Sauvegarde un groupe dans la base de données SQLite."""
     conn = sqlite3.connect(DB_PATH)
@@ -1126,7 +469,6 @@ def delete_group(group_id):
     conn.commit()
     conn.close()
 
-
 def save_robot(robot):
     """Sauvegarde un robot dans la base de données SQLite."""
     conn = sqlite3.connect(DB_PATH)
@@ -1147,14 +489,6 @@ def update_robot(robot):
         SET name = ?, label = ?, description = ?, creation_date = ?, category = ?, status = ?, reseau_social_id = ?
         WHERE id = ?
     ''', (robot['name'], robot.get('label', ''), robot['description'], robot['creation_date'], robot['category'], robot['status'], robot.get('reseau_social_id', None), robot['id']))
-    conn.commit()
-    conn.close()
-
-def delete_robot(robot_id):
-    """Supprime un robot de la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM robots WHERE id = ?', (robot_id,))
     conn.commit()
     conn.close()
 
@@ -1181,68 +515,6 @@ def get_robots_for_group(group_id):
     robots = cursor.fetchall()
     conn.close()
     return [dict(zip(['id', 'name', 'label', 'description', 'creation_date', 'category', 'status', 'reseau_social_id', 'date_creation', 'date_modification', 'date_suppression'], robot)) for robot in robots]
-
-def save_media_type(media_type):
-    """Sauvegarde un type de média dans la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO media_type (type, label, description)
-        VALUES (?, ?, ?)
-    ''', (media_type['type'], media_type.get('label', ''), media_type.get('description', '')))
-    conn.commit()
-    conn.close()
-
-def update_media_type(media_type):
-    """Met à jour un type de média dans la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE media_type
-        SET type = ?, label = ?, description = ?
-        WHERE id = ?
-    ''', (media_type['type'], media_type.get('label', ''), media_type.get('description', ''), media_type['id']))
-    conn.commit()
-    conn.close()
-
-def delete_media_type(media_type_id):
-    """Supprime un type de média de la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM media_type WHERE id = ?', (media_type_id,))
-    conn.commit()
-    conn.close()
-
-def save_reseau_social(reseau_social):
-    """Sauvegarde un réseau social dans la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO reseaux_sociaux (name, description)
-        VALUES (?, ?)
-    ''', (reseau_social['name'], reseau_social.get('description', '')))
-    conn.commit()
-    conn.close()
-
-def update_reseau_social(reseau_social):
-    """Met à jour un réseau social dans la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE reseaux_sociaux
-        SET name = ?, description = ?
-        WHERE id = ?
-    ''', (reseau_social['name'], reseau_social.get('description', ''), reseau_social['id']))
-    conn.commit()
-    conn.close()
-
-def delete_reseau_social(reseau_social_id):
-    """Supprime un réseau social de la base de données SQLite."""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM reseaux_sociaux WHERE id = ?', (reseau_social_id,))
-    conn.commit()
-    conn.close()
 
 def save_identifiant(identifiant):
     """Sauvegarde un identifiant dans la base de données SQLite."""
@@ -1275,14 +547,836 @@ def delete_identifiant(identifiant_id):
     conn.commit()
     conn.close()
 
+def apply_theme(theme_name):
+    """Applique un thème à l'application."""
+    if theme_name == "Light":
+        QApplication.setStyle("Fusion")
+        QApplication.setPalette(QApplication.style().standardPalette())
+    elif theme_name == "Dark":
+        dark_palette = QPalette()
+        dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.WindowText, Qt.white)
+        dark_palette.setColor(QPalette.Base, QColor(35, 35, 35))
+        dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
+        dark_palette.setColor(QPalette.ToolTipText, Qt.white)
+        dark_palette.setColor(QPalette.Text, Qt.white)
+        dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
+        dark_palette.setColor(QPalette.ButtonText, Qt.white)
+        dark_palette.setColor(QPalette.BrightText, Qt.red)
+        dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+        dark_palette.setColor(QPalette.HighlightedText, Qt.black)
+        QApplication.setPalette(dark_palette)
+    elif theme_name == "System Default":
+        QApplication.setPalette(QApplication.style().standardPalette())
+
+class URLDelegate(QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super().initStyleOption(option, index)
+        option.font.setUnderline(True)
+        option.palette.setColor(QPalette.Text, QColor(0, 0, 255))
+
+class HeaderSection1(QWidget):
+    def __init__(self, parent=None, title="", app_name="", slogan=""):
+        super().__init__(parent)
+        self.title = title
+        self.app_name = app_name
+        self.slogan = slogan
+
+        # Styles CSS
+        self.setStyleSheet("""
+            QWidget {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #007BFF, stop:1 #00BFFF);
+                padding: 20px;
+                border-radius: 10px;
+            }
+            QLabel {
+                color: white;
+                text-align: center;
+            }
+        """)
+
+        # Layout principal
+        layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignCenter)
+
+        # Titre de l'application
+        self.title_label = QLabel(self.title, self)
+        self.title_label.setStyleSheet("font-size: 28px; font-weight: bold;")
+        layout.addWidget(self.title_label)
+
+        # Nom de l'application
+        self.app_name_label = QLabel(self.app_name, self)
+        self.app_name_label.setStyleSheet("font-size: 20px;")
+        layout.addWidget(self.app_name_label)
+
+        # Slogan
+        self.slogan_label = QLabel(self.slogan, self)
+        self.slogan_label.setStyleSheet("font-size: 16px;")
+        layout.addWidget(self.slogan_label)
+
+        # Séparateur
+        separator = QFrame(self)
+        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShadow(QFrame.Sunken)
+        separator.setStyleSheet("background-color: rgba(255, 255, 255, 0.5);")
+        layout.addWidget(separator)
+
+class ProgressDialog(QDialog):
+    def __init__(self, parent=None, title="Processing", message="Please wait..."):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setFixedSize(400, 150)
+
+        # Styles CSS
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f9f9f9;
+                border-radius: 10px;
+            }
+            QLabel {
+                font-size: 16px;
+                color: #333;
+            }
+            QProgressBar {
+                background-color: #e0e0e0;
+                border-radius: 5px;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background-color: #007BFF;
+                border-radius: 5px;
+            }
+        """)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Message
+        self.message_label = QLabel(message, self)
+        self.message_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.message_label)
+
+        # Barre de progression
+        self.progress_bar = QProgressBar(self)
+        self.progress_bar.setRange(0, 100)
+        layout.addWidget(self.progress_bar)
+
+    def set_progress(self, value):
+        """Met à jour la valeur de la barre de progression."""
+        self.progress_bar.setValue(value)
+        if value >= 100:
+            self.close()
+
+class ConfirmationDialog(QDialog):
+    def __init__(self, parent=None, title="Confirmation", message="Are you sure?"):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setFixedSize(350, 150)
+
+        # Styles CSS
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f9f9f9;
+                border-radius: 10px;
+            }
+            QLabel {
+                font-size: 16px;
+                color: #333;
+            }
+            QPushButton {
+                padding: 10px 20px;
+                font-size: 14px;
+                border-radius: 5px;
+            }
+            QPushButton#yes_button {
+                background-color: #28a745;
+                color: white;
+            }
+            QPushButton#no_button {
+                background-color: #dc3545;
+                color: white;
+            }
+        """)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Message
+        self.message_label = QLabel(message, self)
+        self.message_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.message_label)
+
+        # Boutons
+        button_layout = QHBoxLayout()
+        self.yes_button = QPushButton("Yes", self)
+        self.yes_button.setObjectName("yes_button")
+        self.yes_button.setIcon(QIcon("icons/check.png"))
+        self.yes_button.clicked.connect(self.accept)
+        button_layout.addWidget(self.yes_button)
+
+        self.no_button = QPushButton("No", self)
+        self.no_button.setObjectName("no_button")
+        self.no_button.setIcon(QIcon("icons/cancel.png"))
+        self.no_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.no_button)
+
+        layout.addLayout(button_layout)
+
+class AboutDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About")
+        self.setFixedSize(400, 250)
+
+        # Styles CSS
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f9f9f9;
+                border-radius: 10px;
+            }
+            QLabel {
+                font-size: 16px;
+                color: #333;
+            }
+            QPushButton {
+                padding: 10px 20px;
+                font-size: 14px;
+                border-radius: 5px;
+                background-color: #007BFF;
+                color: white;
+            }
+        """)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Icône de l'application
+        self.app_icon = QLabel(self)
+        self.app_icon.setPixmap(QPixmap("icons/app_icon.png").scaled(64, 64))
+        self.app_icon.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.app_icon)
+
+        # Informations sur l'application
+        self.app_name_label = QLabel("Nova360 AI", self)
+        self.app_name_label.setStyleSheet("font-size: 20px; font-weight: bold;")
+        self.app_name_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.app_name_label)
+
+        self.version_label = QLabel("Version 1.0.0", self)
+        self.version_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.version_label)
+
+        self.description_label = QLabel("AI Marketing Automation Solution", self)
+        self.description_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.description_label)
+
+        # Bouton de fermeture
+        self.close_button = QPushButton("Close", self)
+        self.close_button.clicked.connect(self.close)
+        layout.addWidget(self.close_button)
+
+class SettingsDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Settings")
+        self.setMinimumSize(400, 300)
+
+        # Styles CSS modernes
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f9f9f9;
+                border-radius: 10px;
+                border: 1px solid #ddd;
+            }
+            QLabel {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            QComboBox {
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                margin-bottom: 20px;
+            }
+            QPushButton {
+                background-color: #007bff;
+                color: white;
+                font-size: 14px;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+            QPushButton:pressed {
+                background-color: #003f8a;
+            }
+        """)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Theme selection
+        self.theme_label = QLabel("Select Theme:", self)
+        layout.addWidget(self.theme_label)
+
+        self.theme_combo = QComboBox(self)
+        self.theme_combo.addItems(["Light", "Dark", "System Default"])
+        layout.addWidget(self.theme_combo)
+
+        # Save button
+        self.save_button = QPushButton("Save Settings", self)
+        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
+        self.save_button.clicked.connect(self.save_settings)
+        layout.addWidget(self.save_button)
+
+    def save_settings(self):
+        selected_theme = self.theme_combo.currentText()
+        # Appliquer le thème sélectionné
+        apply_theme(selected_theme)  # Fonction à implémenter pour appliquer le thème
+        QMessageBox.information(self, "Settings Saved", f"Theme '{selected_theme}' has been applied.")
+        self.accept()
+
+class EditReseauSocialDialog(QDialog):
+    def __init__(self, reseau_social_id, parent=None):
+        super().__init__(parent)
+        self.reseau_social_id = reseau_social_id
+        self.setWindowTitle("Edit Reseau Social")
+        self.setFixedSize(400, 200)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Charger les données du réseau social
+        self.reseau_social = self.load_reseau_social_data()
+
+        # Champs de saisie
+        self.name_input = QLineEdit(self.reseau_social['name'], self)
+        self.name_input.setPlaceholderText("Enter name...")
+        layout.addWidget(self.name_input)
+
+        self.description_input = QLineEdit(self.reseau_social.get('description', ''), self)
+        self.description_input.setPlaceholderText("Enter description...")
+        layout.addWidget(self.description_input)
+
+        # Boutons
+        button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save", self)
+        self.save_button.clicked.connect(self.save_reseau_social)
+        button_layout.addWidget(self.save_button)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+
+    def load_reseau_social_data(self):
+        """Charge les données du réseau social à modifier."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM reseaux_sociaux WHERE id = ?', (self.reseau_social_id,))
+        reseau_social = cursor.fetchone()
+        conn.close()
+        return dict(zip(['id', 'name', 'description', 'date_creation', 'date_modification', 'date_suppression'], reseau_social))
+
+    def save_reseau_social(self):
+        """Sauvegarde les modifications du réseau social."""
+        name = self.name_input.text().strip()
+        description = self.description_input.text().strip()
+
+        if name:
+            reseau_social = {
+                'id': self.reseau_social_id,
+                'name': name,
+                'description': description
+            }
+            update_reseau_social(reseau_social)
+            self.accept()
+        else:
+            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
+
+class ReseauSocialTable(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Reseau Social Management")
+        self.setFixedSize(800, 600)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Tableau
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Date Creation", "Actions"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.table.verticalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        self.table.setEditTriggers(QTableWidget.AllEditTriggers)  # Permettre la modification directe
+        layout.addWidget(self.table)
+
+        # Charger les données
+        self.load_data()
+
+    def load_data(self):
+        """Charge les données des réseaux sociaux dans le tableau."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM reseaux_sociaux')
+        reseaux_sociaux = cursor.fetchall()
+        conn.close()
+
+        self.table.setRowCount(len(reseaux_sociaux))
+        for row, reseau in enumerate(reseaux_sociaux):
+            for col, data in enumerate(reseau):
+                self.table.setItem(row, col, QTableWidgetItem(str(data)))
+
+            # Bouton "Edit"
+            edit_button = QPushButton("Edit", self)
+            edit_button.clicked.connect(lambda _, r=row: self.edit_reseau_social(r))
+            self.table.setCellWidget(row, 4, edit_button)
+
+    def edit_reseau_social(self, row):
+        """Ouvre la boîte de dialogue pour éditer un réseau social."""
+        reseau_social_id = int(self.table.item(row, 0).text())
+        dialog = EditReseauSocialDialog(reseau_social_id, self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.load_data()  # Recharger les données après modification
+
+class FilterByRobotDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Filter by Robot")
+        self.setWindowIcon(QIcon("icons/filter.png"))  # Ajouter une icône
+        self.setFixedSize(300, 150)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Robots ComboBox
+        self.robots_combo = QComboBox(self)
+        self.robots_combo.setStyleSheet("padding: 8px; font-size: 14px;")
+        robots = load_robots()
+        self.robots_combo.addItem("All Robots", None)  # Option pour afficher tous les groupes
+        for robot in robots:
+            self.robots_combo.addItem(robot['name'], robot['id'])
+        layout.addWidget(self.robots_combo)
+
+        # Buttons
+        button_layout = QHBoxLayout()
+        self.filter_button = QPushButton("Filter", self)
+        self.filter_button.setIcon(QIcon("icons/filter.png"))  # Ajouter une icône
+        self.filter_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #2196F3; color: white;")
+        self.filter_button.clicked.connect(self.accept)
+        button_layout.addWidget(self.filter_button)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
+        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+
+        self.selected_robot_id = None
+
+    def accept(self):
+        self.selected_robot_id = self.robots_combo.currentData()
+        super().accept()
+
+class CategoryManagementDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Category Management")
+        self.setWindowIcon(QIcon("icons/category.png"))  # Ajouter une icône
+        self.setFixedSize(600, 400)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Table to display categories
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(5)  # Ajouter une colonne "Actions"
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "Label", "Description", "Actions"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)  # Redimensionnement manuel
+        self.table.setEditTriggers(QTableWidget.AllEditTriggers)  # Permettre la modification directe
+        layout.addWidget(self.table)
+
+        # Buttons for Add
+        button_layout = QHBoxLayout()
+        self.add_button = QPushButton("Add Category", self)
+        self.add_button.setIcon(QIcon("icons/add.png"))  # Ajouter une icône
+        self.add_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
+        self.add_button.clicked.connect(self.add_category)
+        button_layout.addWidget(self.add_button)
+
+        layout.addLayout(button_layout)
+
+        # Charger les catégories
+        self.load_categories()
+
+    def load_categories(self):
+        """Charge les catégories dans la table."""
+        categories = load_categories()
+        self.table.setRowCount(len(categories))
+        for row, category in enumerate(categories):
+            # Colonne ID
+            self.table.setItem(row, 0, QTableWidgetItem(str(category['id'])))
+            self.table.item(row, 0).setFlags(self.table.item(row, 0).flags() & ~Qt.ItemIsEditable)  # ID non modifiable
+
+            # Colonne Name
+            self.table.setItem(row, 1, QTableWidgetItem(category['name']))
+
+            # Colonne Label
+            self.table.setItem(row, 2, QTableWidgetItem(category.get('label', '')))
+
+            # Colonne Description
+            self.table.setItem(row, 3, QTableWidgetItem(category.get('description', '')))
+
+            # Colonne Actions
+            action_button_layout = QHBoxLayout()
+
+            edit_button = QPushButton("Edit", self)
+            edit_button.setIcon(QIcon("icons/edit.png"))
+            edit_button.setStyleSheet("""
+                QPushButton {
+                    padding: 5px;
+                    font-size: 12px;
+                    background-color: #FFC107;
+                    color: black;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #e0a800;
+                }
+            """)
+            edit_button.clicked.connect(lambda _, r=row: self.edit_category(r))
+            action_button_layout.addWidget(edit_button)
+
+            delete_button = QPushButton("Delete", self)
+            delete_button.setIcon(QIcon("icons/delete.png"))
+            delete_button.setStyleSheet("""
+                QPushButton {
+                    padding: 5px;
+                    font-size: 12px;
+                    background-color: #f44336;
+                    color: white;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #d32f2f;
+                }
+            """)
+            delete_button.clicked.connect(lambda _, r=row: self.delete_category(r))
+            action_button_layout.addWidget(delete_button)
+
+            action_widget = QWidget()
+            action_widget.setLayout(action_button_layout)
+            self.table.setCellWidget(row, 4, action_widget)
+
+    def add_category(self):
+        """Ouvre une boîte de dialogue pour ajouter une catégorie."""
+        dialog = AddCategoryDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.load_categories()
+
+    def edit_category(self, row):
+        """Ouvre une boîte de dialogue pour modifier une catégorie."""
+        category_id = int(self.table.item(row, 0).text())
+        dialog = EditCategoryDialog(category_id, self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.load_categories()
+
+    def delete_category(self, row):
+        """Supprime la catégorie sélectionnée."""
+        category_id = int(self.table.item(row, 0).text())
+        confirm = QMessageBox.question(
+            self, "Confirm Delete", "Are you sure you want to delete this category?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if confirm == QMessageBox.Yes:
+            delete_category(category_id)
+            self.load_categories()
+
+class AddReseauSocialDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Add Reseau Social")
+        self.setWindowIcon(QIcon("icons/add.png"))  # Ajouter une icône
+        self.setFixedSize(400, 200)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Input fields
+        self.name_input = QLineEdit(self)
+        self.name_input.setPlaceholderText("Name")
+        self.name_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.name_input)
+
+        self.description_input = QLineEdit(self)
+        self.description_input.setPlaceholderText("Description")
+        self.description_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.description_input)
+
+        # Buttons
+        button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save", self)
+        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
+        self.save_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
+        self.save_button.clicked.connect(self.save_reseau_social)
+        button_layout.addWidget(self.save_button)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
+        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+
+    def save_reseau_social(self):
+        """Sauvegarde le nouveau réseau social."""
+        name = self.name_input.text().strip()
+        description = self.description_input.text().strip()
+
+        if not name:
+            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
+            return
+
+        reseau_social = {
+            'name': name,
+            'description': description
+        }
+        save_reseau_social(reseau_social)
+        self.accept()
+
+class AddCategoryDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Add Category")
+        self.setWindowIcon(QIcon("icons/add.png"))  # Ajouter une icône
+        self.setFixedSize(400, 250)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Input fields
+        self.name_input = QLineEdit(self)
+        self.name_input.setPlaceholderText("Name")
+        self.name_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.name_input)
+
+        self.label_input = QLineEdit(self)
+        self.label_input.setPlaceholderText("Label")
+        self.label_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.label_input)
+
+        self.description_input = QLineEdit(self)
+        self.description_input.setPlaceholderText("Description")
+        self.description_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.description_input)
+
+        # Buttons
+        button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save", self)
+        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
+        self.save_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
+        self.save_button.clicked.connect(self.save_category)
+        button_layout.addWidget(self.save_button)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
+        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+
+    def save_category(self):
+        """Sauvegarde la nouvelle catégorie."""
+        name = self.name_input.text().strip()
+        label = self.label_input.text().strip()
+        description = self.description_input.text().strip()
+
+        if not name:
+            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
+            return
+
+        category = {
+            'name': name,
+            'label': label,
+            'description': description
+        }
+        save_category(category)
+        self.accept()
+
+class EditCategoryDialog(QDialog):
+    def __init__(self, category_id, parent=None):
+        super().__init__(parent)
+        self.category_id = category_id
+        self.setWindowTitle("Edit Category")
+        self.setWindowIcon(QIcon("icons/edit.png"))  # Ajouter une icône
+        self.setFixedSize(400, 250)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Charger les données de la catégorie
+        self.category = self.load_category_data()
+
+        # Input fields
+        self.name_input = QLineEdit(self.category['name'], self)
+        self.name_input.setPlaceholderText("Name")
+        self.name_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.name_input)
+
+        self.label_input = QLineEdit(self.category.get('label', ''), self)
+        self.label_input.setPlaceholderText("Label")
+        self.label_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.label_input)
+
+        self.description_input = QLineEdit(self.category.get('description', ''), self)
+        self.description_input.setPlaceholderText("Description")
+        self.description_input.setStyleSheet("padding: 8px; font-size: 14px;")
+        layout.addWidget(self.description_input)
+
+        # Buttons
+        button_layout = QHBoxLayout()
+        self.save_button = QPushButton("Save", self)
+        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
+        self.save_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #4CAF50; color: white;")
+        self.save_button.clicked.connect(self.save_category)
+        button_layout.addWidget(self.save_button)
+
+        self.cancel_button = QPushButton("Cancel", self)
+        self.cancel_button.setIcon(QIcon("icons/cancel.png"))  # Ajouter une icône
+        self.cancel_button.setStyleSheet("padding: 8px; font-size: 14px; background-color: #f44336; color: white;")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+
+    def load_category_data(self):
+        """Charge les données de la catégorie à modifier."""
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM category WHERE id = ?', (self.category_id,))
+        category = cursor.fetchone()
+        conn.close()
+        return dict(zip(['id', 'name', 'label', 'description', 'date_creation', 'date_modification', 'date_suppression'], category))
+
+    def save_category(self):
+        """Sauvegarde les modifications de la catégorie."""
+        name = self.name_input.text().strip()
+        label = self.label_input.text().strip()
+        description = self.description_input.text().strip()
+
+        if not name:
+            QMessageBox.warning(self, "Validation Error", "Name cannot be empty!")
+            return
+
+        category = {
+            'id': self.category_id,
+            'name': name,
+            'label': label,
+            'description': description
+        }
+        update_category(category)
+        self.accept()
+
+class ReseauSocialManagementDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Reseau Social Management")
+        self.setFixedSize(800, 600)
+
+        # Layout
+        layout = QVBoxLayout(self)
+
+        # Table to display reseaux sociaux
+        self.table = QTableWidget(self)
+        self.table.setColumnCount(4)  # Ajouter une colonne "Actions"
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "Description", "Actions"])
+        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)  # Redimensionnement manuel
+        self.table.setEditTriggers(QTableWidget.AllEditTriggers)  # Permettre la modification directe
+        layout.addWidget(self.table)
+
+        # Buttons for Add
+        button_layout = QHBoxLayout()
+        self.add_button = QPushButton("Add Reseau Social", self)
+        self.add_button.clicked.connect(self.add_reseau_social)
+        button_layout.addWidget(self.add_button)
+
+        layout.addLayout(button_layout)
+
+        # Charger les réseaux sociaux
+        self.load_reseaux_sociaux()
+
+    def load_reseaux_sociaux(self):
+        """Charge les réseaux sociaux dans la table."""
+        reseaux_sociaux = load_reseaux_sociaux()
+        self.table.setRowCount(len(reseaux_sociaux))
+        for row, reseau in enumerate(reseaux_sociaux):
+            # Colonne ID
+            self.table.setItem(row, 0, QTableWidgetItem(str(reseau['id'])))
+            self.table.item(row, 0).setFlags(self.table.item(row, 0).flags() & ~Qt.ItemIsEditable)  # ID non modifiable
+
+            # Colonne Name
+            self.table.setItem(row, 1, QTableWidgetItem(reseau['name']))
+
+            # Colonne Description
+            self.table.setItem(row, 2, QTableWidgetItem(reseau.get('description', '')))
+
+            # Colonne Actions
+            action_button_layout = QHBoxLayout()
+            edit_button = QPushButton("Edit", self)
+            edit_button.clicked.connect(lambda _, r=row: self.edit_reseau_social(r))
+            action_button_layout.addWidget(edit_button)
+
+            delete_button = QPushButton("Delete", self)
+            delete_button.clicked.connect(lambda _, r=row: self.delete_reseau_social(r))
+            action_button_layout.addWidget(delete_button)
+
+            action_widget = QWidget()
+            action_widget.setLayout(action_button_layout)
+            self.table.setCellWidget(row, 3, action_widget)
+
+    def add_reseau_social(self):
+        """Ouvre une boîte de dialogue pour ajouter un réseau social."""
+        dialog = AddReseauSocialDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.load_reseaux_sociaux()
+
+    def edit_reseau_social(self, row):
+        """Ouvre une boîte de dialogue pour modifier un réseau social."""
+        reseau_id = int(self.table.item(row, 0).text())
+        dialog = EditReseauSocialDialog(reseau_id, self)
+        if dialog.exec_() == QDialog.Accepted:
+            self.load_reseaux_sociaux()
+
+    def delete_reseau_social(self, row):
+        """Supprime le réseau social sélectionné."""
+        reseau_id = int(self.table.item(row, 0).text())
+        confirm = QMessageBox.question(
+            self, "Confirm Delete", "Are you sure you want to delete this reseau social?",
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if confirm == QMessageBox.Yes:
+            delete_reseau_social(reseau_id)
+            self.load_reseaux_sociaux()
+
 class LoadGroupsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Charger des groupes")
         self.setFixedSize(400, 150)
-        
+
         layout = QFormLayout(self)
-        
+
         self.keywords_input = QLineEdit(self)
         self.keywords_input.setPlaceholderText("Entrez des mots-clés séparés par des virgules")
         layout.addRow("Mots-clés:", self.keywords_input)
@@ -1409,10 +1503,6 @@ class UpdateRobotDialog(QDialog):
         self.description_input.setText(robot.get('description', ''))
         self.category_input.setText(robot.get('category', ''))
         self.status_combo.setCurrentText(robot.get('status', 'Active'))
-
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QFormLayout, QMessageBox
-from PyQt5.QtGui import QIcon
 
 class AddGroupDialog(QDialog):
     def __init__(self, parent=None):
@@ -1549,7 +1639,7 @@ class AddGroupDialog(QDialog):
             'name': self.name_input.text().strip(),
             'link': self.link_input.text().strip(),
             'remarks': self.remarks_input.text().strip(),
-            'category_id': category_id,
+            'category_group_id': category_id,
             'description': self.description_input.text().strip(),
             'keywords': self.keywords_input.text().strip()
         }
@@ -1574,12 +1664,6 @@ class AddGroupDialog(QDialog):
         ))
         conn.commit()
         conn.close()
-
-
-
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QPushButton, QFormLayout, QMessageBox
-from PyQt5.QtGui import QIcon
 
 class AssignGroupToRobotDialog(QDialog):
     def __init__(self, group_id, parent=None):
@@ -1673,11 +1757,6 @@ class AssignGroupToRobotDialog(QDialog):
         assign_group_to_robot(self.group_id, robot_id)
         QMessageBox.information(self, self.tr("Success"), self.tr("Group assigned to robot successfully!"))
         self.accept()
-
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
 
 class MediaTypeManagementDialog(QDialog):
     def __init__(self, parent=None):
@@ -1809,14 +1888,6 @@ class MediaTypeManagementDialog(QDialog):
         if confirm == QMessageBox.Yes:
             delete_media_type(media_type_id)
             self.load_media_types()
-
-
-
-from PyQt5.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
-)
-from PyQt5.QtGui import QIcon
-import sqlite3
 
 class EditMediaTypeDialog(QDialog):
     def __init__(self, media_type_id, parent=None):
@@ -2029,10 +2100,6 @@ class AddMediaTypeDialog(QDialog):
         QMessageBox.information(self, "Success", "Media type saved successfully!")
         self.accept()
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QComboBox, QDateTimeEdit, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QDateTime
-
 class AddRobotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -2188,14 +2255,6 @@ class AddRobotDialog(QDialog):
         save_robot(robot)  # Sauvegarde le robot dans la base de données
         QMessageBox.information(self, "Success", "Robot added successfully!")
         self.accept()
-
-
-from PyQt5.QtWidgets import QComboBox, QDateTimeEdit, QMessageBox
-from PyQt5.QtCore import QDateTime
-
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QComboBox, QDateTimeEdit, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QDateTime
 
 class EditRobotDialog(QDialog):
     def __init__(self, robot_id, parent=None):
@@ -2371,10 +2430,6 @@ class EditRobotDialog(QDialog):
         QMessageBox.information(self, "Success", "Robot updated successfully!")
         self.accept()
 
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QMessageBox
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-
 class RobotManagementDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -2512,408 +2567,42 @@ class RobotManagementDialog(QDialog):
             delete_robot(robot_id)
             self.load_robots()
 
-
-
-class SettingsDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Settings")
-        self.setMinimumSize(400, 300)
-
-        # Styles CSS modernes
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
-                border: 1px solid #ddd;
-            }
-            QLabel {
-                font-size: 14px;
-                margin-bottom: 10px;
-            }
-            QComboBox {
-                padding: 10px;
-                font-size: 14px;
-                border: 1px solid #ccc;
-                border-radius: 6px;
-                margin-bottom: 20px;
-            }
-            QPushButton {
-                background-color: #007bff;
-                color: white;
-                font-size: 14px;
-                padding: 10px 20px;
-                border: none;
-                border-radius: 6px;
-                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-            QPushButton:pressed {
-                background-color: #003f8a;
-            }
-        """)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Theme selection
-        self.theme_label = QLabel("Select Theme:", self)
-        layout.addWidget(self.theme_label)
-
-        self.theme_combo = QComboBox(self)
-        self.theme_combo.addItems(["Light", "Dark", "System Default"])
-        layout.addWidget(self.theme_combo)
-
-        # Save button
-        self.save_button = QPushButton("Save Settings", self)
-        self.save_button.setIcon(QIcon("icons/save.png"))  # Ajouter une icône
-        self.save_button.clicked.connect(self.save_settings)
-        layout.addWidget(self.save_button)
-
-    def save_settings(self):
-        selected_theme = self.theme_combo.currentText()
-        # Appliquer le thème sélectionné
-        apply_theme(selected_theme)  # Fonction à implémenter pour appliquer le thème
-        QMessageBox.information(self, "Settings Saved", f"Theme '{selected_theme}' has been applied.")
-        self.accept()
-def apply_theme(theme_name):
-    """Applique un thème à l'application."""
-    if theme_name == "Light":
-        QApplication.setStyle("Fusion")
-        QApplication.setPalette(QApplication.style().standardPalette())
-    elif theme_name == "Dark":
-        dark_palette = QPalette()
-        dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.WindowText, Qt.white)
-        dark_palette.setColor(QPalette.Base, QColor(35, 35, 35))
-        dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
-        dark_palette.setColor(QPalette.ToolTipText, Qt.white)
-        dark_palette.setColor(QPalette.Text, Qt.white)
-        dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-        dark_palette.setColor(QPalette.ButtonText, Qt.white)
-        dark_palette.setColor(QPalette.BrightText, Qt.red)
-        dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-        dark_palette.setColor(QPalette.HighlightedText, Qt.black)
-        QApplication.setPalette(dark_palette)
-    elif theme_name == "System Default":
-        QApplication.setPalette(QApplication.style().standardPalette())
-
-class HeaderSection1(QWidget):
-    def __init__(self, parent=None, title="", app_name="", slogan=""):
-        super().__init__(parent)
-        self.title = title
-        self.app_name = app_name
-        self.slogan = slogan
-
-        # Styles CSS
-        self.setStyleSheet("""
-            QWidget {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #007BFF, stop:1 #00BFFF);
-                padding: 20px;
-                border-radius: 10px;
-            }
-            QLabel {
-                color: white;
-                text-align: center;
-            }
-        """)
-
-        # Layout principal
-        layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignCenter)
-
-        # Titre de l'application
-        self.title_label = QLabel(self.title, self)
-        self.title_label.setStyleSheet("font-size: 28px; font-weight: bold;")
-        layout.addWidget(self.title_label)
-
-        # Nom de l'application
-        self.app_name_label = QLabel(self.app_name, self)
-        self.app_name_label.setStyleSheet("font-size: 20px;")
-        layout.addWidget(self.app_name_label)
-
-        # Slogan
-        self.slogan_label = QLabel(self.slogan, self)
-        self.slogan_label.setStyleSheet("font-size: 16px;")
-        layout.addWidget(self.slogan_label)
-
-        # Séparateur
-        separator = QFrame(self)
-        separator.setFrameShape(QFrame.HLine)
-        separator.setFrameShadow(QFrame.Sunken)
-        separator.setStyleSheet("background-color: rgba(255, 255, 255, 0.5);")
-        layout.addWidget(separator)
-
-class ProgressDialog(QDialog):
-    def __init__(self, parent=None, title="Processing", message="Please wait..."):
-        super().__init__(parent)
-        self.setWindowTitle(title)
-        self.setFixedSize(400, 150)
-
-        # Styles CSS
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
-            }
-            QLabel {
-                font-size: 16px;
-                color: #333;
-            }
-            QProgressBar {
-                background-color: #e0e0e0;
-                border-radius: 5px;
-                height: 20px;
-            }
-            QProgressBar::chunk {
-                background-color: #007BFF;
-                border-radius: 5px;
-            }
-        """)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Message
-        self.message_label = QLabel(message, self)
-        self.message_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.message_label)
-
-        # Barre de progression
-        self.progress_bar = QProgressBar(self)
-        self.progress_bar.setRange(0, 100)
-        layout.addWidget(self.progress_bar)
-
-    def set_progress(self, value):
-        """Met à jour la valeur de la barre de progression."""
-        self.progress_bar.setValue(value)
-        if value >= 100:
-            self.close()
-
-
-class ConfirmationDialog(QDialog):
-    def __init__(self, parent=None, title="Confirmation", message="Are you sure?"):
-        super().__init__(parent)
-        self.setWindowTitle(title)
-        self.setFixedSize(350, 150)
-
-        # Styles CSS
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
-            }
-            QLabel {
-                font-size: 16px;
-                color: #333;
-            }
-            QPushButton {
-                padding: 10px 20px;
-                font-size: 14px;
-                border-radius: 5px;
-            }
-            QPushButton#yes_button {
-                background-color: #28a745;
-                color: white;
-            }
-            QPushButton#no_button {
-                background-color: #dc3545;
-                color: white;
-            }
-        """)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Message
-        self.message_label = QLabel(message, self)
-        self.message_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.message_label)
-
-        # Boutons
-        button_layout = QHBoxLayout()
-        self.yes_button = QPushButton("Yes", self)
-        self.yes_button.setObjectName("yes_button")
-        self.yes_button.setIcon(QIcon("icons/check.png"))
-        self.yes_button.clicked.connect(self.accept)
-        button_layout.addWidget(self.yes_button)
-
-        self.no_button = QPushButton("No", self)
-        self.no_button.setObjectName("no_button")
-        self.no_button.setIcon(QIcon("icons/cancel.png"))
-        self.no_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.no_button)
-
-        layout.addLayout(button_layout)
-
-class AboutDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("About")
-        self.setFixedSize(400, 250)
-
-        # Styles CSS
-        self.setStyleSheet("""
-            QDialog {
-                background-color: #f9f9f9;
-                border-radius: 10px;
-            }
-            QLabel {
-                font-size: 16px;
-                color: #333;
-            }
-            QPushButton {
-                padding: 10px 20px;
-                font-size: 14px;
-                border-radius: 5px;
-                background-color: #007BFF;
-                color: white;
-            }
-        """)
-
-        # Layout
-        layout = QVBoxLayout(self)
-
-        # Icône de l'application
-        self.app_icon = QLabel(self)
-        self.app_icon.setPixmap(QPixmap("icons/app_icon.png").scaled(64, 64))
-        self.app_icon.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.app_icon)
-
-        # Informations sur l'application
-        self.app_name_label = QLabel("Nova360 AI", self)
-        self.app_name_label.setStyleSheet("font-size: 20px; font-weight: bold;")
-        self.app_name_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.app_name_label)
-
-        self.version_label = QLabel("Version 1.0.0", self)
-        self.version_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.version_label)
-
-        self.description_label = QLabel("AI Marketing Automation Solution", self)
-        self.description_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.description_label)
-
-        # Bouton de fermeture
-        self.close_button = QPushButton("Close", self)
-        self.close_button.clicked.connect(self.close)
-        layout.addWidget(self.close_button)
-
-
-
-
-
-
-
-
-
-
-
-
-
-import sqlite3
-import os
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, 
-                            QPushButton, QCheckBox, QLineEdit, QLabel, QMenu, QAction, 
-                            QMessageBox, QFileDialog, QHeaderView, QComboBox, QScrollBar,
-                            QStyledItemDelegate, QStyleOptionViewItem)
-from PyQt5.QtCore import Qt, QUrl, QRegExp
-from PyQt5.QtGui import QDesktopServices, QRegExpValidator, QFont
-from PyQt5.Qt import QApplication
-
-class URLDelegate(QStyledItemDelegate):
-    def initStyleOption(self, option, index):
-        super().initStyleOption(option, index)
-        option.font.setUnderline(True)
-        option.palette.setColor(QPalette.Text, QColor(0, 0, 255))
-
-from PyQt5.QtWidgets import QTextEdit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class GroupTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Nova360 AI - Group Management")
         self.setMinimumSize(1200, 800)
-        
+
         # Configuration initiale
         self.current_page = 1
         self.items_per_page = 25
         self.visible_columns = ['Select', 'Name', 'Link', 'Remarks', 'Category', 'Actions']
+        self.all_groups = []
+        self.filtered_groups = []
+        self.group_categories = []  # Initialisation ajoutée ici
+
         # Initialisation de l'interface
         self.init_ui()
         self.load_data()
-        
+
         # Appliquer les styles
         self.apply_styles()
-        
+
     def init_ui(self):
         """Initialisation complète de l'interface utilisateur"""
         self.setup_main_layout()
-        # self.setup_header()
         self.setup_controls()
         self.setup_table()
         self.setup_column_toggles()
         self.setup_pagination()
         self.setup_footer()
-        
+
     def setup_main_layout(self):
         """Configuration du layout principal"""
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(15, 15, 15, 15)
         self.main_layout.setSpacing(10)
-        
-    def setup_header(self):
-        """Configuration de l'en-tête"""
-        self.header = QLabel("FB Group Management")
-        self.header.setAlignment(Qt.AlignCenter)
-        self.header.setStyleSheet("""
-            QLabel {
-                font-size: 24px;
-                font-weight: bold;
-                color: #2c3e50;
-                padding: 10px;
-                background-color: #f8f9fa;
-                border-radius: 5px;
-            }
-        """)
-        self.main_layout.addWidget(self.header)
-        
+
     def setup_controls(self):
         """Configuration des contrôles supérieurs"""
         control_layout = QHBoxLayout()
@@ -2928,109 +2617,37 @@ class GroupTable(QWidget):
             padding: 10px;
             background-color: transparent;  /* Optionnel selon votre fond */
         """)
-        control_layout.addWidget(self.title_label)       
+        control_layout.addWidget(self.title_label)
+
         # Bouton Action
         self.action_btn = self.create_tool_button("⚡ Actions", "#3498db")
         self.setup_action_menu()
         control_layout.addWidget(self.action_btn)
-        
+
         # Bouton Settings
         self.settings_btn = self.create_tool_button("⚙️ Settings", "#7f8c8d")
         self.setup_settings_menu()
         control_layout.addWidget(self.settings_btn)
-        
+
         # Bouton Robot
         self.robot_btn = self.create_tool_button("🤖 Robot", "#e74c3c")
         self.robot_btn.clicked.connect(self.open_robot_dialog)
         control_layout.addWidget(self.robot_btn)
-        
+
         # Barre de recherche
         self.search_field = QLineEdit()
         self.search_field.setPlaceholderText("🔍 Search groups...")
         self.search_field.setClearButtonEnabled(True)
         self.search_field.textChanged.connect(self.filter_table)
         control_layout.addWidget(self.search_field, 1)
-        
+
         # Bouton Filter
         self.filter_btn = self.create_tool_button("🔍 Filter", "#2ecc71")
         self.filter_btn.clicked.connect(self.open_filter_dialog)
         control_layout.addWidget(self.filter_btn)
-        
+
         self.main_layout.addLayout(control_layout)
 
-
-
-
-    def add_blank_rows(self, count=10):
-        """Ajoute des lignes vides à la table pour nouvelle saisie"""
-        # Désactiver temporairement les signaux pour éviter les déclenchements intempestifs
-        self.table.blockSignals(True)
-        
-        current_row_count = self.table.rowCount()
-        self.table.setRowCount(current_row_count + count)
-        
-        for row in range(current_row_count, current_row_count + count):
-            # Colonne "Select" - Checkbox
-            cb = QCheckBox()
-            cb_widget = QWidget()
-            cb_layout = QHBoxLayout(cb_widget)
-            cb_layout.addWidget(cb)
-            cb_layout.setAlignment(Qt.AlignCenter)
-            cb_layout.setContentsMargins(0, 0, 0, 0)
-            self.table.setCellWidget(row, 0, cb_widget)
-            
-            # Colonne "Name" - Champ texte
-            name_item = QTableWidgetItem("")
-            self.table.setItem(row, 1, name_item)
-            
-            # Colonne "Link" - Champ texte avec validation URL
-            link_item = QTableWidgetItem("")
-            self.table.setItem(row, 2, link_item)
-            
-            # Colonne "Remarks" - Champ texte
-            remarks_item = QTableWidgetItem("")
-            self.table.setItem(row, 3, remarks_item)
-            
-            # Colonne "Category" - Combobox des catégories
-            category_combo = QComboBox()
-            category_combo.addItem("", None)  # Option vide
-            
-            # Charger les catégories disponibles
-            for category in self.group_categories:
-                category_combo.addItem(category['name'], category['id'])
-            
-            self.table.setCellWidget(row, 4, category_combo)
-            
-            # Colonne "Actions" - Bouton Ajouter
-            add_btn = QPushButton("➕ Add")
-            add_btn.setStyleSheet("""
-                QPushButton {
-                    padding: 5px 10px;
-                    background-color: #2ecc71;
-                    color: white;
-                    border: none;
-                    border-radius: 3px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #27ae60;
-                }
-            """)
-            add_btn.clicked.connect(lambda _, r=row: self.save_new_row(r))
-            self.table.setCellWidget(row, 5, add_btn)
-        
-        # Faire défiler jusqu'aux nouvelles lignes
-        self.table.scrollToBottom()
-        
-        # Réactiver les signaux
-        self.table.blockSignals(False)
-        
-        # Message d'information (optionnel)
-        QMessageBox.information(self, "Lignes ajoutées", f"{count} nouvelles lignes vides ont été ajoutées.")
-
-
-
-        
     def create_tool_button(self, text, color):
         """Crée un bouton stylisé"""
         btn = QPushButton(text)
@@ -3048,11 +2665,11 @@ class GroupTable(QWidget):
             }}
         """)
         return btn
-        
+
     def setup_action_menu(self):
         """Configure le menu Action"""
         menu = QMenu()
-        
+
         actions = [
             ("📥 Import CSV", self.import_groups),
             ("📤 Export CSV", self.export_groups),
@@ -3061,38 +2678,38 @@ class GroupTable(QWidget):
             ("❌ Delete Selected", self.delete_selected),
             ("🗑️ Empty Table", self.empty_table)
         ]
-        
+
         for text, callback in actions:
             action = QAction(text, self)
             action.triggered.connect(callback)
             menu.addAction(action)
-            
+
         self.action_btn.setMenu(menu)
-        
+
     def setup_settings_menu(self):
         """Configure le menu Settings"""
         menu = QMenu()
-        
+
         settings = [
             ("📂 Group Categories", self.open_group_categories),
             ("🌐 Social Networks", self.open_social_networks),
             ("🎥 Media Types", self.open_media_types),
             ("⚙️ System Settings", self.open_system_settings)
         ]
-        
+
         for text, callback in settings:
             action = QAction(text, self)
             action.triggered.connect(callback)
             menu.addAction(action)
-            
+
         self.settings_btn.setMenu(menu)
-        
+
     def setup_table(self):
         """Configuration de la table principale"""
         self.table = QTableWidget()
         self.table.setColumnCount(len(self.visible_columns))
         self.table.setHorizontalHeaderLabels(self.visible_columns)
-        
+
         # Configuration de la table
         self.table.setEditTriggers(QTableWidget.AllEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -3100,56 +2717,56 @@ class GroupTable(QWidget):
         self.table.setSortingEnabled(True)
         self.table.verticalHeader().setDefaultSectionSize(40)
         self.table.horizontalHeader().setStretchLastSection(True)
-        
+
         # Définir les largeurs de colonnes
         self.table.setColumnWidth(0, 50)   # Select
         self.table.setColumnWidth(1, 250)  # Name
         self.table.setColumnWidth(2, 350)  # Link
         self.table.setColumnWidth(3, 200)  # Remarks
         self.table.setColumnWidth(4, 200)  # Category
-        
+
         # Définir le délégué pour la colonne Link
         self.table.setItemDelegateForColumn(2, URLDelegate())
-        
+
         # Connecter les signaux
         self.table.cellChanged.connect(self.handle_cell_change)
-        
+
         # Ajouter des lignes vides initiales
         self.add_blank_rows(10)
-        
+
         self.main_layout.addWidget(self.table, 1)
-        
+
     def setup_column_toggles(self):
         """Configuration des cases à cocher pour les colonnes"""
         toggle_layout = QHBoxLayout()
         toggle_layout.setSpacing(15)
-        
+
         for idx, col in enumerate(self.visible_columns):
             cb = QCheckBox(col)
             cb.setChecked(True)
             cb.stateChanged.connect(lambda state, i=idx: self.toggle_column(i, state))
             toggle_layout.addWidget(cb)
-            
+
         self.main_layout.addLayout(toggle_layout)
-        
+
     def setup_pagination(self):
         """Configuration de la pagination"""
         pagination_layout = QHBoxLayout()
         pagination_layout.setAlignment(Qt.AlignCenter)
-        
+
         self.prev_btn = self.create_pagination_button("◀ Previous")
         self.prev_btn.clicked.connect(self.prev_page)
         pagination_layout.addWidget(self.prev_btn)
-        
+
         self.page_label = QLabel("Page 1 of 1")
         pagination_layout.addWidget(self.page_label)
-        
+
         self.next_btn = self.create_pagination_button("Next ▶")
         self.next_btn.clicked.connect(self.next_page)
         pagination_layout.addWidget(self.next_btn)
-        
+
         self.main_layout.addLayout(pagination_layout)
-        
+
     def create_pagination_button(self, text):
         """Crée un bouton de pagination stylisé"""
         btn = QPushButton(text)
@@ -3169,7 +2786,7 @@ class GroupTable(QWidget):
             }
         """)
         return btn
-        
+
     def setup_footer(self):
         """Configuration du pied de page"""
         footer = QLabel("© 2023 Nova360 AI - Marketing Automation Solution")
@@ -3182,7 +2799,7 @@ class GroupTable(QWidget):
             }
         """)
         self.main_layout.addWidget(footer)
-        
+
     def apply_styles(self):
         """Applique les styles globaux"""
         self.setStyleSheet("""
@@ -3217,90 +2834,96 @@ class GroupTable(QWidget):
                 spacing: 5px;
             }
         """)
-        
+
     def load_data(self):
         """Charge les données depuis la base de données"""
         try:
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
-            
-            # Charger les groupes avec leurs catégories (category_group)
+
+            # D'abord charger les catégories de groupes
+            cursor.execute("SELECT id, name FROM category_group ORDER BY name")
+            self.group_categories = [{'id': row[0], 'name': row[1]} for row in cursor.fetchall()]
+
+            # Ensuite charger les groupes avec leurs catégories
             cursor.execute("""
-                SELECT g.id, g.name, g.link, g.remarks, cg.name as category
+                SELECT g.id, g.name, g.link, g.remarks, cg.name as category, cg.id as category_id
                 FROM groups g
                 LEFT JOIN category_group cg ON g.category_group_id = cg.id
                 ORDER BY g.name
             """)
-            
+
             self.all_groups = []
             columns = [desc[0] for desc in cursor.description]
             for row in cursor.fetchall():
-                self.all_groups.append(dict(zip(columns, row)))
-                
+                group_data = dict(zip(columns, row))
+                # Assurer que category_id est inclus même si NULL
+                group_data['category_group_id'] = group_data.get('category_id')
+                self.all_groups.append(group_data)
+
             self.filtered_groups = self.all_groups.copy()
-            
-            # Charger les catégories de groupes
-            cursor.execute("SELECT id, name FROM category_group ORDER BY name")
-            self.group_categories = [{'id': row[0], 'name': row[1]} for row in cursor.fetchall()]
-            
+
             conn.close()
-            
+
             self.populate_table()
-            
+
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to load data: {str(e)}")
-            
+
     def populate_table(self):
         """Remplit la table avec les données"""
         # Désactiver les signaux pendant la mise à jour
         self.table.blockSignals(True)
         self.table.setSortingEnabled(False)
-        
+
         try:
             # Calculer la plage de données à afficher
             start_idx = (self.current_page - 1) * self.items_per_page
             end_idx = start_idx + self.items_per_page
             page_data = self.filtered_groups[start_idx:end_idx]
-            
+
             # Effacer le contenu existant mais garder les lignes vides
-            self.table.setRowCount(len(page_data) + 10)
-            
+            self.table.setRowCount(len(page_data) + 10)  # 10 lignes vides supplémentaires
+
             # Remplir avec les données
             for row, group in enumerate(page_data):
                 # Checkbox de sélection
                 cb = QCheckBox()
                 cb.setProperty('group_id', group['id'])
                 self.table.setCellWidget(row, 0, cb)
-                
+
                 # Nom
                 name_item = QTableWidgetItem(group['name'])
                 name_item.setData(Qt.UserRole, group['id'])
                 self.table.setItem(row, 1, name_item)
-                
+
                 # Lien (avec validation)
                 link_item = QTableWidgetItem(group['link'])
                 link_item.setToolTip(group['link'])
                 self.table.setItem(row, 2, link_item)
-                
+
                 # Remarques
                 remarks_item = QTableWidgetItem(group.get('remarks', ''))
                 self.table.setItem(row, 3, remarks_item)
-                
+
                 # Catégorie (combobox)
                 category_combo = QComboBox()
+                # Ajouter une option vide
+                category_combo.addItem("", None)
                 for cat in self.group_categories:
                     category_combo.addItem(cat['name'], cat['id'])
-                
+
                 # Sélectionner la catégorie actuelle
-                if group['category']:
-                    index = category_combo.findText(group['category'])
+                current_category_id = group.get('category_group_id')
+                if current_category_id:
+                    index = category_combo.findData(current_category_id)
                     if index >= 0:
                         category_combo.setCurrentIndex(index)
-                
+
                 category_combo.currentIndexChanged.connect(
                     lambda idx, r=row: self.update_category(r, category_combo.itemData(idx)))
                 self.table.setCellWidget(row, 4, category_combo)
-                
+
                 # Actions
                 actions_btn = QPushButton("Actions ▼")
                 actions_btn.setStyleSheet("""
@@ -3315,46 +2938,47 @@ class GroupTable(QWidget):
                         background-color: #7f8c8d;
                     }
                 """)
-                
+
                 menu = QMenu()
-                
+
                 verify_action = QAction("🔍 Verify Link", self)
                 verify_action.triggered.connect(lambda _, r=row: self.verify_link(r))
                 menu.addAction(verify_action)
-                
+
                 delete_action = QAction("❌ Delete", self)
                 delete_action.triggered.connect(lambda _, r=row: self.delete_group(r))
                 menu.addAction(delete_action)
-                
+
                 assign_action = QAction("🤖 Assign to Robot", self)
                 assign_action.triggered.connect(lambda _, r=row: self.assign_to_robot(r))
                 menu.addAction(assign_action)
-                
+
                 actions_btn.setMenu(menu)
                 self.table.setCellWidget(row, 5, actions_btn)
-            
+
             # Configurer les lignes vides pour nouvelle saisie
             for row in range(len(page_data), self.table.rowCount()):
                 # Checkbox
                 cb = QCheckBox()
                 self.table.setCellWidget(row, 0, cb)
-                
+
                 # Nom
                 self.table.setItem(row, 1, QTableWidgetItem(""))
-                
+
                 # Lien
                 link_item = QTableWidgetItem("")
                 self.table.setItem(row, 2, link_item)
-                
+
                 # Remarques
                 self.table.setItem(row, 3, QTableWidgetItem(""))
-                
+
                 # Catégorie
                 category_combo = QComboBox()
+                category_combo.addItem("", None)
                 for cat in self.group_categories:
                     category_combo.addItem(cat['name'], cat['id'])
                 self.table.setCellWidget(row, 4, category_combo)
-                
+
                 # Bouton Ajouter
                 add_btn = QPushButton("➕ Add")
                 add_btn.setStyleSheet("""
@@ -3371,42 +2995,138 @@ class GroupTable(QWidget):
                 """)
                 add_btn.clicked.connect(lambda _, r=row: self.save_new_row(r))
                 self.table.setCellWidget(row, 5, add_btn)
-            
+
             # Mettre à jour la pagination
             total_pages = max(1, (len(self.filtered_groups) + self.items_per_page - 1) // self.items_per_page)
             self.page_label.setText(f"Page {self.current_page} of {total_pages}")
             self.prev_btn.setEnabled(self.current_page > 1)
             self.next_btn.setEnabled(self.current_page < total_pages)
-            
+
         finally:
             self.table.setSortingEnabled(True)
             self.table.blockSignals(False)
-            
+
+    def save_new_row(self, row):
+        """Sauvegarde une nouvelle ligne dans la base de données"""
+        name = self.table.item(row, 1).text().strip()
+        link = self.table.item(row, 2).text().strip()
+        remarks = self.table.item(row, 3).text().strip()
+        category_combo = self.table.cellWidget(row, 4)
+        category_id = category_combo.currentData() if category_combo else None
+
+        # Validation
+        if not name:
+            QMessageBox.warning(self, "Missing Information", "Group name is required!")
+            return
+
+        if not link:
+            QMessageBox.warning(self, "Missing Information", "Group link is required!")
+            return
+
+        if not self.validate_url(link):
+            QMessageBox.warning(self, "Invalid URL", "Please enter a valid URL starting with http:// or https://")
+            return
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                INSERT INTO groups (name, link, remarks, category_group_id)
+                VALUES (?, ?, ?, ?)
+            """, (name, link, remarks, category_id))
+
+            group_id = cursor.lastrowid
+
+            # Récupérer le nom de la catégorie
+            category_name = ""
+            if category_id:
+                for cat in self.group_categories:
+                    if cat['id'] == category_id:
+                        category_name = cat['name']
+                        break
+
+            # Ajouter aux données locales
+            new_group = {
+                'id': group_id,
+                'name': name,
+                'link': link,
+                'remarks': remarks,
+                'category': category_name,
+                'category_group_id': category_id
+            }
+
+            self.all_groups.append(new_group)
+            self.filtered_groups.append(new_group)
+
+            conn.commit()
+            conn.close()
+
+            # Recharger les données
+            self.load_data()
+
+            QMessageBox.information(self, "Success", "Group added successfully!")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to add new group: {str(e)}")
+
+    def update_category(self, row, category_id):
+        """Met à jour la catégorie d'un groupe"""
+        if row >= len(self.filtered_groups):
+            return
+
+        group_id = self.table.item(row, 1).data(Qt.UserRole)
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+            cursor.execute("UPDATE groups SET category_group_id = ? WHERE id = ?", (category_id, group_id))
+            conn.commit()
+            conn.close()
+
+            # Mettre à jour les données locales
+            for group in self.all_groups:
+                if group['id'] == group_id:
+                    category_name = ""
+                    if category_id:
+                        for cat in self.group_categories:
+                            if cat['id'] == category_id:
+                                category_name = cat['name']
+                                break
+                    group['category'] = category_name
+                    group['category_group_id'] = category_id
+                    break
+
+        except Exception as e:
+            QMessageBox.critical(self, "Database Error", f"Failed to update category: {str(e)}")
+
     def add_blank_rows(self, count=10):
-        """Ajoute des lignes vides à la table"""
+        """Ajoute des lignes vides à la table pour nouvelle saisie"""
         current_rows = self.table.rowCount()
         self.table.setRowCount(current_rows + count)
-        
+
         for row in range(current_rows, current_rows + count):
             # Checkbox
             cb = QCheckBox()
             self.table.setCellWidget(row, 0, cb)
-            
+
             # Nom
             self.table.setItem(row, 1, QTableWidgetItem(""))
-            
+
             # Lien
-            self.table.setItem(row, 2, QTableWidgetItem(""))
-            
+            link_item = QTableWidgetItem("")
+            self.table.setItem(row, 2, link_item)
+
             # Remarques
             self.table.setItem(row, 3, QTableWidgetItem(""))
-            
+
             # Catégorie
             category_combo = QComboBox()
+            category_combo.addItem("", None)
             for cat in self.group_categories:
                 category_combo.addItem(cat['name'], cat['id'])
             self.table.setCellWidget(row, 4, category_combo)
-            
+
             # Bouton Ajouter
             add_btn = QPushButton("➕ Add")
             add_btn.setStyleSheet("""
@@ -3423,27 +3143,27 @@ class GroupTable(QWidget):
             """)
             add_btn.clicked.connect(lambda _, r=row: self.save_new_row(r))
             self.table.setCellWidget(row, 5, add_btn)
-        
+
         # Faire défiler jusqu'aux nouvelles lignes
         self.table.scrollToBottom()
-        
+
     def handle_cell_change(self, row, column):
         """Gère les modifications des cellules"""
         # Ignorer les lignes vides ou les colonnes non éditables
         if row >= len(self.filtered_groups) or column not in [1, 2, 3]:
             return
-            
+
         item = self.table.item(row, column)
         if not item:
             return
-            
+
         group_id = self.table.item(row, 1).data(Qt.UserRole)
         new_value = item.text()
-        
+
         try:
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
-            
+
             if column == 1:  # Name
                 cursor.execute("UPDATE groups SET name = ? WHERE id = ?", (new_value, group_id))
             elif column == 2:  # Link
@@ -3454,10 +3174,10 @@ class GroupTable(QWidget):
                 cursor.execute("UPDATE groups SET link = ? WHERE id = ?", (new_value, group_id))
             elif column == 3:  # Remarks
                 cursor.execute("UPDATE groups SET remarks = ? WHERE id = ?", (new_value, group_id))
-                
+
             conn.commit()
             conn.close()
-            
+
             # Mettre à jour les données locales
             for group in self.all_groups:
                 if group['id'] == group_id:
@@ -3468,114 +3188,15 @@ class GroupTable(QWidget):
                     elif column == 3:
                         group['remarks'] = new_value
                     break
-                    
+
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to update group: {str(e)}")
-            
+
     def validate_url(self, url):
         """Valide qu'une URL est correctement formatée"""
         if not url:
             return True
         return url.startswith(('http://', 'https://'))
-        
-    def update_category(self, row, category_id):
-        """Met à jour la catégorie d'un groupe"""
-        if row >= len(self.filtered_groups):
-            return
-            
-        group_id = self.table.item(row, 1).data(Qt.UserRole)
-        
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            cursor.execute("UPDATE groups SET category_group_id = ? WHERE id = ?", (category_id, group_id))
-            conn.commit()
-            conn.close()
-            
-            # Mettre à jour les données locales
-            for group in self.all_groups:
-                if group['id'] == group_id:
-                    category_name = ""
-                    for cat in self.group_categories:
-                        if cat['id'] == category_id:
-                            category_name = cat['name']
-                            break
-                    group['category'] = category_name
-                    break
-                    
-        except Exception as e:
-            QMessageBox.critical(self, "Database Error", f"Failed to update category: {str(e)}")
-            
-    def save_new_row(self, row):
-        """Sauvegarde une nouvelle ligne dans la base de données"""
-        name = self.table.item(row, 1).text().strip()
-        link = self.table.item(row, 2).text().strip()
-        remarks = self.table.item(row, 3).text().strip()
-        category_combo = self.table.cellWidget(row, 4)
-        category_id = category_combo.currentData() if category_combo else None
-        
-        # Validation
-        if not name:
-            QMessageBox.warning(self, "Missing Information", "Group name is required!")
-            return
-            
-        if not link:
-            QMessageBox.warning(self, "Missing Information", "Group link is required!")
-            return
-            
-        if not self.validate_url(link):
-            QMessageBox.warning(self, "Invalid URL", "Please enter a valid URL starting with http:// or https://")
-            return
-            
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                INSERT INTO groups (name, link, remarks, category_group_id)
-                VALUES (?, ?, ?, ?)
-            """, (name, link, remarks, category_id))
-            
-            group_id = cursor.lastrowid
-            
-            # Récupérer le nom de la catégorie
-            category_name = ""
-            for cat in self.group_categories:
-                if cat['id'] == category_id:
-                    category_name = cat['name']
-                    break
-            
-            # Ajouter aux données locales
-            new_group = {
-                'id': group_id,
-                'name': name,
-                'link': link,
-                'remarks': remarks,
-                'category': category_name
-            }
-            
-            self.all_groups.append(new_group)
-            self.filtered_groups.append(new_group)
-            
-            conn.commit()
-            conn.close()
-            
-            # Recharger les données
-            self.load_data()
-            
-            QMessageBox.information(self, "Success", "Group added successfully!")
-            
-        except Exception as e:
-            QMessageBox.critical(self, "Database Error", f"Failed to add new group: {str(e)}")
-            
-    # def verify_link(self, row):
-    #     """Ouvre le lien dans le navigateur par défaut"""
-    #     if row >= len(self.filtered_groups):
-    #         return
-            
-    #     link = self.table.item(row, 2).text()
-    #     if link:
-    #         QDesktopServices.openUrl(QUrl(link))
 
     def verify_link(self, row):
         """Ouvre le lien uniquement dans Google Chrome"""
@@ -3600,20 +3221,20 @@ class GroupTable(QWidget):
                     subprocess.Popen(['open', '-a', 'Google Chrome', link])
             except Exception as e:
                 print(f"Erreur lors de l'ouverture du lien avec Chrome : {e}")
-            
+
     def delete_group(self, row):
         """Supprime un groupe de la base de données"""
         if row >= len(self.filtered_groups):
             return
-            
+
         group_id = self.table.item(row, 1).data(Qt.UserRole)
-        
+
         reply = QMessageBox.question(
             self, "Confirm Delete",
             "Are you sure you want to delete this group?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
-        
+
         if reply == QMessageBox.Yes:
             try:
                 conn = sqlite3.connect(DB_PATH)
@@ -3621,62 +3242,62 @@ class GroupTable(QWidget):
                 cursor.execute("DELETE FROM groups WHERE id = ?", (group_id,))
                 conn.commit()
                 conn.close()
-                
+
                 # Mettre à jour les données locales
                 self.all_groups = [g for g in self.all_groups if g['id'] != group_id]
                 self.filtered_groups = [g for g in self.filtered_groups if g['id'] != group_id]
-                
+
                 # Recharger les données
                 self.load_data()
-                
+
             except Exception as e:
                 QMessageBox.critical(self, "Database Error", f"Failed to delete group: {str(e)}")
-                
+
     def delete_selected(self):
         """Supprime les groupes sélectionnés"""
         selected_ids = []
-        
+
         for row in range(self.table.rowCount()):
             cb = self.table.cellWidget(row, 0)
             if isinstance(cb, QCheckBox) and cb.isChecked():
                 item = self.table.item(row, 1)
                 if item and item.data(Qt.UserRole):
                     selected_ids.append(item.data(Qt.UserRole))
-        
+
         if not selected_ids:
             QMessageBox.warning(self, "No Selection", "No groups selected for deletion!")
             return
-            
+
         reply = QMessageBox.question(
             self, "Confirm Delete",
             f"Are you sure you want to delete {len(selected_ids)} selected groups?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
-        
+
         if reply == QMessageBox.Yes:
             try:
                 conn = sqlite3.connect(DB_PATH)
                 cursor = conn.cursor()
-                
+
                 # Supprimer en une seule requête
                 placeholders = ','.join(['?'] * len(selected_ids))
                 cursor.execute(f"DELETE FROM groups WHERE id IN ({placeholders})", selected_ids)
-                
+
                 conn.commit()
                 conn.close()
-                
+
                 # Mettre à jour les données locales
                 self.all_groups = [g for g in self.all_groups if g['id'] not in selected_ids]
                 self.filtered_groups = [g for g in self.filtered_groups if g['id'] not in selected_ids]
-                
+
                 # Recharger les données
                 self.load_data()
-                
+
                 QMessageBox.information(self, "Success", f"Deleted {len(selected_ids)} groups successfully!")
-                
+
             except Exception as e:
                 QMessageBox.critical(self, "Database Error", f"Failed to delete groups: {str(e)}")
-                
+
     def empty_table(self):
         """Vide complètement la table"""
         reply = QMessageBox.question(
@@ -3684,7 +3305,7 @@ class GroupTable(QWidget):
             "Are you sure you want to delete ALL groups? This cannot be undone!",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
-        
+
         if reply == QMessageBox.Yes:
             try:
                 conn = sqlite3.connect(DB_PATH)
@@ -3692,145 +3313,75 @@ class GroupTable(QWidget):
                 cursor.execute("DELETE FROM groups")
                 conn.commit()
                 conn.close()
-                
+
                 # Réinitialiser les données locales
                 self.all_groups = []
                 self.filtered_groups = []
-                
+
                 # Recharger les données
                 self.load_data()
-                
+
                 QMessageBox.information(self, "Success", "All groups have been deleted!")
-                
+
             except Exception as e:
                 QMessageBox.critical(self, "Database Error", f"Failed to empty table: {str(e)}")
-                
+
     def assign_to_robot(self, row):
         """Assigne un groupe à un robot"""
         if row >= len(self.filtered_groups):
             return
-            
+
         group_id = self.table.item(row, 1).data(Qt.UserRole)
         # dialog = AssignRobotDialog(group_id, self)
         # dialog.exec_()
         pass
-        
+
     def filter_table(self):
         """Filtre la table selon le texte de recherche"""
         search_text = self.search_field.text().lower()
-        
+
         if not search_text:
             self.filtered_groups = self.all_groups.copy()
         else:
             self.filtered_groups = [
                 g for g in self.all_groups
-                if (search_text in g['name'].lower() or 
-                    search_text in g.get('link', '').lower() or 
-                    search_text in g.get('remarks', '').lower() or 
+                if (search_text in g['name'].lower() or
+                    search_text in g.get('link', '').lower() or
+                    search_text in g.get('remarks', '').lower() or
                     search_text in g.get('category', '').lower())
             ]
-            
+
         self.current_page = 1
         self.populate_table()
-        
+
     def prev_page(self):
         """Va à la page précédente"""
         if self.current_page > 1:
             self.current_page -= 1
             self.populate_table()
-            
+
     def next_page(self):
         """Va à la page suivante"""
         if self.current_page * self.items_per_page < len(self.filtered_groups):
             self.current_page += 1
             self.populate_table()
-            
+
     def refresh_data(self):
         """Rafraîchit les données depuis la base"""
         self.load_data()
         QMessageBox.information(self, "Refresh", "Data has been refreshed from database.")
-        
-    def import_groups(self):
-        """Importe des groupes depuis un fichier CSV"""
-        options = QFileDialog.Options()
-        file_name, _ = QFileDialog.getOpenFileName(
-            self, "Import Groups", "", 
-            "CSV Files (*.csv);;All Files (*)", options=options
-        )
-        
-        if file_name:
-            try:
-                with open(file_name, 'r', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    groups_to_import = [row for row in reader]
-                
-                if not groups_to_import:
-                    QMessageBox.warning(self, "Empty File", "The selected file contains no data!")
-                    return
-                    
-                # Valider les données
-                required_fields = ['name', 'link']
-                for group in groups_to_import:
-                    for field in required_fields:
-                        if field not in group or not group[field].strip():
-                            raise ValueError(f"Missing required field: {field}")
-                    
-                    if not self.validate_url(group['link']):
-                        raise ValueError(f"Invalid URL: {group['link']}")
-                
-                # Importer dans la base de données
-                conn = sqlite3.connect(DB_PATH)
-                cursor = conn.cursor()
-                
-                for group in groups_to_import:
-                    # Trouver l'ID de la catégorie si spécifiée
-                    category_id = None
-                    if 'category' in group and group['category']:
-                        for cat in self.group_categories:
-                            if cat['name'] == group['category']:
-                                category_id = cat['id']
-                                break
-                    
-                    cursor.execute("""
-                        INSERT INTO groups (name, link, remarks, category_group_id)
-                        VALUES (?, ?, ?, ?)
-                    """, (
-                        group['name'],
-                        group['link'],
-                        group.get('remarks', ''),
-                        category_id
-                    ))
-                
-                conn.commit()
-                conn.close()
-                
-                # Recharger les données
-                self.load_data()
-                
-                QMessageBox.information(
-                    self, "Import Successful", 
-                    f"Successfully imported {len(groups_to_import)} groups!"
-                )
-                
-            except Exception as e:
-                QMessageBox.critical(
-                    self, "Import Error", 
-                    f"Failed to import groups: {str(e)}"
-                )
-
-
 
     def import_groups(self):
         """Importe des groupes depuis un fichier CSV"""
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getOpenFileName(
-            self, "Import Groups", "", 
+            self, "Import Groups", "",
             "CSV Files (*.csv);;All Files (*)", options=options
         )
-        
+
         if not file_name:  # L'utilisateur a annulé la sélection
             return
-            
+
         try:
             with open(file_name, 'r', encoding='utf-8') as f:
                 # Détecter le délimiteur automatiquement
@@ -3841,13 +3392,13 @@ class GroupTable(QWidget):
                 except:
                     f.seek(0)
                     reader = csv.DictReader(f)  # Fallback si la détection échoue
-                
+
                 groups_to_import = [row for row in reader]
-            
+
             if not groups_to_import:
                 QMessageBox.warning(self, "Empty File", "The selected file contains no data!")
                 return
-                
+
             # Valider les données
             required_fields = ['name', 'link']
             for idx, group in enumerate(groups_to_import, 1):
@@ -3855,49 +3406,49 @@ class GroupTable(QWidget):
                 for field in required_fields:
                     if field not in group or not str(group[field]).strip():
                         raise ValueError(f"Ligne {idx}: Champ requis '{field}' manquant ou vide")
-                    
+
                 # Valider l'URL
                 if not self.validate_url(group['link']):
                     raise ValueError(f"Ligne {idx}: URL invalide '{group['link']}'")
-                
+
                 # Nettoyer les données
                 group['name'] = str(group['name']).strip()
                 group['link'] = str(group['link']).strip()
                 group['remarks'] = str(group.get('remarks', '')).strip()
                 group['category'] = str(group.get('category', '')).strip()
-            
+
             # Importer dans la base de données
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
-            
+
             # Compter les groupes importés et les doublons
             imported_count = 0
             duplicate_count = 0
-            
+
             for group in groups_to_import:
                 try:
                     # Vérifier si le groupe existe déjà
-                    cursor.execute("SELECT id FROM groups WHERE name = ? OR link = ?", 
+                    cursor.execute("SELECT id FROM groups WHERE name = ? OR link = ?",
                                 (group['name'], group['link']))
                     if cursor.fetchone():
                         duplicate_count += 1
                         continue
-                    
+
                     # Trouver l'ID de la catégorie si spécifiée
                     category_id = None
                     if group['category']:
-                        cursor.execute("SELECT id FROM category_group WHERE name = ?", 
+                        cursor.execute("SELECT id FROM category_group WHERE name = ?",
                                     (group['category'],))
                         result = cursor.fetchone()
                         if result:
                             category_id = result[0]
                         else:
                             # Option: créer automatiquement la catégorie si elle n'existe pas
-                            # cursor.execute("INSERT INTO category_group (name) VALUES (?)", 
+                            # cursor.execute("INSERT INTO category_group (name) VALUES (?)",
                             #              (group['category'],))
                             # category_id = cursor.lastrowid
                             pass
-                    
+
                     # Insérer le groupe
                     cursor.execute("""
                         INSERT INTO groups (name, link, remarks, category_group_id)
@@ -3909,48 +3460,47 @@ class GroupTable(QWidget):
                         category_id
                     ))
                     imported_count += 1
-                    
+
                 except sqlite3.Error as e:
                     conn.rollback()
                     raise ValueError(f"Erreur base de données pour le groupe '{group['name']}': {str(e)}")
-            
+
             conn.commit()
             conn.close()
-            
+
             # Recharger les données
             self.load_data()
-            
+
             # Message de résultat
             msg = f"Import terminé avec succès!\n\n" \
                 f"Groupes importés: {imported_count}\n" \
                 f"Doublons ignorés: {duplicate_count}"
-            
+
             if duplicate_count > 0:
                 msg += "\n\nNote: Certains groupes n'ont pas été importés car ils existent déjà."
-            
+
             QMessageBox.information(self, "Import Successful", msg)
-            
+
         except Exception as e:
             QMessageBox.critical(
-                self, "Import Error", 
+                self, "Import Error",
                 f"Échec de l'importation:\n\n{str(e)}"
             )
 
-            
     def export_groups(self):
         """Exporte les groupes vers un fichier CSV"""
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getSaveFileName(
-            self, "Export Groups", "", 
+            self, "Export Groups", "",
             "CSV Files (*.csv);;All Files (*)", options=options
         )
-        
+
         if file_name:
             try:
                 with open(file_name, 'w', encoding='utf-8', newline='') as f:
                     writer = csv.DictWriter(f, fieldnames=['name', 'link', 'remarks', 'category'])
                     writer.writeheader()
-                    
+
                     for group in self.all_groups:
                         writer.writerow({
                             'name': group['name'],
@@ -3958,66 +3508,52 @@ class GroupTable(QWidget):
                             'remarks': group.get('remarks', ''),
                             'category': group.get('category', '')
                         })
-                
+
                 QMessageBox.information(
-                    self, "Export Successful", 
+                    self, "Export Successful",
                     f"Successfully exported {len(self.all_groups)} groups!"
                 )
-                
+
             except Exception as e:
                 QMessageBox.critical(
-                    self, "Export Error", 
+                    self, "Export Error",
                     f"Failed to export groups: {str(e)}"
                 )
-    
-    # Méthodes pour les dialogues (à implémenter)
+
     def open_group_categories(self):
-        # dialog = GroupCategoriesDialog(self)
-        # dialog.exec_()
-        
-    # def open_category_management_dialog(self):
-        """Ouvre une boîte de dialogue pour gérer les catégories."""
         dialog = GroupCategoriesDialog(self)
         dialog.exec_()
-        
+
     def open_social_networks(self):
-        # dialog = SocialNetworksDialog(self)
-        # dialog.exec_()
-        pass
-        
+        dialog = ReseauSocialManagementDialog(self)
+        dialog.exec_()
+
     def open_media_types(self):
-        # dialog = MediaTypesDialog(self)
-        # dialog.exec_()
-        pass
-        
+        dialog = MediaTypeManagementDialog(self)
+        dialog.exec_()
+
     def open_system_settings(self):
-        # dialog = SystemSettingsDialog(self)
-        # dialog.exec_()
-        pass
+        dialog = SettingsDialog(self)
+        dialog.exec_()
+
     def open_robot_dialog(self):
         dialog = RobotManagementDialog(self)
         dialog.exec_()
-        
+
     def open_filter_dialog(self):
-        # dialog = FilterDialog(self)
-        # dialog.exec_()
-        pass
-        
+        dialog = FilterByRobotDialog(self)
+        dialog.exec_()
+
     def darken_color(self, hex_color, percent=10):
         """Assombrit une couleur hexadécimale"""
         hex_color = hex_color.lstrip('#')
         rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
         darkened = tuple(max(0, int(c * (100 - percent) / 100)) for c in rgb)
         return f"#{darkened[0]:02x}{darkened[1]:02x}{darkened[2]:02x}"
-        
+
     def toggle_column(self, index, visible):
         """Affiche ou masque une colonne"""
         self.table.setColumnHidden(index, not visible)
-
-
-
-
-# class GroupTable(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Nova360 AI - Group Management")
@@ -4029,399 +3565,478 @@ class GroupTable(QWidget):
         self.visible_columns = ['Select', 'Name', 'Link', 'Remarks', 'Category', 'Actions']
         self.all_groups = []
         self.filtered_groups = []
-        self.group_categories = []  # Initialisation ajoutée ici
-        
+        self.group_categories = []
+
         # Initialisation de l'interface
         self.init_ui()
         self.load_data()
-        
-        # Appliquer les styles
-        self.apply_styles()
-        
+
     def init_ui(self):
         """Initialisation complète de l'interface utilisateur"""
         self.setup_main_layout()
-        # self.setup_header()
         self.setup_controls()
         self.setup_table()
         self.setup_column_toggles()
         self.setup_pagination()
         self.setup_footer()
-        
-    def load_data(self):
-        """Charge les données depuis la base de données"""
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            
-            # D'abord charger les catégories de groupes
-            cursor.execute("SELECT id, name FROM category_group ORDER BY name")
-            self.group_categories = [{'id': row[0], 'name': row[1]} for row in cursor.fetchall()]
-            
-            # Ensuite charger les groupes avec leurs catégories
-            cursor.execute("""
-                SELECT g.id, g.name, g.link, g.remarks, cg.name as category, cg.id as category_id
-                FROM groups g
-                LEFT JOIN category_group cg ON g.category_group_id = cg.id
-                ORDER BY g.name
-            """)
-            
-            self.all_groups = []
-            columns = [desc[0] for desc in cursor.description]
-            for row in cursor.fetchall():
-                group_data = dict(zip(columns, row))
-                # Assurer que category_id est inclus même si NULL
-                group_data['category_group_id'] = group_data.get('category_id')
-                self.all_groups.append(group_data)
-                
-            self.filtered_groups = self.all_groups.copy()
-            
-            conn.close()
-            
-            self.populate_table()
-            
-        except Exception as e:
-            QMessageBox.critical(self, "Database Error", f"Failed to load data: {str(e)}")
-            
-    def populate_table(self):
-        """Remplit la table avec les données"""
-        # Désactiver les signaux pendant la mise à jour
-        self.table.blockSignals(True)
-        self.table.setSortingEnabled(False)
-        
-        try:
-            # Calculer la plage de données à afficher
-            start_idx = (self.current_page - 1) * self.items_per_page
-            end_idx = start_idx + self.items_per_page
-            page_data = self.filtered_groups[start_idx:end_idx]
-            
-            # Effacer le contenu existant mais garder les lignes vides
-            self.table.setRowCount(len(page_data) + 10)  # 10 lignes vides supplémentaires
-            
-            # Remplir avec les données
-            for row, group in enumerate(page_data):
-                # Checkbox de sélection
-                cb = QCheckBox()
-                cb.setProperty('group_id', group['id'])
-                self.table.setCellWidget(row, 0, cb)
-                
-                # Nom
-                name_item = QTableWidgetItem(group['name'])
-                name_item.setData(Qt.UserRole, group['id'])
-                self.table.setItem(row, 1, name_item)
-                
-                # Lien (avec validation)
-                link_item = QTableWidgetItem(group['link'])
-                link_item.setToolTip(group['link'])
-                self.table.setItem(row, 2, link_item)
-                
-                # Remarques
-                remarks_item = QTableWidgetItem(group.get('remarks', ''))
-                self.table.setItem(row, 3, remarks_item)
-                
-                # Catégorie (combobox)
-                category_combo = QComboBox()
-                # Ajouter une option vide
-                category_combo.addItem("", None)
-                for cat in self.group_categories:
-                    category_combo.addItem(cat['name'], cat['id'])
-                
-                # Sélectionner la catégorie actuelle
-                current_category_id = group.get('category_group_id')
-                if current_category_id:
-                    index = category_combo.findData(current_category_id)
-                    if index >= 0:
-                        category_combo.setCurrentIndex(index)
-                
-                category_combo.currentIndexChanged.connect(
-                    lambda idx, r=row: self.update_category(r, category_combo.itemData(idx)))
-                self.table.setCellWidget(row, 4, category_combo)
-                
-                # Actions
-                actions_btn = QPushButton("Actions ▼")
-                actions_btn.setStyleSheet("""
-                    QPushButton {
-                        padding: 5px 10px;
-                        background-color: #95a5a6;
-                        color: white;
-                        border: none;
-                        border-radius: 3px;
-                    }
-                    QPushButton:hover {
-                        background-color: #7f8c8d;
-                    }
-                """)
-                
-                menu = QMenu()
-                
-                verify_action = QAction("🔍 Verify Link", self)
-                verify_action.triggered.connect(lambda _, r=row: self.verify_link(r))
-                menu.addAction(verify_action)
-                
-                delete_action = QAction("❌ Delete", self)
-                delete_action.triggered.connect(lambda _, r=row: self.delete_group(r))
-                menu.addAction(delete_action)
-                
-                assign_action = QAction("🤖 Assign to Robot", self)
-                assign_action.triggered.connect(lambda _, r=row: self.assign_to_robot(r))
-                menu.addAction(assign_action)
-                
-                actions_btn.setMenu(menu)
-                self.table.setCellWidget(row, 5, actions_btn)
-            
-            # Configurer les lignes vides pour nouvelle saisie
-            for row in range(len(page_data), self.table.rowCount()):
-                # Checkbox
-                cb = QCheckBox()
-                self.table.setCellWidget(row, 0, cb)
-                
-                # Nom
-                self.table.setItem(row, 1, QTableWidgetItem(""))
-                
-                # Lien
-                link_item = QTableWidgetItem("")
-                self.table.setItem(row, 2, link_item)
-                
-                # Remarques
-                self.table.setItem(row, 3, QTableWidgetItem(""))
-                
-                # Catégorie
-                category_combo = QComboBox()
-                category_combo.addItem("", None)
-                for cat in self.group_categories:
-                    category_combo.addItem(cat['name'], cat['id'])
-                self.table.setCellWidget(row, 4, category_combo)
-                
-                # Bouton Ajouter
-                add_btn = QPushButton("➕ Add")
-                add_btn.setStyleSheet("""
-                    QPushButton {
-                        padding: 5px 10px;
-                        background-color: #2ecc71;
-                        color: white;
-                        border: none;
-                        border-radius: 3px;
-                    }
-                    QPushButton:hover {
-                        background-color: #27ae60;
-                    }
-                """)
-                add_btn.clicked.connect(lambda _, r=row: self.save_new_row(r))
-                self.table.setCellWidget(row, 5, add_btn)
-            
-            # Mettre à jour la pagination
-            total_pages = max(1, (len(self.filtered_groups) + self.items_per_page - 1) // self.items_per_page)
-            self.page_label.setText(f"Page {self.current_page} of {total_pages}")
-            self.prev_btn.setEnabled(self.current_page > 1)
-            self.next_btn.setEnabled(self.current_page < total_pages)
-            
-        finally:
-            self.table.setSortingEnabled(True)
-            self.table.blockSignals(False)
+        self.apply_modern_styles()
 
-    # ... (le reste de vos méthodes reste inchangé)
+    def setup_main_layout(self):
+        """Configuration du layout principal"""
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(20, 20, 20, 15)
+        self.main_layout.setSpacing(15)
 
-    def save_new_row(self, row):
-        """Sauvegarde une nouvelle ligne dans la base de données"""
-        name = self.table.item(row, 1).text().strip()
-        link = self.table.item(row, 2).text().strip()
-        remarks = self.table.item(row, 3).text().strip()
-        category_combo = self.table.cellWidget(row, 4)
-        category_id = category_combo.currentData() if category_combo else None
-        
-        # Validation
-        if not name:
-            QMessageBox.warning(self, "Missing Information", "Group name is required!")
-            return
-            
-        if not link:
-            QMessageBox.warning(self, "Missing Information", "Group link is required!")
-            return
-            
-        if not self.validate_url(link):
-            QMessageBox.warning(self, "Invalid URL", "Please enter a valid URL starting with http:// or https://")
-            return
-            
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                INSERT INTO groups (name, link, remarks, category_group_id)
-                VALUES (?, ?, ?, ?)
-            """, (name, link, remarks, category_id))
-            
-            group_id = cursor.lastrowid
-            
-            # Récupérer le nom de la catégorie
-            category_name = ""
-            if category_id:
-                for cat in self.group_categories:
-                    if cat['id'] == category_id:
-                        category_name = cat['name']
-                        break
-            
-            # Ajouter aux données locales
-            new_group = {
-                'id': group_id,
-                'name': name,
-                'link': link,
-                'remarks': remarks,
-                'category': category_name,
-                'category_group_id': category_id
+    def apply_modern_styles(self):
+        """Applique les styles modernes"""
+        self.setStyleSheet("""
+            /* Style général */
+            QWidget {
+                font-family: 'Segoe UI', 'Arial', sans-serif;
+                background-color: #f8fafc;
             }
             
-            self.all_groups.append(new_group)
-            self.filtered_groups.append(new_group)
+            /* Boutons principaux */
+            QPushButton {
+                background-color: #4f46e5;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                min-height: 32px;
+            }
             
-            conn.commit()
-            conn.close()
+            QPushButton:hover {
+                background-color: #4338ca;
+            }
             
-            # Recharger les données
-            self.load_data()
+            QPushButton:pressed {
+                background-color: #3730a3;
+            }
             
-            QMessageBox.information(self, "Success", "Group added successfully!")
+            /* Boutons secondaires */
+            QPushButton.secondary {
+                background-color: #e0e7ff;
+                color: #4f46e5;
+            }
             
-        except Exception as e:
-            QMessageBox.critical(self, "Database Error", f"Failed to add new group: {str(e)}")
+            QPushButton.secondary:hover {
+                background-color: #c7d2fe;
+            }
             
-    def update_category(self, row, category_id):
-        """Met à jour la catégorie d'un groupe"""
-        if row >= len(self.filtered_groups):
-            return
+            QPushButton.secondary:pressed {
+                background-color: #a5b4fc;
+            }
             
-        group_id = self.table.item(row, 1).data(Qt.UserRole)
-        
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            cursor.execute("UPDATE groups SET category_group_id = ? WHERE id = ?", (category_id, group_id))
-            conn.commit()
-            conn.close()
+            /* Boutons d'action */
+            QPushButton.danger {
+                background-color: #ef4444;
+            }
             
-            # Mettre à jour les données locales
-            for group in self.all_groups:
-                if group['id'] == group_id:
-                    category_name = ""
-                    if category_id:
-                        for cat in self.group_categories:
-                            if cat['id'] == category_id:
-                                category_name = cat['name']
-                                break
-                    group['category'] = category_name
-                    group['category_group_id'] = category_id
-                    break
-                    
-        except Exception as e:
-            QMessageBox.critical(self, "Database Error", f"Failed to update category: {str(e)}")
+            QPushButton.danger:hover {
+                background-color: #dc2626;
+            }
+            
+            QPushButton.danger:pressed {
+                background-color: #b91c1c;
+            }
+            
+            /* Barre de recherche */
+            QLineEdit {
+                padding: 8px 12px;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                font-size: 14px;
+                background-color: white;
+                selection-background-color: #4f46e5;
+                selection-color: white;
+            }
+            
+            QLineEdit:focus {
+                border: 1px solid #a5b4fc;
+                outline: none;
+            }
+            
+            QLineEdit:hover {
+                border-color: #c7d2fe;
+            }
+            
+            /* Tableau */
+            QTableWidget {
+                background-color: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                font-size: 14px;
+                selection-background-color: #4f46e5;
+                selection-color: white;
+                gridline-color: #e2e8f0;
+                outline: 0;
+            }
+            
+            QHeaderView::section {
+                background-color: #4f46e5;
+                color: white;
+                padding: 10px;
+                font-weight: 500;
+                border: none;
+                font-size: 13px;
+            }
+            
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #f1f5f9;
+            }
+            
+            /* Checkbox */
+            QCheckBox {
+                spacing: 8px;
+            }
+            
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 1px solid #cbd5e1;
+                border-radius: 4px;
+            }
+            
+            QCheckBox::indicator:checked {
+                background-color: #4f46e5;
+                border: 1px solid #4f46e5;
+                image: url(:/qss_icons/rc/checkbox_checked.png);
+            }
+            
+            /* Combobox */
+            QComboBox {
+                padding: 6px 12px;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                min-height: 32px;
+                background-color: white;
+            }
+            
+            QComboBox:hover {
+                border-color: #c7d2fe;
+            }
+            
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 30px;
+                border-left-width: 1px;
+                border-left-color: #e2e8f0;
+                border-left-style: solid;
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
+            }
+            
+            QComboBox::down-arrow {
+                image: url(:/qss_icons/rc/down_arrow.png);
+            }
+            
+            /* Menu */
+            QMenu {
+                background-color: white;
+                border: 1px solid #e2e8f0;
+                padding: 4px 0;
+                border-radius: 6px;
+            }
+            
+            QMenu::item {
+                padding: 6px 24px;
+                font-size: 13px;
+            }
+            
+            QMenu::item:selected {
+                background-color: #eef2ff;
+                color: #4f46e5;
+            }
+            
+            /* Pagination */
+            QLabel#pagination {
+                font-size: 13px;
+                color: #64748b;
+                font-weight: 500;
+            }
+            
+            /* Footer */
+            QLabel#footer {
+                font-size: 12px;
+                color: #94a3b8;
+                padding: 8px;
+            }
+        """)
 
+    def setup_controls(self):
+        """Configuration des contrôles supérieurs"""
+        control_layout = QHBoxLayout()
+        control_layout.setSpacing(12)
 
+        # Titre avec style moderne
+        self.title_label = QLabel("FB Group Management")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.title_label.setStyleSheet("""
+            QLabel {
+                color: #4f46e5;
+                font-size: 22px;
+                font-weight: 600;
+                padding: 8px 0;
+            }
+        """)
+        control_layout.addWidget(self.title_label)
 
-    def add_blank_row2s(self, count=10):
-        """Ajoute des lignes vides à la table pour nouvelle saisie"""
-        # Désactiver temporairement les signaux pour éviter les déclenchements intempestifs
-        self.table.blockSignals(True)
-        
-        current_row_count = self.table.rowCount()
-        self.table.setRowCount(current_row_count + count)
-        
-        for row in range(current_row_count, current_row_count + count):
-            # Colonne "Select" - Checkbox
-            cb = QCheckBox()
-            cb_widget = QWidget()
-            cb_layout = QHBoxLayout(cb_widget)
-            cb_layout.addWidget(cb)
-            cb_layout.setAlignment(Qt.AlignCenter)
-            cb_layout.setContentsMargins(0, 0, 0, 0)
-            self.table.setCellWidget(row, 0, cb_widget)
-            
-            # Colonne "Name" - Champ texte
-            name_item = QTableWidgetItem("")
-            self.table.setItem(row, 1, name_item)
-            
-            # Colonne "Link" - Champ texte avec validation URL
-            link_item = QTableWidgetItem("")
-            self.table.setItem(row, 2, link_item)
-            
-            # Colonne "Remarks" - Champ texte
-            remarks_item = QTableWidgetItem("")
-            self.table.setItem(row, 3, remarks_item)
-            
-            # Colonne "Category" - Combobox des catégories
-            category_combo = QComboBox()
-            category_combo.addItem("", None)  # Option vide
-            
-            # Charger les catégories disponibles
-            for category in self.group_categories:
-                category_combo.addItem(category['name'], category['id'])
-            
-            self.table.setCellWidget(row, 4, category_combo)
-            
-            # Colonne "Actions" - Bouton Ajouter
-            add_btn = QPushButton("➕ Add")
-            add_btn.setStyleSheet("""
-                QPushButton {
-                    padding: 5px 10px;
-                    background-color: #2ecc71;
+        # Boutons avec icônes modernes
+        buttons = [
+            ("⚡ Actions", "#4f46e5", self.setup_action_menu),
+            ("⚙️ Settings", "#64748b", self.setup_settings_menu),
+            ("🤖 Robot", "#ec4899", self.open_robot_dialog)
+        ]
+
+        for text, color, callback in buttons:
+            btn = QPushButton(text)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {color};
                     color: white;
                     border: none;
-                    border-radius: 3px;
-                    font-size: 12px;
-                }
-                QPushButton:hover {
-                    background-color: #27ae60;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    min-height: 32px;
+                }}
+                QPushButton:hover {{
+                    background-color: {self.darken_color(color)};
+                }}
+            """)
+            if callback:
+                callback(btn)
+            control_layout.addWidget(btn)
+
+        # Barre de recherche moderne
+        self.search_field = QLineEdit()
+        self.search_field.setPlaceholderText("Search groups...")
+        self.search_field.setClearButtonEnabled(True)
+        self.search_field.textChanged.connect(self.filter_table)
+        control_layout.addWidget(self.search_field, 1)
+
+        # Bouton Filter avec style moderne
+        self.filter_btn = QPushButton("🔍 Filter")
+        self.filter_btn.setObjectName("filterBtn")
+        self.filter_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #10b981;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #059669;
+            }
+        """)
+        self.filter_btn.clicked.connect(self.open_filter_dialog)
+        control_layout.addWidget(self.filter_btn)
+
+        self.main_layout.addLayout(control_layout)
+
+    def setup_table(self):
+        """Configuration de la table principale avec style moderne"""
+        self.table = QTableWidget()
+        self.table.setColumnCount(len(self.visible_columns))
+        self.table.setHorizontalHeaderLabels(self.visible_columns)
+
+        # Configuration de la table
+        self.table.setEditTriggers(QTableWidget.AllEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+        self.table.setSortingEnabled(True)
+        self.table.verticalHeader().setDefaultSectionSize(42)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.setAlternatingRowColors(True)
+
+        # Définir les largeurs de colonnes
+        self.table.setColumnWidth(0, 50)   # Select
+        self.table.setColumnWidth(1, 250)  # Name
+        self.table.setColumnWidth(2, 350)  # Link
+        self.table.setColumnWidth(3, 200)  # Remarks
+        self.table.setColumnWidth(4, 200)  # Category
+
+        # Définir le délégué pour la colonne Link
+        self.table.setItemDelegateForColumn(2, URLDelegate())
+
+        # Connecter les signaux
+        self.table.cellChanged.connect(self.handle_cell_change)
+
+        # Ajouter des lignes vides initiales
+        self.add_blank_rows(10)
+
+        self.main_layout.addWidget(self.table, 1)
+
+    def setup_column_toggles(self):
+        """Configuration des cases à cocher pour les colonnes avec style moderne"""
+        toggle_layout = QHBoxLayout()
+        toggle_layout.setSpacing(15)
+
+        toggle_label = QLabel("Show Columns:")
+        toggle_label.setStyleSheet("font-size: 13px; color: #64748b;")
+        toggle_layout.addWidget(toggle_label)
+
+        for idx, col in enumerate(self.visible_columns):
+            cb = QCheckBox(col)
+            cb.setChecked(True)
+            cb.setStyleSheet("""
+                QCheckBox {
+                    font-size: 13px;
+                    color: #334155;
                 }
             """)
-            add_btn.clicked.connect(lambda _, r=row: self.save_new_row(r))
-            self.table.setCellWidget(row, 5, add_btn)
-        
-        # Faire défiler jusqu'aux nouvelles lignes
-        self.table.scrollToBottom()
-        
-        # Réactiver les signaux
-        self.table.blockSignals(False)
-        
-        # Message d'information (optionnel)
-        QMessageBox.information(self, "Lignes ajoutées", f"{count} nouvelles lignes vides ont été ajoutées.")
+            cb.stateChanged.connect(lambda state, i=idx: self.toggle_column(i, state))
+            toggle_layout.addWidget(cb)
 
+        toggle_layout.addStretch()
+        self.main_layout.addLayout(toggle_layout)
+
+    def setup_pagination(self):
+        """Configuration de la pagination avec style moderne"""
+        pagination_layout = QHBoxLayout()
+        pagination_layout.setAlignment(Qt.AlignCenter)
+
+        self.prev_btn = QPushButton("◀ Previous")
+        self.prev_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #e0e7ff;
+                color: #4f46e5;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: #c7d2fe;
+            }
+            QPushButton:disabled {
+                background-color: #f1f5f9;
+                color: #94a3b8;
+            }
+        """)
+        self.prev_btn.clicked.connect(self.prev_page)
+        pagination_layout.addWidget(self.prev_btn)
+
+        self.page_label = QLabel("Page 1 of 1")
+        self.page_label.setObjectName("pagination")
+        pagination_layout.addWidget(self.page_label)
+
+        self.next_btn = QPushButton("Next ▶")
+        self.next_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #e0e7ff;
+                color: #4f46e5;
+                padding: 6px 12px;
+            }
+            QPushButton:hover {
+                background-color: #c7d2fe;
+            }
+            QPushButton:disabled {
+                background-color: #f1f5f9;
+                color: #94a3b8;
+            }
+        """)
+        self.next_btn.clicked.connect(self.next_page)
+        pagination_layout.addWidget(self.next_btn)
+
+        self.main_layout.addLayout(pagination_layout)
+
+    def setup_footer(self):
+        """Configuration du pied de page avec style moderne"""
+        footer = QLabel("© 2023 Nova360 AI - Marketing Automation Solution")
+        footer.setObjectName("footer")
+        footer.setAlignment(Qt.AlignCenter)
+        self.main_layout.addWidget(footer)
+
+    def create_action_button(self, row):
+        """Crée un bouton d'action moderne pour une ligne"""
+        btn = QPushButton("Actions ▼")
+        btn.setStyleSheet("""
+            QPushButton {
+                background-color: #e0e7ff;
+                color: #4f46e5;
+                padding: 4px 8px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #c7d2fe;
+            }
+        """)
+
+        menu = QMenu()
+        
+        actions = [
+            ("🔍 Verify Link", lambda: self.verify_link(row)),
+            ("❌ Delete", lambda: self.delete_group(row)),
+            ("🤖 Assign to Robot", lambda: self.assign_to_robot(row))
+        ]
+
+        for text, callback in actions:
+            action = QAction(text, self)
+            action.triggered.connect(callback)
+            menu.addAction(action)
+
+        btn.setMenu(menu)
+        return btn
+
+    def create_add_button(self, row):
+        """Crée un bouton d'ajout moderne pour une ligne"""
+        btn = QPushButton("➕ Add")
+        btn.setStyleSheet("""
+            QPushButton {
+                background-color: #10b981;
+                color: white;
+                padding: 4px 8px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #059669;
+            }
+        """)
+        btn.clicked.connect(lambda: self.save_new_row(row))
+        return btn
+
+    # ... (le reste des méthodes reste inchangé, seule l'apparence est modifiée)
 class GroupCategoriesDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Group Categories Management")
         self.setMinimumSize(800, 600)
-        
+
         # Variables
         self.categories = []
-        
+
         # Layout principal
         layout = QVBoxLayout(self)
-        
+
         # Configuration de la table
         self.setup_table()
         layout.addWidget(self.table)
-        
+
         # Boutons d'action
         self.setup_buttons()
         layout.addLayout(self.button_layout)
-        
+
         # Charger les données
         self.load_categories()
-        
+
         # Appliquer les styles
         self.apply_styles()
-    
+
     def setup_table(self):
         """Configure la table des catégories"""
         self.table = QTableWidget(self)
         self.table.setColumnCount(6)
         self.table.setHorizontalHeaderLabels(["ID", "Name", "Label", "Description", "Created", "Actions"])
-        
+
         # Configuration de la table
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.SingleSelection)
         self.table.setSortingEnabled(True)
-        
+
         # Ajuster les largeurs de colonnes
         self.table.setColumnWidth(0, 60)   # ID
         self.table.setColumnWidth(1, 200)  # Name
@@ -4429,84 +4044,84 @@ class GroupCategoriesDialog(QDialog):
         self.table.setColumnWidth(3, 250)  # Description
         self.table.setColumnWidth(4, 150)  # Created
         self.table.horizontalHeader().setStretchLastSection(True)
-    
+
     def setup_buttons(self):
         """Configure les boutons d'action"""
         self.button_layout = QHBoxLayout()
-        
+
         # Bouton Ajouter
         self.add_btn = QPushButton("➕ Add Category")
         self.add_btn.clicked.connect(self.add_category)
         self.button_layout.addWidget(self.add_btn)
-        
+
         # Bouton Rafraîchir
         self.refresh_btn = QPushButton("🔄 Refresh")
         self.refresh_btn.clicked.connect(self.load_categories)
         self.button_layout.addWidget(self.refresh_btn)
-        
+
         # Bouton Fermer
         self.close_btn = QPushButton("❌ Close")
         self.close_btn.clicked.connect(self.close)
         self.button_layout.addWidget(self.close_btn)
-        
+
         # Espacement
         self.button_layout.addStretch()
-    
+
     def load_categories(self):
         """Charge les catégories depuis la base de données"""
         try:
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
-            
+
             cursor.execute("""
-                SELECT id, name, label, description, 
+                SELECT id, name, label, description,
                        strftime('%Y-%m-%d %H:%M', date_creation) as created
                 FROM category_group
                 WHERE date_suppression IS NULL
                 ORDER BY name
             """)
-            
+
             self.categories = []
             columns = [desc[0] for desc in cursor.description]
             for row in cursor.fetchall():
                 self.categories.append(dict(zip(columns, row)))
-            
+
             conn.close()
-            
+
             self.populate_table()
-            
+
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to load categories: {str(e)}")
-    
+
     def populate_table(self):
         """Remplit la table avec les catégories"""
         self.table.setRowCount(len(self.categories))
-        
+
         for row, category in enumerate(self.categories):
             # ID
             id_item = QTableWidgetItem(str(category['id']))
             id_item.setData(Qt.UserRole, category['id'])
             self.table.setItem(row, 0, id_item)
-            
+
             # Name
             self.table.setItem(row, 1, QTableWidgetItem(category['name']))
-            
+
             # Label
             self.table.setItem(row, 2, QTableWidgetItem(category.get('label', '')))
-            
+
             # Description
             desc_item = QTableWidgetItem(category.get('description', ''))
             desc_item.setToolTip(category.get('description', ''))
             self.table.setItem(row, 3, desc_item)
-            
+
             # Created
             self.table.setItem(row, 4, QTableWidgetItem(category.get('created', '')))
-            
+
             # Actions
             actions_widget = QWidget()
             actions_layout = QHBoxLayout(actions_widget)
             actions_layout.setContentsMargins(0, 0, 0, 0)
-            
+
             # Bouton Edit
             edit_btn = QPushButton("✏️")
             edit_btn.setToolTip("Edit category")
@@ -4523,7 +4138,7 @@ class GroupCategoriesDialog(QDialog):
             """)
             edit_btn.clicked.connect(lambda _, r=row: self.edit_category(r))
             actions_layout.addWidget(edit_btn)
-            
+
             # Bouton Delete
             delete_btn = QPushButton("🗑️")
             delete_btn.setToolTip("Delete category")
@@ -4540,9 +4155,9 @@ class GroupCategoriesDialog(QDialog):
             """)
             delete_btn.clicked.connect(lambda _, r=row: self.delete_category(r))
             actions_layout.addWidget(delete_btn)
-            
+
             self.table.setCellWidget(row, 5, actions_widget)
-    
+
     def add_category(self):
         """Ouvre le dialogue pour ajouter une nouvelle catégorie"""
         dialog = CategoryEditDialog(self)
@@ -4551,7 +4166,7 @@ class GroupCategoriesDialog(QDialog):
             # Rafraîchir les catégories dans la table parente si nécessaire
             if self.parent() and hasattr(self.parent(), 'load_data'):
                 self.parent().load_data()
-    
+
     def edit_category(self, row):
         """Ouvre le dialogue pour modifier une catégorie existante"""
         category_id = self.table.item(row, 0).data(Qt.UserRole)
@@ -4561,12 +4176,12 @@ class GroupCategoriesDialog(QDialog):
             # Rafraîchir les catégories dans la table parente si nécessaire
             if self.parent() and hasattr(self.parent(), 'load_data'):
                 self.parent().load_data()
-    
+
     def delete_category(self, row):
         """Supprime une catégorie"""
         category_id = self.table.item(row, 0).data(Qt.UserRole)
         category_name = self.table.item(row, 1).text()
-        
+
         # Vérifier si la catégorie est utilisée par des groupes
         try:
             conn = sqlite3.connect(DB_PATH)
@@ -4574,10 +4189,10 @@ class GroupCategoriesDialog(QDialog):
             cursor.execute("SELECT COUNT(*) FROM groups WHERE category_group_id = ?", (category_id,))
             group_count = cursor.fetchone()[0]
             conn.close()
-            
+
             if group_count > 0:
                 QMessageBox.warning(
-                    self, "Cannot Delete", 
+                    self, "Cannot Delete",
                     f"Cannot delete category '{category_name}' because it's used by {group_count} group(s).\n"
                     "Please reassign or delete these groups first."
                 )
@@ -4585,39 +4200,39 @@ class GroupCategoriesDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to check category usage: {str(e)}")
             return
-        
+
         # Confirmation
         reply = QMessageBox.question(
             self, "Confirm Delete",
             f"Are you sure you want to delete category '{category_name}'?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
-        
+
         if reply == QMessageBox.Yes:
             try:
                 conn = sqlite3.connect(DB_PATH)
                 cursor = conn.cursor()
-                
+
                 # Soft delete (marquer comme supprimé plutôt que de supprimer réellement)
                 cursor.execute("""
-                    UPDATE category_group 
-                    SET date_suppression = CURRENT_TIMESTAMP 
+                    UPDATE category_group
+                    SET date_suppression = CURRENT_TIMESTAMP
                     WHERE id = ?
                 """, (category_id,))
-                
+
                 conn.commit()
                 conn.close()
-                
+
                 self.load_categories()
                 # Rafraîchir les catégories dans la table parente si nécessaire
                 if self.parent() and hasattr(self.parent(), 'load_data'):
                     self.parent().load_data()
-                
+
                 QMessageBox.information(self, "Success", "Category deleted successfully!")
-                
+
             except Exception as e:
                 QMessageBox.critical(self, "Database Error", f"Failed to delete category: {str(e)}")
-    
+
     def apply_styles(self):
         """Applique les styles à la boîte de dialogue"""
         self.setStyleSheet("""
@@ -4648,81 +4263,80 @@ class GroupCategoriesDialog(QDialog):
             }
         """)
 
-
 class CategoryEditDialog(QDialog):
     def __init__(self, parent=None, category_id=None):
         super().__init__(parent)
         self.category_id = category_id
         self.setWindowTitle("Add Category" if category_id is None else "Edit Category")
         self.setMinimumSize(400, 300)
-        
+
         # Layout
         layout = QVBoxLayout(self)
-        
+
         # Formulaire
         self.setup_form()
         layout.addLayout(self.form_layout)
-        
+
         # Boutons
         self.setup_buttons()
         layout.addLayout(self.button_layout)
-        
+
         # Charger les données si édition
         if category_id is not None:
             self.load_category_data()
-        
+
         # Appliquer les styles
         self.apply_styles()
-    
+
     def setup_form(self):
         """Configure le formulaire de saisie"""
         self.form_layout = QFormLayout()
-        
+
         # Nom
         self.name_edit = QLineEdit()
         self.name_edit.setPlaceholderText("Required")
         self.form_layout.addRow("Name:", self.name_edit)
-        
+
         # Label
         self.label_edit = QLineEdit()
         self.label_edit.setPlaceholderText("Optional")
         self.form_layout.addRow("Label:", self.label_edit)
-        
+
         # Description
         self.desc_edit = QTextEdit()
         self.desc_edit.setPlaceholderText("Optional description")
         self.desc_edit.setMaximumHeight(100)
         self.form_layout.addRow("Description:", self.desc_edit)
-    
+
     def setup_buttons(self):
         """Configure les boutons"""
         self.button_layout = QHBoxLayout()
-        
+
         # Bouton Sauvegarder
         self.save_btn = QPushButton("💾 Save")
         self.save_btn.clicked.connect(self.save_category)
         self.button_layout.addWidget(self.save_btn)
-        
+
         # Bouton Annuler
         self.cancel_btn = QPushButton("❌ Cancel")
         self.cancel_btn.clicked.connect(self.reject)
         self.button_layout.addWidget(self.cancel_btn)
-    
+
     def load_category_data(self):
         """Charge les données de la catégorie à éditer"""
         try:
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
-            
+
             cursor.execute("""
-                SELECT name, label, description 
-                FROM category_group 
+                SELECT name, label, description
+                FROM category_group
                 WHERE id = ? AND date_suppression IS NULL
             """, (self.category_id,))
-            
+
             category = cursor.fetchone()
             conn.close()
-            
+
             if category:
                 self.name_edit.setText(category[0])
                 self.label_edit.setText(category[1] if category[1] else "")
@@ -4730,26 +4344,26 @@ class CategoryEditDialog(QDialog):
             else:
                 QMessageBox.warning(self, "Not Found", "Category not found or has been deleted.")
                 self.reject()
-                
+
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to load category: {str(e)}")
             self.reject()
-    
+
     def save_category(self):
         """Sauvegarde la catégorie dans la base de données"""
         name = self.name_edit.text().strip()
         label = self.label_edit.text().strip()
         description = self.desc_edit.toPlainText().strip()
-        
+
         # Validation
         if not name:
             QMessageBox.warning(self, "Validation Error", "Category name is required!")
             return
-        
+
         try:
             conn = sqlite3.connect(DB_PATH)
             cursor = conn.cursor()
-            
+
             if self.category_id is None:
                 # Ajout d'une nouvelle catégorie
                 cursor.execute("""
@@ -4759,21 +4373,21 @@ class CategoryEditDialog(QDialog):
             else:
                 # Mise à jour d'une catégorie existante
                 cursor.execute("""
-                    UPDATE category_group 
+                    UPDATE category_group
                     SET name = ?, label = ?, description = ?, date_modification = CURRENT_TIMESTAMP
                     WHERE id = ?
                 """, (name, label or None, description or None, self.category_id))
-            
+
             conn.commit()
             conn.close()
-            
+
             self.accept()
-            
+
         except sqlite3.IntegrityError:
             QMessageBox.warning(self, "Duplicate Name", "A category with this name already exists!")
         except Exception as e:
             QMessageBox.critical(self, "Database Error", f"Failed to save category: {str(e)}")
-    
+
     def apply_styles(self):
         """Applique les styles à la boîte de dialogue"""
         self.setStyleSheet("""
@@ -4799,8 +4413,6 @@ class CategoryEditDialog(QDialog):
             }
         """)
 
-
-
 if __name__ == '__main__':
     import sys
     from PyQt5.QtWidgets import QApplication
@@ -4809,5 +4421,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = GroupTable()
     window.show()
-    sys.exit(app.exec_())  
-    
+    sys.exit(app.exec_())

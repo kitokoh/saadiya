@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratégie Marketing sur Mesure | Pour PME/PMI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header avec sélecteur de langue -->
+    <header>
+        <div class="container">
+            <h1>Stratégie<span>Marketing</span></h1>
+            <div class="language-switcher">
+                <button class="lang-btn active" data-lang="fr">FR</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+                <button class="lang-btn" data-lang="es">ES</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Formulaire en étapes -->
+    <main class="container">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+            <div class="step active" data-step="1">1</div>
+            <div class="step" data-step="2">2</div>
+            <div class="step" data-step="3">3</div>
+            <div class="step" data-step="4">4</div>
+            <div class="step" data-step="5">5</div>
+        </div>
+
+        <form id="marketingForm">
+            <!-- Étape 1: Informations Entreprise -->
+            <div class="form-step active" data-step="1">
+                <h2 data-i18n="step1_title">Informations sur votre entreprise</h2>
+                <div class="input-group">
+                    <label for="companyName" data-i18n="company_name">Nom de l'entreprise</label>
+                    <input type="text" id="companyName" required>
+                </div>
+                <!-- Plus de champs... -->
+            </div>
+
+            <!-- Étape 2: Objectifs -->
+            <div class="form-step" data-step="2">
+                <h2 data-i18n="step2_title">Vos objectifs marketing</h2>
+                <div class="checkbox-grid">
+                    <!-- Cases à cocher pour les objectifs -->
+                </div>
+            </div>
+
+            <!-- Étape 3: Canaux -->
+            <div class="form-step" data-step="3">
+                <h2 data-i18n="step3_title">Canaux de marketing</h2>
+                <div class="card-selector">
+                    <!-- Cartes sélectionnables -->
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="form-navigation">
+                <button type="button" class="btn-prev" disabled data-i18n="prev">Précédent</button>
+                <button type="button" class="btn-next" data-i18n="next">Suivant</button>
+                <button type="submit" class="btn-submit" data-i18n="submit" style="display:none;">Envoyer ma demande</button>
+            </div>
+        </form>
+
+        <!-- Résumé dynamique -->
+        <aside class="summary-panel">
+            <h3 data-i18n="summary">Résumé</h3>
+            <div id="dynamicSummary"></div>
+            <div class="price-estimate">
+                <span data-i18n="estimated_price">Estimation:</span>
+                <span id="priceValue">€0-€500</span>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
