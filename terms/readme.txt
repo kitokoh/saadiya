@@ -1,1 +1,0 @@
-condition dutlsateur et consort 

@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Callable
-from terms.terms_manager import TermsDialog
+from demarrage.terms_manager import TermsDialog
 from Installsweb.installmodules import InstallerDialog
 from ui.register import RegisterModule
 from Mining.miningcoiy import MainWindow
