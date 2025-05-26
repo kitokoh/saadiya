@@ -101,6 +101,7 @@ class LoadingScreen(QDialog):
 from PyQt5.QtWidgets import QLayout
 from PyQt5.QtWidgets import QWidgetItem
 from PyQt5.QtWidgets import QWidgetAction
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 class QOverlayLayout(QLayout):
     """Un layout personnalisé pour superposer des widgets (comme un badge sur une icône)"""
@@ -3840,6 +3841,7 @@ class Browser(QMainWindow):
             self.management = MainDashboard()
 
         self.add_custom_tab(self.management, tab_name, "resources/icons/management.ico")
+   
     def open_marketing(self):
         tab_name = self.tr("📣 Marketing Auto")
 
@@ -4614,11 +4616,14 @@ class Browser(QMainWindow):
                 ("🎬", self.tr("My Media"), "media", self.add_media_page, self.tr("Media Management"), []),
                 ("🌐", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
                 ("🤖", self.tr("Marketing Robots"), "marketing_robots", self.open_marketing, self.tr("Marketing automation tools"), []),
-                ("📰", self.tr("Ads Manager"), "ads_manager", self.open_ads_manager, self.tr("Manage advertising campaigns"), []),
+                # ("📰", self.tr("Ads Manager"), "ads_manager", self.open_ads_manager, self.tr("Manage advertising campaigns"), []),
                 ("⏳", self.tr("Campaign Scheduler"), "campaign_scheduler", self.open_sheduling_window, self.tr("Schedule marketing campaigns"), []),
                 ("✉️", self.tr("Email & SMS"), "email_sms", self.open_email_sms, self.tr("Email and SMS marketing tools"), []),
-                ("🖋️", self.tr("Content Generator"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+                # ("🖋️", self.tr("Content Generator"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
             ]),
+
+
+            ("⏯️", self.tr("Run"), "Run", self.open_manuelle_window, self.tr("Run Now"), []),
             
             # 3. Sales
             ("💰", self.tr("Sales"), "sales", None, self.tr("Sales tools"), [
@@ -4632,16 +4637,16 @@ class Browser(QMainWindow):
             ]),
             
             # 4. Run (inchangé)
-            ("⏯️", self.tr("Run"), "Run", self.open_manuelle_window, self.tr("Run Now"), []),
             
             # 5. AI Agent
             ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
-                ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
-                ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
-                # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
-                ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
-                ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
-                ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
+                # ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
+                # ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
+                # # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
+                # ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
+                # ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
+                # ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
+           
             ]),
             
             # 6. Finance
@@ -4841,10 +4846,10 @@ class Browser(QMainWindow):
         self.user_menu.addSeparator()
         
         # Nouvelle section Plans (remplace Account Mode)
-        plan_section = self.user_menu.addAction("📋 " + self.tr("Plans"))
+        plan_section = self.user_menu.addAction("📋 " + self.tr("Data"))
         plan_section.setEnabled(False)
-        self.marketing_plan_action = self.user_menu.addAction("   📢 " + self.tr("Marketing Plan"))
-        self.sales_plan_action = self.user_menu.addAction("   💰 " + self.tr("Sales Plan"))
+        self.marketing_plan_action = self.user_menu.addAction("   📢 " + self.tr("Contacts Prospect"))
+        self.sales_plan_action = self.user_menu.addAction("   💰 " + self.tr("Data Groups"))
         self.user_menu.addSeparator()
         
         # Section mise à jour
@@ -4938,6 +4943,865 @@ class Browser(QMainWindow):
                                 self.tr("This feature is only available in Pro mode. Please upgrade to access all professional features."),
                                 QMessageBox.Ok)
             self.open_upgrade_window()
+
+
+    def create_top_men1u(self):
+        """
+        Crée une barre de menu supérieure avec :
+        - Gestion des droits par mode (basic/premium/entreprise)
+        - Personnalisation de l'affichage des boutons
+        - Interface de configuration moderne
+        """
+        # Initialisation
+        self.is_user_logged_in = False
+        self.is_enterprise_mode = True  # Valeur par défaut, sera écrasée par load_session_state
+        self.current_username = "Guest"
+        
+        # Charger l'état de connexion et la configuration du menu
+        self.load_session_state()
+        self.load_menu_config()
+        
+        # Création du conteneur principal
+        self.top_menu = QFrame()
+        self.top_menu.setFixedHeight(50)
+        self.top_menu.setStyleSheet("""
+            QFrame {
+                background-color: #f8fafc;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        """)
+
+        # Layout principal
+        self.top_menu_layout = QHBoxLayout(self.top_menu)
+        self.top_menu_layout.setContentsMargins(5, 5, 5, 5)
+        self.top_menu_layout.setSpacing(10)
+
+        # --- Logo / Titre ---
+        self.app_title = QLabel("Leopardo AI")
+        self.app_title.setStyleSheet("""
+            QLabel {
+                color: #2563eb;
+                font-size: 18px;
+                font-weight: bold;
+                padding: 0 15px;
+            }
+        """)
+        self.top_menu_layout.addWidget(self.app_title)
+
+        # --- Barre de menu principale ---
+        self.menu_bar = QHBoxLayout()
+        self.menu_bar.setSpacing(5)
+        
+        # Définition complète des menus avec leurs droits d'accès
+        self.full_menu_structure = {
+            # Format: 
+            # 'menu_id': {
+            #   'icon': '🏠', 
+            #   'text': 'Home', 
+            #   'action': self.open_home,
+            #   'tooltip': 'Main dashboard',
+            #   'access_level': 'all',  # 'all', 'premium', 'enterprise'
+            #   'submenus': {},  # Même structure si présent
+            #   'default_visible': True
+            # }
+            
+            'home': {
+                'icon': '🏠',
+                'text': self.tr('Home'),
+                'action': self.open_home,
+                'tooltip': self.tr('Main dashboard'),
+                'access_level': 'all',
+                'default_visible': True
+            },
+            
+            'marketing': {
+                'icon': '📢',
+                'text': self.tr('Marketing'),
+                'action': None,
+                'tooltip': self.tr('Marketing tools'),
+                'access_level': 'premium',
+                'default_visible': True,
+                'submenus': {
+                    'media': {
+                        'icon': '🎬',
+                        'text': self.tr('My Media'),
+                        'action': self.add_media_page,
+                        'tooltip': self.tr('Media Management'),
+                        'access_level': 'premium'
+                    },
+                    'grups': {
+                        'icon': '🌐',
+                        'text': self.tr('My Groups'),
+                        'action': self.open_grups_window,
+                        'tooltip': self.tr('Group list'),
+                        'access_level': 'premium'
+                    },
+                    # ... autres sous-menus marketing
+                }
+            },
+            
+            'run': {
+                'icon': '⏯️',
+                'text': self.tr('Run'),
+                'action': self.open_manuelle_window,
+                'tooltip': self.tr('Run Now'),
+                'access_level': 'all',
+                'default_visible': True
+            },
+            
+            # ... autres menus principaux
+            
+            'settings': {
+                'icon': '⚙️',
+                'text': self.tr('Settings'),
+                'action': None,
+                'tooltip': self.tr('Application settings'),
+                'access_level': 'all',
+                'default_visible': True,
+                'submenus': {
+                    'customize': {
+                        'icon': '🎨',
+                        'text': self.tr('Customize Menu'),
+                        'action': self.open_menu_customizer,
+                        'tooltip': self.tr('Customize which menu items are visible'),
+                        'access_level': 'all'
+                    },
+                    # ... autres sous-menus settings
+                }
+            }
+        }
+        
+        # Charger la configuration personnalisée du menu
+        self.menu_config = getattr(self, 'menu_config', {})
+        if 'visible_menus' not in self.menu_config:
+            self.menu_config['visible_menus'] = {
+                menu_id: menu_data.get('default_visible', True) 
+                for menu_id, menu_data in self.full_menu_structure.items()
+            }
+        
+        # Créer les boutons de menu en fonction de la configuration
+        self.menu_buttons = {}
+        for menu_id, menu_data in self.full_menu_structure.items():
+            if not self.menu_config['visible_menus'].get(menu_id, True):
+                continue
+                
+            # Vérifier les droits d'accès
+            if not self.check_menu_access(menu_data['access_level']):
+                continue
+                
+            button = self.create_menu_button(
+                icon=menu_data['icon'],
+                text=menu_data['text'],
+                action=menu_data['action'],
+                tooltip=menu_data['tooltip'],
+                submenus=menu_data.get('submenus', None)
+            )
+            
+            self.menu_bar.addWidget(button)
+            self.menu_buttons[menu_id] = button
+        
+        # Bouton pour personnaliser le menu (discret)
+        self.customize_button = QPushButton("+")
+        self.customize_button.setFixedSize(26, 26)
+        self.customize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #e2e8f0;
+                color: #4b5563;
+                border: none;
+                border-radius: 13px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #cbd5e1;
+                transform: scale(1.1);
+            }
+        """)
+        self.customize_button.setToolTip(self.tr("Customize menu items"))
+        self.customize_button.clicked.connect(self.open_menu_customizer)
+        self.menu_bar.addWidget(self.customize_button)
+        
+        self.top_menu_layout.addLayout(self.menu_bar)
+        self.top_menu_layout.addStretch()
+        
+        # --- Section notification ---
+        self.create_notif()
+        self.top_menu_layout.addStretch()
+        
+        # --- Section utilisateur ---
+        self.create_user_section()
+        
+        # --- Contrôles de fenêtre ---
+        self.create_window_controls()
+        
+        # Ajouter le menu top au layout principal
+        self.main_layout.insertWidget(0, self.top_menu)
+        
+        # Mettre à jour l'interface
+        self.update_user_profile_section()
+        self.update_menu_visibility()
+
+
+
+    def create_top_men1u(self):
+        """
+        Crée une barre de menu supérieure complète avec toutes les dépendances
+        """
+        # Initialisation
+        self.is_user_logged_in = False
+        self.is_enterprise_mode = False  # Valeur par défaut
+        self.is_premium_mode = False     # Valeur par défaut
+        self.current_username = "Guest"
+        
+        # Charger l'état de connexion
+        self.load_session_state()
+
+        # Création du conteneur principal
+        self.top_menu = QFrame()
+        self.top_menu.setFixedHeight(50)
+        self.top_menu.setStyleSheet("""
+            QFrame {
+                background-color: #f8fafc;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        """)
+
+        # Layout principal
+        self.top_menu_layout = QHBoxLayout(self.top_menu)
+        self.top_menu_layout.setContentsMargins(5, 5, 5, 5)
+        self.top_menu_layout.setSpacing(10)
+
+        # --- Logo / Titre ---
+        self.app_title = QLabel("Leopardo AI")
+        self.app_title.setStyleSheet("""
+            QLabel {
+                color: #2563eb;
+                font-size: 18px;
+                font-weight: bold;
+                padding: 0 15px;
+            }
+        """)
+        self.top_menu_layout.addWidget(self.app_title)
+
+        # --- Barre de menu principale ---
+        self.menu_bar = QHBoxLayout()
+        self.menu_bar.setSpacing(5)
+        
+        # Création des boutons de menu de base
+        self.create_main_menu_buttons()
+        
+        # Bouton pour personnaliser le menu
+        self.create_customize_button()
+        
+        self.top_menu_layout.addLayout(self.menu_bar)
+        self.top_menu_layout.addStretch()
+        
+        # --- Section notification ---
+        self.create_notification_section()
+        self.top_menu_layout.addStretch()
+        
+        # --- Section utilisateur ---
+        self.create_user_section()
+        
+        # --- Contrôles de fenêtre ---
+        self.create_window_controls()
+        
+        # Ajouter le menu top au layout principal
+        self.main_layout.insertWidget(0, self.top_menu)
+        
+        # Mettre à jour l'interface
+        self.update_user_section()
+        self.update_menu_visibility()
+
+    def create_main_menu_buttons(self):
+        """Crée les boutons principaux du menu"""
+        # Menu Home
+        home_btn = self.create_menu_button(
+            icon="🏠",
+            text=self.tr("Home"),
+            action=self.open_home,
+            tooltip=self.tr("Main dashboard"),
+            access_level="all"
+        )
+        self.menu_bar.addWidget(home_btn)
+        
+        # Ajoutez ici vos autres boutons de menu principaux
+        # ...
+
+
+    def create_main_menu_buttons(self):
+        """Crée tous les boutons principaux du menu avec gestion des droits d'accès"""
+        # Structure complète des menus
+        menu_structure = [
+            # 1. Home
+            {
+                'icon': "🏠",
+                'text': self.tr("Home"),
+                'action': self.open_home,
+                'tooltip': self.tr("Main dashboard"),
+                'access_level': "all"
+            },
+            
+            # 2. Marketing
+            {
+                'icon': "📢",
+                'text': self.tr("Marketing"),
+                'action': None,
+                'tooltip': self.tr("Marketing tools"),
+                'access_level': "premium",
+                'submenus': {
+                    'media': {
+                        'icon': "🎬",
+                        'text': self.tr("My Media"),
+                        'action': self.add_media_page,
+                        'tooltip': self.tr("Media Management"),
+                        'access_level': "premium"
+                    },
+                    'grups': {
+                        'icon': "🌐",
+                        'text': self.tr("My Groups"),
+                        'action': self.open_grups_window,
+                        'tooltip': self.tr("Group list"),
+                        'access_level': "premium"
+                    },
+                    'marketing_robots': {
+                        'icon': "🤖",
+                        'text': self.tr("Marketing Robots"),
+                        'action': self.open_marketing,
+                        'tooltip': self.tr("Marketing automation tools"),
+                        'access_level': "premium"
+                    },
+                    'ads_manager': {
+                        'icon': "📰",
+                        'text': self.tr("Ads Manager"),
+                        'action': self.open_ads_manager,
+                        'tooltip': self.tr("Manage advertising campaigns"),
+                        'access_level': "enterprise"
+                    }
+                }
+            },
+            
+            # 3. Run
+            {
+                'icon': "⏯️",
+                'text': self.tr("Run"),
+                'action': self.open_manuelle_window,
+                'tooltip': self.tr("Run Now"),
+                'access_level': "all"
+            },
+            
+            # 4. Sales
+            {
+                'icon': "💰",
+                'text': self.tr("Sales"),
+                'action': None,
+                'tooltip': self.tr("Sales tools"),
+                'access_level': "premium",
+                'submenus': {
+                    'project_management': {
+                        'icon': "📂",
+                        'text': self.tr("Project Management"),
+                        'action': self.open_management,
+                        'tooltip': self.tr("Manage sales projects"),
+                        'access_level': "premium"
+                    },
+                    'sav': {
+                        'icon': "🛠️",
+                        'text': self.tr("SAV"),
+                        'action': self.open_sav,
+                        'tooltip': self.tr("After-sales service management"),
+                        'access_level': "premium"
+                    }
+                }
+            },
+            
+            # 5. AI Agent
+            {
+                'icon': "🧠",
+                'text': self.tr("AI Agent"),
+                'action': None,
+                'tooltip': self.tr("AI Assistant tools"),
+                'access_level': "enterprise",
+                'submenus': {
+                    'auto_responder': {
+                        'icon': "🤖",
+                        'text': self.tr("Auto-Responder"),
+                        'action': self.open_auto_responder,
+                        'tooltip': self.tr("Automatic response system"),
+                        'access_level': "enterprise"
+                    }
+                }
+            }
+        ]
+
+        # Création des boutons de menu
+        for menu_item in menu_structure:
+            btn = self.create_menu_button(
+                icon=menu_item['icon'],
+                text=menu_item['text'],
+                action=menu_item.get('action'),
+                tooltip=menu_item['tooltip'],
+                submenus=menu_item.get('submenus'),
+                access_level=menu_item['access_level']
+            )
+            
+            if btn:  # Ne pas ajouter si l'accès est refusé
+                self.menu_bar.addWidget(btn)
+                
+    def create_customize_button(self):
+        """Crée le bouton de personnalisation du menu"""
+        self.customize_button = QPushButton("+")
+        self.customize_button.setFixedSize(26, 26)
+        self.customize_button.setStyleSheet("""
+            QPushButton {
+                background-color: #e2e8f0;
+                color: #4b5563;
+                border: none;
+                border-radius: 13px;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #cbd5e1;
+                transform: scale(1.1);
+            }
+        """)
+        self.customize_button.setToolTip(self.tr("Customize menu items"))
+        self.customize_button.clicked.connect(self.open_menu_customizer)
+        self.menu_bar.addWidget(self.customize_button)
+
+    def create_notification_section(self):
+        """Crée la section des notifications"""
+        self.notification_button = QPushButton("🔔")
+        self.notification_button.setFixedSize(36, 36)
+        self.notification_button.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+                font-size: 16px;
+            }
+        """)
+        self.top_menu_layout.addWidget(self.notification_button)
+
+    def create_user_section(self):
+        """Crée la section utilisateur"""
+        self.user_button = QPushButton(f"👤 {self.current_username}")
+        self.user_button.setFixedHeight(36)
+        self.user_button.setStyleSheet("""
+            QPushButton {
+                background-color: #ffffff;
+                color: #4b5563;
+                border: 1px solid #d1d5db;
+                font-size: 14px;
+                padding: 5px 15px 5px 10px;
+                border-radius: 18px;
+                min-width: 100px;
+                transition: all 0.2s ease;
+            }
+            QPushButton:hover {
+                background-color: #f3f4f6;
+                transform: translateY(-1px);
+            }
+        """)
+        
+        # Création du menu utilisateur
+        self.user_menu = QMenu()
+        self.user_menu.setStyleSheet(self.get_menu_stylesheet())
+        
+        # Ajout des actions
+        self.login_action = self.user_menu.addAction("🔑 " + self.tr("Login"))
+        self.login_action.triggered.connect(self.user_login)
+        
+        self.top_menu_layout.addWidget(self.user_button)
+        self.user_button.setMenu(self.user_menu)
+
+    def create_window_controls(self):
+        """Crée les boutons de contrôle de fenêtre"""
+        controls = QHBoxLayout()
+        controls.setSpacing(5)
+        
+        minimize_btn = QPushButton("—")
+        minimize_btn.setFixedSize(26, 26)
+        minimize_btn.clicked.connect(self.minimize_window)
+        
+        maximize_btn = QPushButton("□")
+        maximize_btn.setFixedSize(26, 26)
+        maximize_btn.clicked.connect(self.maximize_window)
+        
+        close_btn = QPushButton("✕")
+        close_btn.setFixedSize(26, 26)
+        close_btn.clicked.connect(self.close_window)
+        
+        # Style commun pour les boutons de contrôle
+        control_style = """
+            QPushButton {
+                background-color: #e2e8f0;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #cbd5e1;
+            }
+        """
+        close_style = control_style.replace("#e2e8f0", "#fee2e2").replace("#cbd5e1", "#fecaca")
+        
+        minimize_btn.setStyleSheet(control_style)
+        maximize_btn.setStyleSheet(control_style)
+        close_btn.setStyleSheet(close_style)
+        
+        controls.addWidget(minimize_btn)
+        controls.addWidget(maximize_btn)
+        controls.addWidget(close_btn)
+        
+        self.top_menu_layout.addLayout(controls)
+
+    def update_user_section(self):
+        """Met à jour la section utilisateur en fonction de l'état de connexion"""
+        if self.is_user_logged_in:
+            self.user_button.setText(f"👤 {self.current_username}")
+            self.login_action.setVisible(False)
+            # Ajoutez ici d'autres éléments pour les utilisateurs connectés
+        else:
+            self.user_button.setText("👤 Guest")
+            self.login_action.setVisible(True)
+
+    def get_menu_stylesheet(self):
+        """Retourne le style des menus déroulants"""
+        return """
+            QMenu {
+                background-color: white;
+                border: 1px solid #e2e8f0;
+                padding: 5px;
+                border-radius: 8px;
+            }
+            QMenu::item {
+                padding: 8px 25px;
+                margin: 2px;
+                border-radius: 4px;
+            }
+            QMenu::item:selected {
+                background-color: #f3f4f6;
+            }
+        """
+
+    def minimize_window(self):
+        self.showMinimized()
+
+    def maximize_window(self):
+        if self.isMaximized():
+            self.showNormal()
+        else:
+            self.showMaximized()
+
+    def close_window(self):
+        self.close()
+
+
+
+
+    def check_menu_access(self, required_level):
+        """
+        Vérifie si l'utilisateur a le droit d'accéder à un menu en fonction de son niveau
+        """
+        if required_level == 'all':
+            return True
+            
+        if not self.is_user_logged_in:
+            return False
+            
+        if required_level == 'premium':
+            return self.is_premium_mode or self.is_enterprise_mode
+            
+        if required_level == 'enterprise':
+            return self.is_enterprise_mode
+            
+        return False
+
+    def create_menu_button(self, icon, text, action, tooltip, submenus=None):
+        """
+        Crée un bouton de menu standardisé
+        """
+        button = QPushButton(f"{icon} {text}")
+        button.setFixedHeight(36)
+        button.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #4b5563;
+                border: none;
+                font-size: 14px;
+                padding: 5px 10px;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+            }
+            QPushButton:hover {
+                background-color: #e5e7eb;
+                color: #1f2937;
+                transform: translateY(-1px);
+            }
+        """)
+        button.setToolTip(f"<b>{text}</b><br>{tooltip}")
+        
+        if action:
+            button.clicked.connect(lambda: self.check_pro_mode(action))
+        
+        if submenus:
+            menu = QMenu()
+            menu.setStyleSheet(self.get_menu_stylesheet())
+            
+            for submenu_id, submenu_data in submenus.items():
+                if not self.check_menu_access(submenu_data['access_level']):
+                    continue
+                    
+                if submenu_data.get('submenus'):
+                    # Sous-menu imbriqué
+                    submenu = menu.addMenu(f"{submenu_data['icon']} {submenu_data['text']}")
+                    submenu.setStyleSheet(menu.styleSheet())
+                    
+                    for nested_id, nested_data in submenu_data['submenus'].items():
+                        if not self.check_menu_access(nested_data['access_level']):
+                            continue
+                            
+                        act = submenu.addAction(f"{nested_data['icon']} {nested_data['text']}")
+                        act.setToolTip(nested_data['tooltip'])
+                        if nested_data['action']:
+                            act.triggered.connect(lambda _, f=nested_data['action']: self.check_pro_mode(f))
+                else:
+                    # Action simple
+                    act = menu.addAction(f"{submenu_data['icon']} {submenu_data['text']}")
+                    act.setToolTip(submenu_data['tooltip'])
+                    if submenu_data['action']:
+                        act.triggered.connect(lambda _, f=submenu_data['action']: self.check_pro_mode(f))
+            
+            button.setMenu(menu)
+        
+        return button
+
+
+
+
+    def get_menu_stylesheet(self):
+        """
+        Retourne le style sheet standard pour les menus déroulants
+        """
+        return """
+            QMenu {
+                background-color: #ffffff;
+                border: 1px solid #d1d5db;
+                padding: 5px;
+                border-radius: 8px;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            QMenu::item {
+                color: #4b5563;
+                padding: 8px 25px;
+                margin: 2px;
+                border-radius: 4px;
+                font-size: 13px;
+                min-width: 150px;
+            }
+            QMenu::item:selected {
+                background-color: #f3f4f6;
+                color: #111827;
+            }
+            QMenu::item:disabled {
+                color: #9ca3af;
+            }
+            QMenu::icon {
+                padding-left: 10px;
+            }
+        """
+
+    def create_menu_button(self, icon, text, action, tooltip, submenus=None):
+        """
+        Crée un bouton de menu standardisé
+        """
+        button = QPushButton(f"{icon} {text}")
+        button.setFixedHeight(36)
+        button.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #4b5563;
+                border: none;
+                font-size: 14px;
+                padding: 5px 10px;
+                border-radius: 4px;
+                transition: all 0.2s ease;
+            }
+            QPushButton:hover {
+                background-color: #e5e7eb;
+                color: #1f2937;
+                transform: translateY(-1px);
+            }
+        """)
+        button.setToolTip(f"<b>{text}</b><br>{tooltip}")
+        
+        if action:
+            button.clicked.connect(lambda: self.check_pro_mode(action))
+        
+        if submenus:
+            menu = QMenu()
+            menu.setStyleSheet(self.get_menu_stylesheet())  # Utilisation de la nouvelle méthode
+            
+            for submenu_id, submenu_data in submenus.items():
+                if not self.check_menu_access(submenu_data['access_level']):
+                    continue
+                    
+                if submenu_data.get('submenus'):
+                    # Sous-menu imbriqué
+                    submenu = menu.addMenu(f"{submenu_data['icon']} {submenu_data['text']}")
+                    submenu.setStyleSheet(menu.styleSheet())
+                    
+                    for nested_id, nested_data in submenu_data['submenus'].items():
+                        if not self.check_menu_access(nested_data['access_level']):
+                            continue
+                            
+                        act = submenu.addAction(f"{nested_data['icon']} {nested_data['text']}")
+                        act.setToolTip(nested_data['tooltip'])
+                        if nested_data['action']:
+                            act.triggered.connect(lambda _, f=nested_data['action']: self.check_pro_mode(f))
+                else:
+                    # Action simple
+                    act = menu.addAction(f"{submenu_data['icon']} {submenu_data['text']}")
+                    act.setToolTip(submenu_data['tooltip'])
+                    if submenu_data['action']:
+                        act.triggered.connect(lambda _, f=submenu_data['action']: self.check_pro_mode(f))
+            
+            button.setMenu(menu)
+        
+        return button
+
+
+
+    def open_menu_customizer(self):
+        """
+        Ouvre une fenêtre modale pour personnaliser les menus visibles
+        """
+        dialog = QDialog(self)
+        dialog.setWindowTitle(self.tr("Customize Menu"))
+        dialog.setMinimumSize(600, 400)
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #f8fafc;
+                border-radius: 8px;
+            }
+            QListWidget {
+                background-color: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 4px;
+            }
+            QPushButton {
+                background-color: #2563eb;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+        """)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Liste des menus disponibles
+        label = QLabel(self.tr("Select which menu items to display:"))
+        layout.addWidget(label)
+        
+        self.menu_list_widget = QListWidget()
+        self.menu_list_widget.setSelectionMode(QListWidget.MultiSelection)
+        
+        for menu_id, menu_data in self.full_menu_structure.items():
+            item = QListWidgetItem(f"{menu_data['icon']} {menu_data['text']}")
+            item.setData(Qt.UserRole, menu_id)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Checked if self.menu_config['visible_menus'].get(menu_id, True) else Qt.Unchecked)
+            self.menu_list_widget.addItem(item)
+        
+        layout.addWidget(self.menu_list_widget)
+        
+        # Boutons
+        button_layout = QHBoxLayout()
+        
+        save_button = QPushButton(self.tr("Save"))
+        save_button.clicked.connect(lambda: self.save_menu_customization(dialog))
+        button_layout.addWidget(save_button)
+        
+        reset_button = QPushButton(self.tr("Reset to Default"))
+        reset_button.clicked.connect(self.reset_menu_customization)
+        button_layout.addWidget(reset_button)
+        
+        cancel_button = QPushButton(self.tr("Cancel"))
+        cancel_button.clicked.connect(dialog.reject)
+        button_layout.addWidget(cancel_button)
+        
+        layout.addLayout(button_layout)
+        
+        dialog.exec_()
+
+    def save_menu_customization(self, dialog):
+        """
+        Sauvegarde la configuration personnalisée du menu
+        """
+        new_visibility = {}
+        
+        for i in range(self.menu_list_widget.count()):
+            item = self.menu_list_widget.item(i)
+            menu_id = item.data(Qt.UserRole)
+            new_visibility[menu_id] = item.checkState() == Qt.Checked
+        
+        self.menu_config['visible_menus'] = new_visibility
+        self.save_menu_config()
+        
+        # Recréer le menu avec la nouvelle configuration
+        self.recreate_top_menu()
+        
+        dialog.accept()
+        
+        QMessageBox.information(
+            self,
+            self.tr("Success"),
+            self.tr("Menu customization saved. Restart the application to see all changes."),
+            QMessageBox.Ok
+        )
+
+    def reset_menu_customization(self):
+        """
+        Réinitialise la configuration du menu aux valeurs par défaut
+        """
+        self.menu_config['visible_menus'] = {
+            menu_id: menu_data.get('default_visible', True) 
+            for menu_id, menu_data in self.full_menu_structure.items()
+        }
+        
+        # Mettre à jour la liste
+        for i in range(self.menu_list_widget.count()):
+            item = self.menu_list_widget.item(i)
+            menu_id = item.data(Qt.UserRole)
+            default_visible = self.full_menu_structure[menu_id].get('default_visible', True)
+            item.setCheckState(Qt.Checked if default_visible else Qt.Unchecked)
+
+    def recreate_top_menu(self):
+        """
+        Recrée le menu top avec la configuration actuelle
+        """
+        # Sauvegarder la position de la fenêtre
+        pos = self.pos()
+        
+        # Supprimer l'ancien menu
+        self.top_menu.deleteLater()
+        
+        # Recréer le menu
+        self.create_top_menu()
+        
+        # Restaurer la position
+        self.move(pos)
+
+
+
+
+
+
 
     def open_plan(self, plan_type):
         """
@@ -5048,6 +5912,20 @@ class Browser(QMainWindow):
             print("Opening Invoices & Billing")
         else:
             self.check_pro_mode(lambda: None)
+    def open_invoices(self):
+        tab_name = self.tr("🧠 Invoice")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, '🧠 Invoice') or self.invoice is None:
+            from Installsweb.invoice_ninja import MainWindow
+            self.invoice = MainWindow()
+
+        self.add_custom_tab(self.invoice, tab_name, "resources/icons/management.ico")
+   
 
     def open_trader(self):
         """Ouvre les outils de trading"""
@@ -5055,6 +5933,1069 @@ class Browser(QMainWindow):
             print("Opening Trader Tools")
         else:
             self.check_pro_mode(lambda: None)
+
+
+    def open_trader(self):
+        tab_name = self.tr("🧠 Trade")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, '🧠 Trade') or self.management is None:
+            from Installsweb.freqtrade import BotManager
+            self.freqtrade = BotManager()
+
+        self.add_custom_tab(self.freqtrade, tab_name, "resources/icons/management.ico")
+   
+
+
+
+    def create_top_menu1(self):
+        """
+        Crée une barre de menu supérieure avec support des modes d'accès et personnalisation
+        """
+        # Initialisation de l'état utilisateur
+        self.is_user_logged_in = False
+        self.user_access_level = "basic"  # basic/premium/enterprise
+        self.current_username = "Guest"
+        
+        # Charger l'état de connexion et le niveau d'accès depuis la base de données
+        self.load_session_state()
+        self.load_user_access_level()  # Nouvelle méthode à implémenter
+        
+        # Configuration du menu par défaut
+        self.menu_config = {
+            'visible_buttons': {
+                'Tools': False,
+                'Data': False,
+                'Support': False
+            },
+            'custom_visible_items': {
+                'top_menu': [],  # Liste des identifiants visibles
+                'user_menu': []   # Liste des identifiants visibles
+            }
+        }
+        self.load_menu_config()
+
+        # Création du conteneur principal
+        self.top_menu = QFrame()
+        self.top_menu.setFixedHeight(50)
+        self.top_menu.setStyleSheet("""
+            QFrame {
+                background-color: #f8fafc;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        """)
+
+        # Layout principal
+        self.top_menu_layout = QHBoxLayout(self.top_menu)
+        self.top_menu_layout.setContentsMargins(5, 5, 5, 5)
+        self.top_menu_layout.setSpacing(10)
+
+        # --- Logo / Titre de l'application ---
+        self.app_title = QLabel("Leopardo AI")
+        self.app_title.setStyleSheet("""
+            QLabel {
+                color: #2563eb;
+                font-size: 18px;
+                font-weight: bold;
+                padding: 0 15px;
+            }
+        """)
+        self.top_menu_layout.addWidget(self.app_title)
+
+        # --- Barre de menu ---
+        self.menu_bar = QHBoxLayout()
+        self.menu_bar.setSpacing(5)
+        
+        # Structure complète des éléments de menu avec niveaux d'accès
+        menu_items = [
+            # Home - accessible à tous
+            ("🏠", self.tr("Home"), "home", self.open_home, self.tr("Main dashboard"), [], "basic"),
+            
+            # Marketing - différents niveaux d'accès selon les sous-menus
+            ("📢", self.tr("Marketing"), "marketing", None, self.tr("Marketing tools"), [
+                ("🎬", self.tr("My Media"), "media", self.add_media_page, self.tr("Media Management"), [], "basic"),
+                ("🌐", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), [], "premium"),
+                ("🤖", self.tr("Marketing Robots"), "marketing_robots", self.open_marketing, self.tr("Marketing automation tools"), [], "premium"),
+                ("📰", self.tr("Ads Manager"), "ads_manager", self.open_ads_manager, self.tr("Manage advertising campaigns"), [], "enterprise"),
+                ("⏳", self.tr("Campaign Scheduler"), "campaign_scheduler", self.open_sheduling_window, self.tr("Schedule marketing campaigns"), [], "enterprise"),
+                ("✉️", self.tr("Email & SMS"), "email_sms", self.open_email_sms, self.tr("Email and SMS marketing tools"), [], "premium"),
+                ("🖋️", self.tr("Content Generator"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), [], "basic"),
+            ], "basic"),
+            
+            # Run - accessible à tous
+            ("⏯️", self.tr("Run"), "run", self.open_manuelle_window, self.tr("Run Now"), [], "basic"),
+            
+            # Sales - différents niveaux d'accès
+            ("💰", self.tr("Sales"), "sales", None, self.tr("Sales tools"), [
+                ("📂", self.tr("Project Management"), "project_management", self.open_management, self.tr("Manage sales projects"), [], "basic"),
+                ("🛠️", self.tr("SAV"), "sav", self.open_sav, self.tr("After-sales service management"), [], "premium"),
+                ("🔗", self.tr("Short Links & Trackers"), "links", self.open_links_window, self.tr("Manage and track links"), [], "premium"),
+                ("👥", self.tr("Prospection & Relances"), "contact", self.open_contacts_window, self.tr("Contact list and follow-ups"), [], "enterprise"),
+                ("📑", self.tr("DMS & Quotes"), "dms_quotes", self.open_dms_quotes, self.tr("Document management and quotes"), [], "premium"),
+                ("📊", self.tr("CRM"), "crm", self.open_crm, self.tr("Customer relationship management"), [], "enterprise"),
+                ("📝", self.tr("Sales Prompts/Templates"), "prompts", self.open_prompts_window, self.tr("Sales templates and prompts"), [], "premium"),
+            ], "basic"),
+            
+            # AI Agent - différents niveaux d'accès
+            ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
+                ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), [], "premium"),
+                ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), [], "enterprise"),
+                ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), [], "enterprise"),
+                ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), [], "enterprise"),
+                ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), [], "enterprise"),
+            ], "premium"),
+            
+            # Finance - différents niveaux d'accès
+            ("💸", self.tr("Finance"), "finance", None, self.tr("Financial tools"), [
+                ("🧾", self.tr("Invoices & Billing"), "invoices", self.open_invoices, self.tr("Invoice management"), [], "premium"),
+                ("📈", self.tr("Trader"), "trader", self.open_trader, self.tr("Trading tools"), [], "enterprise"),
+            ], "premium"),
+            
+            # Upgrade - accessible à tous
+            ("🚀", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), [], "basic"),
+        ]
+
+        # Dictionnaire pour stocker tous les éléments de menu avec leurs identifiants
+        self.all_menu_items = {}
+        self.menu_buttons = []
+        self.sub_menus = {}
+        self.current_open_menu = None
+        self.menu_button_refs = {}
+
+        # Création des boutons de menu principal
+        for icon, text, identifier, action, tooltip, sub_items, access_level in menu_items:
+            # Enregistrer l'élément de menu
+            self.all_menu_items[identifier] = {
+                'icon': icon,
+                'text': text,
+                'action': action,
+                'tooltip': tooltip,
+                'sub_items': sub_items,
+                'access_level': access_level,
+                'type': 'top_menu'
+            }
+            
+            # Créer le bouton seulement s'il est dans la config ou visible par défaut
+            if identifier in self.menu_config['custom_visible_items']['top_menu'] or not self.menu_config['custom_visible_items']['top_menu']:
+                button = QPushButton(f"{icon} {text}")
+                button.setFixedHeight(36)
+                button.setObjectName(f"menu_{identifier}")  # Pour un accès facile
+                button.setStyleSheet("""
+                    QPushButton {
+                        background-color: transparent;
+                        color: #4b5563;
+                        border: none;
+                        font-size: 14px;
+                        padding: 5px 10px;
+                        border-radius: 4px;
+                        transition: all 0.2s ease;
+                    }
+                    QPushButton:hover {
+                        background-color: #e5e7eb;
+                        color: #1f2937;
+                        transform: translateY(-1px);
+                    }
+                    QPushButton:disabled {
+                        color: #9ca3af;
+                    }
+                """)
+                button.setToolTip(f"<b>{text}</b><br>{tooltip}")
+                
+                # Vérifier l'accès et désactiver si nécessaire
+                if not self.check_menu_access(identifier, access_level):
+                    button.setDisabled(True)
+                    button.setToolTip(f"<b>{text}</b><br>{self.tr('Available in')} {access_level.capitalize()} {self.tr('mode')}")
+                
+                # Connecter l'action
+                if action:
+                    button.clicked.connect(lambda _, f=action: self.check_access_and_execute(f, access_level))
+                
+                if sub_items:
+                    menu = QMenu()
+                    menu.setStyleSheet("""
+                        QMenu {
+                            background-color: #ffffff;
+                            border: 1px solid #d1d5db;
+                            padding: 5px;
+                            border-radius: 8px;
+                            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                        }
+                        QMenu::item {
+                            color: #4b5563;
+                            padding: 8px 25px;
+                            margin: 2px;
+                            border-radius: 4px;
+                            font-size: 13px;
+                            min-width: 150px;
+                        }
+                        QMenu::item:selected {
+                            background-color: #f3f4f6;
+                            color: #111827;
+                        }
+                        QMenu::item:disabled {
+                            color: #9ca3af;
+                        }
+                        QMenu::icon {
+                            padding-left: 10px;
+                        }
+                    """)
+
+                    for sub_icon, sub_text, sub_id, sub_action, sub_tooltip, nested_sub_items, sub_access_level in sub_items:
+                        # Enregistrer les sous-éléments
+                        self.all_menu_items[sub_id] = {
+                            'icon': sub_icon,
+                            'text': sub_text,
+                            'action': sub_action,
+                            'tooltip': sub_tooltip,
+                            'access_level': sub_access_level,
+                            'type': 'sub_menu',
+                            'parent': identifier
+                        }
+                        
+                        if nested_sub_items:
+                            submenu = QMenu(sub_text)
+                            submenu.setStyleSheet(menu.styleSheet())
+                            
+                            for nest_icon, nest_text, nest_id, nest_action, nest_tooltip, _, nest_access_level in nested_sub_items:
+                                # Enregistrer les sous-sous-éléments
+                                self.all_menu_items[nest_id] = {
+                                    'icon': nest_icon,
+                                    'text': nest_text,
+                                    'action': nest_action,
+                                    'tooltip': nest_tooltip,
+                                    'access_level': nest_access_level,
+                                    'type': 'nested_sub_menu',
+                                    'parent': sub_id
+                                }
+                                
+                                action = submenu.addAction(f"{nest_icon} {nest_text}")
+                                action.setToolTip(nest_tooltip)
+                                if nest_action:
+                                    if not self.check_menu_access(nest_id, nest_access_level):
+                                        action.setEnabled(False)
+                                        action.setToolTip(f"<b>{nest_text}</b><br>{self.tr('Available in')} {nest_access_level.capitalize()} {self.tr('mode')}")
+                                    else:
+                                        action.triggered.connect(lambda _, f=nest_action: self.check_access_and_execute(f, nest_access_level))
+                            
+                            menu.addMenu(submenu)
+                        else:
+                            action = menu.addAction(f"{sub_icon} {sub_text}")
+                            action.setToolTip(sub_tooltip)
+                            if sub_action:
+                                if not self.check_menu_access(sub_id, sub_access_level):
+                                    action.setEnabled(False)
+                                    action.setToolTip(f"<b>{sub_text}</b><br>{self.tr('Available in')} {sub_access_level.capitalize()} {self.tr('mode')}")
+                                else:
+                                    action.triggered.connect(lambda _, f=sub_action: self.check_access_and_execute(f, sub_access_level))
+                    
+                    button.setMenu(menu)
+                
+                self.menu_bar.addWidget(button)
+                self.menu_buttons.append(button)
+                self.menu_button_refs[identifier] = button
+
+        # Bouton de personnalisation du menu
+        self.customize_menu_button = QPushButton("⚙️")
+        self.customize_menu_button.setFixedSize(30, 30)
+        self.customize_menu_button.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #4b5563;
+                border: none;
+                font-size: 16px;
+                border-radius: 15px;
+                transition: all 0.2s ease;
+            }
+            QPushButton:hover {
+                background-color: #e5e7eb;
+                color: #1f2937;
+                transform: rotate(30deg);
+            }
+        """)
+        self.customize_menu_button.setToolTip(self.tr("Customize menu items"))
+        self.customize_menu_button.clicked.connect(self.open_menu_customization_dialog)
+        self.menu_bar.addWidget(self.customize_menu_button)
+
+        self.top_menu_layout.addLayout(self.menu_bar)
+        self.top_menu_layout.addStretch()
+
+        # --- Section de notification ---
+        self.create_notif()
+        self.top_menu_layout.addStretch()
+
+        # --- Contrôles de fenêtre ---
+        self.control_buttons_layout = QHBoxLayout()
+        self.control_buttons_layout.setSpacing(5)
+
+        minimize_button = QPushButton("—")
+        minimize_button.setFixedSize(26, 26)
+        minimize_button.setStyleSheet(self.get_control_button_style("minimize"))
+        minimize_button.clicked.connect(self.minimize_window)
+
+        maximize_button = QPushButton("□")
+        maximize_button.setFixedSize(26, 26)
+        maximize_button.setStyleSheet(self.get_control_button_style("maximize"))
+        maximize_button.clicked.connect(self.maximize_window)
+
+        close_button = QPushButton("✕")
+        close_button.setFixedSize(26, 26)
+        close_button.setStyleSheet(self.get_control_button_style("close"))
+        close_button.clicked.connect(self.close_window)
+
+        self.control_buttons_layout.addWidget(minimize_button)
+        self.control_buttons_layout.addWidget(maximize_button)
+        self.control_buttons_layout.addWidget(close_button)
+
+        # --- Section utilisateur ---
+        self.user_button = QPushButton(f"👤 {self.current_username}")
+        self.user_button.setFixedHeight(36)
+        self.user_button.setStyleSheet("""
+            QPushButton {
+                background-color: #ffffff;
+                color: #4b5563;
+                border: 1px solid #d1d5db;
+                font-size: 14px;
+                padding: 5px 15px 5px 10px;
+                border-radius: 18px;
+                min-width: 100px;
+                transition: all 0.2s ease;
+            }
+            QPushButton:hover {
+                background-color: #f3f4f6;
+                transform: translateY(-1px);
+            }
+        """)
+
+        # Menu utilisateur avec niveaux d'accès
+        self.user_menu = QMenu()
+        self.user_menu.setStyleSheet("""
+            QMenu {
+                background-color: #ffffff;
+                border: 1px solid #d1d5db;
+                padding: 8px;
+                border-radius: 12px;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                margin-top: 5px;
+            }
+            QMenu::item {
+                color: #4b5563;
+                padding: 10px 25px;
+                margin: 2px;
+                border-radius: 6px;
+                font-size: 13px;
+                min-width: 180px;
+            }
+            QMenu::item:selected {
+                background-color: #f3f4f6;
+                color: #111827;
+            }
+            QMenu::separator {
+                height: 1px;
+                background: #e5e7eb;
+                margin: 8px 2px;
+            }
+            QMenu::icon {
+                padding-left: 10px;
+            }
+            QMenu::item:disabled {
+                color: #9ca3af;
+            }
+        """)
+        
+        # Enregistrer les éléments du menu utilisateur
+        user_menu_items = [
+            # Actions principales
+            ("🔑", self.tr("Login"), "user_login", self.user_login, self.tr("Login to your account"), "basic"),
+            ("🚪", self.tr("Logout"), "user_logout", self.user_logout, self.tr("Logout from your account"), "basic"),
+            ("separator", "", "", None, "", ""),
+            
+            # Section Plans
+            ("📋", self.tr("Plans"), "plans_section", None, self.tr("Account plans"), "basic", True),  # Section désactivée
+            ("📢", self.tr("Marketing Plan"), "marketing_plan", lambda: self.open_plan("marketing"), self.tr("Marketing plan details"), "basic"),
+            ("💰", self.tr("Sales Plan"), "sales_plan", lambda: self.open_plan("sales"), self.tr("Sales plan details"), "basic"),
+            ("separator", "", "", None, "", ""),
+            
+            # Mise à jour
+            ("♻️", self.tr("Update"), "update", self.open_user_settings, self.tr("Check for updates"), "basic"),
+            
+            # Settings menu
+            ("⚙️", self.tr("Settings"), "settings", None, self.tr("Application settings"), "basic", [
+                ("🔌", self.tr("Add-On"), "add-on", self.add_on_page, self.tr("Add app"), "basic"),
+                ("📡", self.tr("Remote"), "remote", self.open_telecommande_window, self.tr("Remote control"), "premium"),
+                ("📦", self.tr("Installer"), "Installer", self.open_installer_window, self.tr("Add app"), "enterprise"),
+                ("🌐", self.tr("Connection"), "online_connect", self.connect_via_ssh, self.tr("Remote connection settings"), "premium"),
+                ("🗂️", self.tr("Instances"), "instances", self.open_instance, self.tr("Manage instances"), "enterprise"),
+                ("💎", self.tr("Upgrade"), "upgrade", self.open_upgrade_window, self.tr("Upgrade options"), "basic"),
+                ("📞", self.tr("Contact"), "contact", self.open_contact_window, self.tr("Contact us"), "basic"),
+                ("♟️", self.tr("Strategies"), "strategies", self.open_strategies_window, self.tr("Possible strategies"), "premium"),
+            ]),
+            
+            # Section compte
+            ("👤", self.tr("Account"), "account_section", None, self.tr("Account settings"), "basic", True),  # Section désactivée
+            ("👥", self.tr("Switch Account"), "switch_account", self.switch_account, self.tr("Switch between accounts"), "premium"),
+            ("🛒", self.tr("Subscription"), "subscription", self.open_subscription, self.tr("Manage subscription"), "basic"),
+            ("🎭", self.tr("My Persona"), "my_persona", self.open_my_persona, self.tr("Personalize your profile"), "premium"),
+            
+            # Menu Langue
+            ("🌍", self.tr("Language"), "language", None, self.tr("Change application language"), "basic", [
+                ("🗼", self.tr("French"), "french", lambda: self.switch_language("fr"), self.tr("French language"), "basic"),
+                ("🏰", self.tr("English"), "english", lambda: self.switch_language("en"), self.tr("English language"), "basic"),
+                ("🕋", self.tr("Arabic"), "arabic", lambda: self.switch_language("ar"), self.tr("Arabic language"), "basic"),
+                ("🕌", self.tr("Turkish"), "turkish", lambda: self.switch_language("tr"), self.tr("Turkish language"), "basic"),
+                ("🏖️", self.tr("Portuguese"), "portuguese", lambda: self.switch_language("pt"), self.tr("Portuguese language"), "basic"),
+            ]),
+            
+            # Personnalisation du menu utilisateur
+            ("🎨", self.tr("Customize Menu"), "customize_user_menu", self.open_user_menu_customization_dialog, self.tr("Customize your user menu items"), "basic"),
+        ]
+        
+        # Création du menu utilisateur
+        self.user_menu_actions = {}
+        for item in user_menu_items:
+            icon, text, identifier, action, tooltip, *rest = item
+            
+            if identifier == "separator":
+                self.user_menu.addSeparator()
+                continue
+                
+            # Enregistrer l'élément
+            self.all_menu_items[identifier] = {
+                'icon': icon,
+                'text': text,
+                'action': action,
+                'tooltip': tooltip,
+                'type': 'user_menu',
+                'access_level': rest[0] if rest else "basic"
+            }
+            
+            # Vérifier si c'est une section désactivée
+            is_section = len(rest) > 1 and isinstance(rest[1], bool) and rest[1]
+            
+            # Vérifier si c'est un sous-menu
+            is_submenu = len(rest) > 1 and isinstance(rest[1], list)
+            
+            # Vérifier si l'élément doit être visible
+            if identifier not in self.menu_config['custom_visible_items']['user_menu'] and self.menu_config['custom_visible_items']['user_menu']:
+                continue
+                
+            if is_section:
+                act = self.user_menu.addAction(f"{icon} {text}")
+                act.setEnabled(False)
+                self.user_menu_actions[identifier] = act
+            elif is_submenu:
+                submenu_items = rest[1]
+                submenu = self.user_menu.addMenu(f"{icon} {text}")
+                submenu.setStyleSheet(self.user_menu.styleSheet())
+                
+                for sub_icon, sub_text, sub_id, sub_action, sub_tooltip, sub_access_level in submenu_items:
+                    # Enregistrer les sous-éléments
+                    self.all_menu_items[sub_id] = {
+                        'icon': sub_icon,
+                        'text': sub_text,
+                        'action': sub_action,
+                        'tooltip': sub_tooltip,
+                        'access_level': sub_access_level,
+                        'type': 'user_sub_menu',
+                        'parent': identifier
+                    }
+                    
+                    # Vérifier si l'élément doit être visible
+                    if sub_id not in self.menu_config['custom_visible_items']['user_menu'] and self.menu_config['custom_visible_items']['user_menu']:
+                        continue
+                    
+                    act = submenu.addAction(f"{sub_icon} {sub_text}")
+                    act.setToolTip(sub_tooltip)
+                    if sub_action:
+                        if not self.check_menu_access(sub_id, sub_access_level):
+                            act.setEnabled(False)
+                            act.setToolTip(f"<b>{sub_text}</b><br>{self.tr('Available in')} {sub_access_level.capitalize()} {self.tr('mode')}")
+                        else:
+                            act.triggered.connect(lambda _, f=sub_action: self.check_access_and_execute(f, sub_access_level))
+                    
+                    self.user_menu_actions[sub_id] = act
+            else:
+                act = self.user_menu.addAction(f"{icon} {text}")
+                act.setToolTip(tooltip)
+                if action:
+                    if not self.check_menu_access(identifier, rest[0]):
+                        act.setEnabled(False)
+                        act.setToolTip(f"<b>{text}</b><br>{self.tr('Available in')} {rest[0].capitalize()} {self.tr('mode')}")
+                    else:
+                        act.triggered.connect(lambda _, f=action: self.check_access_and_execute(f, rest[0]))
+                
+                self.user_menu_actions[identifier] = act
+        
+        self.user_button.setMenu(self.user_menu)
+        self.top_menu_layout.addWidget(self.user_button)
+
+        # Ajouter les contrôles de fenêtre
+        self.top_menu_layout.addLayout(self.control_buttons_layout)
+
+        # Mettre à jour l'interface en fonction de l'état de connexion
+        self.update_user_profile_section()
+        self.update_menu_visibility()
+
+        # Ajouter le menu top au layout principal
+        self.main_layout.insertWidget(0, self.top_menu)
+
+        # Mettre à jour les badges de notification
+        self.update_notification_count()
+        self.update_message_count()
+
+    def check_menu_access(self, menu_id, required_level):
+        """
+        Vérifie si l'utilisateur a accès à un menu spécifique en fonction de son niveau d'accès
+        """
+        access_levels = {'basic': 1, 'premium': 2, 'enterprise': 3}
+        user_level = access_levels.get(self.user_access_level, 0)
+        required_level_value = access_levels.get(required_level, 99)
+        
+        return user_level >= required_level_value
+
+    def check_access_and_execute(self, action_function, required_level):
+        """
+        Vérifie le niveau d'accès avant d'exécuter une action
+        """
+        if self.check_menu_access("dummy", required_level):
+            action_function()
+        else:
+            self.show_access_denied_message(required_level)
+
+    def show_access_denied_message(self, required_level):
+        """
+        Affiche un message indiquant que la fonctionnalité n'est pas accessible
+        """
+        QMessageBox.information(
+            self,
+            self.tr("Access Restricted"),
+            self.tr("This feature requires {} access. Please upgrade your account.").format(required_level.capitalize()),
+            QMessageBox.Ok
+        )
+        self.open_upgrade_window()
+
+    def open_menu_customization_dialog(self):
+        """
+        Ouvre une boîte de dialogue pour personnaliser les menus
+        """
+        dialog = QDialog(self)
+        dialog.setWindowTitle(self.tr("Customize Menu"))
+        dialog.setMinimumSize(800, 600)
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #ffffff;
+                border-radius: 12px;
+            }
+            QListWidget {
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                background-color: #ffffff;
+            }
+            QListWidget::item {
+                padding: 10px;
+                border-bottom: 1px solid #f1f5f9;
+            }
+            QListWidget::item:selected {
+                background-color: #eff6ff;
+                color: #1e40af;
+            }
+            QCheckBox {
+                spacing: 10px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 5px;
+            }
+            QTabBar::tab {
+                padding: 8px 15px;
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+            }
+            QTabBar::tab:selected {
+                background-color: #eff6ff;
+                color: #1e40af;
+                border-bottom: 2px solid #3b82f6;
+            }
+        """)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Onglets pour les différents menus
+        tab_widget = QTabWidget()
+        
+        # Onglet Menu Principal
+        top_menu_tab = QWidget()
+        top_menu_layout = QVBoxLayout(top_menu_tab)
+        
+        top_menu_label = QLabel(self.tr("<h3>Main Menu Items</h3>"))
+        top_menu_label.setStyleSheet("margin-bottom: 15px;")
+        top_menu_layout.addWidget(top_menu_label)
+        
+        top_menu_list = QListWidget()
+        top_menu_list.setSelectionMode(QListWidget.MultiSelection)
+        
+        # Ajouter les éléments du menu principal
+        for identifier, item in self.all_menu_items.items():
+            if item['type'] == 'top_menu':
+                list_item = QListWidgetItem(f"{item['icon']} {item['text']} ({identifier})")
+                list_item.setData(Qt.UserRole, identifier)
+                list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)
+                
+                # Vérifier si l'élément est actuellement visible
+                if (not self.menu_config['custom_visible_items']['top_menu'] or 
+                    identifier in self.menu_config['custom_visible_items']['top_menu']):
+                    list_item.setCheckState(Qt.Checked)
+                else:
+                    list_item.setCheckState(Qt.Unchecked)
+                
+                top_menu_list.addItem(list_item)
+        
+        top_menu_layout.addWidget(top_menu_list)
+        tab_widget.addTab(top_menu_tab, self.tr("Main Menu"))
+        
+        # Onglet Menu Utilisateur
+        user_menu_tab = QWidget()
+        user_menu_layout = QVBoxLayout(user_menu_tab)
+        
+        user_menu_label = QLabel(self.tr("<h3>User Menu Items</h3>"))
+        user_menu_label.setStyleSheet("margin-bottom: 15px;")
+        user_menu_layout.addWidget(user_menu_label)
+        
+        user_menu_list = QListWidget()
+        user_menu_list.setSelectionMode(QListWidget.MultiSelection)
+        
+        # Ajouter les éléments du menu utilisateur
+        for identifier, item in self.all_menu_items.items():
+            if item['type'] in ['user_menu', 'user_sub_menu']:
+                # Pour les sous-menus, ajouter une indentation
+                prefix = "    " if item['type'] == 'user_sub_menu' else ""
+                list_item = QListWidgetItem(f"{prefix}{item['icon']} {item['text']} ({identifier})")
+                list_item.setData(Qt.UserRole, identifier)
+                list_item.setFlags(list_item.flags() | Qt.ItemIsUserCheckable)
+                
+                # Vérifier si l'élément est actuellement visible
+                if (not self.menu_config['custom_visible_items']['user_menu'] or 
+                    identifier in self.menu_config['custom_visible_items']['user_menu']):
+                    list_item.setCheckState(Qt.Checked)
+                else:
+                    list_item.setCheckState(Qt.Unchecked)
+                
+                user_menu_list.addItem(list_item)
+        
+        user_menu_layout.addWidget(user_menu_list)
+        tab_widget.addTab(user_menu_tab, self.tr("User Menu"))
+        
+        layout.addWidget(tab_widget)
+        
+        # Boutons de la boîte de dialogue
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel | QDialogButtonBox.RestoreDefaults)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        button_box.button(QDialogButtonBox.RestoreDefaults).clicked.connect(lambda: self.restore_default_menu_settings(dialog))
+        
+        # Style des boutons
+        button_box.setStyleSheet("""
+            QDialogButtonBox {
+                margin-top: 15px;
+            }
+            QPushButton {
+                padding: 8px 15px;
+                border-radius: 6px;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #f3f4f6;
+            }
+        """)
+        
+        layout.addWidget(button_box)
+        
+        # Exécuter la boîte de dialogue
+        if dialog.exec_() == QDialog.Accepted:
+            # Sauvegarder les sélections pour le menu principal
+            top_menu_selected = []
+            for i in range(top_menu_list.count()):
+                item = top_menu_list.item(i)
+                if item.checkState() == Qt.Checked:
+                    identifier = item.data(Qt.UserRole)
+                    top_menu_selected.append(identifier)
+            
+            # Sauvegarder les sélections pour le menu utilisateur
+            user_menu_selected = []
+            for i in range(user_menu_list.count()):
+                item = user_menu_list.item(i)
+                if item.checkState() == Qt.Checked:
+                    identifier = item.data(Qt.UserRole)
+                    user_menu_selected.append(identifier)
+            
+            # Mettre à jour la configuration
+            self.menu_config['custom_visible_items']['top_menu'] = top_menu_selected if top_menu_selected else []
+            self.menu_config['custom_visible_items']['user_menu'] = user_menu_selected if user_menu_selected else []
+            
+            # Sauvegarder et recharger le menu
+            self.save_menu_config()
+            self.reload_menu()
+
+    def restore_default_menu_settings(self, dialog):
+        """
+        Réinitialise les menus à leurs paramètres par défaut
+        """
+        # Demander confirmation
+        reply = QMessageBox.question(
+            dialog,
+            self.tr("Restore Defaults"),
+            self.tr("Are you sure you want to restore all menu items to their default visibility?"),
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Réinitialiser la configuration
+            self.menu_config['custom_visible_items'] = {
+                'top_menu': [],
+                'user_menu': []
+            }
+            
+            # Sauvegarder et fermer la boîte de dialogue
+            self.save_menu_config()
+            dialog.accept()
+            
+            # Recharger le menu
+            self.reload_menu()
+
+    def reload_menu(self):
+        """
+        Recharge le menu avec la nouvelle configuration
+        """
+        # Supprimer l'ancien menu
+        self.top_menu.setParent(None)
+        self.top_menu.deleteLater()
+        
+        # Recréer le menu
+        self.create_top_menu()
+
+    def load_user_access_level(self):
+        """
+        Charge le niveau d'accès de l'utilisateur depuis la base de données
+        """
+        # Implémentez cette méthode pour charger le niveau d'accès depuis votre DB
+        # Par exemple:
+        try:
+            # Exemple de code - à adapter à votre système
+            # cursor = self.db.cursor()
+            # cursor.execute("SELECT access_level FROM users WHERE username = ?", (self.current_username,))
+            # result = cursor.fetchone()
+            # self.user_access_level = result[0] if result else "basic"
+            
+            # Pour l'exemple, nous utilisons une valeur par défaut
+            self.user_access_level = "basic"
+        except Exception as e:
+            print(f"Error loading user access level: {e}")
+            self.user_access_level = "basic"
+
+    def save_menu_config(self):
+        """
+        Sauvegarde la configuration du menu dans la base de données ou un fichier
+        """
+        # Implémentez cette méthode pour sauvegarder la configuration
+        # Par exemple:
+        try:
+            # Exemple avec SQLite
+            # cursor = self.db.cursor()
+            # cursor.execute("""
+            #     INSERT OR REPLACE INTO menu_config (user_id, config) 
+            #     VALUES (?, ?)
+            # """, (self.user_id, json.dumps(self.menu_config)))
+            # self.db.commit()
+            
+            # Pour l'exemple, nous imprimons simplement la configuration
+            print("Saving menu config:", self.menu_config)
+        except Exception as e:
+            print(f"Error saving menu config: {e}")
+
+    def load_menu_config(self):
+        """
+        Charge la configuration du menu depuis la base de données ou un fichier
+        """
+        # Implémentez cette méthode pour charger la configuration
+        # Par exemple:
+        try:
+            # Exemple avec SQLite
+            # cursor = self.db.cursor()
+            # cursor.execute("SELECT config FROM menu_config WHERE user_id = ?", (self.user_id,))
+            # result = cursor.fetchone()
+            # if result:
+            #     self.menu_config = json.loads(result[0])
+            
+            # Pour l'exemple, nous utilisons la configuration par défaut
+            pass
+        except Exception as e:
+            print(f"Error loading menu config: {e}")
+
+
+
+    def create_top_menuu(self):
+        """
+        Crée une barre de menu supérieure complète avec gestion des accès
+        """
+        # Initialisation
+        self.is_user_logged_in = False
+        self.user_access_level = "basic"  # basic/premium/enterprise
+        self.current_username = "Guest"
+        
+        # Chargement configuration
+        self.load_menu_config()
+
+        # Création du conteneur
+        self.top_menu = QFrame()
+        self.top_menu.setFixedHeight(50)
+        self.top_menu.setStyleSheet("""
+            QFrame {
+                background-color: #f8fafc;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        """)
+
+        # Layout principal
+        self.top_menu_layout = QHBoxLayout(self.top_menu)
+        self.top_menu_layout.setContentsMargins(5, 5, 5, 5)
+        self.top_menu_layout.setSpacing(10)
+
+        # Logo
+        self.app_title = QLabel("Leopardo AI")
+        self.top_menu_layout.addWidget(self.app_title)
+
+        # Barre de menu
+        self.menu_bar = QHBoxLayout()
+        self.setup_main_menu()
+        self.top_menu_layout.addLayout(self.menu_bar)
+        self.top_menu_layout.addStretch()
+
+        # Notification
+        self.setup_notifications()
+
+        # Utilisateur
+        self.setup_user_menu()
+
+        # Contrôles fenêtre
+        self.setup_window_controls()
+
+        self.main_layout.insertWidget(0, self.top_menu)
+
+    def setup_main_menu(self):
+        """Configure le menu principal"""
+        menu_items = [
+            ("🏠", "Home", "home", self.open_home, "basic", []),
+            ("📢", "Marketing", "marketing", None, "basic", [
+                ("🎬", "Media", "media", self.add_media_page, "basic"),
+                ("📰", "Ads", "ads", self.open_ads_manager, "enterprise"),
+            ]),
+            ("💰", "Sales", "sales", None, "basic", [
+                ("📊", "CRM", "crm", self.open_crm, "enterprise"),
+            ]),
+            ("🚀", "Upgrade", "upgrade", self.open_upgrade_window, "basic", []),
+        ]
+
+        for item in menu_items:
+            self.add_menu_button(*item)
+
+    def add_menu_button(self, icon, text, identifier, action, access_level, sub_items):
+        """Ajoute un bouton de menu"""
+        if not self.has_menu_access(identifier, access_level):
+            return
+
+        button = QPushButton(f"{icon} {text}")
+        button.setStyleSheet(self.get_menu_button_style())
+        
+        if action:
+            button.clicked.connect(lambda: self.check_access_and_execute(action, access_level))
+        
+        if sub_items:
+            menu = QMenu()
+            menu.setStyleSheet(self.get_submenu_style())
+            
+            for sub_item in sub_items:
+                self.add_submenu_item(menu, *sub_item)
+            
+            button.setMenu(menu)
+        
+        self.menu_bar.addWidget(button)
+
+    def add_submenu_item(self, menu, icon, text, identifier, action, access_level):
+        """Ajoute un élément de sous-menu"""
+        if not self.has_menu_access(identifier, access_level):
+            return
+
+        act = menu.addAction(f"{icon} {text}")
+        if action:
+            act.triggered.connect(lambda: self.check_access_and_execute(action, access_level))
+
+    def setup_user_menu(self):
+        """Configure le menu utilisateur"""
+        self.user_button = QPushButton(f"👤 {self.current_username}")
+        menu = QMenu()
+        
+        # Items du menu utilisateur
+        user_items = [
+            ("🔑", "Login", "login", self.user_login, "basic"),
+            ("⚙️", "Settings", "settings", None, "basic", [
+                ("💎", "Upgrade", "upgrade", self.open_upgrade_window, "basic"),
+            ]),
+            ("🎨", "Customize", "customize", self.open_menu_customization, "basic"),
+        ]
+        
+        for item in user_items:
+            if len(item) == 5:  # Item simple
+                self.add_user_menu_item(menu, *item[:5])
+            else:  # Sous-menu
+                self.add_user_submenu(menu, *item)
+        
+        self.user_button.setMenu(menu)
+        self.top_menu_layout.addWidget(self.user_button)
+
+    def add_user_submenu(self, parent_menu, icon, text, identifier, action, access_level, sub_items):
+        """Ajoute un sous-menu utilisateur"""
+        if not self.has_menu_access(identifier, access_level):
+            return
+
+        submenu = parent_menu.addMenu(f"{icon} {text}")
+        submenu.setStyleSheet(self.get_submenu_style())
+        
+        for item in sub_items:
+            self.add_user_menu_item(submenu, *item)
+
+    def add_user_menu_item(self, menu, icon, text, identifier, action, access_level):
+        """Ajoute un item au menu utilisateur"""
+        if not self.has_menu_access(identifier, access_level):
+            return
+
+        act = menu.addAction(f"{icon} {text}")
+        if action:
+            act.triggered.connect(lambda: self.check_access_and_execute(action, access_level))
+
+    def setup_notifications(self):
+        """Configure les notifications"""
+        self.notif_button = QPushButton("🔔")
+        self.top_menu_layout.addWidget(self.notif_button)
+
+    def setup_window_controls(self):
+        """Configure les contrôles de fenêtre"""
+        controls = QHBoxLayout()
+        
+        buttons = [
+            ("—", self.minimize_window),
+            ("□", self.maximize_window), 
+            ("✕", self.close_window)
+        ]
+        
+        for text, action in buttons:
+            btn = QPushButton(text)
+            btn.clicked.connect(action)
+            controls.addWidget(btn)
+        
+        self.top_menu_layout.addLayout(controls)
+
+    def open_menu_customization(self):
+        """Ouvre la fenêtre de personnalisation"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Customize Menu")
+        
+        layout = QVBoxLayout()
+        list_widget = QListWidget()
+        
+        # Ajouter les éléments configurables
+        items = ["Home", "Marketing", "Sales", "Upgrade"]
+        for item in items:
+            list_item = QListWidgetItem(item)
+            list_item.setCheckState(Qt.Checked)
+            list_widget.addItem(list_item)
+        
+        layout.addWidget(list_widget)
+        
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+        
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+    def has_menu_access(self, identifier, required_level):
+        """Vérifie si l'utilisateur a accès à un menu"""
+        levels = {"basic": 1, "premium": 2, "enterprise": 3}
+        user_level = levels.get(self.user_access_level, 0)
+        required = levels.get(required_level, 99)
+        return user_level >= required
+
+    def check_access_and_execute(self, action, required_level):
+        """Vérifie l'accès avant exécution"""
+        if self.has_menu_access("any", required_level):
+            action()
+        else:
+            self.show_access_denied(required_level)
+
+    def show_access_denied(self, required_level):
+        """Affiche un message d'accès refusé"""
+        QMessageBox.warning(
+            self,
+            "Access Denied",
+            f"This feature requires {required_level} plan.",
+            QMessageBox.Ok
+        )
+
+    def load_menu_confi1g(self):
+        """Charge la configuration du menu depuis la DB"""
+        try:
+            # Exemple avec SQLite
+            self.db_conn = sqlite3.connect("user_settings.db")
+            cursor = self.db_conn.cursor()
+            
+            # Créer table si inexistante
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS menu_config (
+                    user TEXT PRIMARY KEY,
+                    config TEXT
+                )
+            """)
+            
+            # Charger configuration
+            cursor.execute("SELECT config FROM menu_config WHERE user=?", (self.current_username,))
+            result = cursor.fetchone()
+            
+            if result:
+                self.menu_config = json.loads(result[0])
+            else:
+                self.menu_config = {"version": 1}
+                
+        except Exception as e:
+            print(f"Error loading menu config: {e}")
+            self.menu_config = {}
+
+    def get_menu_button_style(self):
+        """Retourne le style CSS des boutons de menu"""
+        return """
+            QPushButton {
+                background: transparent;
+                border: none;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background: #e2e8f0;
+            }
+        """
+
+    def get_submenu_style(self):
+        """Retourne le style CSS des sous-menus"""
+        return """
+            QMenu {
+                background: white;
+                border: 1px solid #e2e8f0;
+            }
+        """
+
 
 class AccueilWidget(QWidget):
     """Widget for the 'Accueil' tab."""

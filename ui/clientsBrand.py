@@ -99,23 +99,28 @@ class Nosclient(QWidget):
 
         # Logo carousel
         logos = [
-            "resources/nosclients/1.png", "resources/nosclients/2.png",
-            "resources/nosclients/3.png", "resources/nosclients/4.png",
-            "resources/nosclients/5.png", "resources/nosclients/6.png",
-            "resources/nosclients/7.png", "resources/nosclients/8.png",
-            "resources/nosclients/9.png", "resources/nosclients/10.png",
-            "resources/nosclients/11.png", "resources/nosclients/12.png",
-            "resources/nosclients/13.png", "resources/nosclients/14.png",
-            "resources/nosclients/15.png", "resources/nosclients/16.png",
-            "resources/nosclients/17.png", "resources/nosclients/18.png",
-            "resources/nosclients/19.png", "resources/nosclients/20.png",
-            "resources/nosclients/21.png", "resources/nosclients/22.png",
-            "resources/nosclients/23.png", "resources/nosclients/24.png",
-            "resources/nosclients/25.png", "resources/nosclients/26.png",
-            "resources/nosclients/27.png", "resources/nosclients/28.png",
-            "resources/nosclients/29.png", "resources/nosclients/30.png",
-            "resources/nosclients/31.png",   "resources/nosclients/1.png"
-            "resources/nosclients/11.png"
+            # "resources/nosclients/1.png", "resources/nosclients/2.png",
+            # "resources/nosclients/3.png", "resources/nosclients/4.png",
+            # "resources/nosclients/5.png", "resources/nosclients/6.png",
+            # "resources/nosclients/7.png", "resources/nosclients/8.png",
+            # "resources/nosclients/9.png", "resources/nosclients/10.png",
+            # "resources/nosclients/11.png", "resources/nosclients/12.png",
+            # "resources/nosclients/13.png", "resources/nosclients/14.png",
+            # "resources/nosclients/15.png", "resources/nosclients/16.png",
+            # "resources/nosclients/17.png", "resources/nosclients/18.png",
+            # "resources/nosclients/19.png", "resources/nosclients/20.png",
+            # "resources/nosclients/21.png", "resources/nosclients/22.png",
+            # "resources/nosclients/23.png", "resources/nosclients/24.png",
+            # "resources/nosclients/25.png", "resources/nosclients/26.png",
+            # "resources/nosclients/27.png", 
+            
+            "resources/nosclients/28.png",
+            "resources/nosclients/29.png", 
+            "resources/nosclients/30.png",
+            "resources/nosclients/31.png"   
+            
+            # "resources/nosclients/31.png"
+            # "resources/nosclients/11.png"
 
 
 
@@ -131,7 +136,7 @@ class Nosclient(QWidget):
         footer_label.setFont(QFont("Helvetica Neue", 11))
         footer_label.setStyleSheet("color: #7f8c8d;")  # Grey
 
-        footer_layout.addWidget(footer_label)
+        # footer_layout.addWidget(footer_label)
 
         # Arrange main layout
         main_layout.addLayout(title_layout)

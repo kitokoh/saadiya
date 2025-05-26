@@ -8,3 +8,5 @@ username koubay pass pRjDWrki
 
 https://www.vernimmen.net/
 murphymorris.com 
+
+definir mon lot  et mon monymanagement 

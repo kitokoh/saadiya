@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QTableView, QVBoxLayout,
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QTimer, QSize
 from PyQt5.QtGui import QFont, QIcon, QColor, QTextDocument
 from PyQt5.QtWidgets import QStyle
-
+from imports import DB_PATH_multilingual_text1
 class DatabaseManager:
-    def __init__(self, db_name="multilingual_text1.db"):
+    def __init__(self, db_name=DB_PATH_multilingual_text1):
         self.conn = sqlite3.connect(db_name)
         self.create_tables()
         self.insert_sample_data()

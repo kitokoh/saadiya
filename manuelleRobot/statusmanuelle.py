@@ -11,6 +11,8 @@ from PyQt5.QtCore import Qt, QTimer, QTime, QSettings
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QInputDialog
+
 from imports import DB_PATH_status
 class SocialMediaPublisher(QMainWindow):
     def __init__(self):

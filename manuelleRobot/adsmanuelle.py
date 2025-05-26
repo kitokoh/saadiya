@@ -7,6 +7,8 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                             QFileDialog, QMessageBox, QCheckBox, QSpinBox, QGroupBox)
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QFont, QPixmap, QIcon
+from PyQt5.QtWidgets import QInputDialog  # Ajouter aux autres imports
+from PyQt5.QtWidgets import QTabWidget
 
 class AdCreatorApp(QMainWindow):
     def __init__(self):
@@ -1198,6 +1200,21 @@ class AdCreatorApp(QMainWindow):
         layout.addWidget(back_btn)
         
         self.content_stack.addWidget(page)
+    def update_objective_explanation(self, index):
+        """Met à jour l'explication de l'objectif"""
+        explanations = [
+            "Idéal pour promouvoir des produits spécifiques et augmenter les conversions.",
+            "Parfait pour collecter des informations sur des clients potentiels.",
+            "Augmentez la visibilité de votre marque auprès d'une nouvelle audience.",
+            "Encouragez les interactions avec votre contenu (commentaires, partages).",
+            "Dirigez les gens vers votre site web ou une page spécifique.",
+            "Incitez les utilisateurs à télécharger votre application mobile."
+        ]
+        
+        if 0 <= index < len(explanations):
+            self.objective_explanation.setText(explanations[index])
+        else:
+            self.objective_explanation.setText("Description non disponible")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

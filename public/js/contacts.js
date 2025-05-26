@@ -1,15 +1,15 @@
-// Configuration Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyDMEs2f8IBooNo-rWVZ_fEZYPEpPvnyNC4",
-    authDomain: "leopardo-ai.firebaseapp.com",
-    databaseURL: "https://leopardo-ai-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "leopardo-ai",
-    storageBucket: "leopardo-ai.firebasestorage.app",
-    messagingSenderId: "838044402284",
-    appId: "1:838044402284:web:3e8c53eb13fdac6b6e4e49",
-    measurementId: "G-4NFRX042CB"
-};
 
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMEs2f8IBooNo-rWVZ_fEZYPEpPvnyNC4",
+            authDomain: "leopardo-ai.firebaseapp.com",
+            databaseURL: "https://leopardo-ai-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "leopardo-ai",
+            storageBucket: "leopardo-ai.firebasestorage.app",
+            messagingSenderId: "838044402284",
+            appId: "1:838044402284:web:3e8c53eb13fdac6b6e4e49",
+            measurementId: "G-4NFRX042CB"
+        };
 // Initialisation Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
@@ -30,7 +30,7 @@ toastr.options = {
   hideMethod: "fadeOut"
 };
 
-// Traductions améliorées avec plus de clés
+// Traductions
 const translations = {
   fr: {
     contact_management: "Gestion des Contacts",
@@ -96,16 +96,7 @@ const translations = {
     stats_prospects: "Prospects",
     stats_fournisseurs: "Fournisseurs",
     stats_personnel: "Personnel",
-    no_data: "Aucune donnée disponible",
-    last_updated: "Dernière mise à jour",
-    created_at: "Créé le",
-    import_date: "Date d'importation",
-    select_all: "Tout sélectionner",
-    deselect_all: "Tout désélectionner",
-    file_type_csv: "Fichier CSV",
-    file_type_excel: "Fichier Excel",
-    file_type_vcf: "Fichier vCard",
-    file_type_json: "Fichier JSON"
+    no_data: "Aucune donnée disponible"
   },
   en: {
     contact_management: "Contact Management",
@@ -171,16 +162,7 @@ const translations = {
     stats_prospects: "Prospects",
     stats_fournisseurs: "Suppliers",
     stats_personnel: "Staff",
-    no_data: "No data available",
-    last_updated: "Last updated",
-    created_at: "Created at",
-    import_date: "Import date",
-    select_all: "Select all",
-    deselect_all: "Deselect all",
-    file_type_csv: "CSV file",
-    file_type_excel: "Excel file",
-    file_type_vcf: "vCard file",
-    file_type_json: "JSON file"
+    no_data: "No data available"
   },
   ar: {
     contact_management: "إدارة الاتصالات",
@@ -246,26 +228,17 @@ const translations = {
     stats_prospects: "الزبائن المحتملين",
     stats_fournisseurs: "الموردين",
     stats_personnel: "الموظفين",
-    no_data: "لا توجد بيانات متاحة",
-    last_updated: "آخر تحديث",
-    created_at: "تم الإنشاء في",
-    import_date: "تاريخ الاستيراد",
-    select_all: "تحديد الكل",
-    deselect_all: "إلغاء تحديد الكل",
-    file_type_csv: "ملف CSV",
-    file_type_excel: "ملف Excel",
-    file_type_vcf: "ملف vCard",
-    file_type_json: "ملف JSON"
+    no_data: "لا توجد بيانات متاحة"
   }
 };
 
-// État de l'application amélioré avec plus de propriétés
+// État de l'application
 const state = {
   currentLanguage: 'fr',
   contactsToImport: [],
   allContacts: [],
   filteredContacts: [],
-  selectedColumns: ['name', 'email', 'phone', 'company', 'category'],
+  selectedColumns: ['name', 'email', 'phone', 'company'],
   currentCategory: 'all',
   currentPage: 1,
   contactsPerPage: 10,
@@ -275,34 +248,17 @@ const state = {
     prospects: 0,
     fournisseurs: 0,
     personnel: 0
-  },
-  sortConfig: {
-    key: null,
-    direction: 'ascending'
   }
 };
 
-// Initialisation améliorée avec gestion des erreurs
+// Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-  try {
-    initLanguage();
-    setupEventListeners();
-    loadContactsFromFirebase();
-    
-    // Vérifie la connexion Firebase
-    const databaseRef = database.ref('.info/connected');
-    databaseRef.on('value', (snapshot) => {
-      if (snapshot.val() === false) {
-        showAlert('error', translate('firebase_connection_error'));
-      }
-    });
-  } catch (error) {
-    console.error('Initialization error:', error);
-    showAlert('error', translate('initialization_error', { error: error.message }));
-  }
+  initLanguage();
+  setupEventListeners();
+  loadContactsFromFirebase();
 });
 
-/* ==================== FONCTIONS UTILITAIRES AMÉLIORÉES ==================== */
+/* ==================== FONCTIONS UTILITAIRES ==================== */
 
 function translate(key, params = {}) {
   let translation = translations[state.currentLanguage][key] || key;
@@ -358,8 +314,6 @@ function showConfirmationDialog(title, message) {
 }
 
 function formatDate(dateString) {
-  if (!dateString) return '-';
-  
   const date = new Date(dateString);
   return date.toLocaleDateString(state.currentLanguage, {
     year: 'numeric',
@@ -375,7 +329,6 @@ function generateId() {
 }
 
 function validateEmail(email) {
-  if (!email) return true; // Email est optionnel
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(String(email).toLowerCase());
 }
@@ -385,27 +338,22 @@ function validateContact(contact) {
     throw new Error(translate('validation_name_required'));
   }
   
-  if (!validateEmail(contact.email)) {
+  if (contact.email && contact.email.trim() !== '' && !validateEmail(contact.email)) {
     throw new Error(translate('validation_email_invalid'));
   }
   
   return true;
 }
 
-/* ==================== GESTION DE L'INTERFACE AMÉLIORÉE ==================== */
+/* ==================== GESTION DE L'INTERFACE ==================== */
 
 function initLanguage() {
-  try {
-    // Récupère la langue sauvegardée ou détecte la langue du navigateur
-    const savedLang = localStorage.getItem('leopardo_lang');
-    const browserLang = navigator.language.split('-')[0];
-    const defaultLang = ['fr', 'en', 'ar'].includes(browserLang) ? browserLang : 'fr';
-    
-    setLanguage(savedLang || defaultLang);
-  } catch (error) {
-    console.error('Language initialization error:', error);
-    setLanguage('fr'); // Fallback to French
-  }
+  // Récupère la langue sauvegardée ou détecte la langue du navigateur
+  const savedLang = localStorage.getItem('leopardo_lang');
+  const browserLang = navigator.language.split('-')[0];
+  const defaultLang = ['fr', 'en', 'ar'].includes(browserLang) ? browserLang : 'fr';
+  
+  setLanguage(savedLang || defaultLang);
 }
 
 function setLanguage(lang) {
@@ -438,105 +386,60 @@ function setLanguage(lang) {
 }
 
 function setupEventListeners() {
-  try {
-    // Langue
-    document.querySelectorAll('.lang-option').forEach(option => {
-      option.addEventListener('click', () => {
-        setLanguage(option.dataset.lang);
-        document.getElementById('langDropdown').style.display = 'none';
-      });
+  // Langue
+  document.querySelectorAll('.lang-option').forEach(option => {
+    option.addEventListener('click', () => {
+      setLanguage(option.dataset.lang);
+      document.getElementById('langDropdown').style.display = 'none';
     });
-    
-    document.getElementById('lang-current').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const dropdown = document.getElementById('langDropdown');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.language-selector')) {
-        document.getElementById('langDropdown').style.display = 'none';
-      }
-    });
-
-    // Fichier
-    document.getElementById('previewBtn').addEventListener('click', handlePreview);
-    document.getElementById('importBtn').addEventListener('click', handleImport);
-    document.getElementById('searchInput').addEventListener('input', handleSearch);
-    
-    // Modal
-    document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
-    document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
-    document.getElementById('editForm').addEventListener('submit', handleEditSubmit);
-    
-    document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
-    document.getElementById('cancelAdd').addEventListener('click', closeAddModal);
-    document.getElementById('addForm').addEventListener('submit', handleAddSubmit);
-    
-    document.getElementById('closeExportModal').addEventListener('click', closeExportModal);
-    document.getElementById('cancelExport').addEventListener('click', closeExportModal);
-    document.getElementById('exportForm').addEventListener('submit', handleExportSubmit);
-    
-    // Boutons
-    document.getElementById('addContactBtn').addEventListener('click', openAddModal);
-    document.getElementById('exportBtn').addEventListener('click', openExportModal);
-    
-    // Onglets
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        state.currentCategory = tab.dataset.category;
-        filterContacts();
-      });
-    });
-
-    // Tri des colonnes
-    document.querySelectorAll('#contactTable th').forEach(header => {
-      if (header.getAttribute('data-sortable') !== 'false') {
-        header.addEventListener('click', () => {
-          const key = header.getAttribute('data-column');
-          if (key) {
-            requestSort(key);
-          }
-        });
-      }
-    });
-  } catch (error) {
-    console.error('Event listeners setup error:', error);
-    showAlert('error', translate('ui_error', { error: error.message }));
-  }
-}
-
-function requestSort(key) {
-  let direction = 'ascending';
-  if (state.sortConfig.key === key && state.sortConfig.direction === 'ascending') {
-    direction = 'descending';
-  }
-  state.sortConfig = { key, direction };
-  sortContacts();
-}
-
-function sortContacts() {
-  if (!state.sortConfig.key) return;
-
-  state.filteredContacts.sort((a, b) => {
-    const aValue = a[state.sortConfig.key] || '';
-    const bValue = b[state.sortConfig.key] || '';
-    
-    if (aValue < bValue) {
-      return state.sortConfig.direction === 'ascending' ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return state.sortConfig.direction === 'ascending' ? 1 : -1;
-    }
-    return 0;
+  });
+  
+  document.getElementById('lang-current').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const dropdown = document.getElementById('langDropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   });
 
-  renderContactTable(state.filteredContacts);
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.language-selector')) {
+      document.getElementById('langDropdown').style.display = 'none';
+    }
+  });
+
+  // Fichier
+  document.getElementById('previewBtn').addEventListener('click', handlePreview);
+  document.getElementById('importBtn').addEventListener('click', handleImport);
+  document.getElementById('searchInput').addEventListener('input', handleSearch);
+  
+  // Modal
+  document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
+  document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
+  document.getElementById('editForm').addEventListener('submit', handleEditSubmit);
+  
+  document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
+  document.getElementById('cancelAdd').addEventListener('click', closeAddModal);
+  document.getElementById('addForm').addEventListener('submit', handleAddSubmit);
+  
+  document.getElementById('closeExportModal').addEventListener('click', closeExportModal);
+  document.getElementById('cancelExport').addEventListener('click', closeExportModal);
+  document.getElementById('exportForm').addEventListener('submit', handleExportSubmit);
+  
+  // Boutons
+  document.getElementById('addContactBtn').addEventListener('click', openAddModal);
+  document.getElementById('exportBtn').addEventListener('click', openExportModal);
+  
+  // Onglets
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.currentCategory = tab.dataset.category;
+      filterContacts();
+    });
+  });
 }
 
-/* ==================== GESTION DES CONTACTS AMÉLIORÉE ==================== */
+/* ==================== GESTION DES CONTACTS ==================== */
 
 async function loadContactsFromFirebase() {
   showLoading();
@@ -567,7 +470,6 @@ async function loadContactsFromFirebase() {
     filterContacts();
     renderStats();
   } catch (error) {
-    console.error('Firebase load error:', error);
     showAlert('error', `Firebase error: ${error.message}`);
   } finally {
     hideLoading();
@@ -590,13 +492,12 @@ function filterContacts() {
       (contact.name && contact.name.toLowerCase().includes(searchTerm)) ||
       (contact.email && contact.email.toLowerCase().includes(searchTerm)) ||
       (contact.phone && contact.phone.toLowerCase().includes(searchTerm)) ||
-      (contact.company && contact.company.toLowerCase().includes(searchTerm)) ||
-      (contact.notes && contact.notes.toLowerCase().includes(searchTerm))
+      (contact.company && contact.company.toLowerCase().includes(searchTerm))
     );
   });
   
   state.currentPage = 1; // Réinitialise la pagination
-  sortContacts(); // Applique le tri actuel
+  renderContactTable(state.filteredContacts);
   renderPagination();
 }
 
@@ -769,7 +670,7 @@ function renderPagination() {
   });
 }
 
-/* ==================== IMPORT/EXPORT AMÉLIORÉ ==================== */
+/* ==================== IMPORT/EXPORT ==================== */
 
 async function handlePreview() {
   try {
@@ -785,7 +686,6 @@ async function handlePreview() {
     renderPreviewTable();
     document.getElementById('previewContainer').style.display = 'block';
   } catch (error) {
-    console.error('Preview error:', error);
     showAlert('error', translate('file_error', { error: error.message }));
   } finally {
     hideLoading();
@@ -799,31 +699,13 @@ async function handleImport() {
     }
     
     // Validation des contacts
-    const validContacts = [];
-    const invalidContacts = [];
-    
-    state.contactsToImport.forEach(contact => {
-      try {
-        validateContact(contact);
-        validContacts.push(contact);
-      } catch (error) {
-        invalidContacts.push({ contact, error: error.message });
-      }
-    });
-    
-    if (validContacts.length === 0) {
-      throw new Error(translate('no_contacts'));
-    }
-    
-    if (invalidContacts.length > 0) {
-      console.warn('Invalid contacts:', invalidContacts);
-    }
+    state.contactsToImport.forEach(contact => validateContact(contact));
     
     const category = document.getElementById('categorySelect').value;
     const confirmed = await showConfirmationDialog(
       translate('confirm_import_title'),
       translate('confirm_import_message', {
-        count: validContacts.length,
+        count: state.contactsToImport.length,
         category: translate(`category_${category}`)
       })
     );
@@ -831,13 +713,12 @@ async function handleImport() {
     if (!confirmed) return;
     
     showLoading(translate('loading'));
-    await importContactsToFirebase(validContacts, category);
+    await importContactsToFirebase(state.contactsToImport, category);
     
-    showAlert('success', translate('import_success', { count: validContacts.length }));
+    showAlert('success', translate('import_success', { count: state.contactsToImport.length }));
     resetImportForm();
     loadContactsFromFirebase();
   } catch (error) {
-    console.error('Import error:', error);
     showAlert('error', translate('import_error', { error: error.message }));
   } finally {
     hideLoading();
@@ -1173,7 +1054,6 @@ async function handleExportSubmit(e) {
     showAlert('success', translate('export_success'));
     closeExportModal();
   } catch (error) {
-    console.error('Export error:', error);
     showAlert('error', translate('export_error', { error: error.message }));
   } finally {
     hideLoading();
@@ -1181,47 +1061,44 @@ async function handleExportSubmit(e) {
 }
 
 function generateCSV(data, columns) {
-  // Crée l'en-tête CSV
-  const headers = columns.map(col => `"${translate(`column_${col}`)}"`).join(',');
+  const headers = columns.map(col => translate(`column_${col}`) || col);
   const rows = data.map(contact => 
     columns.map(col => `"${(contact[col] || '').toString().replace(/"/g, '""')}"`).join(',')
   );
   
-  // Combine tout
-  const csvContent = [headers, ...rows].join('\n');
+  const csvContent = [headers.join(','), ...rows].join('\n');
   return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 }
 
 async function generateExcel(data, columns) {
-  // Prépare les données pour Excel
-  const headers = columns.map(col => translate(`column_${col}`));
-  const rows = data.map(contact => 
-    columns.map(col => contact[col] || '')
-  );
+  const headers = columns.reduce((obj, col) => {
+    obj[col] = translate(`column_${col}`) || col;
+    return obj;
+  }, {});
   
-  // Crée un workbook
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-  XLSX.utils.book_append_sheet(wb, ws, "Contacts");
+  const worksheet = XLSX.utils.json_to_sheet([headers, ...data], { skipHeader: true });
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Contacts");
   
-  // Convertit en blob
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
   return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 }
 
 function generateVCF(data) {
-  const vcfEntries = data.map(contact => {
-    let vcard = 'BEGIN:VCARD\nVERSION:3.0\n';
-    if (contact.name) vcard += `FN:${contact.name}\n`;
-    if (contact.email) vcard += `EMAIL:${contact.email}\n`;
-    if (contact.phone) vcard += `TEL:${contact.phone}\n`;
-    if (contact.company) vcard += `ORG:${contact.company}\n`;
-    if (contact.notes) vcard += `NOTE:${contact.notes}\n`;
-    vcard += 'END:VCARD\n';
-    return vcard;
+  let vcfContent = '';
+  
+  data.forEach(contact => {
+    vcfContent += 'BEGIN:VCARD\n';
+    vcfContent += 'VERSION:3.0\n';
+    if (contact.name) vcfContent += `FN:${contact.name}\n`;
+    if (contact.email) vcfContent += `EMAIL:${contact.email}\n`;
+    if (contact.phone) vcfContent += `TEL:${contact.phone}\n`;
+    if (contact.company) vcfContent += `ORG:${contact.company}\n`;
+    if (contact.notes) vcfContent += `NOTE:${contact.notes}\n`;
+    vcfContent += 'END:VCARD\n\n';
   });
   
-  return new Blob([vcfEntries.join('\n')], { type: 'text/vcard' });
+  return new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
 }
 
 function downloadFile(blob, filename) {
@@ -1231,16 +1108,83 @@ function downloadFile(blob, filename) {
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-  setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 100);
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
-/* ==================== MODAL EDIT/ADD AMÉLIORÉ ==================== */
+/* ==================== GESTION DES COLONNES ==================== */
+
+function generateColumnCheckboxes(sampleContact) {
+  const container = document.getElementById('columnCheckboxes');
+  container.innerHTML = '';
+  
+  const availableColumns = Object.keys(sampleContact)
+    .filter(col => !['id', 'importedAt', 'category'].includes(col))
+    .sort((a, b) => {
+      const order = ['name', 'email', 'phone', 'company', 'notes'];
+      return order.indexOf(a) - order.indexOf(b);
+    });
+  
+  availableColumns.forEach(col => {
+    const checkboxId = `col_${col}`;
+    const isChecked = state.selectedColumns.includes(col);
+    
+    const div = document.createElement('div');
+    div.className = 'checkbox-item';
+    
+    div.innerHTML = `
+      <input type="checkbox" id="${checkboxId}" ${isChecked ? 'checked' : ''}>
+      <label for="${checkboxId}">${formatColumnName(col)}</label>
+    `;
+    
+    const checkbox = div.querySelector('input');
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        state.selectedColumns.push(col);
+      } else {
+        state.selectedColumns = state.selectedColumns.filter(c => c !== col);
+      }
+      renderPreviewTable();
+    });
+    
+    container.appendChild(div);
+  });
+}
+
+function formatColumnName(col) {
+  const names = {
+    name: translate('column_name'),
+    email: translate('column_email'),
+    phone: translate('column_phone'),
+    company: translate('column_company'),
+    notes: translate('column_notes'),
+    category: translate('column_category')
+  };
+  return names[col] || col;
+}
+
+function renderPreviewTable() {
+  const thead = document.getElementById('previewTable').querySelector('thead');
+  const tbody = document.getElementById('previewTable').querySelector('tbody');
+  
+  // En-têtes
+  thead.innerHTML = '<tr>' + 
+    state.selectedColumns.map(col => 
+      `<th>${formatColumnName(col)}</th>`
+    ).join('') + '</tr>';
+  
+  // Données (5 premières lignes)
+  tbody.innerHTML = state.contactsToImport.slice(0, 5).map(contact => 
+    '<tr>' + state.selectedColumns.map(col => 
+      `<td>${contact[col] || '-'}</td>`
+    ).join('') + '</tr>'
+  ).join('');
+}
+
+/* ==================== MODALS ==================== */
 
 function openEditModal(contact) {
-  // Remplit le formulaire
+  document.getElementById('editId').value = contact.id;
   document.getElementById('editName').value = contact.name || '';
   document.getElementById('editEmail').value = contact.email || '';
   document.getElementById('editPhone').value = contact.phone || '';
@@ -1248,11 +1192,6 @@ function openEditModal(contact) {
   document.getElementById('editNotes').value = contact.notes || '';
   document.getElementById('editCategory').value = contact.category;
   
-  // Stocke l'ID du contact à éditer
-  document.getElementById('editForm').dataset.contactId = contact.id;
-  document.getElementById('editForm').dataset.originalCategory = contact.category;
-  
-  // Ouvre le modal
   document.getElementById('editModal').style.display = 'flex';
 }
 
@@ -1266,41 +1205,36 @@ async function handleEditSubmit(e) {
   try {
     showLoading(translate('loading'));
     
-    // Récupère les données du formulaire
-    const contact = {
+    const contactId = document.getElementById('editId').value;
+    const originalCategory = state.allContacts.find(c => c.id === contactId)?.category;
+    const category = document.getElementById('editCategory').value;
+    
+    const updatedContact = {
       name: document.getElementById('editName').value.trim(),
       email: document.getElementById('editEmail').value.trim(),
       phone: document.getElementById('editPhone').value.trim(),
       company: document.getElementById('editCompany').value.trim(),
       notes: document.getElementById('editNotes').value.trim(),
-      category: document.getElementById('editCategory').value,
+      category: category,
       lastUpdated: firebase.database.ServerValue.TIMESTAMP
     };
     
     // Validation
-    validateContact(contact);
+    validateContact(updatedContact);
     
-    // Récupère l'ID et l'ancienne catégorie
-    const contactId = document.getElementById('editForm').dataset.contactId;
-    const originalCategory = document.getElementById('editForm').dataset.originalCategory;
-    
-    // Prépare les mises à jour
+    // Si la catégorie a changé, on doit déplacer le contact
     const updates = {};
-    updates[`contacts/${contact.category}/${contactId}`] = contact;
-    
-    // Si la catégorie a changé, supprime l'ancienne entrée
-    if (contact.category !== originalCategory) {
+    if (originalCategory && originalCategory !== category) {
       updates[`contacts/${originalCategory}/${contactId}`] = null;
     }
+    updates[`contacts/${category}/${contactId}`] = updatedContact;
     
-    // Met à jour Firebase
     await database.ref().update(updates);
     
     showAlert('success', translate('save_success'));
     closeEditModal();
     loadContactsFromFirebase();
   } catch (error) {
-    console.error('Edit contact error:', error);
     showAlert('error', translate('import_error', { error: error.message }));
   } finally {
     hideLoading();
@@ -1308,7 +1242,6 @@ async function handleEditSubmit(e) {
 }
 
 function openAddModal() {
-  // Réinitialise le formulaire
   document.getElementById('addForm').reset();
   document.getElementById('addModal').style.display = 'flex';
 }
@@ -1323,8 +1256,8 @@ async function handleAddSubmit(e) {
   try {
     showLoading(translate('loading'));
     
-    // Récupère les données du formulaire
-    const contact = {
+    const newContact = {
+      id: generateId(),
       name: document.getElementById('addName').value.trim(),
       email: document.getElementById('addEmail').value.trim(),
       phone: document.getElementById('addPhone').value.trim(),
@@ -1336,19 +1269,14 @@ async function handleAddSubmit(e) {
     };
     
     // Validation
-    validateContact(contact);
+    validateContact(newContact);
     
-    // Crée un nouvel ID
-    const contactId = generateId();
-    
-    // Ajoute à Firebase
-    await database.ref(`contacts/${contact.category}/${contactId}`).set(contact);
+    await database.ref(`contacts/${newContact.category}/${newContact.id}`).set(newContact);
     
     showAlert('success', translate('add_success'));
     closeAddModal();
     loadContactsFromFirebase();
   } catch (error) {
-    console.error('Add contact error:', error);
     showAlert('error', translate('add_error', { error: error.message }));
   } finally {
     hideLoading();
@@ -1356,125 +1284,28 @@ async function handleAddSubmit(e) {
 }
 
 async function confirmDeleteContact(contactId, category) {
-  const confirmed = await showConfirmationDialog(
-    translate('delete'),
-    translate('delete_confirm')
-  );
-  
-  if (!confirmed) return;
-  
   try {
+    const confirmed = await showConfirmationDialog(
+      translate('delete'),
+      translate('delete_confirm')
+    );
+    
+    if (!confirmed) return;
+    
     showLoading(translate('loading'));
     await database.ref(`contacts/${category}/${contactId}`).remove();
+    
     showAlert('success', translate('delete_success'));
     loadContactsFromFirebase();
   } catch (error) {
-    console.error('Delete contact error:', error);
     showAlert('error', translate('import_error', { error: error.message }));
   } finally {
     hideLoading();
   }
 }
 
-/* ==================== GESTION DES COLONNES AMÉLIORÉE ==================== */
+/* ==================== GESTION DE LA RECHERCHE ==================== */
 
-function generateColumnCheckboxes(contact) {
-  const container = document.getElementById('columnCheckboxes');
-  container.innerHTML = '';
-  
-  // Ajoute des boutons pour sélectionner/désélectionner tout
-  const selectAllDiv = document.createElement('div');
-  selectAllDiv.className = 'checkbox-group';
-  selectAllDiv.innerHTML = `
-    <button type="button" class="btn btn-sm btn-outline" id="selectAllColumns">
-      <i class="fas fa-check-square"></i> ${translate('select_all')}
-    </button>
-    <button type="button" class="btn btn-sm btn-outline" id="deselectAllColumns">
-      <i class="far fa-square"></i> ${translate('deselect_all')}
-    </button>
-  `;
-  container.appendChild(selectAllDiv);
-  
-  // Ajoute les cases à cocher pour chaque colonne
-  Object.keys(contact).forEach(key => {
-    if (key === 'id' || key === 'category' || key === 'importedAt' || key === 'lastUpdated') return;
-    
-    const div = document.createElement('div');
-    div.className = 'checkbox-item';
-    div.innerHTML = `
-      <input type="checkbox" id="col_${key}" value="${key}" checked>
-      <label for="col_${key}">${translate(`column_${key}`)}</label>
-    `;
-    container.appendChild(div);
-  });
-  
-  // Ajoute les écouteurs pour les boutons
-  document.getElementById('selectAllColumns').addEventListener('click', () => {
-    container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-      checkbox.checked = true;
-    });
-  });
-  
-  document.getElementById('deselectAllColumns').addEventListener('click', () => {
-    container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-      checkbox.checked = false;
-    });
-  });
-  
-  // Met à jour les colonnes sélectionnées quand elles changent
-  container.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-      state.selectedColumns = Array.from(container.querySelectorAll('input[type="checkbox"]:checked'))
-        .map(el => el.value);
-      renderPreviewTable();
-    });
-  });
-}
-
-function renderPreviewTable() {
-  const previewTable = document.getElementById('previewTable');
-  const thead = previewTable.querySelector('thead');
-  const tbody = previewTable.querySelector('tbody');
-  
-  // En-têtes
-  thead.innerHTML = '';
-  const headerRow = document.createElement('tr');
-  
-  state.selectedColumns.forEach(col => {
-    const th = document.createElement('th');
-    th.textContent = translate(`column_${col}`);
-    headerRow.appendChild(th);
-  });
-  
-  thead.appendChild(headerRow);
-  
-  // Corps
-  tbody.innerHTML = '';
-  state.contactsToImport.slice(0, 5).forEach(contact => {
-    const row = document.createElement('tr');
-    
-    state.selectedColumns.forEach(col => {
-      const td = document.createElement('td');
-      td.textContent = contact[col] || '-';
-      row.appendChild(td);
-    });
-    
-    tbody.appendChild(row);
-  });
-}
-
-// Ferme les modals quand on clique en dehors
-window.addEventListener('click', (e) => {
-  if (e.target.classList.contains('modal')) {
-    e.target.style.display = 'none';
-  }
-});
-
-// Gestion de la recherche avec debounce
-let searchTimeout;
-function handleSearch() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    filterContacts();
-  }, 300);
+function handleSearch(e) {
+  filterContacts();
 }

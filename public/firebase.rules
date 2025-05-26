@@ -1,34 +1,34 @@
-{
-  "rules": {
-    "contacts": {
-      ".read": "auth != null",
-      ".write": "auth != null",
-      "$category": {
-        "$contactId": {
-          ".validate": "newData.hasChildren(['name', 'category'])",
-          "name": { ".validate": "newData.isString() && newData.val().length > 0" },
-          "email": { ".validate": "newData.isString()" },
-          "phone": { ".validate": "newData.isString()" },
-          "company": { ".validate": "newData.isString()" },
-          "category": { ".validate": "newData.isString()" },
-          "importedAt": { ".validate": "newData.isNumber()" },
-          "lastUpdated": { ".validate": "newData.isNumber()" }
+  {
+    "rules": {
+      "contacts": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$category": {
+          "$contactId": {
+            ".validate": "newData.hasChildren(['name', 'category'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+            "email": { ".validate": "newData.isString()" },
+            "phone": { ".validate": "newData.isString()" },
+            "company": { ".validate": "newData.isString()" },
+            "category": { ".validate": "newData.isString()" },
+            "importedAt": { ".validate": "newData.isNumber()" },
+            "lastUpdated": { ".validate": "newData.isNumber()" }
+          }
         }
-      }
-    },
-    "downloads": {
-      "count": {
-        ".read": true,
-        ".write": true
       },
-      "countries": {
-        ".read": true,
-        ".write": true
-      },
-      "list": {
-        ".read": true,
-        ".write": true
+      "downloads": {
+        "count": {
+          ".read": true,
+          ".write": true
+        },
+        "countries": {
+          ".read": true,
+          ".write": true
+        },
+        "list": {
+          ".read": true,
+          ".write": true
+        }
       }
     }
   }
-}

@@ -855,12 +855,12 @@ class HomePage(QMainWindow):
         # Bouton pour ouvrir un nouvel onglet
         open_tab_button = QPushButton("Ouvrir un nouvel onglet")
         open_tab_button.clicked.connect(self.open_new_tab)
-       # self.main_layout.addWidget(open_tab_button)
-       # client_layout = QHBoxLayout()
-       # self.clients=Nosclient()
+        self.main_layout.addWidget(open_tab_button)
+        client_layout = QHBoxLayout()
+        self.clients=Nosclient()
 
-        #client_layout.addWidget(self.clients)
-        #self.main_layout.addLayout(client_layout)
+        client_layout.addWidget(self.clients)
+        self.main_layout.addLayout(client_layout)
 
         # Créer un pied de page modernisé
         footer_layout = QHBoxLayout()
@@ -898,7 +898,7 @@ class HomePage(QMainWindow):
                 color: #81C784;  /* Vert clair au survol */
             }
         """)
-        privacy_button.clicked.connect(lambda: self.open_link("https://www.leopard.com/privacy"))  # Lien mis à jour
+        privacy_button.clicked.connect(lambda: self.open_link("https://www.leopardo.com/privacy"))  # Lien mis à jour
 
         terms_button = QPushButton(self.tr("Terms and Conditions"))  # Traduction en anglais
         terms_button.setFont(QFont("Arial", 10))
@@ -920,7 +920,7 @@ class HomePage(QMainWindow):
         footer_layout.addWidget(terms_button)
 
         #self.main_layout.addWidget(footer_frame)
-        self.setup_dashboard_page()
+        # self.setup_dashboard_page()
         # Ajouter le layout principal au widget central
         central_widget.setLayout(self.main_layout)
 
