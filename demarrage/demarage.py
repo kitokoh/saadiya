@@ -10,6 +10,7 @@ from terms.terms_manager import TermsDialog
 from Installsweb.installmodules import InstallerDialog
 from ui.register import RegisterModule
 from Mining.miningcoiy import MainWindow
+from demarrage.feedback import FeedbackApp
 class DatabaseManager:
     def __init__(self):
         self.conn = sqlite3.connect('app_state.db')
@@ -365,7 +366,7 @@ class FlowManager:
             'name': 'feedback',
             'description': "Demande d'évaluation",
             'dialogs': [
-                (FeedbackDialog, "Votre avis compte!")
+                (FeedbackApp, "Votre avis compte!")
             ],
             'session_type': 'feedback'
         },
