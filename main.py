@@ -222,7 +222,7 @@ class Browser(QMainWindow):
                 'Support': True
             }
         }
-        self.control_application()
+        # self.control_application()
         # Load saved configuration
         self.load_menu_config() 
 
@@ -231,9 +231,9 @@ class Browser(QMainWindow):
 
 
     def control_application(self):
-        # from demarrage.demarage import ApplicationController
-        # controller = ApplicationController()
-        pass
+        from demarrage.demarage import ApplicationController
+        controller = ApplicationController()
+        
         # controller.ex
 
 
@@ -400,7 +400,8 @@ class Browser(QMainWindow):
 
         # Add first tab
         self.open_home()
-        
+        # self.control_application()
+
 
 
 
@@ -5969,13 +5970,13 @@ class Browser(QMainWindow):
         Ouvre la page d'abonnement + affiche une fenêtre spéciale d'offre.
         """
         # Nom de l'onglet
-        tab_name = self.tr("🚀 Upgrade")
+        tab_name = self.tr("🚀 Trade")
 
         # Ouvre le lien pricing dans un nouvel onglet
         # self.add_new_tab(QUrl("https://www.nova360.turknovatech.com/pricing"), tab_name, "resources/icons/tokk.ico")
         from Upgrade.upgrade import ContactDialog # Import ici si besoin
         from Home.homefinance import MainWindow
-        upgrades = MainWindow(parent=self)
+        upgrades = MainWindow()
         upgrades.show()
         # Ajoute aussi le module SpecialOfferWindow dans un onglet si non déjà ouvert
         existing_tab_index = self.find_tab_by_name(tab_name)
@@ -5983,12 +5984,29 @@ class Browser(QMainWindow):
             self.tab_widget.setCurrentIndex(existing_tab_index)
             return
 
-        if not hasattr(self, 'upgrades') or self.upgrades is None:
+        if not hasattr(self, 'upgrades') or self.trade is None:
             from Upgrade.upgrade import ContactDialog # Import ici si besoin
             self.upgrades = ContactDialog(parent=self)
             self.upgrades.show()
         self.add_custom_tab(self.upgrades, tab_name, "resources/icons/multi_fb.ico")
 
+
+    def open_trader(self):
+        tab_name = self.tr("🧠 Trade")
+
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, '🧠 Trade') or self.trade is None:
+            # from Installsweb.invoice_ninja import MainWindow
+            from Home.homefinance import MainWindow
+
+            self.trade = MainWindow()
+
+        self.add_custom_tab(self.trade, tab_name, "resources/icons/management.ico")
+   
 
 class AccueilWidget(QWidget):
     """Widget for the 'Accueil' tab."""

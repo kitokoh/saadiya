@@ -6,11 +6,11 @@ from PyQt5.QtCore import Qt
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Callable
-from demarrage.terms_manager import TermsDialog
-from Installsweb.installmodules import InstallerDialog
-from ui.register import RegisterModule
-from Mining.miningcoiy import MainWindow
-from demarrage.feedback import FeedbackApp
+# from demarrage.terms_manager import TermsDialog
+# from Installsweb.installmodules import InstallerDialog
+# from ui.register import RegisterModule
+# from Mining.miningcoiy import MainWindow
+# from demarrage.feedback import FeedbackApp
 class DatabaseManager:
     def __init__(self):
         self.conn = sqlite3.connect('app_state.db')
@@ -138,7 +138,7 @@ class BaseDialog(QDialog):
     def get_results(self) -> Dict:
         return {}
 
-class TermsDialogs(BaseDialog):
+class TermsDialog(BaseDialog):
     def init_ui(self):
         layout = QVBoxLayout()
         
@@ -345,10 +345,10 @@ class FlowManager:
             'description': 'Configuration initiale',
             'dialogs': [
                 (TermsDialog, "Conditions d'utilisation"),
-                (InstallerDialog, "Sélection des modules"),
-                # (ModuleSelectionDialog, "Sélection des modules"),
+                # (InstallerDialog, "Sélection des modules"),
+                (ModuleSelectionDialog, "Sélection des modules"),
 
-                (RegisterModule, "Création de compte")
+                # (RegisterModule, "Création de compte")
             ],
             'session_type': 'initial'
         },
@@ -357,7 +357,7 @@ class FlowManager:
             'description': 'Tutoriel de prise en main',
             'dialogs': [
                 (TutorialDialog, "Guide d'utilisation"),
-                 (MainWindow, "Guide d'utilisation")
+                #  (MainWindow, "Guide d'utilisation")
 
             ],
             'session_type': 'tutorial'
@@ -366,7 +366,7 @@ class FlowManager:
             'name': 'feedback',
             'description': "Demande d'évaluation",
             'dialogs': [
-                (FeedbackApp, "Votre avis compte!")
+                (TutorialDialog, "Votre avis compte!")
             ],
             'session_type': 'feedback'
         },

@@ -52,7 +52,7 @@ class TermsManager:
 
 class TermsDialog(QDialog):
     def __init__(self, parent=None, user_id=None, force_show=False):
-        super().__init__(parent)
+        super().__init__()
         self.manager = TermsManager()
         self.user_id = user_id or "guest"
         self.setup_ui()
@@ -267,21 +267,139 @@ class TermsDialog(QDialog):
         self.animation.start()
     
     def load_terms_content(self):
-        """Charge le contenu des conditions depuis un fichier HTML"""
-        terms_file = Path(__file__).parent / "terms_conditions.html"
+        """Charge le contenu des conditions directement depuis une chaîne HTML"""
+        terms_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                }}
+                h1 {{
+                    color: #4f46e5;
+                    border-bottom: 2px solid #4f46e5;
+                    padding-bottom: 8px;
+                    margin-top: 24px;
+                }}
+                h2 {{
+                    color: #4338ca;
+                    margin-top: 20px;
+                }}
+                h3 {{
+                    color: #3730a3;
+                }}
+                ul, ol {{
+                    padding-left: 24px;
+                }}
+                li {{
+                    margin-bottom: 8px;
+                }}
+                strong {{
+                    color: #111827;
+                }}
+                .version {{
+                    background-color: #e0e7ff;
+                    color: #3730a3;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                }}
+                .highlight {{
+                    background-color: #fef3c7;
+                    padding: 2px 4px;
+                    border-radius: 4px;
+                }}
+                .note {{
+                    border-left: 4px solid #4f46e5;
+                    padding-left: 12px;
+                    margin: 16px 0;
+                    font-style: italic;
+                    color: #6b7280;
+                }}
+            </style>
+        </head>
+        <body>
+            <h1>Conditions d'Utilisation de Léopardo AI</h1>
+            
+            <p><strong>Version <span class="version">{self.manager.terms_version}</span> - Date d'effet : {QDateTime.currentDateTime().toString('dd/MM/yyyy')}</strong></p>
+            
+            <div class="note">
+                En utilisant Léopardo AI, vous acceptez ces conditions d'utilisation. 
+                Veuillez les lire attentivement avant d'utiliser notre application.
+            </div>
+            
+            <h2>1. Acceptation des Conditions</h2>
+            <p>En accédant ou en utilisant Léopardo AI, vous acceptez d'être lié par ces conditions. 
+            Si vous n'acceptez pas toutes ces conditions, vous ne pouvez pas utiliser notre application.</p>
+            
+            <h2>2. Description du Service</h2>
+            <p>Léopardo AI est une plateforme tout-en-un pour les professionnels du marketing offrant :</p>
+            <ul>
+                <li>Gestion et planification des publications sur les réseaux sociaux</li>
+                <li>Organisation centralisée des médias marketing</li>
+                <li>Bibliothèque de descriptions réutilisables</li>
+                <li>Module de gestion des prospects (pre-CRM)</li>
+                <li>Fonctionnalités de publication assistée</li>
+                <li>Stockage <span class="highlight">100% local</span> de vos données</li>
+            </ul>
+            
+            <h2>3. Compte Utilisateur</h2>
+            <p>Pour accéder à certaines fonctionnalités, vous devrez créer un compte. Vous êtes responsable :</p>
+            <ul>
+                <li>De la confidentialité de vos identifiants</li>
+                <li>De l'exactitude des informations fournies</li>
+                <li>De toutes les activités sur votre compte</li>
+            </ul>
+            
+            <h2>4. Protection des Données</h2>
+            <p>Nous accordons une importance particulière à la protection de vos données :</p>
+            <ul>
+                <li>Toutes vos données restent stockées sur votre appareil</li>
+                <li>Aucune donnée marketing n'est collectée par nos serveurs</li>
+                <li>Les données sensibles sont chiffrées</li>
+            </ul>
+            
+            <h2>5. Responsabilités</h2>
+            <p>Vous vous engagez à :</p>
+            <ul>
+                <li>Respecter les lois en vigueur et les conditions des plateformes sociales</li>
+                <li>Ne pas publier de contenu illégal, diffamatoire ou nuisible</li>
+                <li>Superviser les publications automatisées</li>
+            </ul>
+            
+            <h2>6. Tarification et Paiement</h2>
+            <p>L'application propose différents plans :</p>
+            <ul>
+                <li><strong>Standard</strong> : 19€/mois (fonctionnalités de base)</li>
+                <li><strong>Pro</strong> : 39€/mois (fonctionnalités avancées + support prioritaire)</li>
+                <li><strong>Entreprise</strong> : Sur devis (solutions personnalisées)</li>
+            </ul>
+            
+            <h2>7. Modifications des Conditions</h2>
+            <p>Nous pouvons modifier ces conditions. Les utilisateurs seront notifiés et devront 
+            accepter les nouvelles conditions pour continuer à utiliser le service.</p>
+            
+            <h2>8. Contact</h2>
+            <p>Pour toute question concernant ces conditions :</p>
+            <ul>
+                <li>Email : legal@leopardo.ai</li>
+                <li>Support dans l'application</li>
+            </ul>
+            
+            <div class="note">
+                En acceptant ces conditions, vous reconnaissez avoir lu, compris et accepté 
+                l'intégralité de ce document. Cette acceptation sera enregistrée avec la date 
+                et l'heure de votre consentement.
+            </div>
+        </body>
+        </html>
+        """
         
-        if terms_file.exists():
-            content = terms_file.read_text(encoding='utf-8')
-            # Remplace les variables dynamiques
-            content = content.replace("{{version}}", self.manager.terms_version) \
-                           .replace("{{date}}", QDateTime.currentDateTime().toString("dd/MM/yyyy"))
-            self.terms_browser.setHtml(content)
-        else:
-            # Fallback si le fichier n'existe pas
-            self.terms_browser.setHtml("""
-                <h1 style='color: #4f46e5;'>Conditions d'Utilisation</h1>
-                <p>Fichier de conditions introuvable. Veuillez contacter le support.</p>
-            """)
+        self.terms_browser.setHtml(terms_html)
     
     def setup_db(self):
         """Initialise la base de données chiffrée"""
@@ -344,9 +462,9 @@ class TermsDialog(QDialog):
             anim = QPropertyAnimation(self.accept_button, b"geometry")
             anim.setDuration(200)
             anim.setStartValue(QRect(self.accept_button.x(), self.accept_button.y(), 
-                                   self.accept_button.width(), self.accept_button.height()))
+                               self.accept_button.width(), self.accept_button.height()))
             anim.setEndValue(QRect(self.accept_button.x()-5, self.accept_button.y()-5, 
-                                 self.accept_button.width()+10, self.accept_button.height()+10))
+                             self.accept_button.width()+10, self.accept_button.height()+10))
             anim.start()
     
     def print_terms(self):

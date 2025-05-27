@@ -6,10 +6,11 @@ from PyQt5.QtCore import Qt
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Callable
-from terms.terms_manager import TermsDialog
+# from demarrage.terms_manager import TermsDialog
 from Installsweb.installmodules import InstallerDialog
 from ui.register import RegisterModule
 from Mining.miningcoiy import MainWindow
+from demarrage.feedback import FeedbackApp
 class DatabaseManager:
     def __init__(self):
         self.conn = sqlite3.connect('app_state.db')
@@ -137,7 +138,7 @@ class BaseDialog(QDialog):
     def get_results(self) -> Dict:
         return {}
 
-class TermsDialogs(BaseDialog):
+class TermsDialog(BaseDialog):
     def init_ui(self):
         layout = QVBoxLayout()
         
@@ -365,7 +366,7 @@ class FlowManager:
             'name': 'feedback',
             'description': "Demande d'évaluation",
             'dialogs': [
-                (FeedbackDialog, "Votre avis compte!")
+                (FeedbackApp, "Votre avis compte!")
             ],
             'session_type': 'feedback'
         },

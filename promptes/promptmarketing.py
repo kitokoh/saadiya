@@ -890,3 +890,1058 @@ if __name__ == "__main__":
     window.show()
     
     sys.exit(app.exec_())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import sys
+# import os
+# import sqlite3
+# import json
+# import time
+# from datetime import datetime
+# from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
+#                              QLabel, QPushButton, QTextEdit, QProgressBar, QScrollArea, 
+#                              QGroupBox, QCheckBox, QFileDialog, QMessageBox, QStackedWidget, 
+#                              QSizePolicy, QLineEdit, QGridLayout, QFrame, QSpacerItem, QListWidget, QListWidgetItem)
+# from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QUrl, QSize, QRect, QPropertyAnimation, QEasingCurve, QCoreApplication
+# from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QDesktopServices, QMovie, QPainter, QColor, QFont, QPalette
+# from PyQt5.QtWebEngineWidgets import QWebEngineView
+# from PyQt5.QtWebChannel import QWebChannel
+# from PyQt5.QtCore import QObject
+
+# class Constants:
+#     """Class to store application constants"""
+#     PRIMARY_COLOR = "#10a37f"  # Vert DeepSeek
+#     PRIMARY_HOVER = "#0d8a6d"
+#     BACKGROUND_COLOR = "#ffffff"
+#     TEXT_COLOR = "#1e293b"
+#     TEXT_SECONDARY = "#64748b"
+#     SUCCESS_COLOR = "#10b981"
+#     ERROR_COLOR = "#ef4444"
+#     CARD_BG = "#ffffff"
+#     CARD_BORDER = "#e2e8f0"
+#     WHATSAPP_GREEN = "#25D366"
+#     CHAT_BG_USER = "#f3f4f6"
+#     CHAT_BG_AI = "#ffffff"
+#     SIDEBAR_COLOR = "#f9fafb"
+#     HISTORY_ITEM_BG = "#f8fafc"
+    
+#     PLATFORM_ICONS = {
+#         'whatsapp': '💬',
+#         'instagram': '📸',
+#         'facebook': '👍',
+#         'linkedin': '💼',
+#         'tiktok': '🎵',
+#         'email': '✉️',
+#         'twitter': '🐦',
+#         'youtube': '▶️',
+#         'analytics': '📊',
+#         'seo': '🔍',
+#         'strategy': '🧠',
+#         'content': '📝',
+#         'automation': '⚡',
+#         'report': '📈',
+#         'campaign': '📢'
+#     }
+
+# class ActionHandler(QObject):
+#     """Handler for JavaScript to Python actions"""
+#     def __init__(self, parent):
+#         super().__init__(parent)
+#         self.parent = parent
+    
+#     @pyqtSlot(str)
+#     def handleAction(self, action_data):
+#         """Handle actions sent from JavaScript"""
+#         try:
+#             data = json.loads(action_data)
+#             self.parent.execute_action(data)
+#         except json.JSONDecodeError as e:
+#             print(f"JSON decode error: {e}")
+#         except Exception as e:
+#             print(f"Error processing action: {e}")
+
+# class AnalysisThread(QThread):
+#     """Thread for asynchronous prompt analysis"""
+#     analysis_complete = pyqtSignal(str, list)
+#     error_occurred = pyqtSignal(str)
+#     progress_updated = pyqtSignal(int)
+
+#     def __init__(self, prompt_text, db_path):
+#         super().__init__()
+#         self.prompt_text = prompt_text
+#         self.db_path = db_path
+#         self._is_running = True
+
+#     def run(self):
+#         """Main execution of analysis thread"""
+#         conn = None
+#         try:
+#             conn = sqlite3.connect(self.db_path)
+#             cursor = conn.cursor()
+            
+#             # Progress simulation
+#             for i in range(1, 101):
+#                 if not self._is_running:
+#                     return
+#                 time.sleep(0.02)
+#                 self.progress_updated.emit(i)
+            
+#             # Real analysis
+#             prompt_lower = self.prompt_text.lower()
+#             detected = []
+            
+#             cursor.execute('SELECT keyword, platform, response_template, action_type FROM detection_rules')
+#             rules = cursor.fetchall()
+            
+#             for keyword, platform, template, action_type in rules:
+#                 if not self._is_running:
+#                     return
+#                 if keyword in prompt_lower:
+#                     detected.append((keyword, platform, template, action_type))
+            
+#             analysis_text = self.generate_analysis_html(prompt_lower, detected)
+#             self.analysis_complete.emit(analysis_text, detected)
+            
+#         except sqlite3.Error as e:
+#             self.error_occurred.emit(self.tr("Database error: {}").format(str(e)))
+#         except Exception as e:
+#             self.error_occurred.emit(self.tr("Analysis error: {}").format(str(e)))
+#         finally:
+#             if conn:
+#                 conn.close()
+
+#     def stop(self):
+#         """Stop the thread properly"""
+#         self._is_running = False
+#         self.wait()
+
+#     def generate_analysis_html(self, prompt, detected):
+#         """Generate HTML to display analysis results"""
+#         html = f"""
+#         <style>
+#             :root {{
+#                 --primary: {Constants.PRIMARY_COLOR};
+#                 --primary-hover: {Constants.PRIMARY_HOVER};
+#                 --background: #ffffff;
+#                 --text: {Constants.TEXT_COLOR};
+#                 --text-secondary: {Constants.TEXT_SECONDARY};
+#                 --card-bg: {Constants.CARD_BG};
+#                 --card-border: {Constants.CARD_BORDER};
+#                 --success: {Constants.SUCCESS_COLOR};
+#                 --error: {Constants.ERROR_COLOR};
+#             }}
+            
+#             body {{
+#                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+#                 background: var(--background);
+#                 color: var(--text);
+#                 line-height: 1.5;
+#                 padding: 0;
+#                 margin: 0;
+#             }}
+            
+#             .container {{
+#                 max-width: 800px;
+#                 margin: 0 auto;
+#                 padding: 20px;
+#             }}
+            
+#             .platform-section {{
+#                 margin-bottom: 1.5rem;
+#                 background: var(--background);
+#                 border-radius: 12px;
+#                 border: 1px solid var(--card-border);
+#                 overflow: hidden;
+#                 box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+#             }}
+            
+#             .platform-header {{
+#                 padding: 1rem 1.5rem;
+#                 background: var(--card-bg);
+#                 border-bottom: 1px solid var(--card-border);
+#                 display: flex;
+#                 align-items: center;
+#             }}
+            
+#             .platform-icon {{
+#                 font-size: 1.5rem;
+#                 margin-right: 0.75rem;
+#             }}
+            
+#             .platform-title {{
+#                 font-size: 1.125rem;
+#                 font-weight: 600;
+#                 margin: 0;
+#             }}
+            
+#             .options-container {{
+#                 padding: 1rem 1.5rem;
+#             }}
+            
+#             .option-card {{
+#                 padding: 1rem;
+#                 margin-bottom: 0.75rem;
+#                 background: var(--card-bg);
+#                 border: 1px solid var(--card-border);
+#                 border-radius: 8px;
+#                 transition: all 0.2s ease;
+#                 cursor: pointer;
+#             }}
+            
+#             .option-card:hover {{
+#                 transform: translateY(-2px);
+#                 box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+#                 border-color: var(--primary);
+#             }}
+            
+#             .option-title {{
+#                 font-weight: 600;
+#                 margin-bottom: 0.25rem;
+#             }}
+            
+#             .option-desc {{
+#                 color: var(--text-secondary);
+#                 font-size: 0.875rem;
+#                 margin-bottom: 0.75rem;
+#             }}
+            
+#             .action-btn {{
+#                 display: inline-flex;
+#                 align-items: center;
+#                 justify-content: center;
+#                 background: var(--primary);
+#                 color: white;
+#                 border: none;
+#                 padding: 0.5rem 1rem;
+#                 border-radius: 6px;
+#                 font-size: 0.875rem;
+#                 font-weight: 500;
+#                 cursor: pointer;
+#                 transition: background 0.2s;
+#             }}
+            
+#             .action-btn:hover {{
+#                 background: var(--primary-hover);
+#             }}
+            
+#             .keyword-tag {{
+#                 display: inline-block;
+#                 background: #e0e7ff;
+#                 color: #4f46e5;
+#                 padding: 0.25rem 0.5rem;
+#                 border-radius: 4px;
+#                 font-size: 0.75rem;
+#                 margin-right: 0.5rem;
+#                 margin-bottom: 0.5rem;
+#             }}
+            
+#             .non-clickable {{
+#                 padding: 1rem;
+#                 background: var(--card-bg);
+#                 border-radius: 8px;
+#                 margin-bottom: 0.75rem;
+#             }}
+#         </style>
+        
+#         <div class="container">
+#             <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">✨ {self.tr("Suggestions")}</h1>
+#             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">{self.tr("Here's what I can do for you:")}</p>
+#         """
+        
+#         if not detected:
+#             html += f"""
+#             <div class="platform-section">
+#                 <div class="platform-header">
+#                     <div class="platform-icon">💡</div>
+#                     <h2 class="platform-title">{self.tr("General Advice")}</h2>
+#                 </div>
+#                 <div class="options-container">
+#                     <div class="non-clickable">
+#                         <p>{self.tr("I didn't detect a specific request. Here are some general marketing tips:")}</p>
+#                         <ul>
+#                             <li>{self.tr("Focus on your target audience's needs")}</li>
+#                             <li>{self.tr("Create engaging content regularly")}</li>
+#                             <li>{self.tr("Analyze your competitors' strategies")}</li>
+#                             <li>{self.tr("Use multiple platforms for better reach")}</li>
+#                         </ul>
+#                     </div>
+#                     <button class="action-btn" onclick='pyHandler.handleAction(`{{"type":"general_advice"}}`)'>
+#                         {self.tr("Show more tips")}
+#                     </button>
+#                 </div>
+#             </div>
+#             """
+#         else:
+#             platforms = {}
+#             for item in detected:
+#                 platform = item[1]
+#                 if platform not in platforms:
+#                     platforms[platform] = []
+#                 platforms[platform].append(item)
+            
+#             for platform, items in platforms.items():
+#                 icon = Constants.PLATFORM_ICONS.get(platform, '📌')
+                
+#                 html += f"""
+#                 <div class="platform-section">
+#                     <div class="platform-header">
+#                         <div class="platform-icon">{icon}</div>
+#                         <h2 class="platform-title">{platform.capitalize()}</h2>
+#                     </div>
+#                     <div class="options-container">
+#                 """
+                
+#                 for idx, (keyword, platform, template, action_type) in enumerate(items):
+#                     # Alternate between clickable and non-clickable items
+#                     if idx % 2 == 0:
+#                         html += f"""
+#                         <div class="option-card" onclick='pyHandler.handleAction(`{{
+#                             "type": "platform_action",
+#                             "platform": "{platform}",
+#                             "action": "{action_type}"
+#                         }}`)'>
+#                             <div class="option-title">{template}</div>
+#                             <div class="option-desc">{self.tr("Based on your mention:")} <span class="keyword-tag">{keyword}</span></div>
+#                             <button class="action-btn">
+#                                 {self.tr("Execute this action")}
+#                             </button>
+#                         </div>
+#                         """
+#                     else:
+#                         html += f"""
+#                         <div class="non-clickable">
+#                             <div style="font-weight: 600; margin-bottom: 0.5rem;">{template}</div>
+#                             <p style="color: var(--text-secondary); font-size: 0.875rem;">
+#                                 {self.tr("Related to:")} <span style="background: #e0e7ff; color: #4f46e5; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">{keyword}</span>
+#                             </p>
+#                             <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+#                                 {self.tr("This is an informational suggestion that doesn't require action.")}
+#                             </p>
+#                         </div>
+#                         """
+                
+#                 html += """
+#                     </div>
+#                 </div>
+#                 """
+        
+#         html += "</div>"
+#         return html
+
+# class MarketingAIAnalyzer(QMainWindow):
+#     """Main application window"""
+#     def setup_connections(self):
+#         """Configure signal and slot connections"""
+#         self.send_btn.clicked.connect(self.analyze_prompt)
+        
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         self.setWindowTitle(self.tr("Leopardo - AI Marketing Assistant"))
+#         self.setMinimumSize(1200, 800)
+        
+#         # Configuration
+#         self.current_user = self.tr("User")
+#         self.settings = {
+#             "dark_mode": False,
+#             "animations": True
+#         }
+#         self.conversation_history = []
+        
+#         # Initialization
+#         self.init_db()
+#         self.init_ui()
+#         self.setup_connections()
+        
+#     def init_db(self):
+#         """Initialize database with complete dataset"""
+#         from imports import DB_PATH_prompt_command
+#         self.db_path = DB_PATH_prompt_command
+#         conn = sqlite3.connect(self.db_path)
+#         cursor = conn.cursor()
+        
+#         # Create tables
+#         cursor.execute('''
+#             CREATE TABLE IF NOT EXISTS detection_rules (
+#                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+#                 keyword TEXT NOT NULL,
+#                 platform TEXT NOT NULL,
+#                 response_template TEXT NOT NULL,
+#                 action_type TEXT NOT NULL,
+#                 is_clickable BOOLEAN DEFAULT 1
+#             )
+#         ''')
+        
+#         # Check existing data
+#         cursor.execute("SELECT COUNT(*) FROM detection_rules")
+#         if cursor.fetchone()[0] == 0:
+#             # Insert complete dataset (expanded)
+#             rules = [
+#                 # WhatsApp
+#                 ("whatsapp", "whatsapp", self.tr("Complete WhatsApp automation"), "whatsapp_auto", 1),
+#                 ("whatsapp message", "whatsapp", self.tr("Send personal WhatsApp message"), "whatsapp_personal", 1),
+#                 ("whatsapp group", "whatsapp", self.tr("Send message to WhatsApp group"), "whatsapp_group", 1),
+#                 ("whatsapp campaign", "whatsapp", self.tr("Launch WhatsApp campaign"), "whatsapp_campaign", 1),
+#                 ("automate whatsapp", "whatsapp", self.tr("Automate WhatsApp replies"), "whatsapp_auto_reply", 1),
+#                 ("whatsapp stats", "whatsapp", self.tr("View WhatsApp message statistics"), "whatsapp_stats", 0),
+                
+#                 # Instagram
+#                 ("instagram", "instagram", self.tr("Create Instagram post"), "instagram_post", 1),
+#                 ("instagram story", "instagram", self.tr("Create Instagram story"), "instagram_story", 1),
+#                 ("instagram reels", "instagram", self.tr("Create Instagram Reel"), "instagram_reel", 1),
+#                 ("instagram campaign", "instagram", self.tr("Launch Instagram ad campaign"), "instagram_ads", 1),
+#                 ("instagram hashtag", "instagram", self.tr("Generate optimized hashtags"), "instagram_hashtags", 1),
+#                 ("instagram analytics", "instagram", self.tr("View Instagram analytics"), "instagram_analytics", 0),
+                
+#                 # Facebook
+#                 ("facebook", "facebook", self.tr("Create Facebook post"), "facebook_post", 1),
+#                 ("facebook ad", "facebook", self.tr("Launch Facebook ad"), "facebook_ads", 1),
+#                 ("facebook page", "facebook", self.tr("Optimize your Facebook page"), "facebook_page", 1),
+#                 ("facebook insights", "facebook", self.tr("View Facebook insights"), "facebook_insights", 0),
+                
+#                 # Other platforms
+#                 ("linkedin", "linkedin", self.tr("Create LinkedIn post"), "linkedin_post", 1),
+#                 ("linkedin analytics", "linkedin", self.tr("View LinkedIn analytics"), "linkedin_analytics", 0),
+#                 ("tiktok", "tiktok", self.tr("Create TikTok video"), "tiktok_video", 1),
+#                 ("tiktok stats", "tiktok", self.tr("View TikTok statistics"), "tiktok_stats", 0),
+#                 ("youtube", "youtube", self.tr("Optimize YouTube video"), "youtube_optimize", 1),
+#                 ("youtube analytics", "youtube", self.tr("View YouTube analytics"), "youtube_analytics", 0),
+#                 ("email", "email", self.tr("Create email campaign"), "email_campaign", 1),
+#                 ("newsletter", "email", self.tr("Create newsletter"), "email_newsletter", 1),
+#                 ("email stats", "email", self.tr("View email statistics"), "email_stats", 0),
+                
+#                 # General
+#                 ("strategy", "strategy", self.tr("Develop marketing strategy"), "marketing_strategy", 1),
+#                 ("analysis", "analytics", self.tr("Analyze performance"), "performance_analysis", 1),
+#                 ("seo", "seo", self.tr("SEO optimization"), "seo_optimization", 1),
+#                 ("content", "content", self.tr("Plan content"), "content_planning", 1),
+#                 ("report", "report", self.tr("Generate marketing report"), "marketing_report", 1),
+#                 ("competitor", "analysis", self.tr("Analyze competitors"), "competitor_analysis", 1),
+#                 ("trends", "research", self.tr("Research market trends"), "market_trends", 0),
+#                 ("audience", "research", self.tr("Analyze target audience"), "audience_analysis", 0)
+#             ]
+            
+#             cursor.executemany('''
+#                 INSERT INTO detection_rules (keyword, platform, response_template, action_type, is_clickable)
+#                 VALUES (?, ?, ?, ?, ?)
+#             ''', rules)
+#             conn.commit()
+        
+#         conn.close()
+        
+#     def init_ui(self):
+#         """Initialize user interface with modern design"""
+#         self.central_widget = QWidget()
+#         self.setCentralWidget(self.central_widget)
+        
+#         self.main_layout = QHBoxLayout(self.central_widget)
+#         self.main_layout.setContentsMargins(0, 0, 0, 0)
+#         self.main_layout.setSpacing(0)
+        
+#         # Conversation history sidebar
+#         self.setup_history_sidebar()
+        
+#         # Main chat area
+#         self.content_area = QWidget()
+#         self.content_area.setObjectName("contentArea")
+#         self.content_layout = QVBoxLayout(self.content_area)
+#         self.content_layout.setContentsMargins(0, 0, 0, 0)
+#         self.content_layout.setSpacing(0)
+        
+#         # Chat container
+#         self.setup_chat_container()
+        
+#         self.main_layout.addWidget(self.content_area, stretch=1)
+        
+#         # Apply global style
+#         self.update_styles()
+        
+#     def setup_history_sidebar(self):
+#         """Configure conversation history sidebar"""
+#         self.history_sidebar = QWidget()
+#         self.history_sidebar.setObjectName("historySidebar")
+#         self.history_sidebar.setFixedWidth(280)
+#         sidebar_layout = QVBoxLayout(self.history_sidebar)
+#         sidebar_layout.setContentsMargins(0, 0, 0, 0)
+#         sidebar_layout.setSpacing(0)
+        
+#         # Header
+#         header = QWidget()
+#         header.setObjectName("historyHeader")
+#         header.setFixedHeight(60)
+#         header_layout = QHBoxLayout(header)
+#         header_layout.setContentsMargins(20, 0, 20, 0)
+        
+#         title = QLabel(self.tr("History"))
+#         title.setObjectName("historyTitle")
+        
+#         new_chat_btn = QPushButton("+")
+#         new_chat_btn.setObjectName("newChatButton")
+#         new_chat_btn.setFixedSize(32, 32)
+#         new_chat_btn.clicked.connect(self.new_conversation)
+        
+#         header_layout.addWidget(title)
+#         header_layout.addWidget(new_chat_btn)
+        
+#         # History list
+#         self.history_list = QListWidget()
+#         self.history_list.setObjectName("historyList")
+#         self.history_list.setVerticalScrollMode(QListWidget.ScrollPerPixel)
+        
+#         # Sample history items
+#         self.add_history_item("Today", "Social media strategy")
+#         self.add_history_item("Yesterday", "WhatsApp automation")
+#         self.add_history_item("Mar 15", "Instagram campaign")
+        
+#         sidebar_layout.addWidget(header)
+#         sidebar_layout.addWidget(self.history_list)
+        
+#         self.main_layout.addWidget(self.history_sidebar)
+        
+#     def add_history_item(self, date, title):
+#         """Add item to conversation history"""
+#         item = QListWidgetItem()
+#         item.setSizeHint(QSize(0, 70))
+        
+#         widget = QWidget()
+#         layout = QVBoxLayout(widget)
+#         layout.setContentsMargins(15, 10, 15, 10)
+        
+#         date_label = QLabel(date)
+#         date_label.setObjectName("historyDate")
+        
+#         title_label = QLabel(title)
+#         title_label.setObjectName("historyTitleLabel")
+#         title_label.setWordWrap(True)
+        
+#         layout.addWidget(date_label)
+#         layout.addWidget(title_label)
+        
+#         self.history_list.addItem(item)
+#         self.history_list.setItemWidget(item, widget)
+        
+#     def setup_chat_container(self):
+#         """Configure main chat container"""
+#         self.chat_container = QWidget()
+#         self.chat_container.setObjectName("chatContainer")
+#         chat_layout = QVBoxLayout(self.chat_container)
+#         chat_layout.setContentsMargins(0, 0, 0, 0)
+#         chat_layout.setSpacing(0)
+        
+#         # Chat history
+#         self.chat_history = QScrollArea()
+#         self.chat_history.setWidgetResizable(True)
+#         self.chat_history.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+#         self.chat_history.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        
+#         self.chat_content = QWidget()
+#         self.chat_content.setObjectName("chatContent")
+#         self.chat_content_layout = QVBoxLayout(self.chat_content)
+#         self.chat_content_layout.setContentsMargins(40, 20, 40, 20)
+#         self.chat_content_layout.setSpacing(20)
+        
+#         # Welcome message
+#         welcome_msg = QLabel(self.tr("""
+#         <div style="padding: 20px; border-radius: 12px; background: #f8fafc;">
+#             <h2 style="margin-top: 0; color: #10a37f;">👋 Welcome to Leopardo AI</h2>
+#             <p>I'm your AI marketing assistant. How can I help you today?</p>
+#         </div>
+#         """))
+#         welcome_msg.setObjectName("welcomeMsg")
+#         welcome_msg.setWordWrap(True)
+#         welcome_msg.setTextFormat(Qt.RichText)
+        
+#         self.chat_content_layout.addWidget(welcome_msg)
+#         self.chat_content_layout.addStretch()
+        
+#         self.chat_history.setWidget(self.chat_content)
+        
+#         # Input area
+#         input_container = QWidget()
+#         input_container.setObjectName("inputContainer")
+#         input_layout = QVBoxLayout(input_container)
+#         input_layout.setContentsMargins(40, 0, 40, 40)
+#         input_layout.setSpacing(15)
+        
+#         # Text area with styled placeholder
+#         self.prompt_input = QTextEdit()
+#         self.prompt_input.setObjectName("promptInput")
+#         self.prompt_input.setPlaceholderText(self.tr("Describe your marketing need..."))
+#         self.prompt_input.setFixedHeight(120)
+        
+#         # Button row
+#         button_row = QWidget()
+#         button_row_layout = QHBoxLayout(button_row)
+#         button_row_layout.setContentsMargins(0, 0, 0, 0)
+#         button_row_layout.setSpacing(15)
+        
+#         # Suggestions
+#         suggestions = [
+#             ("📱 Social media strategy", "Create a content plan for Instagram"),
+#             ("📊 Campaign analysis", "Analyze last month's performance"),
+#             ("💬 WhatsApp automation", "Set up automated replies"),
+#             ("📢 Ad campaign", "Launch a new Facebook ad")
+#         ]
+        
+#         for text, prompt in suggestions:
+#             btn = QPushButton(text)
+#             btn.setObjectName("suggestionButton")
+#             btn.setCursor(Qt.PointingHandCursor)
+#             btn.clicked.connect(lambda _, p=prompt: self.prompt_input.setPlainText(p))
+#             button_row_layout.addWidget(btn)
+        
+#         button_row_layout.addStretch()
+        
+#         # Send button with icon only
+#         self.send_btn = QPushButton()
+#         self.send_btn.setObjectName("sendButton")
+#         self.send_btn.setIcon(QIcon(":icons/send.png"))  # Use your send icon
+#         self.send_btn.setIconSize(QSize(24, 24))
+#         self.send_btn.setFixedSize(48, 48)
+        
+#         # Progress bar
+#         self.progress_bar = QProgressBar()
+#         self.progress_bar.setObjectName("progressBar")
+#         self.progress_bar.setRange(0, 100)
+#         self.progress_bar.setTextVisible(False)
+#         self.progress_bar.hide()
+        
+#         # Component assembly
+#         input_layout.addWidget(self.prompt_input)
+#         input_layout.addWidget(button_row)
+        
+#         button_row_layout.addWidget(self.progress_bar)
+#         button_row_layout.addWidget(self.send_btn)
+        
+#         chat_layout.addWidget(self.chat_history)
+#         chat_layout.addWidget(input_container)
+        
+#         self.content_layout.addWidget(self.chat_container)
+        
+#     def update_styles(self):
+#         """Apply CSS styles to the application"""
+#         self.setStyleSheet(f"""
+#             QWidget {{
+#                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+#             }}
+            
+#             QWidget#historySidebar {{
+#                 background: {Constants.SIDEBAR_COLOR};
+#                 border-right: 1px solid #e2e8f0;
+#             }}
+            
+#             QWidget#historyHeader {{
+#                 border-bottom: 1px solid #e2e8f0;
+#             }}
+            
+#             QLabel#historyTitle {{
+#                 font-size: 16px;
+#                 font-weight: 600;
+#                 color: {Constants.TEXT_COLOR};
+#             }}
+            
+#             QPushButton#newChatButton {{
+#                 border: none;
+#                 border-radius: 16px;
+#                 background: {Constants.PRIMARY_COLOR};
+#                 color: white;
+#                 font-size: 16px;
+#                 font-weight: bold;
+#             }}
+            
+#             QPushButton#newChatButton:hover {{
+#                 background: {Constants.PRIMARY_HOVER};
+#             }}
+            
+#             QListWidget#historyList {{
+#                 border: none;
+#                 background: transparent;
+#             }}
+            
+#             QListWidget::item {{
+#                 border-bottom: 1px solid #e2e8f0;
+#             }}
+            
+#             QListWidget::item:hover {{
+#                 background: #f1f5f9;
+#             }}
+            
+#             QListWidget::item:selected {{
+#                 background: #e2e8f0;
+#             }}
+            
+#             QLabel#historyDate {{
+#                 font-size: 12px;
+#                 color: {Constants.TEXT_SECONDARY};
+#             }}
+            
+#             QLabel#historyTitleLabel {{
+#                 font-size: 14px;
+#                 color: {Constants.TEXT_COLOR};
+#             }}
+            
+#             QWidget#contentArea {{
+#                 background: {Constants.BACKGROUND_COLOR};
+#             }}
+            
+#             QWidget#chatContainer {{
+#                 background: {Constants.BACKGROUND_COLOR};
+#             }}
+            
+#             QWidget#chatContent {{
+#                 background: {Constants.BACKGROUND_COLOR};
+#             }}
+            
+#             QLabel#welcomeMsg {{
+#                 font-size: 14px;
+#                 color: {Constants.TEXT_COLOR};
+#             }}
+            
+#             QWidget#inputContainer {{
+#                 background: {Constants.BACKGROUND_COLOR};
+#             }}
+            
+#             QTextEdit#promptInput {{
+#                 background: white;
+#                 border: 1px solid #e2e8f0;
+#                 border-radius: 12px;
+#                 padding: 15px;
+#                 font-size: 14px;
+#                 color: {Constants.TEXT_COLOR};
+#             }}
+            
+#             QTextEdit#promptInput:focus {{
+#                 border: 1px solid {Constants.PRIMARY_COLOR};
+#             }}
+            
+#             QPushButton#suggestionButton {{
+#                 background: white;
+#                 border: 1px solid #e2e8f0;
+#                 border-radius: 8px;
+#                 padding: 8px 12px;
+#                 font-size: 12px;
+#                 color: {Constants.TEXT_COLOR};
+#             }}
+            
+#             QPushButton#suggestionButton:hover {{
+#                 background: #f1f5f9;
+#             }}
+            
+#             QPushButton#sendButton {{
+#                 border: none;
+#                 border-radius: 24px;
+#                 background: {Constants.PRIMARY_COLOR};
+#             }}
+            
+#             QPushButton#sendButton:hover {{
+#                 background: {Constants.PRIMARY_HOVER};
+#             }}
+            
+#             QPushButton#sendButton:disabled {{
+#                 background: #a5b4fc;
+#             }}
+            
+#             QProgressBar#progressBar {{
+#                 height: 6px;
+#                 background: #e2e8f0;
+#                 border-radius: 3px;
+#             }}
+            
+#             QProgressBar#progressBar::chunk {{
+#                 background: {Constants.PRIMARY_COLOR};
+#                 border-radius: 3px;
+#             }}
+#         """)
+        
+#     def analyze_prompt(self):
+#         """Start prompt analysis"""
+#         prompt = self.prompt_input.toPlainText().strip()
+#         if not prompt:
+#             self.show_error(self.tr("Please enter your request"))
+#             return
+        
+#         # Add user message to chat
+#         self.add_chat_message("user", prompt)
+        
+#         # Clear input
+#         self.prompt_input.clear()
+        
+#         # Disable button during analysis
+#         self.send_btn.setEnabled(False)
+#         self.progress_bar.show()
+        
+#         # Loading animation
+#         self.loading_animation = QPropertyAnimation(self.progress_bar, b"value")
+#         self.loading_animation.setDuration(2000)
+#         self.loading_animation.setStartValue(0)
+#         self.loading_animation.setEndValue(100)
+#         self.loading_animation.setEasingCurve(QEasingCurve.InOutQuad)
+#         self.loading_animation.start()
+        
+#         # Launch analysis in separate thread
+#         self.analysis_thread = AnalysisThread(prompt, self.db_path)
+#         self.analysis_thread.analysis_complete.connect(self.show_results)
+#         self.analysis_thread.error_occurred.connect(self.show_error)
+#         self.analysis_thread.progress_updated.connect(self.progress_bar.setValue)
+#         self.analysis_thread.start()
+        
+#     def add_chat_message(self, sender, message):
+#         """Add message to chat history"""
+#         container = QWidget()
+#         container.setObjectName(f"msgContainer_{sender}")
+#         layout = QHBoxLayout(container)
+#         layout.setContentsMargins(0, 0, 0, 0)
+        
+#         # Message bubble
+#         bubble = QLabel()
+#         bubble.setObjectName(f"msgBubble_{sender}")
+#         bubble.setWordWrap(True)
+#         bubble.setTextFormat(Qt.RichText)
+#         bubble.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        
+#         if sender == "user":
+#             bubble.setText(f"""
+#                 <div style="background: {Constants.CHAT_BG_USER}; 
+#                             border-radius: 12px 12px 0 12px; 
+#                             padding: 12px 16px;
+#                             max-width: 80%;">
+#                     {message}
+#                 </div>
+#             """)
+#             layout.addStretch()
+#             layout.addWidget(bubble)
+#         else:
+#             # For AI messages, we need to handle both HTML and plain text
+#             if message.startswith("<"):
+#                 bubble.setText(message)
+#             else:
+#                 bubble.setText(f"""
+#                     <div style="background: {Constants.CHAT_BG_AI}; 
+#                                 border-radius: 12px 12px 12px 0; 
+#                                 padding: 12px 16px;
+#                                 max-width: 80%;">
+#                         {message}
+#                     </div>
+#                 """)
+#             layout.addWidget(bubble)
+#             layout.addStretch()
+        
+#         self.chat_content_layout.insertWidget(self.chat_content_layout.count()-1, container)
+        
+#         # Scroll to bottom
+#         scroll_bar = self.chat_history.verticalScrollBar()
+#         scroll_bar.setValue(scroll_bar.maximum())
+        
+#     def show_results(self, html, detected_platforms):
+#         """Show analysis results"""
+#         self.send_btn.setEnabled(True)
+#         self.progress_bar.hide()
+        
+#         # Add AI response to chat
+#         self.add_chat_message("ai", html)
+        
+#         # Add to conversation history
+#         self.conversation_history.append({
+#             "prompt": self.prompt_input.toPlainText(),
+#             "response": html,
+#             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+#         })
+        
+#         # Fade animation
+#         fade_in = QPropertyAnimation(self.progress_bar, b"windowOpacity")
+#         fade_in.setDuration(300)
+#         fade_in.setStartValue(0)
+#         fade_in.setEndValue(1)
+#         fade_in.start()
+        
+#     def show_error(self, message):
+#         """Show error message"""
+#         self.send_btn.setEnabled(True)
+#         self.progress_bar.hide()
+        
+#         # Add error message to chat
+#         self.add_chat_message("ai", f"""
+#             <div style="color: {Constants.ERROR_COLOR}; 
+#                         padding: 12px 16px;
+#                         border-radius: 12px;
+#                         background: {Constants.CHAT_BG_AI}">
+#                 ❌ {message}
+#             </div>
+#         """)
+        
+#     def new_conversation(self):
+#         """Start a new conversation"""
+#         # Clear chat content except welcome message
+#         for i in reversed(range(self.chat_content_layout.count())): 
+#             widget = self.chat_content_layout.itemAt(i).widget()
+#             if widget and widget.objectName() != "welcomeMsg":
+#                 widget.deleteLater()
+        
+#         # Reset input
+#         self.prompt_input.clear()
+        
+#     def execute_action(self, action_data):
+#         """Execute specific action"""
+#         try:
+#             action_type = action_data.get("type")
+            
+#             if action_type == "platform_action":
+#                 platform = action_data.get("platform")
+#                 action = action_data.get("action")
+                
+#                 if platform == "whatsapp":
+#                     self.handle_whatsapp_action(action)
+#                 elif platform == "instagram":
+#                     self.handle_instagram_action(action)
+#                 # Add other platforms here...
+                
+#         except Exception as e:
+#             print(f"Execution error: {e}")
+            
+#     def handle_whatsapp_action(self, action):
+#         """Handle WhatsApp actions"""
+#         if action == "whatsapp_personal":
+#             self.show_whatsapp_personal_ui()
+#         elif action == "whatsapp_group":
+#             self.show_whatsapp_group_ui()
+#         else:
+#             self.show_whatsapp_general_ui()
+            
+#     def closeEvent(self, event):
+#         """Handle application closing"""
+#         if hasattr(self, 'analysis_thread') and self.analysis_thread.isRunning():
+#             self.analysis_thread.stop()
+#         event.accept()
+
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     app.setStyle("Fusion")
+    
+#     # Set color palette for modern look
+#     palette = QPalette()
+#     palette.setColor(QPalette.Window, QColor(248, 250, 252))
+#     palette.setColor(QPalette.WindowText, QColor(30, 41, 59))
+#     palette.setColor(QPalette.Base, QColor(255, 255, 255))
+#     palette.setColor(QPalette.AlternateBase, QColor(243, 244, 246))
+#     palette.setColor(QPalette.ToolTipBase, QColor(255, 255, 255))
+#     palette.setColor(QPalette.ToolTipText, QColor(30, 41, 59))
+#     palette.setColor(QPalette.Text, QColor(30, 41, 59))
+#     palette.setColor(QPalette.Button, QColor(226, 232, 240))
+#     palette.setColor(QPalette.ButtonText, QColor(30, 41, 59))
+#     palette.setColor(QPalette.BrightText, QColor(255, 255, 255))
+#     palette.setColor(QPalette.Highlight, QColor(16, 163, 127))
+#     palette.setColor(QPalette.HighlightedText, QColor(255, 255, 255))
+#     app.setPalette(palette)
+    
+#     # Set default fonts
+#     font = QFont("Inter", 10)
+#     app.setFont(font)
+    
+#     window = MarketingAIAnalyzer()
+#     window.show()
+    
+#     sys.exit(app.exec_())
