@@ -1709,6 +1709,529 @@ class InstallerPage(QWidget):
         except Exception as e:
             self.installer.show_notification("Erreur", f"Erreur lors de l'installation de {app_name} : {e}")
 
+
+
+
+
+
+
+
+
+from demarrage.demarage import BaseDialog
+class ModuleSelectionDialog(BaseDialog):
+    def init_ui(self):
+        # Configuration de base
+        self.setWindowTitle("Sélection des Modules")
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setFixedSize(900, 700)
+        
+        # Fond avec particules animées
+        self.bg = ParticleSystem(self)
+        self.bg.setGeometry(0, 0, self.width(), self.height())
+        
+        # Conteneur principal
+        self.container = QWidget(self)
+        self.container.setGeometry(50, 50, 800, 600)
+        self.container.setObjectName("container")
+        self.container.setStyleSheet("""
+            #container {
+                background: rgba(30, 35, 45, 0.85);
+                border-radius: 25px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
+            }
+        """)
+        
+        # Ombre portée
+        self.container_shadow = QGraphicsDropShadowEffect(self.container)
+        self.container_shadow.setBlurRadius(40)
+        self.container_shadow.setColor(QColor(0, 0, 0, 200))
+        self.container_shadow.setOffset(0, 15)
+        self.container.setGraphicsEffect(self.container_shadow)
+        
+        # Layout principal
+        layout = QVBoxLayout(self.container)
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setSpacing(25)
+        
+        # En-tête avec animation de gradient
+        self.setup_header(layout)
+        
+        # Barre de recherche
+        self.setup_search_bar(layout)
+        
+        # Zone de modules avec scroll
+        self.setup_modules_area(layout)
+        
+        # Pied de page avec boutons
+        self.setup_footer(layout)
+        
+        # Bouton de fermeture
+        self.setup_close_button()
+        
+        # Animation d'ouverture
+        self.open_animation()
+        
+        # Style supplémentaire
+        self.setStyleSheet(self.styleSheet() + """
+            QScrollArea {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:vertical {
+                background: rgba(255, 255, 255, 0.1);
+                width: 10px;
+                margin: 0;
+                border-radius: 5px;
+            }
+            QScrollBar::handle:vertical {
+                background: rgba(255, 255, 255, 0.3);
+                min-height: 30px;
+                border-radius: 5px;
+            }
+        """)
+    
+    def setup_header(self, layout):
+        header = QWidget()
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(15)
+        
+        # Titre avec animation de gradient
+        self.title_label = QLabel("Sélectionnez les modules à activer")
+        self.title_label.setStyleSheet("""
+            QLabel {
+                font-size: 28px;
+                font-weight: bold;
+                font-family: 'Segoe UI';
+                color: white;
+                text-align: center;
+            }
+        """)
+        
+        # Animation de gradient
+        self.gradient_anim = QPropertyAnimation(self.title_label, b"gradientPos")
+        self.gradient_anim.setDuration(3000)
+        self.gradient_anim.setStartValue(0)
+        self.gradient_anim.setEndValue(1)
+        self.gradient_anim.setEasingCurve(QEasingCurve.InOutSine)
+        self.gradient_anim.setLoopCount(-1)
+        
+        header_layout.addWidget(self.title_label)
+        
+        # Séparateur stylisé
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setStyleSheet("""
+            QFrame {
+                border: none;
+                height: 1px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 transparent, 
+                    stop:0.5 rgba(79, 172, 254, 0.5),
+                    stop:1 transparent);
+                margin: 10px 0;
+            }
+        """)
+        header_layout.addWidget(separator)
+        
+        layout.addWidget(header)
+    
+    def setup_search_bar(self, layout):
+        search_bar = QWidget()
+        search_layout = QHBoxLayout(search_bar)
+        search_layout.setContentsMargins(0, 0, 0, 0)
+        search_layout.setSpacing(15)
+        
+        # Champ de recherche
+        search_container = QWidget()
+        search_container.setStyleSheet("""
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        """)
+        
+        search_inner = QHBoxLayout(search_container)
+        search_inner.setContentsMargins(15, 5, 15, 5)
+        
+        search_icon = QLabel()
+        search_icon.setPixmap(QPixmap(":/icons/search.svg").scaled(20, 20, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        search_inner.addWidget(search_icon)
+        
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Rechercher des modules...")
+        self.search_input.setStyleSheet("""
+            QLineEdit {
+                background: transparent;
+                border: none;
+                padding: 8px;
+                color: white;
+                font-family: 'Segoe UI';
+                font-size: 14px;
+            }
+        """)
+        self.search_input.textChanged.connect(self.filter_modules)
+        search_inner.addWidget(self.search_input, 1)
+        
+        search_layout.addWidget(search_container, 1)
+        layout.addWidget(search_bar)
+    
+    def setup_modules_area(self, layout):
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        
+        # Contenu scrollable
+        self.scroll_content = QWidget()
+        self.scroll_content.setStyleSheet("background: transparent;")
+        
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_layout.setSpacing(15)
+        self.scroll_layout.setContentsMargins(5, 5, 5, 5)
+        
+        # Modules avec cartes stylisées
+        self.modules = {
+            'module1': {
+                'name': "Module Analyse de données",
+                'desc': "Analyse avancée des données avec visualisations interactives et rapports automatisés.",
+                'icon': ":/icons/data_analysis.svg"
+            },
+            'module2': {
+                'name': "Module Reporting",
+                'desc': "Génération de rapports personnalisés avec export en PDF, Excel et formats web.",
+                'icon': ":/icons/reporting.svg"
+            },
+            'module3': {
+                'name': "Module Administration",
+                'desc': "Gestion complète des utilisateurs, permissions et paramètres système.",
+                'icon': ":/icons/admin.svg"
+            },
+            'module4': {
+                'name': "Module Statistiques",
+                'desc': "Suivi des indicateurs clés de performance avec tableaux de bord personnalisables.",
+                'icon': ":/icons/stats.svg"
+            }
+        }
+        
+        for module_id, module_data in self.modules.items():
+            card = self.create_module_card(module_id, module_data)
+            self.scroll_layout.addWidget(card)
+        
+        scroll_area.setWidget(self.scroll_content)
+        layout.addWidget(scroll_area, 1)
+    
+    def create_module_card(self, module_id, module_data):
+        card = QWidget()
+        card.setObjectName("moduleCard")
+        card.setStyleSheet("""
+            #moduleCard {
+                background: rgba(50, 60, 80, 0.6);
+                border-radius: 15px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+            }
+            #moduleCard:hover {
+                background: rgba(60, 70, 90, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+            }
+        """)
+        
+        card_layout = QHBoxLayout(card)
+        card_layout.setContentsMargins(20, 15, 20, 15)
+        card_layout.setSpacing(20)
+        
+        # Checkbox de sélection
+        checkbox = QCheckBox()
+        checkbox.setObjectName("moduleCheckbox")
+        checkbox.setChecked(True)
+        checkbox.setStyleSheet("""
+            QCheckBox {
+                spacing: 15px;
+            }
+            QCheckBox::indicator {
+                width: 24px;
+                height: 24px;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.1);
+            }
+            QCheckBox::indicator:checked {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4facfe, stop:1 #00f2fe);
+                border-color: rgba(255, 255, 255, 0.6);
+            }
+        """)
+        checkbox.stateChanged.connect(lambda state, m=module_id: self.on_module_toggled(m, state))
+        card_layout.addWidget(checkbox)
+        
+        # Icône du module
+        icon_container = QWidget()
+        icon_container.setFixedSize(48, 48)
+        icon_layout = QVBoxLayout(icon_container)
+        icon_layout.setContentsMargins(0, 0, 0, 0)
+        
+        icon = QLabel()
+        icon.setPixmap(QPixmap(module_data['icon']).scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        icon.setAlignment(Qt.AlignCenter)
+        icon_layout.addWidget(icon, 0, Qt.AlignCenter)
+        
+        # Effet de glow sur l'icône
+        icon_glow = QGraphicsDropShadowEffect(icon_container)
+        icon_glow.setBlurRadius(15)
+        icon_glow.setColor(QColor(79, 172, 254, 150))
+        icon_glow.setOffset(0, 0)
+        icon_container.setGraphicsEffect(icon_glow)
+        
+        card_layout.addWidget(icon_container)
+        
+        # Texte descriptif
+        text_layout = QVBoxLayout()
+        text_layout.setSpacing(5)
+        
+        name_label = QLabel(module_data['name'])
+        name_label.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 16px;
+                font-weight: bold;
+                font-family: 'Segoe UI';
+            }
+        """)
+        text_layout.addWidget(name_label)
+        
+        desc_label = QLabel(module_data['desc'])
+        desc_label.setStyleSheet("""
+            QLabel {
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 13px;
+                font-family: 'Segoe UI';
+            }
+        """)
+        desc_label.setWordWrap(True)
+        text_layout.addWidget(desc_label)
+        
+        card_layout.addLayout(text_layout, 1)
+        
+        # Bouton d'info
+        info_btn = QPushButton()
+        info_btn.setIcon(QIcon(":/icons/info.svg"))
+        info_btn.setIconSize(QSize(20, 20))
+        info_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                border: none;
+                padding: 5px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+            }
+        """)
+        info_btn.clicked.connect(lambda: self.show_module_info(module_id))
+        card_layout.addWidget(info_btn)
+        
+        return card
+    
+    def setup_footer(self, layout):
+        footer = QWidget()
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Bouton "Tout sélectionner"
+        self.select_all_btn = GlassButton("Tout sélectionner")
+        self.select_all_btn.setFixedWidth(180)
+        self.select_all_btn.clicked.connect(self.toggle_select_all)
+        footer_layout.addWidget(self.select_all_btn)
+        
+        # Espaceur
+        footer_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        
+        # Bouton de validation
+        self.submit_btn = GlassButton("Activer les modules")
+        self.submit_btn.setFixedWidth(200)
+        self.submit_btn.setStyleSheet("""
+            GlassButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4facfe, stop:1 #00f2fe);
+                border: none;
+            }
+            GlassButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #3a9cea, stop:1 #00d8e8);
+            }
+        """)
+        self.submit_btn.clicked.connect(self.accept)
+        footer_layout.addWidget(self.submit_btn)
+        
+        layout.addWidget(footer)
+    
+    def setup_close_button(self):
+        self.close_btn = QPushButton("✕", self.container)
+        self.close_btn.setGeometry(750, 20, 40, 40)
+        self.close_btn.setStyleSheet("""
+            QPushButton {
+                color: white;
+                background: transparent;
+                border: none;
+                font-size: 20px;
+                font-weight: bold;
+                border-radius: 20px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.15);
+            }
+        """)
+        self.close_btn.clicked.connect(self.close_with_animation)
+    
+    def open_animation(self):
+        self.anim_group = QParallelAnimationGroup(self)
+        
+        # Animation d'opacité
+        opacity_anim = QPropertyAnimation(self, b"windowOpacity")
+        opacity_anim.setDuration(350)
+        opacity_anim.setStartValue(0)
+        opacity_anim.setEndValue(1)
+        
+        # Animation de scale
+        scale_anim = QPropertyAnimation(self.container, b"geometry")
+        scale_anim.setDuration(500)
+        scale_anim.setStartValue(QRect(50, 150, 800, 0))
+        scale_anim.setEndValue(QRect(50, 50, 800, 600))
+        scale_anim.setEasingCurve(QEasingCurve.OutBack)
+        
+        self.anim_group.addAnimation(opacity_anim)
+        self.anim_group.addAnimation(scale_anim)
+        self.anim_group.start()
+    
+    def close_with_animation(self):
+        self.close_anim = QParallelAnimationGroup(self)
+        
+        opacity_anim = QPropertyAnimation(self, b"windowOpacity")
+        opacity_anim.setDuration(300)
+        opacity_anim.setStartValue(1)
+        opacity_anim.setEndValue(0)
+        
+        scale_anim = QPropertyAnimation(self.container, b"geometry")
+        scale_anim.setDuration(400)
+        scale_anim.setStartValue(QRect(50, 50, 800, 600))
+        scale_anim.setEndValue(QRect(50, 150, 800, 0))
+        scale_anim.setEasingCurve(QEasingCurve.InBack)
+        
+        self.close_anim.addAnimation(opacity_anim)
+        self.close_anim.addAnimation(scale_anim)
+        self.close_anim.finished.connect(self.accept)
+        self.close_anim.start()
+    
+    def filter_modules(self, text):
+        for i in range(self.scroll_layout.count()):
+            widget = self.scroll_layout.itemAt(i).widget()
+            if widget:
+                name = widget.findChild(QLabel).text().lower()
+                widget.setVisible(text.lower() in name)
+    
+    def toggle_select_all(self):
+        checkboxes = self.scroll_content.findChildren(QCheckBox)
+        if not checkboxes:
+            return
+            
+        all_checked = all(cb.isChecked() for cb in checkboxes)
+        new_state = not all_checked
+        
+        for cb in checkboxes:
+            cb.setChecked(new_state)
+        
+        self.select_all_btn.setText("Tout désélectionner" if new_state else "Tout sélectionner")
+    
+    def on_module_toggled(self, module_id, state):
+        # Animation de feedback
+        checkbox = self.sender()
+        anim = QPropertyAnimation(checkbox, b"geometry")
+        anim.setDuration(200)
+        anim.setStartValue(checkbox.geometry())
+        end_geo = checkbox.geometry()
+        end_geo.setWidth(end_geo.width() + (10 if state else -10))
+        anim.setEndValue(end_geo)
+        anim.start()
+    
+    def show_module_info(self, module_id):
+        info = self.modules.get(module_id, {})
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle(info.get('name', 'Détails du module'))
+        dialog.setWindowModality(Qt.ApplicationModal)
+        dialog.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        dialog.setAttribute(Qt.WA_TranslucentBackground)
+        dialog.setFixedSize(500, 300)
+        
+        # Fond du dialogue
+        bg = QWidget(dialog)
+        bg.setGeometry(0, 0, 500, 300)
+        bg.setStyleSheet("""
+            background: rgba(40, 50, 70, 0.95);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        """)
+        
+        shadow = QGraphicsDropShadowEffect(bg)
+        shadow.setBlurRadius(30)
+        shadow.setColor(QColor(0, 0, 0, 150))
+        shadow.setOffset(0, 10)
+        bg.setGraphicsEffect(shadow)
+        
+        # Contenu
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(30, 30, 30, 30)
+        layout.setSpacing(20)
+        
+        # Icône et titre
+        header = QWidget()
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        
+        icon = QLabel()
+        icon.setPixmap(QPixmap(info.get('icon', ':/icons/module.svg')).scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        header_layout.addWidget(icon)
+        
+        title = QLabel(info.get('name', ''))
+        title.setStyleSheet("""
+            QLabel {
+                color: white;
+                font-size: 20px;
+                font-weight: bold;
+                font-family: 'Segoe UI';
+            }
+        """)
+        header_layout.addWidget(title, 1)
+        
+        layout.addWidget(header)
+        
+        # Description détaillée
+        desc = QTextEdit(info.get('desc', '') + "\n\nFonctionnalités supplémentaires:\n- Gestion avancée\n- Rapports personnalisés\n- Intégration API")
+        desc.setStyleSheet("""
+            QTextEdit {
+                background: transparent;
+                color: rgba(255, 255, 255, 0.8);
+                font-family: 'Segoe UI';
+                font-size: 14px;
+                border: none;
+            }
+        """)
+        desc.setReadOnly(True)
+        layout.addWidget(desc, 1)
+        
+        # Bouton de fermeture
+        close_btn = GlassButton("Fermer")
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn)
+        
+        dialog.exec_()
+    
+    def get_results(self) -> Dict:
+        return {
+            'selected_modules': [
+                module_id for module_id, module_data in self.modules.items()
+                if self.scroll_content.findChild(QCheckBox, "moduleCheckbox").isChecked()
+            ]
+        }
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     

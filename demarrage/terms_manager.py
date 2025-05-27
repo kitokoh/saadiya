@@ -52,7 +52,7 @@ class TermsManager:
 
 class TermsDialog(QDialog):
     def __init__(self, parent=None, user_id=None, force_show=False):
-        super().__init__()
+        super().__init__(parent)
         self.manager = TermsManager()
         self.user_id = user_id or "guest"
         self.setup_ui()
