@@ -6,11 +6,24 @@ from PyQt5.QtCore import Qt
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Callable
-# from demarrage.terms_manager import TermsDialog
-# from Installsweb.installmodules import InstallerDialog
-# from ui.register import RegisterModule
-# from Mining.miningcoiy import MainWindow
-# from demarrage.feedback import FeedbackApp
+from demarrage.terms_manager import TermsDialog
+from ui.register import RegisterModule
+from Mining.miningcoiy import MainWindow
+from demarrage.feedback import FeedbackApp
+from demarrage.tuto import TutorialDialog
+from demarrage.evaluemarketing  import MarketingEvaluationDialog
+from demarrage.baseDialog import BaseDialog
+
+from PyQt5.QtWidgets import QFrame
+from PyQt5.QtWidgets import QScrollArea, QTextBrowser
+from PyQt5.QtCore import QDate
+from PyQt5.QtWidgets import QHBoxLayout
+from PyQt5.QtCore import QPropertyAnimation
+
+
+from demarrage.feedback import FeedbackDialog
+from demarrage.modules import ModuleSelectionDialog
+
 class DatabaseManager:
     def __init__(self):
         self.conn = sqlite3.connect('app_state.db')
@@ -125,219 +138,9 @@ class DatabaseManager:
     def close(self):
         self.conn.close()
 
-class BaseDialog(QDialog):
-    def __init__(self, title: str):
-        super().__init__()
-        self.setWindowTitle(title)
-        self.setModal(True)
-        self.init_ui()
-        
-    def init_ui(self):
-        raise NotImplementedError("Subclasses must implement init_ui")
-    
-    def get_results(self) -> Dict:
-        return {}
 
-class TermsDialog(BaseDialog):
-    def init_ui(self):
-        layout = QVBoxLayout()
-        
-        self.label = QLabel("Veuillez accepter les conditions d'utilisation:")
-        self.label.setWordWrap(True)
-        layout.addWidget(self.label)
-        
-        self.terms_text = QLabel("Conditions d'utilisation détaillées...")
-        self.terms_text.setWordWrap(True)
-        layout.addWidget(self.terms_text)
-        
-        self.accept_checkbox = QCheckBox("J'accepte les conditions")
-        layout.addWidget(self.accept_checkbox)
-        
-        self.continue_btn = QPushButton("Continuer")
-        self.continue_btn.setEnabled(False)
-        self.continue_btn.clicked.connect(self.accept)
-        layout.addWidget(self.continue_btn)
-        
-        self.accept_checkbox.stateChanged.connect(
-            lambda state: self.continue_btn.setEnabled(state == Qt.Checked)
-        )
-        
-        self.setLayout(layout)
-    
-    def get_results(self) -> Dict:
-        return {'accepted_terms': self.accept_checkbox.isChecked()}
 
-class ModuleSelectionDialog(BaseDialog):
-    def init_ui(self):
-        layout = QVBoxLayout()
-        
-        self.label = QLabel("Sélectionnez les modules à activer:")
-        layout.addWidget(self.label)
-        
-        self.modules = {
-            'module1': QCheckBox("Module Analyse de données"),
-            'module2': QCheckBox("Module Reporting"),
-            'module3': QCheckBox("Module Administration"),
-            'module4': QCheckBox("Module Statistiques")
-        }
-        
-        for module in self.modules.values():
-            layout.addWidget(module)
-        
-        self.submit_btn = QPushButton("Valider")
-        self.submit_btn.clicked.connect(self.accept)
-        layout.addWidget(self.submit_btn)
-        
-        self.setLayout(layout)
-    
-    def get_results(self) -> Dict:
-        return {
-            'selected_modules': [
-                name for name, checkbox in self.modules.items() 
-                if checkbox.isChecked()
-            ]
-        }
 
-class UserCreationDialog(BaseDialog):
-    def init_ui(self):
-        layout = QVBoxLayout()
-        
-        self.username_input = QLineEdit()
-        self.username_input.setPlaceholderText("Nom d'utilisateur")
-        
-        self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("Mot de passe")
-        self.password_input.setEchoMode(QLineEdit.Password)
-        
-        self.confirm_input = QLineEdit()
-        self.confirm_input.setPlaceholderText("Confirmer le mot de passe")
-        self.confirm_input.setEchoMode(QLineEdit.Password)
-        
-        self.create_btn = QPushButton("Créer le compte")
-        self.create_btn.clicked.connect(self.validate_and_accept)
-        
-        layout.addWidget(self.username_input)
-        layout.addWidget(self.password_input)
-        layout.addWidget(self.confirm_input)
-        layout.addWidget(self.create_btn)
-        
-        self.setLayout(layout)
-    
-    def validate_and_accept(self):
-        username = self.username_input.text().strip()
-        password = self.password_input.text()
-        confirm = self.confirm_input.text()
-        
-        if not username:
-            QMessageBox.warning(self, "Erreur", "Le nom d'utilisateur est requis")
-            return
-        
-        if not password or len(password) < 6:
-            QMessageBox.warning(self, "Erreur", "Le mot de passe doit contenir au moins 6 caractères")
-            return
-        
-        if password != confirm:
-            QMessageBox.warning(self, "Erreur", "Les mots de passe ne correspondent pas")
-            return
-            
-        self.accept()
-    
-    def get_results(self) -> Dict:
-        return {
-            'username': self.username_input.text().strip(),
-            'password': self.password_input.text()  # Note: En production, il faudrait hasher
-        }
-
-class TutorialDialog(BaseDialog):
-    def init_ui(self):
-        layout = QVBoxLayout()
-        
-        self.label = QLabel("Bienvenue dans le tutoriel d'utilisation!")
-        self.label.setWordWrap(True)
-        layout.addWidget(self.label)
-        
-        self.content = QLabel(
-            "Ceci est un guide rapide pour utiliser l'application...\n\n"
-            "1. Fonctionnalité A\n2. Fonctionnalité B\n3. Fonctionnalité C"
-        )
-        layout.addWidget(self.content)
-        
-        self.continue_btn = QPushButton("Compris!")
-        self.continue_btn.clicked.connect(self.accept)
-        layout.addWidget(self.continue_btn)
-        
-        self.setLayout(layout)
-
-class FeedbackDialog(BaseDialog):
-    def init_ui(self):
-        layout = QVBoxLayout()
-        
-        self.label = QLabel("Comment évaluez-vous votre expérience jusqu'à présent?")
-        layout.addWidget(self.label)
-        
-        self.rating = 0
-        self.rating_btns = []
-        for i in range(1, 6):
-            btn = QPushButton(str(i))
-            btn.clicked.connect(lambda _, r=i: self.set_rating(r))
-            self.rating_btns.append(btn)
-            layout.addWidget(btn)
-        
-        self.feedback_input = QLineEdit()
-        self.feedback_input.setPlaceholderText("Vos commentaires (optionnel)")
-        layout.addWidget(self.feedback_input)
-        
-        self.submit_btn = QPushButton("Envoyer")
-        self.submit_btn.clicked.connect(self.accept)
-        layout.addWidget(self.submit_btn)
-        
-        self.setLayout(layout)
-    
-    def set_rating(self, rating: int):
-        self.rating = rating
-        for i, btn in enumerate(self.rating_btns):
-            btn.setStyleSheet(
-                "background-color: #4CAF50" if i < rating else ""
-            )
-    
-    def get_results(self) -> Dict:
-        return {
-            'rating': self.rating,
-            'feedback': self.feedback_input.text().strip()
-        }
-
-class MainWindow(QMainWindow):
-    def __init__(self, db: DatabaseManager):
-        super().__init__()
-        self.db = db
-        self.setWindowTitle("Application Principale")
-        self.setGeometry(100, 100, 800, 600)
-        
-        self.user_settings = self.db.get_user_settings()
-        self.init_ui()
-    
-    def init_ui(self):
-        central_widget = QWidget()
-        layout = QVBoxLayout()
-        
-        title = QLabel(f"Bienvenue {self.user_settings.get('username', 'Utilisateur')}!")
-        title.setStyleSheet("font-size: 20px; font-weight: bold;")
-        layout.addWidget(title)
-        
-        modules = QLabel(
-            "Modules activés: " + 
-            ', '.join(self.user_settings.get('selected_modules', ['Aucun']))
-        )
-        layout.addWidget(modules)
-        
-        stats = QLabel(
-            f"Sessions complètes: {self.db.get_session_count()}\n"
-            f"Dernière session: {self.db.get_previous_session_type() or 'N/A'}"
-        )
-        layout.addWidget(stats)
-        
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
 class FlowManager:
     FLOWS = {
         1: {  # Premier démarrage
@@ -345,10 +148,13 @@ class FlowManager:
             'description': 'Configuration initiale',
             'dialogs': [
                 (TermsDialog, "Conditions d'utilisation"),
-                # (InstallerDialog, "Sélection des modules"),
-                (ModuleSelectionDialog, "Sélection des modules"),
+                (MarketingEvaluationDialog, "Création de compte"),
 
-                # (RegisterModule, "Création de compte")
+                # (FelicitationDialog, "Sélection des modules"),
+
+                (ModuleSelectionDialog, "Sélection des modules"),
+                (TutorialDialog, "Guide d'utilisation")
+
             ],
             'session_type': 'initial'
         },
@@ -356,8 +162,11 @@ class FlowManager:
             'name': 'tutorial',
             'description': 'Tutoriel de prise en main',
             'dialogs': [
-                (TutorialDialog, "Guide d'utilisation"),
-                #  (MainWindow, "Guide d'utilisation")
+                    # (UserCreationDialog, "Sélection des modules"),
+                # (FelicitationDialog, "Sélection des modules"),
+
+                    (MarketingEvaluationDialog, "Création de compte")
+
 
             ],
             'session_type': 'tutorial'
@@ -366,7 +175,9 @@ class FlowManager:
             'name': 'feedback',
             'description': "Demande d'évaluation",
             'dialogs': [
-                (TutorialDialog, "Votre avis compte!")
+                (ModuleSelectionDialog, "Votre avis compte!"),
+                (FeedbackDialog, "Sélection des modules"),
+
             ],
             'session_type': 'feedback'
         },
@@ -385,15 +196,15 @@ class FlowManager:
         self.session_id = None
         self.current_flow = None
     
-    def start_session(self):
-        session_count = self.db.get_session_count()
-        self.current_flow = self.FLOWS.get(session_count + 1, self.DEFAULT_FLOW)
+    # def start_session(self):
+        # session_count = self.db.get_session_count()
+        # self.current_flow = self.FLOWS.get(session_count + 1, self.DEFAULT_FLOW)
         
-        self.session_id = self.db.record_session_start(
-            self.current_flow['session_type']
-        )
+        # self.session_id = self.db.record_session_start(
+        #     self.current_flow['session_type']
+        # )
         
-        return self.current_flow
+        # return self.current_flow
     
     def execute_flow(self):
         if not self.current_flow:
@@ -418,32 +229,173 @@ class FlowManager:
         if self.session_id:
             self.db.record_session_end(self.session_id)
 
-class ApplicationController:
-    def __init__(self):
-        self.app = QApplication(sys.argv)
-        self.db = DatabaseManager()
-        self.flow_manager = FlowManager(self.db)
+    def get_dynamic_flow(self, session_number: int) -> Optional[Dict]:
+        # Exemple : exécuter FeedbackDialog tous les 5 démarrages
+        if session_number % 5 == 0:
+            return {
+                'name': 'feedback_every_5',
+                'description': f"Feedback demandé au {session_number}e démarrage",
+                'dialogs': [
+                    (FeedbackDialog, "Que pensez-vous de l'application ?")
+                ],
+                'session_type': 'feedback_periodic'
+            }
+
+        # Exemple : exécuter ModuleSelectionDialog à chaque démarrage pair
+        if session_number % 2 == 0:
+            return {
+                'name': 'pair_module_review',
+                'description': f"Révision des modules au {session_number}e démarrage pair",
+                'dialogs': [
+                    (ModuleSelectionDialog, "Modules à activer")
+                ],
+                'session_type': 'module_review'
+            }
+
+        # Exemple : lancer un tuto spécial au 13e démarrage
+        if session_number == 13:
+            return {
+                'name': 'tuto_13',
+                'description': "Tuto surprise au 13e démarrage",
+                'dialogs': [
+                    (TutorialDialog, "Tuto avancé")
+                ],
+                'session_type': 'special_13'
+            }
+
+        return None
+
+    def start_session(self):
+        session_count = self.db.get_session_count()
+        session_number = session_count + 1
+
+        # Priorité : Flux prédéfinis (1, 2, 3…)
+        flow = self.FLOWS.get(session_number)
+
+        # Sinon, tester les règles dynamiques
+        if not flow:
+            flow = self.get_dynamic_flow(session_number)
+
+        # Sinon, on reste sur le flow normal
+        if not flow:
+            flow = self.DEFAULT_FLOW
+
+        self.current_flow = flow
+
+        self.session_id = self.db.record_session_start(
+            self.current_flow['session_type']
+        )
+
+        return self.current_flow
+
+# class UserCreationDialog(BaseDialog):
+#     def init_ui(self):
+#         layout = QVBoxLayout()
+        
+#         self.username_input = QLineEdit()
+#         self.username_input.setPlaceholderText("Nom d'utilisateur")
+        
+#         self.password_input = QLineEdit()
+#         self.password_input.setPlaceholderText("Mot de passe")
+#         self.password_input.setEchoMode(QLineEdit.Password)
+        
+#         self.confirm_input = QLineEdit()
+#         self.confirm_input.setPlaceholderText("Confirmer le mot de passe")
+#         self.confirm_input.setEchoMode(QLineEdit.Password)
+        
+#         self.create_btn = QPushButton("Créer le compte")
+#         self.create_btn.clicked.connect(self.validate_and_accept)
+        
+#         layout.addWidget(self.username_input)
+#         layout.addWidget(self.password_input)
+#         layout.addWidget(self.confirm_input)
+#         layout.addWidget(self.create_btn)
+        
+#         self.setLayout(layout)
     
-    def run(self):
-        try:
-            # Démarrer la session et déterminer le flux
-            flow = self.flow_manager.start_session()
-            print(f"Exécution du flux: {flow['description']}")
+#     def validate_and_accept(self):
+#         username = self.username_input.text().strip()
+#         password = self.password_input.text()
+#         confirm = self.confirm_input.text()
+        
+#         if not username:
+#             QMessageBox.warning(self, "Erreur", "Le nom d'utilisateur est requis")
+#             return
+        
+#         if not password or len(password) < 6:
+#             QMessageBox.warning(self, "Erreur", "Le mot de passe doit contenir au moins 6 caractères")
+#             return
+        
+#         if password != confirm:
+#             QMessageBox.warning(self, "Erreur", "Les mots de passe ne correspondent pas")
+#             return
             
-            # Exécuter les dialogues du flux
-            if not self.flow_manager.execute_flow():
-                return 1
-            
-            # Si tout s'est bien passé, afficher la fenêtre principale
-            main_window = MainWindow(self.db)
-            main_window.show()
-            
-            return self.app.exec_()
-        finally:
-            self.flow_manager.end_session()
-            self.db.close()
+#         self.accept()
+    
+#     def get_results(self) -> Dict:
+#         return {
+#             'username': self.username_input.text().strip(),
+#             'password': self.password_input.text()  # Note: En production, il faudrait hasher
+#         }
 
-if __name__ == "__main__":
-    controller = ApplicationController()
-    sys.exit(controller.run())
+# class MainWindow(QMainWindow):
+#     def __init__(self, db: DatabaseManager):
+#         super().__init__()
+#         self.db = db
+#         self.setWindowTitle("Application Principale")
+#         self.setGeometry(100, 100, 800, 600)
+        
+#         self.user_settings = self.db.get_user_settings()
+#         self.init_ui()
+    
+#     def init_ui(self):
+#         central_widget = QWidget()
+#         layout = QVBoxLayout()
+        
+#         title = QLabel(f"Bienvenue {self.user_settings.get('username', 'Utilisateur')}!")
+#         title.setStyleSheet("font-size: 20px; font-weight: bold;")
+#         layout.addWidget(title)
+        
+#         modules = QLabel(
+#             "Modules activés: " + 
+#             ', '.join(self.user_settings.get('selected_modules', ['Aucun']))
+#         )
+#         layout.addWidget(modules)
+        
+#         stats = QLabel(
+#             f"Sessions complètes: {self.db.get_session_count()}\n"
+#             f"Dernière session: {self.db.get_previous_session_type() or 'N/A'}"
+#         )
+#         layout.addWidget(stats)
+        
+#         central_widget.setLayout(layout)
+#         self.setCentralWidget(central_widget)
 
+# class ApplicationController:
+#     def __init__(self):
+#         self.app = QApplication(sys.argv)
+#         self.db = DatabaseManager()
+#         self.flow_manager = FlowManager(self.db)
+    
+#     def run(self):
+#         try:
+#             # Démarrer la session et déterminer le flux
+#             flow = self.flow_manager.start_session()
+#             print(f"Exécution du flux: {flow['description']}")
+            
+#             # Exécuter les dialogues du flux
+#             if not self.flow_manager.execute_flow():
+#                 return 1
+            
+#             # Si tout s'est bien passé, afficher la fenêtre principale
+#             main_window = MainWindow(self.db)
+#             main_window.show()
+            
+#             return self.app.exec_()
+#         finally:
+#             self.flow_manager.end_session()
+#             self.db.close()
+
+# if __name__ == "__main__":
+#     controller = ApplicationController()
+#     sys.exit(controller.run())

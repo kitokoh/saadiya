@@ -11,6 +11,7 @@ from PyQt5.QtGui import (QFont, QIcon, QColor, QPalette, QLinearGradient, QPaint
                         QBrush, QPainterPath, QFontDatabase, QPixmap, QPen, QConicalGradient,
                         QRadialGradient, QImage, QPainterPath)
 from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtCore import QRect
 
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QTimer, QPointF, Qt, QSize
@@ -18,6 +19,7 @@ from PyQt5.QtGui import QPainter, QColor, QBrush, QRadialGradient
 import random
 import math
 from PyQt5.QtWidgets import QWidget
+from typing import Dict
 
 class ParticleSystem(QWidget):
     def __init__(self, parent=None, particle_count=50):
@@ -1709,22 +1711,9 @@ class InstallerPage(QWidget):
         except Exception as e:
             self.installer.show_notification("Erreur", f"Erreur lors de l'installation de {app_name} : {e}")
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    
-    # Load fonts
-    try:
-        QFontDatabase.addApplicationFont(":/fonts/SegoeUI.ttf")
-        QFontDatabase.addApplicationFont(":/fonts/SegoeUI-Bold.ttf")
-    except:
-        pass
-    
-    # Set default font
-    font = QFont("Segoe UI", 10)
-    app.setFont(font)
-    
-    # Create and show dialog
-    dialog = InstallerDialog()
-    dialog.show()
-    
-    sys.exit(app.exec_())
+
+
+
+
+
+

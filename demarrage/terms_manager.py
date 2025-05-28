@@ -1,544 +1,983 @@
 import sys
-import sqlite3
-import hashlib
 from pathlib import Path
-from PyQt5.QtWidgets import (QApplication, QDialog, QVBoxLayout, QTextBrowser, 
-                            QCheckBox, QPushButton, QFrame, QLabel, QMessageBox,
-                            QHBoxLayout, QSpacerItem, QSizePolicy, QAction)
-from PyQt5.QtCore import Qt, QDateTime, QTimer, QPropertyAnimation, QRect, QByteArray
-from PyQt5.QtGui import QFont, QIcon, QPalette, QColor, QTextDocument
-from PyQt5.QtPrintSupport import QPrintDialog
-import socket
-import platform
-from cryptography.fernet import Fernet
-import json
-from datetime import datetime
-from PyQt5.QtGui import QFont, QIcon, QPalette, QColor, QTextDocument
-from PyQt5.QtPrintSupport import QPrinter
+from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QTextBrowser, QCheckBox, 
+                            QPushButton, QFrame, QLabel, QScrollArea, QSizePolicy)
+from PyQt5.QtCore import Qt, QDate, QPropertyAnimation, QEasingCurve
+from PyQt5.QtGui import QFont, QTextDocument, QTextCursor
+from demarrage.baseDialog import BaseDialog
+from typing import List, Dict, Optional, Tuple, Callable
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
+                            QLabel, QTextEdit, QPushButton, QSlider, QCheckBox, 
+                            QMessageBox, QDialog, QDialogButtonBox)
+from PyQt5.QtCore import QRect
 
-class TermsManager:
-    """Classe pour gérer le chiffrement et la configuration"""
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._init_manager()
-        return cls._instance
-    
-    def _init_manager(self):
-        self.config_path = Path.home() / ".leopardo" / "config"
-        self.config_path.mkdir(parents=True, exist_ok=True)
-        
-        # Charger ou générer la clé de chiffrement
-        self.key_file = self.config_path / "encryption.key"
-        if not self.key_file.exists():
-            key = Fernet.generate_key()
-            self.key_file.write_bytes(key)
-        else:
-            key = self.key_file.read_bytes()
-        
-        self.cipher = Fernet(key)
-    
-    def encrypt_data(self, data: str) -> bytes:
-        return self.cipher.encrypt(data.encode())
-    
-    def decrypt_data(self, encrypted_data: bytes) -> str:
-        return self.cipher.decrypt(encrypted_data).decode()
-    
-    @property
-    def terms_version(self):
-        return "2.3.1"  # À remplacer par votre système de versionning
+import sys
+import random
+import math
+from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QTextBrowser, QCheckBox, 
+                            QPushButton, QFrame, QLabel, QScrollArea, QSizePolicy, QWidget)
+from PyQt5.QtCore import (Qt, QDate, QPropertyAnimation, QEasingCurve, QPointF, 
+                         QRect, QSequentialAnimationGroup, pyqtProperty, QSize)
+from PyQt5.QtGui import (QFont, QTextDocument, QPainter, QColor, QPainterPath, 
+                        QRadialGradient, QBrush, QPen, QLinearGradient, QIcon)
+from PyQt5.QtCore import QTimer
+from demarrage.baseDialog import BaseDialog
 
-class TermsDialog(QDialog):
-    def __init__(self, parent=None, user_id=None, force_show=False):
-        super().__init__()
-        self.manager = TermsManager()
-        self.user_id = user_id or "guest"
-        self.setup_ui()
-        self.setup_db()
+class ParticleSystem(QWidget):
+    def __init__(self, parent=None, particle_count=50):
+        super().__init__(parent)
+        self.particle_count = particle_count
+        self.particles = []
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_particles)
+        self.timer.start(20)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setMinimumSize(100, 100)
+
+    def resizeEvent(self, event):
+        self.init_particles()
+        super().resizeEvent(event)
+
+    def init_particles(self):
+        self.particles = []
+        for _ in range(self.particle_count):
+            self.particles.append({
+                'pos': QPointF(random.uniform(0, self.width()), random.uniform(0, self.height())),
+                'size': random.randint(3, 8),
+                'speed': random.uniform(0.3, 1.2),
+                'color': QColor(
+                    random.randint(100, 200),
+                    random.randint(100, 200),
+                    random.randint(200, 255),
+                    random.randint(30, 80)
+                ),
+                'direction': random.uniform(0, 2 * math.pi),
+                'life': random.randint(100, 200),
+                'max_life': random.randint(100, 200)
+            })
+
+    def update_particles(self):
+        for p in self.particles:
+            # Déplacement
+            dx = math.cos(p['direction']) * p['speed']
+            dy = math.sin(p['direction']) * p['speed']
+            p['pos'] += QPointF(dx, dy)
+
+            # Rebonds sur les bords
+            if not (0 <= p['pos'].x() <= self.width()):
+                p['direction'] = math.pi - p['direction']
+            if not (0 <= p['pos'].y() <= self.height()):
+                p['direction'] = -p['direction']
+
+            # Cycle de vie
+            p['life'] -= 1
+            if p['life'] <= 0:
+                p['pos'] = QPointF(random.uniform(0, self.width()), random.uniform(0, self.height()))
+                p['life'] = p['max_life']
+
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        for p in self.particles:
+            alpha = int(255 * (p['life'] / p['max_life']))
+            color = QColor(p['color'])
+            color.setAlpha(alpha)
+
+            # Glow effect
+            glow = QRadialGradient(p['pos'], p['size'] * 2)
+            glow.setColorAt(0, color)
+            glow.setColorAt(1, QColor(color.red(), color.green(), color.blue(), 0))
+            painter.setBrush(QBrush(glow))
+            painter.setPen(Qt.NoPen)
+            painter.drawEllipse(p['pos'], p['size'] * 2, p['size'] * 2)
+
+            # Particle center
+            painter.setBrush(QBrush(color))
+            painter.drawEllipse(p['pos'], p['size'], p['size'])
+
+class GlassButton(QPushButton):
+    def __init__(self, text, icon=None, parent=None):
+        super().__init__(text, parent)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setMinimumHeight(50)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         
-        # Vérifier si l'utilisateur a déjà accepté les dernières conditions
-        if not force_show and self.check_already_accepted():
-            self.accept()
-            return
-            
-        self.exec_()
+        # Glass effect properties
+        self._glass_opacity = 0.3
+        self._light_position = 0
+        self._light_color = QColor(255, 255, 255, 150)
+        self._pulse_scale = 1.0
+        self._ripple_alpha = 0
+        self._ripple_radius = 0
+        self._ripple_center = QPointF()
+        
+        # Shadow effect
+        self.shadow = QGraphicsDropShadowEffect(self)
+        self.shadow.setBlurRadius(20)
+        self.shadow.setColor(QColor(0, 0, 0, 120))
+        self.shadow.setOffset(0, 8)
+        self.setGraphicsEffect(self.shadow)
+        
+        # Style
+        self.setStyleSheet("""
+            GlassButton {
+                color: white;
+                border-radius: 15px;
+                padding: 15px 30px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.1);
+                font-family: 'Segoe UI';
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+        """)
+        
+        if icon:
+            self.setIcon(QIcon(icon))
+            self.setIconSize(QSize(24, 24))
+        
+        # Setup animations
+        self.setup_animations()
     
-    def setup_ui(self):
-        self.setWindowTitle("Conditions d'Utilisation - Léopardo AI")
-        self.setWindowIcon(QIcon("leopardo_icon.png"))
-        self.resize(900, 700)
+    def setup_animations(self):
+        # Light sweep animation
+        self.light_anim = QPropertyAnimation(self, b"lightPosition")
+        self.light_anim.setDuration(1800)
+        self.light_anim.setStartValue(0)
+        self.light_anim.setEndValue(1)
+        self.light_anim.setEasingCurve(QEasingCurve.InOutSine)
+        self.light_anim.setLoopCount(-1)
         
-        # Détecter le thème système
-        self.dark_mode = self.is_dark_mode()
-        self.apply_style()
+        # Ripple animation
+        self.ripple_anim = QSequentialAnimationGroup(self)
+        radius_anim = QPropertyAnimation(self, b"rippleRadius")
+        radius_anim.setDuration(500)
+        radius_anim.setStartValue(0)
+        radius_anim.setEndValue(max(self.width(), self.height()) * 1.5)
+        radius_anim.setEasingCurve(QEasingCurve.OutCubic)
+        
+        alpha_anim = QPropertyAnimation(self, b"rippleAlpha")
+        alpha_anim.setDuration(500)
+        alpha_anim.setStartValue(80)
+        alpha_anim.setEndValue(0)
+        
+        self.ripple_anim.addAnimation(radius_anim)
+        self.ripple_anim.addAnimation(alpha_anim)
+    
+    def enterEvent(self, event):
+        self.light_anim.start()
+        super().enterEvent(event)
+    
+    def leaveEvent(self, event):
+        self.light_anim.stop()
+        super().leaveEvent(event)
+    
+    def mousePressEvent(self, event):
+        self._ripple_center = event.pos()
+        self._ripple_alpha = 80
+        self._ripple_radius = 0
+        self.ripple_anim.start()
+        super().mousePressEvent(event)
+    
+    # Animated properties
+    @pyqtProperty(float)
+    def lightPosition(self):
+        return self._light_position
+    
+    @lightPosition.setter
+    def lightPosition(self, value):
+        self._light_position = value
+        self.update()
+    
+    @pyqtProperty(int)
+    def rippleAlpha(self):
+        return self._ripple_alpha
+    
+    @rippleAlpha.setter
+    def rippleAlpha(self, value):
+        self._ripple_alpha = value
+        self.update()
+    
+    @pyqtProperty(float)
+    def rippleRadius(self):
+        return self._ripple_radius
+    
+    @rippleRadius.setter
+    def rippleRadius(self, value):
+        self._ripple_radius = value
+        self.update()
+
+class TermsDialog(BaseDialog):
+    def init_ui(self):
+        # Configuration de la fenêtre
+        self.setMinimumSize(800, 700)
+        self.setWindowTitle("Conditions d'Utilisation")
         
         # Layout principal
         layout = QVBoxLayout()
-        layout.setContentsMargins(15, 15, 15, 15)
-        layout.setSpacing(15)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         
-        # En-tête avec animation
-        self.header = QFrame()
-        self.header.setObjectName("header")
-        header_layout = QVBoxLayout()
+        # Fond avec particules
+        self.particle_bg = ParticleSystem(self, particle_count=30)
+        self.particle_bg.setObjectName("particleBg")
         
-        self.title = QLabel("Conditions d'Utilisation de Léopardo AI")
-        self.title.setObjectName("title")
-        self.title.setAlignment(Qt.AlignCenter)
+        # Conteneur principal avec effet de verre
+        main_container = QFrame()
+        main_container.setObjectName("mainContainer")
+        main_layout = QVBoxLayout(main_container)
+        main_layout.setContentsMargins(30, 30, 30, 25)
+        main_layout.setSpacing(25)
         
-        self.subtitle = QLabel(f"Version {self.manager.terms_version} - {QDateTime.currentDateTime().toString('dd/MM/yyyy')}")
-        self.subtitle.setObjectName("subtitle")
-        self.subtitle.setAlignment(Qt.AlignCenter)
+        # En-tête
+        header_frame = QFrame()
+        header_frame.setObjectName("headerFrame")
+        header_layout = QVBoxLayout(header_frame)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(8)
         
-        header_layout.addWidget(self.title)
-        header_layout.addWidget(self.subtitle)
-        self.header.setLayout(header_layout)
-        layout.addWidget(self.header)
+        self.label = QLabel("CONDITIONS D'UTILISATION")
+        self.label.setObjectName("titleLabel")
+        self.label.setAlignment(Qt.AlignCenter)
         
-        # Texte des conditions
-        self.terms_browser = QTextBrowser()
-        self.terms_browser.setOpenExternalLinks(True)
+        version_label = QLabel(f"Version 2.3.1 • {QDate.currentDate().toString('dd MMMM yyyy')}")
+        version_label.setObjectName("versionLabel")
+        version_label.setAlignment(Qt.AlignCenter)
+        
+        header_layout.addWidget(self.label)
+        header_layout.addWidget(version_label)
+        
+        # Zone de texte
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setObjectName("scrollArea")
+        
+        self.terms_text = QTextBrowser()
+        self.terms_text.setOpenExternalLinks(True)
+        self.terms_text.setObjectName("termsText")
+        self.terms_text.document().setDocumentMargin(20)
         self.load_terms_content()
-        layout.addWidget(self.terms_browser)
+        scroll_area.setWidget(self.terms_text)
         
-        # Case à cocher avec animation
-        self.accept_checkbox = QCheckBox("J'ai lu et j'accepte les conditions d'utilisation")
+        # Case à cocher
+        self.accept_checkbox = QCheckBox("J'accepte les conditions d'utilisation ci-dessus")
         self.accept_checkbox.setObjectName("acceptCheckbox")
-        self.accept_checkbox.stateChanged.connect(self.toggle_accept_button)
-        layout.addWidget(self.accept_checkbox)
+        self.accept_checkbox.setCursor(Qt.PointingHandCursor)
         
         # Boutons
-        button_frame = QFrame()
-        button_layout = QHBoxLayout()
-        button_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        button_container = QFrame()
+        button_layout = QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 10, 0, 0)
+        button_layout.setSpacing(20)
         
-        # Bouton Imprimer
-        self.print_button = QPushButton("Imprimer")
-        self.print_button.setObjectName("printButton")
-        self.print_button.clicked.connect(self.print_terms)
-        button_layout.addWidget(self.print_button)
+        self.continue_btn = GlassButton("Continuer vers l'Application")
+        self.continue_btn.setObjectName("primaryButton")
+        self.continue_btn.setEnabled(False)
         
-        # Bouton Refuser
-        self.decline_button = QPushButton("Refuser et Quitter")
-        self.decline_button.setObjectName("declineButton")
-        self.decline_button.clicked.connect(self.reject)
-        button_layout.addWidget(self.decline_button)
+        cancel_btn = GlassButton("Quitter")
+        cancel_btn.setObjectName("secondaryButton")
         
-        # Bouton Accepter
-        self.accept_button = QPushButton("Accepter et Continuer")
-        self.accept_button.setObjectName("acceptButton")
-        self.accept_button.setEnabled(False)
-        self.accept_button.clicked.connect(self.on_accept)
-        button_layout.addWidget(self.accept_button)
+        button_layout.addStretch()
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(self.continue_btn)
         
-        button_frame.setLayout(button_layout)
-        layout.addWidget(button_frame)
+        # Assemblage
+        main_layout.addWidget(header_frame)
+        main_layout.addWidget(scroll_area)
+        main_layout.addWidget(self.accept_checkbox)
+        main_layout.addWidget(button_container)
         
+        # Empilement des couches
+        layout.addWidget(self.particle_bg)
+        layout.addWidget(main_container)
         self.setLayout(layout)
         
-        # Menu contextuel
-        self.setContextMenuPolicy(Qt.ActionsContextMenu)
-        print_action = QAction("Imprimer les conditions", self)
-        print_action.triggered.connect(self.print_terms)
-        self.addAction(print_action)
+        # Connexions
+        self.accept_checkbox.stateChanged.connect(self.toggle_continue_button)
+        self.continue_btn.clicked.connect(self.accept)
+        cancel_btn.clicked.connect(self.reject)
         
-        # Animation d'apparition
-        self.start_animation()
-    
-    def apply_style(self):
-        base_style = """
-            QDialog {
-                background-color: $BG_COLOR;
+        # Style
+        self.setStyleSheet("""
+            #particleBg {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #1a2a6c, stop:1 #b21f1f);
             }
-            QTextBrowser {
-                background-color: $TEXT_BG;
-                color: $TEXT_COLOR;
-                border: 1px solid $BORDER_COLOR;
-                border-radius: 8px;
-                padding: 12px;
+            
+            #mainContainer {
+                background: rgba(15, 20, 30, 0.85);
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+            }
+            
+            #headerFrame {
+                background: transparent;
+                padding-bottom: 15px;
+            }
+            
+            #titleLabel {
+                font-size: 24px;
+                font-weight: 700;
+                color: white;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            
+            #versionLabel {
                 font-size: 12px;
+                color: rgba(255, 255, 255, 0.7);
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             }
-            QCheckBox {
-                font-size: 14px;
-                padding: 12px 0;
-                color: $TEXT_COLOR;
-            }
-            QPushButton {
+            
+            #scrollArea {
                 border: none;
-                padding: 10px 20px;
-                border-radius: 6px;
-                font-weight: 500;
+                background: transparent;
+            }
+            
+            #termsText {
+                background: rgba(10, 15, 25, 0.6);
+                border-radius: 12px;
+                padding: 25px;
                 font-size: 14px;
-                min-width: 100px;
+                color: rgba(255, 255, 255, 0.9);
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                border: 1px solid rgba(255, 255, 255, 0.08);
             }
-            QPushButton#printButton {
-                background-color: $PRINT_BG;
-                color: $PRINT_COLOR;
+            
+            #termsText a {
+                color: #4fc3f7;
+                text-decoration: none;
             }
-            QPushButton#printButton:hover {
-                background-color: $PRINT_BG_HOVER;
+            
+            #termsText a:hover {
+                text-decoration: underline;
             }
-            QPushButton#declineButton {
-                background-color: $DECLINE_BG;
-                color: $DECLINE_COLOR;
+            
+            #acceptCheckbox {
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.9);
+                spacing: 12px;
+                padding: 8px 0;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                background: transparent;
             }
-            QPushButton#declineButton:hover {
-                background-color: $DECLINE_BG_HOVER;
+            
+            #acceptCheckbox::indicator {
+                width: 20px;
+                height: 20px;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                border-radius: 5px;
+                background: rgba(0, 0, 0, 0.3);
             }
-            QPushButton#acceptButton {
-                background-color: $ACCEPT_BG;
-                color: $ACCEPT_COLOR;
+            
+            #acceptCheckbox::indicator:checked {
+                background-color: #4fc3f7;
+                border-color: #4fc3f7;
+                image: url(:/icons/checkmark.svg);
             }
-            QPushButton#acceptButton:hover {
-                background-color: $ACCEPT_BG_HOVER;
+            
+            #acceptCheckbox::indicator:hover {
+                border-color: rgba(255, 255, 255, 0.8);
             }
-            QPushButton#acceptButton:disabled {
-                background-color: $ACCEPT_BG_DISABLED;
+            
+            #primaryButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4facfe, stop:1 #00f2fe);
+                color: white;
+                min-width: 200px;
             }
-            QFrame#header {
-                background-color: $HEADER_BG;
-                border-radius: 8px;
-                padding: 15px;
+            
+            #secondaryButton {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                min-width: 150px;
             }
-            QLabel#title {
-                color: $TITLE_COLOR;
-                font-size: 18px;
-                font-weight: bold;
-            }
-            QLabel#subtitle {
-                color: $SUBTITLE_COLOR;
-                font-size: 12px;
-                margin-top: 5px;
-            }
-        """
-        
-        if self.dark_mode:
-            style = base_style.replace("$BG_COLOR", "#1e1e2e") \
-                             .replace("$TEXT_BG", "#2e2e3e") \
-                             .replace("$TEXT_COLOR", "#e0e0e0") \
-                             .replace("$BORDER_COLOR", "#3e3e4e") \
-                             .replace("$PRINT_BG", "#3e3e4e") \
-                             .replace("$PRINT_COLOR", "#ffffff") \
-                             .replace("$PRINT_BG_HOVER", "#4e4e5e") \
-                             .replace("$DECLINE_BG", "#7f1d1d") \
-                             .replace("$DECLINE_COLOR", "#ffffff") \
-                             .replace("$DECLINE_BG_HOVER", "#991b1b") \
-                             .replace("$ACCEPT_BG", "#1e3a8a") \
-                             .replace("$ACCEPT_COLOR", "#ffffff") \
-                             .replace("$ACCEPT_BG_HOVER", "#1e40af") \
-                             .replace("$ACCEPT_BG_DISABLED", "#64748b") \
-                             .replace("$HEADER_BG", "#4338ca") \
-                             .replace("$TITLE_COLOR", "#ffffff") \
-                             .replace("$SUBTITLE_COLOR", "#d4d4d8")
-        else:
-            style = base_style.replace("$BG_COLOR", "#f5f7fa") \
-                             .replace("$TEXT_BG", "#ffffff") \
-                             .replace("$TEXT_COLOR", "#111827") \
-                             .replace("$BORDER_COLOR", "#d1d5db") \
-                             .replace("$PRINT_BG", "#e5e7eb") \
-                             .replace("$PRINT_COLOR", "#111827") \
-                             .replace("$PRINT_BG_HOVER", "#d1d5db") \
-                             .replace("$DECLINE_BG", "#ef4444") \
-                             .replace("$DECLINE_COLOR", "#ffffff") \
-                             .replace("$DECLINE_BG_HOVER", "#dc2626") \
-                             .replace("$ACCEPT_BG", "#4f46e5") \
-                             .replace("$ACCEPT_COLOR", "#ffffff") \
-                             .replace("$ACCEPT_BG_HOVER", "#4338ca") \
-                             .replace("$ACCEPT_BG_DISABLED", "#a5b4fc") \
-                             .replace("$HEADER_BG", "#4f46e5") \
-                             .replace("$TITLE_COLOR", "#ffffff") \
-                             .replace("$SUBTITLE_COLOR", "#e5e7eb")
-        
-        self.setStyleSheet(style)
-    
-    def is_dark_mode(self):
-        """Détecte si le système est en mode sombre"""
-        palette = self.palette()
-        return palette.window().color().lightness() < 128
-    
-    def start_animation(self):
-        """Animation d'apparition de la fenêtre"""
-        self.animation = QPropertyAnimation(self, b"windowOpacity")
-        self.animation.setDuration(300)
-        self.animation.setStartValue(0)
-        self.animation.setEndValue(1)
-        self.animation.start()
+        """)
     
     def load_terms_content(self):
-        """Charge le contenu des conditions directement depuis une chaîne HTML"""
-        terms_html = f"""
+        """Charge un contenu HTML stylisé avec des sections interactives"""
+        terms_html = """
         <!DOCTYPE html>
         <html>
         <head>
-            <meta charset="UTF-8">
             <style>
-                body {{
-                    font-family: 'Segoe UI', Arial, sans-serif;
-                    line-height: 1.6;
-                    color: #333;
-                }}
-                h1 {{
-                    color: #4f46e5;
-                    border-bottom: 2px solid #4f46e5;
-                    padding-bottom: 8px;
-                    margin-top: 24px;
-                }}
-                h2 {{
-                    color: #4338ca;
-                    margin-top: 20px;
-                }}
-                h3 {{
-                    color: #3730a3;
-                }}
-                ul, ol {{
-                    padding-left: 24px;
-                }}
-                li {{
-                    margin-bottom: 8px;
-                }}
-                strong {{
-                    color: #111827;
-                }}
-                .version {{
-                    background-color: #e0e7ff;
-                    color: #3730a3;
-                    padding: 2px 6px;
-                    border-radius: 4px;
+                body {
+                    font-family: 'Segoe UI', system-ui, sans-serif;
+                    line-height: 1.7;
+                    color: rgba(255, 255, 255, 0.9);
+                    margin: 0;
+                    padding: 0;
+                }
+                h1 {
+                    color: #4fc3f7;
+                    font-size: 1.5em;
+                    margin-bottom: 1.2em;
+                    padding-bottom: 0.5em;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+                h2 {
+                    color: #4fc3f7;
+                    margin-top: 1.8em;
+                    margin-bottom: 0.8em;
+                    font-size: 1.3em;
+                }
+                h3 {
+                    color: rgba(255, 255, 255, 0.8);
+                    margin-top: 1.5em;
+                    margin-bottom: 0.5em;
+                    font-size: 1.1em;
+                }
+                p {
+                    margin-bottom: 1.2em;
+                }
+                ul, ol {
+                    margin-bottom: 1.5em;
+                    padding-left: 1.8em;
+                }
+                li {
+                    margin-bottom: 0.6em;
+                    position: relative;
+                    color: rgba(255, 255, 255, 0.8);
+                }
+                li:before {
+                    content: "•";
+                    color: #4fc3f7;
                     font-weight: bold;
-                }}
-                .highlight {{
-                    background-color: #fef3c7;
-                    padding: 2px 4px;
-                    border-radius: 4px;
-                }}
-                .note {{
-                    border-left: 4px solid #4f46e5;
-                    padding-left: 12px;
-                    margin: 16px 0;
-                    font-style: italic;
-                    color: #6b7280;
-                }}
+                    display: inline-block;
+                    width: 1em;
+                    margin-left: -1em;
+                }
+                .highlight {
+                    background-color: rgba(79, 195, 247, 0.2);
+                    padding: 0.2em 0.4em;
+                    border-radius: 0.3em;
+                    font-weight: 500;
+                }
+                .section {
+                    margin-bottom: 2em;
+                    background: rgba(255, 255, 255, 0.05);
+                    padding: 1.5em;
+                    border-radius: 0.5em;
+                    border-left: 4px solid #4fc3f7;
+                }
             </style>
         </head>
         <body>
-            <h1>Conditions d'Utilisation de Léopardo AI</h1>
+            <h1>Conditions Générales d'Utilisation</h1>
             
-            <p><strong>Version <span class="version">{self.manager.terms_version}</span> - Date d'effet : {QDateTime.currentDateTime().toString('dd/MM/yyyy')}</strong></p>
-            
-            <div class="note">
-                En utilisant Léopardo AI, vous acceptez ces conditions d'utilisation. 
-                Veuillez les lire attentivement avant d'utiliser notre application.
+            <div class="section">
+                <h2>1. Acceptation des Conditions</h2>
+                <p>En utilisant cette application, vous acceptez sans réserve les présentes conditions générales d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser l'application.</p>
+                
+                <h3>Modifications des Conditions</h3>
+                <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prendront effet immédiatement après leur publication dans l'application.</p>
             </div>
             
-            <h2>1. Acceptation des Conditions</h2>
-            <p>En accédant ou en utilisant Léopardo AI, vous acceptez d'être lié par ces conditions. 
-            Si vous n'acceptez pas toutes ces conditions, vous ne pouvez pas utiliser notre application.</p>
-            
-            <h2>2. Description du Service</h2>
-            <p>Léopardo AI est une plateforme tout-en-un pour les professionnels du marketing offrant :</p>
-            <ul>
-                <li>Gestion et planification des publications sur les réseaux sociaux</li>
-                <li>Organisation centralisée des médias marketing</li>
-                <li>Bibliothèque de descriptions réutilisables</li>
-                <li>Module de gestion des prospects (pre-CRM)</li>
-                <li>Fonctionnalités de publication assistée</li>
-                <li>Stockage <span class="highlight">100% local</span> de vos données</li>
-            </ul>
-            
-            <h2>3. Compte Utilisateur</h2>
-            <p>Pour accéder à certaines fonctionnalités, vous devrez créer un compte. Vous êtes responsable :</p>
-            <ul>
-                <li>De la confidentialité de vos identifiants</li>
-                <li>De l'exactitude des informations fournies</li>
-                <li>De toutes les activités sur votre compte</li>
-            </ul>
-            
-            <h2>4. Protection des Données</h2>
-            <p>Nous accordons une importance particulière à la protection de vos données :</p>
-            <ul>
-                <li>Toutes vos données restent stockées sur votre appareil</li>
-                <li>Aucune donnée marketing n'est collectée par nos serveurs</li>
-                <li>Les données sensibles sont chiffrées</li>
-            </ul>
-            
-            <h2>5. Responsabilités</h2>
-            <p>Vous vous engagez à :</p>
-            <ul>
-                <li>Respecter les lois en vigueur et les conditions des plateformes sociales</li>
-                <li>Ne pas publier de contenu illégal, diffamatoire ou nuisible</li>
-                <li>Superviser les publications automatisées</li>
-            </ul>
-            
-            <h2>6. Tarification et Paiement</h2>
-            <p>L'application propose différents plans :</p>
-            <ul>
-                <li><strong>Standard</strong> : 19€/mois (fonctionnalités de base)</li>
-                <li><strong>Pro</strong> : 39€/mois (fonctionnalités avancées + support prioritaire)</li>
-                <li><strong>Entreprise</strong> : Sur devis (solutions personnalisées)</li>
-            </ul>
-            
-            <h2>7. Modifications des Conditions</h2>
-            <p>Nous pouvons modifier ces conditions. Les utilisateurs seront notifiés et devront 
-            accepter les nouvelles conditions pour continuer à utiliser le service.</p>
-            
-            <h2>8. Contact</h2>
-            <p>Pour toute question concernant ces conditions :</p>
-            <ul>
-                <li>Email : legal@leopardo.ai</li>
-                <li>Support dans l'application</li>
-            </ul>
-            
-            <div class="note">
-                En acceptant ces conditions, vous reconnaissez avoir lu, compris et accepté 
-                l'intégralité de ce document. Cette acceptation sera enregistrée avec la date 
-                et l'heure de votre consentement.
+            <div class="section">
+                <h2>2. Fonctionnalités Premium</h2>
+                <p>Cette application vous offre :</p>
+                <ul>
+                    <li><span class="highlight">Planification intelligente</span> de vos publications sur les réseaux sociaux</li>
+                    <li><span class="highlight">Analyses avancées</span> des performances de votre contenu</li>
+                    <li><span class="highlight">Collaboration en temps réel</span> avec votre équipe</li>
+                    <li><span class="highlight">Gestion unifiée</span> de plusieurs comptes sociaux</li>
+                </ul>
             </div>
+            
+            <div class="section">
+                <h2>3. Protection des Données</h2>
+                <p>Votre confidentialité est notre priorité :</p>
+                <ul>
+                    <li>Chiffrement <span class="highlight">AES-256</span> de toutes les données sensibles</li>
+                    <li>Stockage local sécurisé sur votre appareil</li>
+                    <li>Conformité avec le <span class="highlight">RGPD</span> et autres réglementations</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center; margin-top: 2em; font-size: 0.9em; color: rgba(255, 255, 255, 0.6);">
+                Dernière mise à jour: %s
+            </p>
         </body>
         </html>
-        """
+        """ % QDate.currentDate().toString('dd/MM/yyyy')
         
-        self.terms_browser.setHtml(terms_html)
+        self.terms_text.setHtml(terms_html)
     
-    def setup_db(self):
-        """Initialise la base de données chiffrée"""
-        db_path = Path.home() / ".leopardo" / "user_data.db"
-        self.conn = sqlite3.connect(str(db_path))
-        self.cursor = self.conn.cursor()
-        
-        # Créer les tables si elles n'existent pas
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS terms_acceptance (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT NOT NULL,
-                acceptance_date TEXT NOT NULL,
-                terms_version TEXT NOT NULL,
-                ip_address TEXT,
-                user_agent TEXT,
-                encrypted_data BLOB
-            )
-        """)
-        
-        self.cursor.execute("""
-            CREATE TABLE IF NOT EXISTS terms_history (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                version TEXT NOT NULL,
-                change_date TEXT NOT NULL,
-                changes_summary TEXT
-            )
-        """)
-        
-        self.conn.commit()
-    
-    def check_already_accepted(self):
-        """Vérifie si l'utilisateur a déjà accepté la dernière version"""
-        self.cursor.execute("""
-            SELECT 1 FROM terms_acceptance 
-            WHERE user_id = ? AND terms_version = ?
-            ORDER BY acceptance_date DESC 
-            LIMIT 1
-        """, (self.user_id, self.manager.terms_version))
-        
-        return self.cursor.fetchone() is not None
-    
-    def get_system_info(self):
-        """Récupère les informations système pour l'audit"""
-        try:
-            hostname = socket.gethostname()
-            ip_address = socket.gethostbyname(hostname)
-        except:
-            ip_address = "127.0.0.1"
-        
-        user_agent = f"{platform.system()} {platform.release()}; {platform.machine()}"
-        
-        return ip_address, user_agent
-    
-    def toggle_accept_button(self, state):
-        """Active/désactive le bouton d'acceptation avec animation"""
-        self.accept_button.setEnabled(state == Qt.Checked)
+    def toggle_continue_button(self, state):
+        """Active/désactive le bouton Continuer avec animation"""
+        self.continue_btn.setEnabled(state == Qt.Checked)
         
         if state == Qt.Checked:
-            anim = QPropertyAnimation(self.accept_button, b"geometry")
-            anim.setDuration(200)
-            anim.setStartValue(QRect(self.accept_button.x(), self.accept_button.y(), 
-                               self.accept_button.width(), self.accept_button.height()))
-            anim.setEndValue(QRect(self.accept_button.x()-5, self.accept_button.y()-5, 
-                             self.accept_button.width()+10, self.accept_button.height()+10))
+            # Animation de glow sur le bouton
+            anim = QPropertyAnimation(self.continue_btn, b"lightColor", self)
+            anim.setDuration(1000)
+            anim.setStartValue(QColor(255, 255, 255, 150))
+            anim.setKeyValueAt(0.5, QColor(100, 255, 200, 200))
+            anim.setEndValue(QColor(255, 255, 255, 150))
+            anim.setEasingCurve(QEasingCurve.InOutSine)
             anim.start()
     
-    def print_terms(self):
-        """Imprime les conditions d'utilisation"""
-        printer = QPrinter()
-        dialog = QPrintDialog(printer, self)
+    def get_results(self) -> Dict:
+        return {'accepted_terms': self.accept_checkbox.isChecked()}
+    def init_ui(self):
+        # Configuration de la fenêtre
+        self.setMinimumSize(700, 650)
+        self.setWindowTitle("Conditions d'Utilisation")
         
-        if dialog.exec_() == QDialog.Accepted:
-            document = QTextDocument()
-            document.setHtml(self.terms_browser.toHtml())
-            document.print_(printer)
+        # Layout principal avec espacement et marges modernes
+        layout = QVBoxLayout()
+        layout.setContentsMargins(25, 25, 25, 20)
+        layout.setSpacing(20)
+        
+        # En-tête stylisé avec effet de profondeur
+        header_frame = QFrame()
+        header_frame.setObjectName("headerFrame")
+        header_layout = QVBoxLayout(header_frame)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(5)
+        
+        # Icône et titre
+        self.label = QLabel("Conditions d'Utilisation")
+        self.label.setObjectName("titleLabel")
+        self.label.setAlignment(Qt.AlignCenter)
+        
+        # Sous-titre avec version et date
+        version_label = QLabel(f"Version 2.3.1 • {QDate.currentDate().toString('dd MMMM yyyy')}")
+        version_label.setObjectName("versionLabel")
+        version_label.setAlignment(Qt.AlignCenter)
+        
+        # Séparateur décoratif
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setObjectName("separator")
+        
+        header_layout.addWidget(self.label)
+        header_layout.addWidget(version_label)
+        header_layout.addWidget(separator)
+        
+        # Zone de texte avec barre de défilement moderne
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setObjectName("scrollArea")
+        
+        self.terms_text = QTextBrowser()
+        self.terms_text.setOpenExternalLinks(True)
+        self.terms_text.setObjectName("termsText")
+        self.terms_text.document().setDocumentMargin(20)
+        self.load_terms_content()
+        
+        # Animation de défilement automatique au début
+        cursor = self.terms_text.textCursor()
+        cursor.movePosition(QTextCursor.Start)
+        self.terms_text.setTextCursor(cursor)
+        
+        scroll_area.setWidget(self.terms_text)
+        
+        # Case à cocher avec animation et style moderne
+        self.accept_checkbox = QCheckBox("J'accepte les conditions d'utilisation ci-dessus")
+        self.accept_checkbox.setObjectName("acceptCheckbox")
+        self.accept_checkbox.setCursor(Qt.PointingHandCursor)
+        
+        # Boutons avec disposition moderne et effets hover
+        button_container = QFrame()
+        button_layout = QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 10, 0, 0)
+        button_layout.setSpacing(15)
+        
+        self.continue_btn = QPushButton("Continuer vers l'Application")
+        self.continue_btn.setObjectName("primaryButton")
+        self.continue_btn.setEnabled(False)
+        self.continue_btn.setCursor(Qt.PointingHandCursor)
+        self.continue_btn.setMinimumSize(180, 40)
+        
+        cancel_btn = QPushButton("Quitter l'Application")
+        cancel_btn.setObjectName("secondaryButton")
+        cancel_btn.setCursor(Qt.PointingHandCursor)
+        cancel_btn.setMinimumSize(150, 40)
+        
+        button_layout.addStretch()
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(self.continue_btn)
+        
+        # Ajout des widgets au layout principal
+        layout.addWidget(header_frame)
+        layout.addWidget(scroll_area)
+        layout.addWidget(self.accept_checkbox)
+        layout.addWidget(button_container)
+        
+        # Connexions des signaux
+        self.accept_checkbox.stateChanged.connect(self.toggle_continue_button)
+        self.continue_btn.clicked.connect(self.accept)
+        cancel_btn.clicked.connect(self.reject)
+        
+        # Appliquer le style moderne avec effets et transitions
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #f5f7fa;
+            }
+            
+            #headerFrame {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #ffffff, stop:1 #f8f9fa);
+                border-radius: 12px;
+                padding: 25px 20px 15px 20px;
+                border: 1px solid #e0e6ed;
+            }
+            
+            #titleLabel {
+                font-size: 22px;
+                font-weight: 600;
+                color: #2d3748;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            }
+            
+            #versionLabel {
+                font-size: 13px;
+                color: #718096;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            }
+            
+            #separator {
+                border: none;
+                height: 1px;
+                background: linear-gradient(to right, 
+                    rgba(200, 200, 200, 0), 
+                    rgba(66, 153, 225, 0.5), 
+                    rgba(200, 200, 200, 0));
+                margin: 10px 30px;
+            }
+            
+            #scrollArea {
+                border: none;
+                background: transparent;
+            }
+            
+            #termsText {
+                background-color: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 12px;
+                padding: 25px;
+                font-size: 14px;
+                color: #4a5568;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            }
+            
+            #termsText a {
+                color: #4299e1;
+                text-decoration: none;
+            }
+            
+            #termsText a:hover {
+                text-decoration: underline;
+            }
+            
+            #acceptCheckbox {
+                font-size: 14px;
+                color: #4a5568;
+                spacing: 12px;
+                padding: 8px 0;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            }
+            
+            #acceptCheckbox::indicator {
+                width: 20px;
+                height: 20px;
+                border: 2px solid #cbd5e0;
+                border-radius: 5px;
+            }
+            
+            #acceptCheckbox::indicator:checked {
+                background-color: #4299e1;
+                border-color: #4299e1;
+                image: url(:/icons/checkmark.svg);
+            }
+            
+            #acceptCheckbox::indicator:hover {
+                border-color: #a0aec0;
+            }
+            
+            #primaryButton {
+                background-color: #4299e1;
+                color: white;
+                border-radius: 8px;
+                padding: 10px 24px;
+                font-weight: 500;
+                font-size: 14px;
+                border: none;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                transition: all 0.2s ease;
+            }
+            
+            #primaryButton:hover {
+                background-color: #3182ce;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 5px rgba(49, 130, 206, 0.3);
+            }
+            
+            #primaryButton:pressed {
+                transform: translateY(0);
+                box-shadow: none;
+            }
+            
+            #primaryButton:disabled {
+                background-color: #bee3f8;
+                transform: none;
+                box-shadow: none;
+            }
+            
+            #secondaryButton {
+                background-color: white;
+                color: #4a5568;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 10px 20px;
+                font-weight: 500;
+                font-size: 14px;
+                font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+                transition: all 0.2s ease;
+            }
+            
+            #secondaryButton:hover {
+                background-color: #f7fafc;
+                border-color: #cbd5e0;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 5px rgba(203, 213, 224, 0.3);
+            }
+            
+            #secondaryButton:pressed {
+                transform: translateY(0);
+                box-shadow: none;
+            }
+        """)
+        
+        self.setLayout(layout)
     
-    def on_accept(self):
-        """Enregistre l'acceptation dans la base de données"""
-        acceptance_date = QDateTime.currentDateTime().toString(Qt.ISODate)
-        ip_address, user_agent = self.get_system_info()
+    def load_terms_content(self):
+        """Charge un contenu HTML stylisé avec des sections interactives"""
+        terms_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: 'Segoe UI', system-ui, sans-serif;
+                    line-height: 1.7;
+                    color: #2d3748;
+                    margin: 0;
+                    padding: 0;
+                }
+                h1 {
+                    color: #2c5282;
+                    font-size: 1.5em;
+                    margin-bottom: 1em;
+                    padding-bottom: 0.5em;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                h2 {
+                    color: #2b6cb0;
+                    margin-top: 1.8em;
+                    margin-bottom: 0.8em;
+                    font-size: 1.3em;
+                }
+                h3 {
+                    color: #4a5568;
+                    margin-top: 1.5em;
+                    margin-bottom: 0.5em;
+                    font-size: 1.1em;
+                }
+                p {
+                    margin-bottom: 1.2em;
+                    text-align: justify;
+                }
+                ul, ol {
+                    margin-bottom: 1.5em;
+                    padding-left: 1.8em;
+                }
+                li {
+                    margin-bottom: 0.6em;
+                    position: relative;
+                }
+                li:before {
+                    content: "•";
+                    color: #4299e1;
+                    font-weight: bold;
+                    display: inline-block;
+                    width: 1em;
+                    margin-left: -1em;
+                }
+                strong {
+                    color: #2d3748;
+                }
+                .highlight {
+                    background-color: #ebf8ff;
+                    padding: 0.2em 0.4em;
+                    border-radius: 0.3em;
+                    font-weight: 500;
+                }
+                .section {
+                    margin-bottom: 2em;
+                    background: #f8fafc;
+                    padding: 1.5em;
+                    border-radius: 0.5em;
+                    border-left: 4px solid #4299e1;
+                }
+                .warning {
+                    background-color: #fffaf0;
+                    border-left-color: #dd6b20;
+                }
+                .warning-title {
+                    color: #dd6b20;
+                }
+                .info {
+                    background-color: #f0fff4;
+                    border-left-color: #38a169;
+                }
+                .info-title {
+                    color: #38a169;
+                }
+                a {
+                    color: #3182ce;
+                    text-decoration: none;
+                    transition: color 0.2s;
+                }
+                a:hover {
+                    color: #2c5282;
+                    text-decoration: underline;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Conditions Générales d'Utilisation</h1>
+            
+            <div class="section">
+                <h2>1. Acceptation des Conditions</h2>
+                <p>En utilisant cette application, vous acceptez sans réserve les présentes conditions générales d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser l'application.</p>
+                
+                <h3>Modifications des Conditions</h3>
+                <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications prendront effet immédiatement après leur publication dans l'application.</p>
+            </div>
+            
+            <div class="section">
+                <h2>2. Utilisation du Service</h2>
+                <p>Cette application vous permet de :</p>
+                <ul>
+                    <li><strong>Planifier et publier</strong> du contenu sur plusieurs réseaux sociaux</li>
+                    <li><strong>Analyser les performances</strong> de vos publications</li>
+                    <li><strong>Collaborer</strong> avec votre équipe marketing</li>
+                    <li><strong>Gérer</strong> plusieurs comptes sociaux simultanément</li>
+                </ul>
+                
+                <h3>Restrictions d'Usage</h3>
+                <p>Vous vous engagez à ne pas :</p>
+                <ul>
+                    <li>Utiliser l'application à des fins illégales</li>
+                    <li>Tenter de contourner les mesures de sécurité</li>
+                    <li>Utiliser des robots ou scripts automatisés</li>
+                </ul>
+            </div>
+            
+            <div class="section info">
+                <h2 class="info-title">3. Protection des Données</h2>
+                <p>Nous accordons une importance primordiale à la protection de vos données :</p>
+                <ul>
+                    <li>Stockage <span class="highlight">local</span> sur votre appareil</li>
+                    <li>Chiffrement AES-256 des informations sensibles</li>
+                    <li>Conformité RGPD pour les utilisateurs européens</li>
+                    <li>Transparence totale sur l'utilisation des données</li>
+                </ul>
+                
+                <h3>Données Collectées</h3>
+                <p>Nous collectons uniquement les données nécessaires au fonctionnement de l'application :</p>
+                <ul>
+                    <li>Identifiants de connexion aux réseaux sociaux (optionnel)</li>
+                    <li>Préférences de l'application</li>
+                    <li>Statistiques d'utilisation anonymisées</li>
+                </ul>
+            </div>
+            
+            <div class="section warning">
+                <h2 class="warning-title">4. Responsabilités</h2>
+                <p>En tant qu'utilisateur, vous vous engagez à :</p>
+                <ul>
+                    <li>Maintenir la confidentialité de vos identifiants</li>
+                    <li>Respecter les conditions d'utilisation des réseaux sociaux</li>
+                    <li>Ne pas publier de contenu illégal ou inapproprié</li>
+                </ul>
+                
+                <h3>Limitation de Responsabilité</h3>
+                <p>Nous déclinons toute responsabilité pour :</p>
+                <ul>
+                    <li>Les interruptions de service non planifiées</li>
+                    <li>Les modifications des API des réseaux sociaux</li>
+                    <li>L'utilisation inappropriée de l'application</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>5. Propriété Intellectuelle</h2>
+                <p>Tous les droits de propriété intellectuelle relatifs à l'application restent notre propriété exclusive.</p>
+                
+                <h3>Licence d'Utilisation</h3>
+                <p>Nous vous accordons une licence personnelle, non exclusive et non transférable pour utiliser l'application.</p>
+            </div>
+            
+            <div class="section">
+                <h2>6. Résiliation</h2>
+                <p>Nous pouvons résilier votre accès à l'application sans préavis en cas de violation des présentes conditions.</p>
+                
+                <h3>Conséquences de la Résiliation</h3>
+                <p>En cas de résiliation :</p>
+                <ul>
+                    <li>Votre accès à l'application sera immédiatement désactivé</li>
+                    <li>Vos données locales resteront sur votre appareil</li>
+                </ul>
+            </div>
+            
+            <p style="text-align: center; margin-top: 2em; font-size: 0.9em; color: #718096;">
+                Dernière mise à jour: %s
+            </p>
+        </body>
+        </html>
+        """ % QDate.currentDate().toString('dd/MM/yyyy')
         
-        # Données supplémentaires à stocker (chiffrées)
-        extra_data = {
-            "screen_resolution": f"{self.width()}x{self.height()}",
-            "color_scheme": "dark" if self.dark_mode else "light",
-            "system_language": "fr"  # À adapter
-        }
-        
-        encrypted_data = self.manager.encrypt_data(json.dumps(extra_data))
-        
-        try:
-            self.cursor.execute("""
-                INSERT INTO terms_acceptance 
-                (user_id, acceptance_date, terms_version, ip_address, user_agent, encrypted_data)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (self.user_id, acceptance_date, self.manager.terms_version, 
-                 ip_address, user_agent, encrypted_data))
-            
-            self.conn.commit()
-            
-            # Animation de succès
-            self.animate_acceptance()
-            
-            # Fermer après l'animation
-            QTimer.singleShot(1000, self.accept)
-            
-        except Exception as e:
-            QMessageBox.critical(self, "Erreur", f"Erreur lors de l'enregistrement : {str(e)}")
+        self.terms_text.setHtml(terms_html)
     
-    def animate_acceptance(self):
-        """Animation lorsque l'utilisateur accepte"""
-        self.accept_button.setText("✓ Accepté !")
+    def toggle_continue_button(self, state):
+        """Active/désactive le bouton Continuer avec animation sophistiquée"""
+        was_enabled = self.continue_btn.isEnabled()
+        self.continue_btn.setEnabled(state == Qt.Checked)
         
-        # Animation de couleur
-        anim = QPropertyAnimation(self.accept_button, b"styleSheet")
-        anim.setDuration(1000)
-        anim.setStartValue(f"background-color: {'#10b981' if self.dark_mode else '#059669'};")
-        anim.setEndValue(self.styleSheet())
-        anim.start()
+        # Animation seulement lors de l'activation (pas lors de la désactivation)
+        if state == Qt.Checked and not was_enabled:
+            animation = QPropertyAnimation(self.continue_btn, b"geometry", self)
+            animation.setDuration(300)
+            animation.setEasingCurve(QEasingCurve.OutBack)
+            
+            start_geo = self.continue_btn.geometry()
+            end_geo = start_geo
+            
+            # Effet de rebond
+            animation.setKeyValueAt(0.3, QRect(
+                start_geo.x() - 5, 
+                start_geo.y(), 
+                start_geo.width() + 10, 
+                start_geo.height()
+            ))
+            
+            animation.setEndValue(end_geo)
+            animation.start()
     
-    def closeEvent(self, event):
-        """Ferme proprement la connexion à la base de données"""
-        self.conn.close()
-        super().closeEvent(event)
+    def get_results(self) -> Dict:
+        return {'accepted_terms': self.accept_checkbox.isChecked()}
+    
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
     
-    # Définir une police moderne
-    font = QFont()
-    font.setFamily("Segoe UI" if sys.platform == "win32" else "Inter")
-    app.setFont(font)
-    
-    # Exemple d'utilisation
-    dialog = TermsDialog(user_id="test_user", force_show=True)
-    
-    if dialog.result() == QDialog.Accepted:
-        print("Conditions acceptées")
-    else:
-        print("Conditions refusées")
-        sys.exit()

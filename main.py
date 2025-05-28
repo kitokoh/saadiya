@@ -259,7 +259,21 @@ class Browser(QMainWindow):
         controller = ApplicationController()
         
         # controller.ex
+    def control_application(self):
+        from demarrage.demarage import FlowManager, DatabaseManager
 
+        db = DatabaseManager()
+        flow_manager = FlowManager(db)
+        flow = flow_manager.start_session()  # Détecte automatiquement le flux nécessaire
+
+        # Exécuter les dialogues du flux (sans bloquer l'interface principale)
+        for dialog_class, title in flow['dialogs']:
+            dialog = dialog_class(title)
+            dialog.exec_()  # Bloque jusqu'à la fermeture, mais garde la fenêtre principale visible
+            # OU dialog.show() pour un affichage non bloquant (si les dialogues sont indépendants)
+
+        flow_manager.end_session()
+        db.close()    
 
     def show_splash_screen(self):
         """Affiche un écran de chargement."""
@@ -425,10 +439,36 @@ class Browser(QMainWindow):
         # Add first tab
         self.open_home()
         # self.control_application()
+        QTimer.singleShot(200, self.control_application)  # Lance le flux après un court délai
 
 
 
+    def control_application(self):
+        from demarrage.demarage import FlowManager, DatabaseManager
 
+        self.db = DatabaseManager()  # Conservez la connexion ouverte si nécessaire
+        self.flow_manager = FlowManager( self.db)
+        self.current_flow = self.flow_manager.start_session()
+        self.current_step = 0
+
+        self.run_next_dialog()
+
+    def run_next_dialog(self):
+        if self.current_step < len(self.current_flow['dialogs']):
+            dialog_class, title = self.current_flow['dialogs'][self.current_step]
+            self.dialog = dialog_class(title)
+            self.dialog.finished.connect(self.on_dialog_finished)
+            self.dialog.show()  # Affiche le dialogue sans bloquer l'interface
+        else:
+            self.flow_manager.end_session()  # Ferme la session si tous les dialogues sont terminés
+
+    def on_dialog_finished(self, result):
+        if result == QDialog.Accepted:
+            self.current_step += 1
+            self.run_next_dialog()
+        else:
+            # L'utilisateur a annulé, on arrête le flux
+            self.flow_manager.end_session()
 
 
 
@@ -4668,14 +4708,14 @@ class Browser(QMainWindow):
             ("🏠", self.tr("Home"), "home", self.open_home, self.tr("Main dashboard"), []),
             
             # 2. Marketing
-            ("📢", self.tr("Marketing"), "marketing", None, self.tr("Marketing tools"), [
+            ("📢", self.tr("Marketing"), "marketing", None, self.tr("Creation et promotion"), [
                 ("🎬", self.tr("My Media"), "media", self.add_media_page, self.tr("Media Management"), []),
                 ("🌐", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
                 ("🤖", self.tr("Marketing Robots"), "marketing_robots", self.open_marketing, self.tr("Marketing automation tools"), []),
                 # ("📰", self.tr("Ads Manager"), "ads_manager", self.open_ads_manager, self.tr("Manage advertising campaigns"), []),
                 ("⏳", self.tr("Campaign Scheduler"), "campaign_scheduler", self.open_sheduling_window, self.tr("Schedule marketing campaigns"), []),
                 ("✉️", self.tr("Email & SMS"), "email_sms", self.open_email_sms, self.tr("Email and SMS marketing tools"), []),
-                # ("🖋️", self.tr("Content Generator"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+                ("🖋️", self.tr("Content Creation"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
             ]),
 
 

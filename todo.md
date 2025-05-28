@@ -20,3 +20,5 @@ creation account  alors premium
 tlechargement alors nom prenom et autre info avec commander strategie 
 
 
+Licence 
+defin mo

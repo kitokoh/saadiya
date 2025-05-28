@@ -1,1 +1,9 @@
-ce quil faut faire pour que les choses qui  se demarre  au demarrage de lutilisatuer 
+ce quil faut faire pour que les choses qui 
+ se demarre  au demarrage de lutilisatuer 
+
+
+ici j ai decide de faire de sorte que l on puisse succecivement  au demarrage accepter les teme du tilisatation choisir les module quil veu demarrer la strategie de miger dans son ordianteur 
+pouvoir demarrer un compte utilisatuer  donner des feedbak 
+afficher des promotion pour les licences 
+et mettre a jour la solutions  chaque deux semeaine dutilisation 
+
