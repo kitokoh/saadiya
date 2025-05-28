@@ -1783,6 +1783,7 @@ class Browser(QMainWindow):
                 #     ("🗄️", self.tr("External Disk"), "external_disk", self.archive_to_external_disk, self.tr("Save to external device"), []),
                 #     ("🔁", self.tr("Schedule Backup"), "schedule_backup", self.schedule_backup, self.tr("Plan automatic backups"), []),
                 # ]),
+           
             ]),
 
             # Support section (dynamic)
@@ -6203,6 +6204,8 @@ if __name__ == "__main__":
 
     # Exécuter l'application
     sys.exit(app.exec_())
+
+
 # if __name__ == "__main__":
 #     app = QApplication(sys.argv)
 #     window = Browser()
