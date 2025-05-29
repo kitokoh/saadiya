@@ -175,7 +175,31 @@ class QOverlayLayout(QLayout):
                     widget_rect.setBottom(widget_rect.top() + size.height())
             
             widget.setGeometry(widget_rect)
+from demarrage.demarage import ApplicationController
 
+def control_application(self):
+    """Version avec meilleure gestion des ressources"""
+    controller = None
+    try:
+        controller = ApplicationController()
+        
+        # Exécuter le flux de démarrage
+        result = controller.run()
+        
+        if result == 0:  # Succès
+            # Récupérer la fenêtre principale si elle a été créée
+            if hasattr(controller, 'main_window'):
+                return controller.main_window
+            return True
+        return False
+        
+    except Exception as e:
+        print(f"Erreur de démarrage: {e}")
+        return False
+    finally:
+        # Nettoyage si nécessaire
+        if controller:
+            controller.db.close()
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -1799,6 +1823,7 @@ class Browser(QMainWindow):
                 #     ("🗄️", self.tr("External Disk"), "external_disk", self.archive_to_external_disk, self.tr("Save to external device"), []),
                 #     ("🔁", self.tr("Schedule Backup"), "schedule_backup", self.schedule_backup, self.tr("Plan automatic backups"), []),
                 # ]),
+           
             ]),
 
             # Support section (dynamic)
@@ -6293,6 +6318,8 @@ if __name__ == "__main__":
 
     # Exécuter l'application
     sys.exit(app.exec_())
+
+
 # if __name__ == "__main__":
 #     app = QApplication(sys.argv)
 #     window = Browser()

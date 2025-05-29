@@ -160,7 +160,7 @@ class MainWindow(QMainWindow):
         # layout.addWidget(subtitle, 0, Qt.AlignCenter)
         from managements.specificationtech import main
             # Créer et afficher la fenêtre principale
-        page = MainWindow(parent=self)
+        page = MainWindow()
         # page.show()
         return page
 
