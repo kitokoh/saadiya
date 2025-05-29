@@ -4,37 +4,37 @@
 <context>
     <name>FeatureButtons</name>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="61"/>
+        <location filename="../../../../ui/feature_buttons.py" line="62"/>
         <source>AI FB ROBOT Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="64"/>
+        <location filename="../../../../ui/feature_buttons.py" line="65"/>
         <source>Instance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="65"/>
+        <location filename="../../../../ui/feature_buttons.py" line="66"/>
         <source>Médias</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="66"/>
+        <location filename="../../../../ui/feature_buttons.py" line="67"/>
         <source>Groupes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="67"/>
+        <location filename="../../../../ui/feature_buttons.py" line="68"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="68"/>
+        <location filename="../../../../ui/feature_buttons.py" line="69"/>
         <source>Certif</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/feature_buttons.py" line="69"/>
+        <location filename="../../../../ui/feature_buttons.py" line="70"/>
         <source>Langue</source>
         <translation type="unfinished"></translation>
     </message>

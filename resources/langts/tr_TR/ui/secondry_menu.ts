@@ -4,22 +4,22 @@
 <context>
     <name>SecondaryMenu</name>
     <message>
-        <location filename="../../../../ui/secondry_menu.py" line="28"/>
+        <location filename="../../../../ui/secondry_menu.py" line="29"/>
         <source>Youtube Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/secondry_menu.py" line="45"/>
+        <location filename="../../../../ui/secondry_menu.py" line="46"/>
         <source>Marketing AI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/secondry_menu.py" line="62"/>
+        <location filename="../../../../ui/secondry_menu.py" line="63"/>
         <source>Decouvre Facebook Pro</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/secondry_menu.py" line="117"/>
+        <location filename="../../../../ui/secondry_menu.py" line="118"/>
         <source>AI FB ROBOT Pro</source>
         <translation type="unfinished"></translation>
     </message>

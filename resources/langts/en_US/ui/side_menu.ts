@@ -4,27 +4,27 @@
 <context>
     <name>SideMenu</name>
     <message>
-        <location filename="../../../../ui/side_menu.py" line="49"/>
+        <location filename="../../../../ui/side_menu.py" line="50"/>
         <source>Accueil</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/side_menu.py" line="50"/>
+        <location filename="../../../../ui/side_menu.py" line="51"/>
         <source>Paramètres</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/side_menu.py" line="51"/>
+        <location filename="../../../../ui/side_menu.py" line="52"/>
         <source>Aide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/side_menu.py" line="52"/>
+        <location filename="../../../../ui/side_menu.py" line="53"/>
         <source>À propos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/side_menu.py" line="53"/>
+        <location filename="../../../../ui/side_menu.py" line="54"/>
         <source>Quitter</source>
         <translation type="unfinished"></translation>
     </message>
