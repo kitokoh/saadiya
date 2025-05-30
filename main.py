@@ -4689,6 +4689,9 @@ class Browser(QMainWindow):
                 ("⏳", self.tr("Campaign Scheduler"), "campaign_scheduler", self.open_sheduling_window, self.tr("Schedule marketing campaigns"), []),
                 ("✉️", self.tr("Email & SMS"), "email_sms", self.open_email_sms, self.tr("Email and SMS marketing tools"), []),
                 ("🖋️", self.tr("Content Creation"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+
+                ("🖋️", self.tr("Planifier post"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+
             ]),
 
 
@@ -5894,9 +5897,51 @@ class Browser(QMainWindow):
     def open_email_sms(self):
         """Ouvre le gestionnaire d'emails et SMS"""
         if self.is_enterprise_mode:
-            print("Opening Email & SMS Manager")
+
+            # from facebooksmodule.media_manager import MediaTable
+            from mailsms.mailsysl import MainWindowMail
+            """Open a tab with the content of the 'SettingsWidget' class."""
+            tab_name = self.tr("📧 Mail & SMS")  # Tab name (matches the label used in add_custom_tab)
+
+            # Check if a tab with this name already exists
+            existing_tab_index = self.find_tab_by_name(tab_name)
+            if existing_tab_index != -1:
+                # If the tab already exists, select it
+                self.tab_widget.setCurrentIndex(existing_tab_index)
+                return
+
+            # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+            if not hasattr(self, '📧 Mail & SMS') or self.mail is None:
+                self.mail = MainWindowMail(parent=self)  # Create the instance only once
+
+            # Add the existing instance to the new tab
+            self.add_custom_tab(self.mail, tab_name, "resources/icons/multi_fbb.ico")
+
+
+
         else:
             self.check_pro_mode(lambda: None)
+
+      
+    # def open_email_sms(self):
+    #     from facebooksmodule.media_manager import MediaTable
+
+    #     """Open a tab with the content of the 'SettingsWidget' class."""
+    #     tab_name = self.tr("📺 Medias")  # Tab name (matches the label used in add_custom_tab)
+
+    #     # Check if a tab with this name already exists
+    #     existing_tab_index = self.find_tab_by_name(tab_name)
+    #     if existing_tab_index != -1:
+    #         # If the tab already exists, select it
+    #         self.tab_widget.setCurrentIndex(existing_tab_index)
+    #         return
+
+    #     # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+    #     if not hasattr(self, '📺 Medias') or self.medias is None:
+    #         self.medias = MediaTable(parent=self)  # Create the instance only once
+
+    #     # Add the existing instance to the new tab
+    #     self.add_custom_tab(self.medias, tab_name, "resources/icons/multi_fbb.ico")
 
     def open_content_generator(self):
         """Ouvre le générateur de contenu"""
@@ -5922,10 +5967,39 @@ class Browser(QMainWindow):
     def open_dms_quotes(self):
         """Ouvre la gestion de documents et devis"""
         if self.is_enterprise_mode:
-            print("Opening DMS & Quotes")
+            tab_name = self.tr("🧠 Dms & quotes")
+
+            existing_tab_index = self.find_tab_by_name(tab_name)
+            if existing_tab_index != -1:
+                self.tab_widget.setCurrentIndex(existing_tab_index)
+                return
+
+            if not hasattr(self, '🧠 Dms & quotes') or self.dms is None:
+                # from Installsweb.invoice_ninja import MainWindow
+                from Home.homedms import MainWindow
+
+                self.dms = MainWindow()
+
+            self.add_custom_tab(self.dms, tab_name, "resources/icons/management.ico")
+    
         else:
             self.check_pro_mode(lambda: None)
+    def open_trader(self):
+        tab_name = self.tr("🧠 Trade")
 
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, '🧠 Trade') or self.trade is None:
+            # from Installsweb.invoice_ninja import MainWindow
+            from Home.homefinance import MainWindow
+
+            self.trade = MainWindow()
+
+        self.add_custom_tab(self.trade, tab_name, "resources/icons/management.ico")
+   
     def open_crm(self):
         """Ouvre le CRM"""
         if self.is_enterprise_mode:

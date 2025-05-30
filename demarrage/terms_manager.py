@@ -980,4 +980,14 @@ class TermsDialog(BaseDialog):
         return {'accepted_terms': self.accept_checkbox.isChecked()}
     
 
-    
+
+
+
+
+
+
+
+
+
+
+

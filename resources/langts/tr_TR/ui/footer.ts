@@ -4,18 +4,18 @@
 <context>
     <name>FooterSection</name>
     <message>
-        <location filename="../../../../ui/footer.py" line="114"/>
-        <source>Politique de confidentialité</source>
+        <location filename="../../../../ui/footer.py" line="77"/>
+        <source>Privacy Policy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/footer.py" line="117"/>
-        <source>Termes et Conditions</source>
+        <location filename="../../../../ui/footer.py" line="80"/>
+        <source>Terms and Conditions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/footer.py" line="120"/>
-        <source>visit www.turknovatech.com | © 2024 by Türk Novatech - Tous droits réservés.</source>
+        <location filename="../../../../ui/footer.py" line="84"/>
+        <source>Visit www.leopardo.com | © 2025 by Leopardo - All rights reserved.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -14,8 +14,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../../ui/clientsBrand.py" line="129"/>
-        <source>© 2024 - Marketing Robot . Next Update 15 November 15 2024</source>
+        <location filename="../../../../ui/clientsBrand.py" line="134"/>
+        <source>© 2025 - Marketing Robot . Next Update 15 03 2025</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

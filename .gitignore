@@ -14,6 +14,9 @@
 
 # Ignorer les fichiers de logs
 *.log
+*.db
+*.db-wal
+*.db-shm
 
 # Ignorer les fichiers de cache et de compilation
 *.pyc
