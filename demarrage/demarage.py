@@ -148,12 +148,9 @@ class FlowManager:
             'description': 'Configuration initiale',
             'dialogs': [
                 (TermsDialog, "Conditions d'utilisation"),
-                (MarketingEvaluationDialog, "Création de compte"),
 
-                # (FelicitationDialog, "Sélection des modules"),
 
-                (ModuleSelectionDialog, "Sélection des modules"),
-                (TutorialDialog, "Guide d'utilisation")
+                (ModuleSelectionDialog, "Sélection des modules")
 
             ],
             'session_type': 'initial'
@@ -162,22 +159,41 @@ class FlowManager:
             'name': 'tutorial',
             'description': 'Tutoriel de prise en main',
             'dialogs': [
-                    # (UserCreationDialog, "Sélection des modules"),
-                # (FelicitationDialog, "Sélection des modules"),
 
-                    (MarketingEvaluationDialog, "Création de compte")
+                (TutorialDialog, "Guide d'utilisation")
+
 
 
             ],
             'session_type': 'tutorial'
         },
         3: {  # Troisième démarrage
+            'name': 'evalue',
+            'description': "Demande d'évaluation",
+            'dialogs': [
+
+                    (MarketingEvaluationDialog, "Création de compte")
+
+            ],
+            'session_type': 'evalue'
+        },
+
+                4: {  # Troisième démarrage
+            'name': 'user',
+            'description': "Demande d'évaluation",
+            'dialogs': [
+                    # (UserCreationDialog, "Sélection des modules"),
+                # (FelicitationDialog, "Sélection des modules")
+
+            ],
+            'session_type': 'user'
+        },
+                        5: {  # Troisième démarrage
             'name': 'feedback',
             'description': "Demande d'évaluation",
             'dialogs': [
-                (ModuleSelectionDialog, "Votre avis compte!"),
                 (FeedbackDialog, "Sélection des modules"),
-                    (MarketingEvaluationDialog, "Création de compte")
+
 
             ],
             'session_type': 'feedback'
@@ -197,16 +213,7 @@ class FlowManager:
         self.session_id = None
         self.current_flow = None
     
-    # def start_session(self):
-        # session_count = self.db.get_session_count()
-        # self.current_flow = self.FLOWS.get(session_count + 1, self.DEFAULT_FLOW)
-        
-        # self.session_id = self.db.record_session_start(
-        #     self.current_flow['session_type']
-        # )
-        
-        # return self.current_flow
-    
+
     def execute_flow(self):
         if not self.current_flow:
             return False
@@ -237,7 +244,7 @@ class FlowManager:
                 'name': 'feedback_every_5',
                 'description': f"Feedback demandé au {session_number}e démarrage",
                 'dialogs': [
-                    (FeedbackDialog, "Que pensez-vous de l'application ?")
+                    # (FeedbackDialog, "Que pensez-vous de l'application ?")
                 ],
                 'session_type': 'feedback_periodic'
             }
@@ -248,7 +255,7 @@ class FlowManager:
                 'name': 'pair_module_review',
                 'description': f"Révision des modules au {session_number}e démarrage pair",
                 'dialogs': [
-                    (ModuleSelectionDialog, "Modules à activer")
+                    # (ModuleSelectionDialog, "Modules à activer")
                 ],
                 'session_type': 'module_review'
             }
@@ -259,7 +266,7 @@ class FlowManager:
                 'name': 'tuto_13',
                 'description': "Tuto surprise au 13e démarrage",
                 'dialogs': [
-                    (TutorialDialog, "Tuto avancé")
+                    # (TutorialDialog, "Tuto avancé")
                 ],
                 'session_type': 'special_13'
             }
@@ -289,114 +296,3 @@ class FlowManager:
 
         return self.current_flow
 
-# class UserCreationDialog(BaseDialog):
-#     def init_ui(self):
-#         layout = QVBoxLayout()
-        
-#         self.username_input = QLineEdit()
-#         self.username_input.setPlaceholderText("Nom d'utilisateur")
-        
-#         self.password_input = QLineEdit()
-#         self.password_input.setPlaceholderText("Mot de passe")
-#         self.password_input.setEchoMode(QLineEdit.Password)
-        
-#         self.confirm_input = QLineEdit()
-#         self.confirm_input.setPlaceholderText("Confirmer le mot de passe")
-#         self.confirm_input.setEchoMode(QLineEdit.Password)
-        
-#         self.create_btn = QPushButton("Créer le compte")
-#         self.create_btn.clicked.connect(self.validate_and_accept)
-        
-#         layout.addWidget(self.username_input)
-#         layout.addWidget(self.password_input)
-#         layout.addWidget(self.confirm_input)
-#         layout.addWidget(self.create_btn)
-        
-#         self.setLayout(layout)
-    
-#     def validate_and_accept(self):
-#         username = self.username_input.text().strip()
-#         password = self.password_input.text()
-#         confirm = self.confirm_input.text()
-        
-#         if not username:
-#             QMessageBox.warning(self, "Erreur", "Le nom d'utilisateur est requis")
-#             return
-        
-#         if not password or len(password) < 6:
-#             QMessageBox.warning(self, "Erreur", "Le mot de passe doit contenir au moins 6 caractères")
-#             return
-        
-#         if password != confirm:
-#             QMessageBox.warning(self, "Erreur", "Les mots de passe ne correspondent pas")
-#             return
-            
-#         self.accept()
-    
-#     def get_results(self) -> Dict:
-#         return {
-#             'username': self.username_input.text().strip(),
-#             'password': self.password_input.text()  # Note: En production, il faudrait hasher
-#         }
-
-# class MainWindow(QMainWindow):
-#     def __init__(self, db: DatabaseManager):
-#         super().__init__()
-#         self.db = db
-#         self.setWindowTitle("Application Principale")
-#         self.setGeometry(100, 100, 800, 600)
-        
-#         self.user_settings = self.db.get_user_settings()
-#         self.init_ui()
-    
-#     def init_ui(self):
-#         central_widget = QWidget()
-#         layout = QVBoxLayout()
-        
-#         title = QLabel(f"Bienvenue {self.user_settings.get('username', 'Utilisateur')}!")
-#         title.setStyleSheet("font-size: 20px; font-weight: bold;")
-#         layout.addWidget(title)
-        
-#         modules = QLabel(
-#             "Modules activés: " + 
-#             ', '.join(self.user_settings.get('selected_modules', ['Aucun']))
-#         )
-#         layout.addWidget(modules)
-        
-#         stats = QLabel(
-#             f"Sessions complètes: {self.db.get_session_count()}\n"
-#             f"Dernière session: {self.db.get_previous_session_type() or 'N/A'}"
-#         )
-#         layout.addWidget(stats)
-        
-#         central_widget.setLayout(layout)
-#         self.setCentralWidget(central_widget)
-
-# class ApplicationController:
-#     def __init__(self):
-#         self.app = QApplication(sys.argv)
-#         self.db = DatabaseManager()
-#         self.flow_manager = FlowManager(self.db)
-    
-#     def run(self):
-#         try:
-#             # Démarrer la session et déterminer le flux
-#             flow = self.flow_manager.start_session()
-#             print(f"Exécution du flux: {flow['description']}")
-            
-#             # Exécuter les dialogues du flux
-#             if not self.flow_manager.execute_flow():
-#                 return 1
-            
-#             # Si tout s'est bien passé, afficher la fenêtre principale
-#             main_window = MainWindow(self.db)
-#             main_window.show()
-            
-#             return self.app.exec_()
-#         finally:
-#             self.flow_manager.end_session()
-#             self.db.close()
-
-# if __name__ == "__main__":
-#     controller = ApplicationController()
-#     sys.exit(controller.run())
