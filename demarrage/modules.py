@@ -121,6 +121,130 @@ class ParticleSystem(QWidget):
             painter.setBrush(QBrush(color))
             painter.drawEllipse(p['pos'], p['size'], p['size'])
 
+# class ParticleSystem(QWidget):
+    def __init__(self, parent=None, particle_count=50, effect_type="default"):
+        super().__init__(parent)
+        self.particle_count = particle_count
+        self.effect_type = effect_type  # Stocker le type d'effet
+        self.particles = []
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_particles)
+        self.timer.start(20)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setMinimumSize(100, 100)
+
+    # Modifiez update_particles et paintEvent en fonction de effect_type
+    def update_particles(self):
+        for p in self.particles:
+            # Logique de base commune
+            dx = math.cos(p['direction']) * p['speed']
+            dy = math.sin(p['direction']) * p['speed']
+            p['pos'] += QPointF(dx, dy)
+
+            # Rebonds sur les bords
+            if not (0 <= p['pos'].x() <= self.width()):
+                p['direction'] = math.pi - p['direction']
+            if not (0 <= p['pos'].y() <= self.height()):
+                p['direction'] = -p['direction']
+
+            # Comportements spécifiques
+            if self.effect_type == "floating":
+                p['life'] -= 0.5  # Vie plus longue
+                if random.random() < 0.02:  # Changement de direction aléatoire
+                    p['direction'] += random.uniform(-0.5, 0.5)
+            elif self.effect_type == "sparkle":
+                p['life'] -= 1.5  # Vie plus courte
+                if random.random() < 0.1:  # Scintillement
+                    p['color'].setAlpha(random.randint(50, 200))
+            else:  # default
+                p['life'] -= 1
+
+            if p['life'] <= 0:
+                self.reset_particle(p)
+
+    def reset_particle(self, p):
+        """Réinitialise une particule selon le type d'effet"""
+        if self.effect_type == "floating":
+            p['pos'] = QPointF(random.uniform(0, self.width()), 
+                              random.uniform(0, self.height()))
+            p['life'] = p['max_life']
+            p['color'] = QColor(
+                random.randint(100, 200),
+                random.randint(100, 200),
+                random.randint(200, 255),
+                random.randint(50, 100))
+        elif self.effect_type == "sparkle":
+            p['pos'] = QPointF(random.uniform(-50, self.width()+50),
+                              random.uniform(-50, self.height()+50))
+            p['life'] = random.randint(50, 150)
+            p['color'] = QColor(255, 255, 255, random.randint(100, 200))
+        else:  # default
+            p['pos'] = QPointF(random.uniform(0, self.width()),
+                              random.uniform(0, self.height()))
+            p['life'] = p['max_life']
+
+# class ParticleSystem(QWidget):
+    def __init__(self, parent=None, particle_count=50, effect_type="default"):
+        super().__init__(parent)
+        self._particle_count = particle_count  # Utilisation d'un attribut privé
+        self.effect_type = effect_type
+        self.particles = []
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_particles)
+        self.timer.start(20)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setMinimumSize(100, 100)
+        self.init_particles()  # Initialisation immédiate
+
+    @property
+    def particle_count(self):
+        return self._particle_count
+
+    @particle_count.setter
+    def particle_count(self, value):
+        self._particle_count = max(10, min(value, 500))  # Limite raisonnable
+        self.init_particles()  # Reinitialiser les particules quand on change le count
+
+    def set_particle_count(self, count):  # Ajout de la méthode manquante
+        self.particle_count = count  # Utilise le setter property
+
+    def init_particles(self):
+        self.particles = []
+        for _ in range(self.particle_count):  # Utilisation de l'attribut via property
+            self.add_particle()
+
+    def add_particle(self):
+        """Ajoute une particule unique avec des propriétés aléatoires"""
+        self.particles.append({
+            'pos': QPointF(random.uniform(0, self.width()), 
+                          random.uniform(0, self.height())),
+            'size': random.randint(3, 8),
+            'speed': random.uniform(0.3, 1.2),
+            'color': QColor(
+                random.randint(100, 200),
+                random.randint(100, 200),
+                random.randint(200, 255),
+                random.randint(30, 80)
+            ),
+            'direction': random.uniform(0, 2 * math.pi),
+            'life': random.randint(100, 200),
+            'max_life': random.randint(100, 200)
+        })
+
+    # ... (le reste de votre classe ParticleSystem existante)
+
+
+
+    def start_animation(self):
+        """Démarre l'animation des particules"""
+        if not self.timer.isActive():
+            self.timer.start(20)
+
+    def stop_animation(self):
+        """Arrête l'animation des particules"""
+        self.timer.stop()
+
+
 class GlassButton(QPushButton):
     def __init__(self, text, icon=None, parent=None):
         super().__init__(text, parent)
@@ -335,6 +459,7 @@ class GlassButton(QPushButton):
         self.update()
 
     # ... (le reste des méthodes reste inchangé)
+
 
 
 class ModuleSelectionDialog(BaseDialog):

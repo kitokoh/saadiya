@@ -177,6 +177,7 @@ class FlowManager:
             'dialogs': [
                 (ModuleSelectionDialog, "Votre avis compte!"),
                 (FeedbackDialog, "Sélection des modules"),
+                    (MarketingEvaluationDialog, "Création de compte")
 
             ],
             'session_type': 'feedback'
