@@ -406,6 +406,16 @@ function setupEventListeners() {
     }
   });
 
+    // Ajout des écouteurs manquants
+    document.getElementById('searchInput').addEventListener('input', handleSearch);
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        state.currentCategory = tab.dataset.category;
+        filterContacts();
+      });
+    });
   // Fichier
   document.getElementById('previewBtn').addEventListener('click', handlePreview);
   document.getElementById('importBtn').addEventListener('click', handleImport);
@@ -469,11 +479,17 @@ async function loadContactsFromFirebase() {
     
     filterContacts();
     renderStats();
+    document.getElementById('searchInput').addEventListener('input', handleSearch);
+
   } catch (error) {
     showAlert('error', `Firebase error: ${error.message}`);
   } finally {
     hideLoading();
   }
+}
+// Et cette fonction manquante
+function handleSearch(e) {
+  filterContacts();
 }
 
 function filterContacts() {
