@@ -34,11 +34,11 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QDateTime, QTimer, QThread, pyqtSignal, QSize
 from PyQt5.QtGui import QFont, QPalette, QColor, QIcon, QPixmap
 from PyQt5.QtWidgets import QAction
-
+from imports import DB_PATH_mail
 class DatabaseManager:
     """Gestionnaire de base de données SQLite"""
     
-    def __init__(self, db_path="email_manager.db"):
+    def __init__(self, db_path=DB_PATH_mail):
         self.db_path = db_path
         self.init_database()
     

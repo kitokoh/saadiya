@@ -23,10 +23,10 @@ from PyQt5.QtCore import QPropertyAnimation
 
 from demarrage.feedback import FeedbackDialog
 from demarrage.modules import ModuleSelectionDialog
-
+from imports import DB_PATH_demarrage
 class DatabaseManager:
     def __init__(self):
-        self.conn = sqlite3.connect('app_state.db')
+        self.conn = sqlite3.connect(DB_PATH_demarrage)
         self.create_tables()
         
     def create_tables(self):

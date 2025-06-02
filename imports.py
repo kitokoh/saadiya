@@ -67,6 +67,10 @@ DB_PATH_update = DB_PATH
 DB_PATH_status = DB_PATH
 DB_PATH_multilingual_text1 = DB_PATH
 
+DB_PATH_demarrage = DB_PATH
+DB_PATH_Home = DB_PATH
+DB_PATH_mail = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'mailsms.db')
+
 APP_INFO_FILE = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'APP_INFO_FILE.json')
 # DB_PATH_update = os.path.join(os.getenv('APPDATA'), 'saadiya', 'resources', 'update.db')
 #user_data_dir = os.path.join(os.path.expanduser("~"), "AppData", "Roaming", "saadiya")

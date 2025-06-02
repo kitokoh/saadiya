@@ -440,7 +440,9 @@ class MarketingEvaluationDialog(BaseDialog):
     
     def _init_db(self):
         """Initialise la base de données SQLite"""
-        db_path = Path.home() / "marketing_evalol.db"
+        from imports import DB_PATH_demarrage
+        # db_path = Path.home() / "marketing_evalol.db"
+        db_path = DB_PATH_demarrage
         self.conn = sqlite3.connect(str(db_path))
         self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()

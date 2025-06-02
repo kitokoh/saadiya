@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QSystemTrayIcon, QMenu,
 from PyQt5.QtGui import QIcon, QPixmap, QCursor, QColor, QPainter, QBrush, QPen
 from PyQt5.QtCore import Qt, QSize, QPoint, QTimer, QPropertyAnimation, pyqtProperty
 from PyQt5.QtWebEngineWidgets import QWebEngineView  # Pour intégrer Dialogflow (optionnel)
-
+from imports import DB_PATH_Home
 # --- CONSTANTES ---
 WHATSAPP_NUMBER = "+123456789"  # Remplacez par votre numéro
 SUPPORT_EMAIL = "support@example.com"
@@ -14,7 +14,7 @@ APP_NAME = "Virtual Assistant"
 
 # --- BASE DE DONNÉES ---
 def init_db():
-    conn = sqlite3.connect('assistant.db')
+    conn = sqlite3.connect(DB_PATH_Home)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS chats (
@@ -206,7 +206,7 @@ class ChatWindow(QWidget):
         menu.exec_(QCursor.pos())
     
     def save_to_db(self, user_text, bot_reply):
-        conn = sqlite3.connect('assistant.db')
+        conn = sqlite3.connect(DB_PATH_Home)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO chats (user_text, bot_response) VALUES (?, ?)", 
                       (user_text, bot_reply))
@@ -214,7 +214,7 @@ class ChatWindow(QWidget):
         conn.close()
     
     def load_chat_history(self):
-        conn = sqlite3.connect('assistant.db')
+        conn = sqlite3.connect(DB_PATH_Home)
         cursor = conn.cursor()
         cursor.execute("SELECT user_text, bot_response FROM chats ORDER BY timestamp LIMIT 50")
         chats = cursor.fetchall()
@@ -281,7 +281,7 @@ class VirtualAssistantApp(QApplication):
         webbrowser.open(f"mailto:{SUPPORT_EMAIL}?subject={subject}&body={body}")
     
     def is_first_run(self):
-        conn = sqlite3.connect('assistant.db')
+        conn = sqlite3.connect(DB_PATH_Home)
         cursor = conn.cursor()
         cursor.execute("SELECT count(*) FROM chats")
         count = cursor.fetchone()[0]

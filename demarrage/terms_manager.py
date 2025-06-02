@@ -1,3 +1,4 @@
+# merci as tu des ameliorations a apporter a ca cest fonctionnelle meme actuelllement mais bon 
 import sys
 from pathlib import Path
 from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QTextBrowser, QCheckBox, 
@@ -10,7 +11,6 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
                             QLabel, QTextEdit, QPushButton, QSlider, QCheckBox, 
                             QMessageBox, QDialog, QDialogButtonBox)
 from PyQt5.QtCore import QRect
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect
 
 import sys
 import random
@@ -23,6 +23,194 @@ from PyQt5.QtGui import (QFont, QTextDocument, QPainter, QColor, QPainterPath,
                         QRadialGradient, QBrush, QPen, QLinearGradient, QIcon)
 from PyQt5.QtCore import QTimer
 from demarrage.baseDialog import BaseDialog
+
+class ParticleSystem(QWidget):
+    def __init__(self, parent=None, particle_count=50):
+        super().__init__(parent)
+        self.particle_count = particle_count
+        self.particles = []
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_particles)
+        self.timer.start(20)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setMinimumSize(100, 100)
+
+    def resizeEvent(self, event):
+        self.init_particles()
+        super().resizeEvent(event)
+
+    def init_particles(self):
+        self.particles = []
+        for _ in range(self.particle_count):
+            self.particles.append({
+                'pos': QPointF(random.uniform(0, self.width()), random.uniform(0, self.height())),
+                'size': random.randint(3, 8),
+                'speed': random.uniform(0.3, 1.2),
+                'color': QColor(
+                    random.randint(100, 200),
+                    random.randint(100, 200),
+                    random.randint(200, 255),
+                    random.randint(30, 80)
+                ),
+                'direction': random.uniform(0, 2 * math.pi),
+                'life': random.randint(100, 200),
+                'max_life': random.randint(100, 200)
+            })
+
+    def update_particles(self):
+        for p in self.particles:
+            # Déplacement
+            dx = math.cos(p['direction']) * p['speed']
+            dy = math.sin(p['direction']) * p['speed']
+            p['pos'] += QPointF(dx, dy)
+
+            # Rebonds sur les bords
+            if not (0 <= p['pos'].x() <= self.width()):
+                p['direction'] = math.pi - p['direction']
+            if not (0 <= p['pos'].y() <= self.height()):
+                p['direction'] = -p['direction']
+
+            # Cycle de vie
+            p['life'] -= 1
+            if p['life'] <= 0:
+                p['pos'] = QPointF(random.uniform(0, self.width()), random.uniform(0, self.height()))
+                p['life'] = p['max_life']
+
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        for p in self.particles:
+            alpha = int(255 * (p['life'] / p['max_life']))
+            color = QColor(p['color'])
+            color.setAlpha(alpha)
+
+            # Glow effect
+            glow = QRadialGradient(p['pos'], p['size'] * 2)
+            glow.setColorAt(0, color)
+            glow.setColorAt(1, QColor(color.red(), color.green(), color.blue(), 0))
+            painter.setBrush(QBrush(glow))
+            painter.setPen(Qt.NoPen)
+            painter.drawEllipse(p['pos'], p['size'] * 2, p['size'] * 2)
+
+            # Particle center
+            painter.setBrush(QBrush(color))
+            painter.drawEllipse(p['pos'], p['size'], p['size'])
+
+class GlassButton(QPushButton):
+    def __init__(self, text, icon=None, parent=None):
+        super().__init__(text, parent)
+        self.setCursor(Qt.PointingHandCursor)
+        self.setMinimumHeight(50)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        
+        # Glass effect properties
+        self._glass_opacity = 0.3
+        self._light_position = 0
+        self._light_color = QColor(255, 255, 255, 150)
+        self._pulse_scale = 1.0
+        self._ripple_alpha = 0
+        self._ripple_radius = 0
+        self._ripple_center = QPointF()
+        
+        # Shadow effect
+        self.shadow = QGraphicsDropShadowEffect(self)
+        self.shadow.setBlurRadius(20)
+        self.shadow.setColor(QColor(0, 0, 0, 120))
+        self.shadow.setOffset(0, 8)
+        self.setGraphicsEffect(self.shadow)
+        
+        # Style
+        self.setStyleSheet("""
+            GlassButton {
+                color: white;
+                border-radius: 15px;
+                padding: 15px 30px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.1);
+                font-family: 'Segoe UI';
+                font-size: 14px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+        """)
+        
+        if icon:
+            self.setIcon(QIcon(icon))
+            self.setIconSize(QSize(24, 24))
+        
+        # Setup animations
+        self.setup_animations()
+    
+    def setup_animations(self):
+        # Light sweep animation
+        self.light_anim = QPropertyAnimation(self, b"lightPosition")
+        self.light_anim.setDuration(1800)
+        self.light_anim.setStartValue(0)
+        self.light_anim.setEndValue(1)
+        self.light_anim.setEasingCurve(QEasingCurve.InOutSine)
+        self.light_anim.setLoopCount(-1)
+        
+        # Ripple animation
+        self.ripple_anim = QSequentialAnimationGroup(self)
+        radius_anim = QPropertyAnimation(self, b"rippleRadius")
+        radius_anim.setDuration(500)
+        radius_anim.setStartValue(0)
+        radius_anim.setEndValue(max(self.width(), self.height()) * 1.5)
+        radius_anim.setEasingCurve(QEasingCurve.OutCubic)
+        
+        alpha_anim = QPropertyAnimation(self, b"rippleAlpha")
+        alpha_anim.setDuration(500)
+        alpha_anim.setStartValue(80)
+        alpha_anim.setEndValue(0)
+        
+        self.ripple_anim.addAnimation(radius_anim)
+        self.ripple_anim.addAnimation(alpha_anim)
+    
+    def enterEvent(self, event):
+        self.light_anim.start()
+        super().enterEvent(event)
+    
+    def leaveEvent(self, event):
+        self.light_anim.stop()
+        super().leaveEvent(event)
+    
+    def mousePressEvent(self, event):
+        self._ripple_center = event.pos()
+        self._ripple_alpha = 80
+        self._ripple_radius = 0
+        self.ripple_anim.start()
+        super().mousePressEvent(event)
+    
+    # Animated properties
+    @pyqtProperty(float)
+    def lightPosition(self):
+        return self._light_position
+    
+    @lightPosition.setter
+    def lightPosition(self, value):
+        self._light_position = value
+        self.update()
+    
+    @pyqtProperty(int)
+    def rippleAlpha(self):
+        return self._ripple_alpha
+    
+    @rippleAlpha.setter
+    def rippleAlpha(self, value):
+        self._ripple_alpha = value
+        self.update()
+    
+    @pyqtProperty(float)
+    def rippleRadius(self):
+        return self._ripple_radius
+    
+    @rippleRadius.setter
+    def rippleRadius(self, value):
+        self._ripple_radius = value
+        self.update()
 
 class TermsDialog(BaseDialog):
     def init_ui(self):
@@ -792,338 +980,5 @@ class TermsDialog(BaseDialog):
     def get_results(self) -> Dict:
         return {'accepted_terms': self.accept_checkbox.isChecked()}
     
-
-    def load_terms_content(self):
-        """Chargement asynchrone du contenu"""
-        self.terms_text.setPlaceholderText("Chargement des conditions...")
-        QTimer.singleShot(100, self._actual_load_terms)
-
-    def _actual_load_terms(self):
-        """Chargement réel effectué après un léger délai"""
-        terms_html = self._generate_terms_html()
-        self.terms_text.setHtml(terms_html)
-    def clean_up(self):
-        """Nettoyage avant la fermeture"""
-        if hasattr(self, 'particle_bg'):
-            self.particle_bg.timer.stop()
-            self.particle_bg.deleteLater()
-        
-        if hasattr(self, 'animations'):
-            for anim in self.animations:
-                anim.stop()
-                anim.deleteLater()
-
-
-# class TermsDialog(BaseDialog):
-    def init_ui(self):
-        self.setup_window()
-        self.setup_content()
-        self.setup_connections()
-        self.apply_styles()
-        
-    def setup_window(self):
-        """Configuration de la fenêtre principale"""
-        self.setMinimumSize(800, 700)
-        self.setWindowTitle("Conditions d'Utilisation")
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        
-    def setup_content(self):
-        """Configuration du contenu principal"""
-        self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(20, 20, 20, 20)
-        
-        self.setup_particles()
-        self.setup_header()
-        self.setup_terms_text()
-        self.setup_checkbox()
-        self.setup_buttons()
-        
-    def setup_particles(self):
-        """Configuration optimisée du fond de particules"""
-        self.particle_bg = ParticleSystem(self, particle_count=30)
-        self.particle_bg.setObjectName("particleBg")
-        self.main_layout.addWidget(self.particle_bg)
-        
-    def apply_styles(self):
-        """Styles optimisés avec QSS"""
-        self.setStyleSheet("""
-            #particleBg { background: transparent; }
-            /* ... autres styles ... */
-        """)
-
-class ParticleSystem(QWidget):
-    def __init__(self, parent=None, particle_count=50):
-        super().__init__(parent)
-        self.particle_count = particle_count
-        self.particles = []
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_particles)
-        self.timer.start(20)
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setMinimumSize(100, 100)
-
-    def resizeEvent(self, event):
-        self.init_particles()
-        super().resizeEvent(event)
-
-    def init_particles(self):
-        self.particles = []
-        for _ in range(self.particle_count):
-            self.particles.append({
-                'pos': QPointF(random.uniform(0, self.width()), random.uniform(0, self.height())),
-                'size': random.randint(3, 8),
-                'speed': random.uniform(0.3, 1.2),
-                'color': QColor(
-                    random.randint(100, 200),
-                    random.randint(100, 200),
-                    random.randint(200, 255),
-                    random.randint(30, 80)
-                ),
-                'direction': random.uniform(0, 2 * math.pi),
-                'life': random.randint(100, 200),
-                'max_life': random.randint(100, 200)
-            })
-
-    def update_particles(self):
-        for p in self.particles:
-            # Déplacement
-            dx = math.cos(p['direction']) * p['speed']
-            dy = math.sin(p['direction']) * p['speed']
-            p['pos'] += QPointF(dx, dy)
-
-            # Rebonds sur les bords
-            if not (0 <= p['pos'].x() <= self.width()):
-                p['direction'] = math.pi - p['direction']
-            if not (0 <= p['pos'].y() <= self.height()):
-                p['direction'] = -p['direction']
-
-            # Cycle de vie
-            p['life'] -= 1
-            if p['life'] <= 0:
-                p['pos'] = QPointF(random.uniform(0, self.width()), random.uniform(0, self.height()))
-                p['life'] = p['max_life']
-
-        self.update()
-
-    def paintEvent(self, event):
-        """Optimisation du rendu avec QPainter"""
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-        painter.setRenderHint(QPainter.TextAntialiasing, True)
-        # ... reste du code de rendu ...
-
-    # def paintEvent(self, event):
-        # painter = QPainter(self)
-        # painter.setRenderHint(QPainter.Antialiasing)
-
-        for p in self.particles:
-            alpha = int(255 * (p['life'] / p['max_life']))
-            color = QColor(p['color'])
-            color.setAlpha(alpha)
-
-            # Glow effect
-            glow = QRadialGradient(p['pos'], p['size'] * 2)
-            glow.setColorAt(0, color)
-            glow.setColorAt(1, QColor(color.red(), color.green(), color.blue(), 0))
-            painter.setBrush(QBrush(glow))
-            painter.setPen(Qt.NoPen)
-            painter.drawEllipse(p['pos'], p['size'] * 2, p['size'] * 2)
-
-            # Particle center
-            painter.setBrush(QBrush(color))
-            painter.drawEllipse(p['pos'], p['size'], p['size'])
-
-# class ParticleSystem(QWidget):
-    def __init__(self, parent=None, particle_count=50):
-        super().__init__(parent)
-        self.set_particle_count(particle_count)  # Utiliser la méthode setter
-        self.init_particles()
-        self.setup_animation()
-        
-    def set_particle_count(self, count):
-        """Contrôle plus précis du nombre de particules"""
-        self._particle_count = max(10, min(count, 200))  # Limiter entre 10 et 200
-        self.particles = []
-        
-    def setup_animation(self):
-        """Configurer l'animation de manière optimisée"""
-        self.timer = QTimer(self)
-        self.timer.setTimerType(Qt.PreciseTimer)
-        self.timer.timeout.connect(self.update_particles)
-        self.timer.start(20)  # ~50 FPS
-        
-    def init_particles(self):
-        """Initialisation plus performante des particules"""
-        width, height = self.width(), self.height()
-        self.particles = [{
-            'pos': QPointF(random.uniform(0, width), random.uniform(0, height)),
-            'size': random.randint(3, 8),
-            'speed': random.uniform(0.3, 1.2),
-            'color': QColor(
-                random.randint(100, 200),
-                random.randint(100, 200),
-                random.randint(200, 255),
-                random.randint(30, 80)
-            ),
-            'direction': random.uniform(0, 2 * math.pi),
-            'life': random.randint(100, 200),
-            'max_life': random.randint(100, 200)
-        } for _ in range(self._particle_count)]
-
-
-class GlassButton(QPushButton):
-    def __init__(self, text, icon=None, parent=None):
-        super().__init__(text, parent)
-        self.setCursor(Qt.PointingHandCursor)
-        self.setMinimumHeight(50)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        
-        # Glass effect properties
-        self._glass_opacity = 0.3
-        self._light_position = 0
-        self._light_color = QColor(255, 255, 255, 150)
-        self._pulse_scale = 1.0
-        self._ripple_alpha = 0
-        self._ripple_radius = 0
-        self._ripple_center = QPointF()
-        
-        # Shadow effect
-        self.shadow = QGraphicsDropShadowEffect(self)
-        self.shadow.setBlurRadius(20)
-        self.shadow.setColor(QColor(0, 0, 0, 120))
-        self.shadow.setOffset(0, 8)
-        self.setGraphicsEffect(self.shadow)
-        
-        # Style
-        self.setStyleSheet("""
-            GlassButton {
-                color: white;
-                border-radius: 15px;
-                padding: 15px 30px;
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                background: rgba(255, 255, 255, 0.1);
-                font-family: 'Segoe UI';
-                font-size: 14px;
-                font-weight: 600;
-                letter-spacing: 0.5px;
-            }
-        """)
-        
-        if icon:
-            self.setIcon(QIcon(icon))
-            self.setIconSize(QSize(24, 24))
-        
-        # Setup animations
-        self.setup_animations()
-    
-    def setup_animations(self):
-        # Light sweep animation
-        self.light_anim = QPropertyAnimation(self, b"lightPosition")
-        self.light_anim.setDuration(1800)
-        self.light_anim.setStartValue(0)
-        self.light_anim.setEndValue(1)
-        self.light_anim.setEasingCurve(QEasingCurve.InOutSine)
-        self.light_anim.setLoopCount(-1)
-        
-        # Ripple animation
-        self.ripple_anim = QSequentialAnimationGroup(self)
-        radius_anim = QPropertyAnimation(self, b"rippleRadius")
-        radius_anim.setDuration(500)
-        radius_anim.setStartValue(0)
-        radius_anim.setEndValue(max(self.width(), self.height()) * 1.5)
-        radius_anim.setEasingCurve(QEasingCurve.OutCubic)
-        
-        alpha_anim = QPropertyAnimation(self, b"rippleAlpha")
-        alpha_anim.setDuration(500)
-        alpha_anim.setStartValue(80)
-        alpha_anim.setEndValue(0)
-        
-        self.ripple_anim.addAnimation(radius_anim)
-        self.ripple_anim.addAnimation(alpha_anim)
-    
-    def enterEvent(self, event):
-        self.light_anim.start()
-        super().enterEvent(event)
-    
-    def leaveEvent(self, event):
-        self.light_anim.stop()
-        super().leaveEvent(event)
-    
-    def mousePressEvent(self, event):
-        self._ripple_center = event.pos()
-        self._ripple_alpha = 80
-        self._ripple_radius = 0
-        self.ripple_anim.start()
-        super().mousePressEvent(event)
-    
-    # Animated properties
-    @pyqtProperty(float)
-    def lightPosition(self):
-        return self._light_position
-    
-    @lightPosition.setter
-    def lightPosition(self, value):
-        self._light_position = value
-        self.update()
-    
-    @pyqtProperty(int)
-    def rippleAlpha(self):
-        return self._ripple_alpha
-    
-    @rippleAlpha.setter
-    def rippleAlpha(self, value):
-        self._ripple_alpha = value
-        self.update()
-    
-    @pyqtProperty(float)
-    def rippleRadius(self):
-        return self._ripple_radius
-    
-    @rippleRadius.setter
-    def rippleRadius(self, value):
-        self._ripple_radius = value
-        self.update()
-
-# class GlassButton(QPushButton):
-    def __init__(self, text, icon=None, parent=None):
-        super().__init__(text, parent)
-        self.setup_ui(icon)
-        self.setup_animations()
-        
-    def setup_ui(self, icon):
-        """Configuration initiale de l'UI"""
-        self.setCursor(Qt.PointingHandCursor)
-        self.setMinimumHeight(50)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        
-        # Propriétés pour les effets
-        self._glass_opacity = 0.3
-        self._light_position = 0
-        self._light_color = QColor(255, 255, 255, 150)
-        self._ripple_alpha = 0
-        self._ripple_radius = 0
-        self._ripple_center = QPointF()
-        
-        self.setup_shadow()
-        self.set_icon(icon)
-        
-    def setup_shadow(self):
-        """Configurer l'ombre portée de manière optimale"""
-        self.shadow = QGraphicsDropShadowEffect(self)
-        self.shadow.setBlurRadius(15)  # Réduit pour meilleures performances
-        self.shadow.setColor(QColor(0, 0, 0, 100))  # Ombre plus subtile
-        self.shadow.setOffset(0, 5)
-        self.setGraphicsEffect(self.shadow)
-
-
-
-
-
-
-
-
-
-
 
 

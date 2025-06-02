@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QWidget, QScrollArea, QMessageBox, QLineEdit, QFormLayout, QComboBox,
     QGraphicsOpacityEffect, QCheckBox, QListWidget, QListWidgetItem
 )
-
+from imports import DB_PATH_Home
 
 class Nova360Ultimate(QMainWindow):
     def __init__(self, main_app=None):
@@ -53,7 +53,9 @@ class Nova360Ultimate(QMainWindow):
         """Retourne le chemin de la base de données."""
         roaming_path = os.path.join(os.getenv('APPDATA'), "saadiya", "resources")
         os.makedirs(roaming_path, exist_ok=True)
-        return os.path.join(roaming_path, "nova360.db")
+        # return os.path.join(roaming_path, "nova360.db") 
+        return DB_PATH_Home
+    
 
     def create_tables(self):
         """Crée les tables si elles n'existent pas déjà."""
