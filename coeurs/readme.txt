@@ -1,5 +1,6 @@
 https://github.com/eracle/linkedin for linkedin
 
+https://github.com/code-infected/Jobs_Applier_AI_Agent job applier ai 
 
 
 sur github il ya beaucoup des 

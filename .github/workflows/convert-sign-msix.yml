@@ -1,0 +1,46 @@
+name: Convert and Sign EXE to MSIX
+
+on:
+  push:
+    paths:
+      - 'build_output/**'
+      - '.github/workflows/convert-sign-msix.yml'
+
+jobs:
+  convert-sign-msix:
+    name: Build and Sign App for Microsoft Store
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSIX Packaging Tool
+        run: |
+          choco install msix-packaging-tool -y
+
+      - name: Decode PFX from secret (optional)
+        if: secrets.PFX_BASE64 != ''
+        run: |
+          [IO.File]::WriteAllBytes("certs/mycert.pfx", [Convert]::FromBase64String("${{ secrets.PFX_BASE64 }}"))
+
+      - name: Convert EXE to MSIX
+        run: |
+          $packageDir = "$(pwd)\msix_package"
+          mkdir $packageDir
+          $manifest = "$(pwd)\AppxManifest.xml"
+          $exePath = "$(pwd)\build_output\YourApp.exe"
+          $outputMsix = "$(pwd)\output\YourApp.msix"
+          mkdir "$(pwd)\output"
+
+          MakeAppx pack /d $packageDir /p $outputMsix /m $manifest
+
+      - name: Sign MSIX package
+        run: |
+          signtool sign /fd SHA256 /f certs/mycert.pfx /p "${{ secrets.PFX_PASSWORD }}" /tr http://timestamp.digicert.com /td sha256 "$(pwd)\output\YourApp.msix"
+
+      - name: Upload signed MSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Signed_MSIX
+          path: output/YourApp.msix

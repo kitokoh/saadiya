@@ -1,4 +1,4 @@
-import sys
+  import sys
 import requests
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QGridLayout, QComboBox
 from PyQt5.QtCore import QTimer, Qt

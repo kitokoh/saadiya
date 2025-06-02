@@ -1,0 +1,14 @@
+{
+  "name": "wwebjs-bot",
+  "version": "1.0.0",
+  "description": "dd",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "dd",
+  "license": "ISC",
+  "dependencies": {
+    "whatsapp-web.js": "^1.28.0"
+  }
+}
