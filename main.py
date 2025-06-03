@@ -1206,6 +1206,7 @@ class Browser(QMainWindow):
 
     def open_manuelle_window(self):
         from manuelleRobot.open import DescriptionManager
+        from Home.homerun import MainWindow
         tab_name = self.tr("🚀 Run")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
@@ -1217,7 +1218,7 @@ class Browser(QMainWindow):
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
         if not hasattr(self, ' 🚀 Run') or self.Manu is None:
-            self.Manu = DescriptionManager(parent=self)  # Create the instance only once
+            self.Manu = MainWindow(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
         self.add_custom_tab(self.Manu, tab_name, "resources/icons/multi_sfb.ico")
@@ -4722,9 +4723,9 @@ class Browser(QMainWindow):
             ]),
             
             # 6. Finance
-            ("💸", self.tr("Finance"), "finance", None, self.tr("Financial tools"), [
-                ("🧾", self.tr("Invoices & Billing"), "invoices", self.open_invoices, self.tr("Invoice management"), []),
-                ("📈", self.tr("Trader"), "trader", self.open_trader, self.tr("Trading tools"), []),
+            ("💸", self.tr("Finance"), "finance", self.open_trader, self.tr("Financial tools"), [
+                # ("🧾", self.tr("Invoices & Billing"), "invoices", self.open_invoices, self.tr("Invoice management"), []),
+                # ("📈", self.tr("Trader"), "trader", self.open_trader, self.tr("Trading tools"), []),
             ]),
             
             # 7. Upgrade
@@ -5976,7 +5977,7 @@ class Browser(QMainWindow):
 
             if not hasattr(self, '🧠 Dms & quotes') or self.dms is None:
                 # from Installsweb.invoice_ninja import MainWindow
-                from Home.homedms import MainWindow
+                from Home.homemarketing import MainWindow
 
                 self.dms = MainWindow()
 
@@ -6104,14 +6105,14 @@ class Browser(QMainWindow):
 
 
     def open_trader(self):
-        tab_name = self.tr("🧠 Trade")
+        tab_name = self.tr("💸 Finance")
 
         existing_tab_index = self.find_tab_by_name(tab_name)
         if existing_tab_index != -1:
             self.tab_widget.setCurrentIndex(existing_tab_index)
             return
 
-        if not hasattr(self, '🧠 Trade') or self.trade is None:
+        if not hasattr(self, '💸 Finance') or self.trade is None:
             # from Installsweb.invoice_ninja import MainWindow
             from Home.homefinance import MainWindow
 

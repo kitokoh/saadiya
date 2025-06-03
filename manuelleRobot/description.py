@@ -307,8 +307,8 @@ class DescriptionDelegate(QStyledItemDelegate):
         return QSize(int(doc.idealWidth()) + 20, int(doc.size().height()) + 10)
 
 class MainWindow1(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Gestionnaire de Descriptions Multilingues Pro")
         # self.resize(1000, 700)
 

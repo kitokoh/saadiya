@@ -1293,9 +1293,9 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTextEdit,
                             QStackedWidget, QRadioButton, QCheckBox, QSizePolicy)
 from PyQt5.QtCore import Qt, pyqtSignal, QThread, QTimer, QDateTime
 from PyQt5.QtGui import QFont, QColor, QPalette, QIcon, QLinearGradient, QPainter
-
+from imports import DB_PATH_notes  # Assurez-vous que ce chemin est correct
 # Imports des autres modules
-DB_PATH_notes = "database.db"  # À remplacer par votre chemin réel
+DB_PATH_notes = DB_PATH_notes  # À remplacer par votre chemin réel
 from manuelleRobot.description import MainWindow1
 from manuelleRobot.statusmanuelle import SocialMediaPublisher
 
@@ -1318,9 +1318,9 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTextEdit,
                             QSplitter)
 from PyQt5.QtCore import Qt, pyqtSignal, QThread, QTimer, QDateTime
 from PyQt5.QtGui import QFont, QColor, QPalette, QIcon, QLinearGradient, QPainter
-
+from imports import DB_PATH_notes  # Assurez-vous que ce chemin est correct
 # Imports des autres modules
-DB_PATH_notes = "database.db"  # À remplacer par votre chemin réel
+DB_PATH_notes = DB_PATH_notes  # À remplacer par votre chemin réel
 from manuelleRobot.description import MainWindow1
 from manuelleRobot.statusmanuelle import SocialMediaPublisher
 
@@ -1816,10 +1816,10 @@ class DescriptionManager(QWidget):
         self.stacked_widget = QStackedWidget()
         
         # Panel 1: Description Editor
-        self.description_panel = MainWindow1()
+        self.description_panel = MainWindow1(parent=self)
         
         # Panel 2: Social Media Publisher
-        self.social_panel = SocialMediaPublisher()
+        self.social_panel = SocialMediaPublisher(parent=self)
         
         # Add panels to stacked widget
         self.stacked_widget.addWidget(self.description_panel)
