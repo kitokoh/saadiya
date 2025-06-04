@@ -1206,6 +1206,7 @@ class Browser(QMainWindow):
 
     def open_manuelle_window(self):
         from manuelleRobot.open import DescriptionManager
+        from Home.homerun import MainWindow
         tab_name = self.tr("🚀 Run")  # Tab name (matches the label used in add_custom_tab)
 
         # Check if a tab with this name already exists
@@ -1217,10 +1218,11 @@ class Browser(QMainWindow):
 
         # Otherwise, create a unique instance of Nova360ProApp and add a new tab
         if not hasattr(self, ' 🚀 Run') or self.Manu is None:
-            self.Manu = DescriptionManager(parent=self)  # Create the instance only once
+            self.Manu = MainWindow(parent=self)  # Create the instance only once
 
         # Add the existing instance to the new tab
         self.add_custom_tab(self.Manu, tab_name, "resources/icons/multi_sfb.ico")
+   
     def open_telecommande_window(self):
         tab_name = self.tr("Remote Control")  # Tab name (matches the label used in add_custom_tab)
 
@@ -4681,50 +4683,58 @@ class Browser(QMainWindow):
             ("🏠", self.tr("Home"), "home", self.open_home, self.tr("Main dashboard"), []),
             
             # 2. Marketing
-            ("📢", self.tr("Marketing"), "marketing", None, self.tr("Creation et promotion"), [
-                ("🎬", self.tr("My Media"), "media", self.add_media_page, self.tr("Media Management"), []),
-                ("🌐", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
-                ("🤖", self.tr("Marketing Robots"), "marketing_robots", self.open_marketing, self.tr("Marketing automation tools"), []),
-                # ("📰", self.tr("Ads Manager"), "ads_manager", self.open_ads_manager, self.tr("Manage advertising campaigns"), []),
-                ("⏳", self.tr("Campaign Scheduler"), "campaign_scheduler", self.open_sheduling_window, self.tr("Schedule marketing campaigns"), []),
-                ("✉️", self.tr("Email & SMS"), "email_sms", self.open_email_sms, self.tr("Email and SMS marketing tools"), []),
-                ("🖋️", self.tr("Content Creation"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+            ("📢", self.tr("Marketing "), "marketing", None, self.tr("Creation et promotion"), [
+                ("⚔️", self.tr("Attacks Plan"), "media", self.add_attak_page, self.tr("Attack Management"), []),
 
-                ("🖋️", self.tr("Planifier post"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+                ("👀", self.tr("Presence Plan"), "media", self.add_presence_page, self.tr("Presence Management"), []),
+                # ("🎬", self.tr("My Media"), "media", self.add_media_page, self.tr("Media Management"), []),
+
+                # ("🌐", self.tr("My Groups"), "grups", self.open_grups_window, self.tr("Group list"), []),
+                # ("🤖", self.tr("Marketing Robots"), "marketing_robots", self.open_marketing, self.tr("Marketing automation tools"), []),
+                # # ("📰", self.tr("Ads Manager"), "ads_manager", self.open_ads_manager, self.tr("Manage advertising campaigns"), []),
+                # ("⏳", self.tr("Campaign Scheduler"), "campaign_scheduler", self.open_sheduling_window, self.tr("Schedule marketing campaigns"), []),
+                # ("✉️", self.tr("Email & SMS"), "email_sms", self.open_email_sms, self.tr("Email and SMS marketing tools"), []),
+                # ("🖋️", self.tr("Content Creation"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
+
+                # ("🖋️", self.tr("Planifier post"), "content_generator", self.open_content_generator, self.tr("Generate marketing content"), []),
 
             ]),
 
 
             ("⏯️", self.tr("Run"), "Run", self.open_manuelle_window, self.tr("Run Now"), []),
             
-            # 3. Sales
-            ("💰", self.tr("Sales"), "sales", None, self.tr("Sales tools"), [
-                ("📂", self.tr("Project Management"), "project_management", self.open_management, self.tr("Manage sales projects"), []),
-                ("🛠️", self.tr("SAV"), "sav", self.open_sav, self.tr("After-sales service management"), []),
-                ("🔗", self.tr("Short Links & Trackers"), "links", self.open_links_window, self.tr("Manage and track links"), []),
-                ("👥", self.tr("Prospection & Relances"), "contact", self.open_contacts_window, self.tr("Contact list and follow-ups"), []),
-                ("📑", self.tr("DMS & Quotes"), "dms_quotes", self.open_dms_quotes, self.tr("Document management and quotes"), []),
-                ("📊", self.tr("CRM"), "crm", self.open_crm, self.tr("Customer relationship management"), []),
-                ("📝", self.tr("Sales Prompts/Templates"), "prompts", self.open_prompts_window, self.tr("Sales templates and prompts"), []),
+            # 3. Sales add_vente_page
+            ("📦", self.tr("Sales"), "sales", self.add_vente_page, self.tr("Sales Managements"), [
+                # ("📂", self.tr("Project Management"), "project_management", self.open_management, self.tr("Manage sales projects"), []),
+
+                # ("📂", self.tr("Project Management"), "project_management", self.open_management, self.tr("Manage sales projects"), []),
+                # ("🛠️", self.tr("SAV"), "sav", self.open_sav, self.tr("After-sales service management"), []),
+                # ("🔗", self.tr("Short Links & Trackers"), "links", self.open_links_window, self.tr("Manage and track links"), []),
+                # ("👥", self.tr("Prospection & Relances"), "contact", self.open_contacts_window, self.tr("Contact list and follow-ups"), []),
+                # ("📑", self.tr("DMS & Quotes"), "dms_quotes", self.open_dms_quotes, self.tr("Document management and quotes"), []),
+                # ("📊", self.tr("CRM"), "crm", self.open_crm, self.tr("Customer relationship management"), []),
+                # ("📝", self.tr("Sales Prompts/Templates"), "prompts", self.open_prompts_window, self.tr("Sales templates and prompts"), []),
+            
+            
             ]),
             
             # 4. Run (inchangé)
             
-            # 5. AI Agent
-            ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
-                # ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
-                # ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
-                # # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
-                # ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
-                # ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
-                # ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
+            # # 5. AI Agent
+            # ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
+            #     # ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
+            #     # ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
+            #     # # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
+            #     # ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
+            #     # ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
+            #     # ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
            
-            ]),
+            # ]),
             
             # 6. Finance
-            ("💸", self.tr("Finance"), "finance", None, self.tr("Financial tools"), [
-                ("🧾", self.tr("Invoices & Billing"), "invoices", self.open_invoices, self.tr("Invoice management"), []),
-                ("📈", self.tr("Trader"), "trader", self.open_trader, self.tr("Trading tools"), []),
+            ("💸", self.tr("Finance"), "finance", self.open_trader, self.tr("Financial tools"), [
+                # ("🧾", self.tr("Invoices & Billing"), "invoices", self.open_invoices, self.tr("Invoice management"), []),
+                # ("📈", self.tr("Trader"), "trader", self.open_trader, self.tr("Trading tools"), []),
             ]),
             
             # 7. Upgrade
@@ -5976,7 +5986,7 @@ class Browser(QMainWindow):
 
             if not hasattr(self, '🧠 Dms & quotes') or self.dms is None:
                 # from Installsweb.invoice_ninja import MainWindow
-                from Home.homedms import MainWindow
+                from Home.homemarketing import MainWindow
 
                 self.dms = MainWindow()
 
@@ -6104,21 +6114,88 @@ class Browser(QMainWindow):
 
 
     def open_trader(self):
-        tab_name = self.tr("🧠 Trade")
+        tab_name = self.tr("💸 Finance")
 
         existing_tab_index = self.find_tab_by_name(tab_name)
         if existing_tab_index != -1:
             self.tab_widget.setCurrentIndex(existing_tab_index)
             return
 
-        if not hasattr(self, '🧠 Trade') or self.trade is None:
+        if not hasattr(self, '💸 Finance') or self.trade is None:
             # from Installsweb.invoice_ninja import MainWindow
             from Home.homefinance import MainWindow
 
             self.trade = MainWindow()
 
         self.add_custom_tab(self.trade, tab_name, "resources/icons/management.ico")
-   
+
+
+    def add_attak_page(self):
+        # from manuelleRobot.open import DescriptionManager
+        # from Home.homerun import MainWindow
+        from Home.attakmarketinghome import MainWindowattak
+
+        tab_name = self.tr("⚔️ Attack")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, '⚔️ Attack') or self.attack is None:
+            self.attack = MainWindowattak(parent=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.attack, tab_name, "resources/icons/multi_sfb.ico")
+
+    def add_presence_page(self):
+        """
+        Ouvre la page d'abonnement + affiche une fenêtre spéciale d'offre.
+        """
+        # Nom de l'onglet
+        tab_name = self.tr("👀 Presence")
+
+        # Ouvre le lien pricing dans un nouvel onglet
+        self.add_new_tab(QUrl("https://leopardo-ai.web.app/"), tab_name, "resources/icons/tokk.ico")
+        # from Upgrade.upgrade import ContactDialog # Import ici si besoin
+        # self.upgrades = ContactDialog()
+        # self.upgrades.show()
+        # Ajoute aussi le module SpecialOfferWindow dans un onglet si non déjà ouvert
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        if not hasattr(self, '👀 Presence') or self.presence is None:
+            # from Upgrade.upgrade import ContactDialog # Import ici si besoin
+            # self.upgrades = ContactDialog(parent=self)
+            # self.upgrades.show()
+            pass
+        self.add_custom_tab(self.presence, tab_name, "resources/icons/multi_fb.ico")
+
+
+
+    def add_vente_page(self):
+        from Home.homesales import MainWindowsales
+        tab_name = self.tr("📦 Sales")  # Tab name (matches the label used in add_custom_tab)
+
+        # Check if a tab with this name already exists
+        existing_tab_index = self.find_tab_by_name(tab_name)
+        if existing_tab_index != -1:
+            # If the tab already exists, select it
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return
+
+        # Otherwise, create a unique instance of Nova360ProApp and add a new tab
+        if not hasattr(self, '📦 Sales') or self.sales is None:
+            self.sales = MainWindowsales(parent=self)  # Create the instance only once
+
+        # Add the existing instance to the new tab
+        self.add_custom_tab(self.sales, tab_name, "resources/icons/multi_sfb.ico")
+           
 
 class AccueilWidget(QWidget):
     """Widget for the 'Accueil' tab."""

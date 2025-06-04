@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QH
 from PyQt5.QtCore import Qt, QStandardPaths
 from PyQt5.QtGui import QIcon
 from demarrage.baseDialog import BaseDialog
+from imports import DB_PATH_demarrage
 class FeedbackDialog(BaseDialog):
     def init_ui(self):
         layout = QVBoxLayout()
@@ -65,9 +66,10 @@ class FeedbackDatabase:
         self.create_table()
 
     def get_db_path(self):
-        data_dir = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
-        Path(data_dir).mkdir(parents=True, exist_ok=True)
-        return os.path.join(data_dir, 'feedback.db')
+        # data_dir = QStandardPaths.writableLocation(QStandardPaths.AppDataLocation)
+        # Path(data_dir).mkdir(parents=True, exist_ok=True)
+        # return os.path.join(data_dir, 'feedback.db')
+        return DB_PATH_demarrage
 
     def create_table(self):
         cursor = self.conn.cursor()

@@ -1,3 +1,4 @@
+
 specifications technique 
 donne moi une application complete en pyqt permettant   de renseilgner et 
 stocker les specification technique du n produit donnee ces specification technique 

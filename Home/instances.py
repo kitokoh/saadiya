@@ -120,8 +120,8 @@ class InstanceTable(QWidget):
         instances = []
         roaming_path = os.path.expandvars(r'%APPDATA%')
         from imports import DB_PATH_instances
-        db_path = os.path.join(roaming_path, 'saadiya', 'resources', 'data', 'nova360.db')
-
+        # db_path = os.path.join(roaming_path, 'saadiya', 'resources', 'data', 'nova360.db')
+        db_path = DB_PATH_instances
         # Vérifie si le dossier et le fichier de la base de données existent
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 

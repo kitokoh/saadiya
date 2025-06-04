@@ -35,6 +35,16 @@ class RibbonButton(QPushButton):
             }
         """)
 
+import os
+import platform
+import subprocess
+import webbrowser
+import requests
+from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtWidgets import QMessageBox, QProgressBar, QTextEdit
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from Installsweb.invoice_ninja import InstallerThread
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -74,19 +84,19 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.ribbon)
 
         # Home tab
-        self.home_btn = RibbonButton(self.tr("Home"))
+        self.home_btn = RibbonButton(self.tr("Trading"))
         self.home_btn.setChecked(True)
-        self.home_btn.clicked.connect(lambda: self.show_page("home"))
+        self.home_btn.clicked.connect(lambda: self.show_page("Trading"))
         self.ribbon.addWidget(self.home_btn)
 
         # Insert tab
-        self.insert_btn = RibbonButton(self.tr("Insert"))
-        self.insert_btn.clicked.connect(lambda: self.show_page("insert"))
+        self.insert_btn = RibbonButton(self.tr("Install"))
+        self.insert_btn.clicked.connect(lambda: self.show_page("Install"))
         self.ribbon.addWidget(self.insert_btn)
 
         # Layout tab
-        self.layout_btn = RibbonButton(self.tr("Layout"))
-        self.layout_btn.clicked.connect(lambda: self.show_page("layout"))
+        self.layout_btn = RibbonButton(self.tr("Payements"))
+        self.layout_btn.clicked.connect(lambda: self.show_page("Payements"))
         self.ribbon.addWidget(self.layout_btn)
 
         # Separator
@@ -136,15 +146,17 @@ class MainWindow(QMainWindow):
 
         # Create pages
         self.pages = {
-            "home": self.create_home_page(),
-            "insert": self.create_insert_page(),
-            "layout": self.create_layout_page()
+            "Trading": self.create_home_page(),
+            "Install": self.create_insert_page(),
+            "Payements": self.create_layout_page(),
+
+            "Payements": self.create_layout_page()
         }
 
         for page in self.pages.values():
             self.stacked_widget.addWidget(page)
 
-        self.show_page("home")
+        self.show_page("Trading")
 
     def create_home_page(self):
         page = QWidget()
@@ -198,14 +210,123 @@ class MainWindow(QMainWindow):
             self.status_label.setText(self.tr(f"Showing {page_name} page"))
 
     def update_button_states(self, active_page):
-        self.home_btn.setChecked(active_page == "home")
-        self.insert_btn.setChecked(active_page == "insert")
-        self.layout_btn.setChecked(active_page == "layout")
+        self.home_btn.setChecked(active_page == "Trading")
+        self.insert_btn.setChecked(active_page == "Install")
+        self.layout_btn.setChecked(active_page == "Payements")
 
     def tr(self, text):
         """Translation method - would connect to actual translation system"""
         return text
 
+
+
+    def create_home_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(10, 10, 10, 10)
+        
+        # Titre
+        title = QLabel("Invoice Ninja Installer")
+        title.setFont(QFont("Arial", 18, QFont.Bold))
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
+        
+        # Boutons
+        self.install_btn = QPushButton("Lancer l'installation")
+        self.install_btn.clicked.connect(self.start_installation)
+        layout.addWidget(self.install_btn)
+        
+        self.open_btn = QPushButton("Ouvrir Invoice Ninja")
+        self.open_btn.clicked.connect(lambda: webbrowser.open("http://localhost:8000"))
+        self.open_btn.setEnabled(False)
+        layout.addWidget(self.open_btn)
+        
+        # Barre de progression
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        layout.addWidget(self.progress_bar)
+        
+        # Logs
+        self.log_output = QTextEdit()
+        self.log_output.setReadOnly(True)
+        layout.addWidget(self.log_output, 1)
+        
+        # Appliquer le style
+        page.setStyleSheet("""
+            QLabel { color: #333333; }
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4CAF50, stop:1 #45a049);
+                color: white;
+                border: none;
+                padding: 8px;
+                font-size: 14px;
+                border-radius: 5px;
+                margin: 5px;
+            }
+            QPushButton:hover { background-color: #45a049; }
+            QPushButton:disabled { background-color: #555555; }
+            QTextEdit {
+                background-color: white;
+                color: #333333;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-family: Consolas;
+            }
+            QProgressBar {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                text-align: center;
+                color: #333333;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                    stop:0 #4CAF50, stop:1 #2E7D32);
+                border-radius: 5px;
+            }
+        """)
+        
+        return page
+
+    def start_installation(self):
+        self.install_btn.setEnabled(False)
+        self.progress_bar.setValue(0)
+        self.log_output.clear()
+        
+        self.thread = InstallerThread()
+        self.thread.log_signal.connect(self.update_log)
+        self.thread.progress_signal.connect(self.progress_bar.setValue)
+        self.thread.finished_signal.connect(self.installation_finished)
+        self.thread.start()
+
+    def update_log(self, message):
+        self.log_output.append(message)
+
+    def installation_finished(self, success):
+        self.progress_bar.setValue(100)
+        self.open_btn.setEnabled(success)
+        if success:
+            QMessageBox.information(self, "Succès", "Invoice Ninja est prêt ! Cliquez sur 'Ouvrir'.")
+        else:
+            QMessageBox.critical(self, "Erreur", "Installation échouée. Consultez les logs.")
+
+
+    def create_home_page(self):
+        # Créer un conteneur pour la page d'accueil
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        from Installsweb.invoice_ninja import InvoiceNinjaInstaller
+        from Installsweb.freqtrade import BotManager
+        # Créer une instance de l'installateur
+        installer = BotManager()
+        
+        # Ajouter l'installateur à la page
+        layout.addWidget(installer)
+        
+        return page
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     

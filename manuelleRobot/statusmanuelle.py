@@ -15,8 +15,8 @@ from PyQt5.QtWidgets import QInputDialog
 
 from imports import DB_PATH_status
 class SocialMediaPublisher(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Ultimate Social Publisher")
         self.setGeometry(100, 100, 900, 650)
         self.setWindowIcon(QIcon("icon.png"))

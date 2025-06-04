@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
     QRadioButton, QButtonGroup, QDialog, QCheckBox, QFormLayout, QLineEdit, 
     QMessageBox, QGroupBox, QScrollArea, QComboBox, QFrame, QSizePolicy
 )
-
+from imports import DB_PATH_Home
 class SecureBrowserConnect1(QWidget):
     def __init__(self):
         super().__init__()
@@ -52,8 +52,8 @@ class SecureBrowserConnect1(QWidget):
     def init_db(self):
         roaming_path = os.getenv('APPDATA')
         resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
-        db_path = os.path.join(resources_folder, 'modules.db')
-
+        # db_path = os.path.join(resources_folder, 'modules.db')
+        db_path = DB_PATH_Home
         if not os.path.exists(resources_folder):
             os.makedirs(resources_folder)
 
@@ -133,8 +133,8 @@ class SecureBrowserConnect(QWidget):
     def init_db(self):
         roaming_path = os.getenv('APPDATA')
         resources_folder = os.path.join(roaming_path, 'saadiya', 'resources')
-        db_path = os.path.join(resources_folder, 'modules1.db')
-
+        # db_path = os.path.join(resources_folder, 'modules1.db')
+        db_path = DB_PATH_Home
         if not os.path.exists(resources_folder):
             os.makedirs(resources_folder)
 
