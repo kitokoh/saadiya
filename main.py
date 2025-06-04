@@ -4720,16 +4720,16 @@ class Browser(QMainWindow):
             
             # 4. Run (inchangé)
             
-            # 5. AI Agent
-            ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
-                # ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
-                # ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
-                # # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
-                # ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
-                # ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
-                # ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
+            # # 5. AI Agent
+            # ("🧠", self.tr("AI Agent"), "ai_agent", None, self.tr("AI Assistant tools"), [
+            #     # ("🤖", self.tr("Auto-Responder"), "auto_responder", self.open_auto_responder, self.tr("Automatic response system"), []),
+            #     # ("👔", self.tr("Sales Assistant"), "sales_assistant", self.open_sales_assistant, self.tr("AI sales assistant"), []),
+            #     # # ("🛠️", self.tr("Prompts & Tools"), "prompts_tools", self.open_prompts_tools, self.tr("AI prompts and tools"), []),
+            #     # ("🔍", self.tr("Competitor Analysis"), "competitor_analysis", self.open_competitor_analysis, self.tr("Analyze competitors"), []),
+            #     # ("👩‍💼", self.tr("Sales Assistant"), "sales_assistant_v2", self.open_sales_assistant_v2, self.tr("Enhanced sales assistant"), []),
+            #     # ("⚙️", self.tr("AI Workflows"), "ai_workflows", self.open_ai_workflows, self.tr("AI workflow automation"), []),
            
-            ]),
+            # ]),
             
             # 6. Finance
             ("💸", self.tr("Finance"), "finance", self.open_trader, self.tr("Financial tools"), [
