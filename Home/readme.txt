@@ -15,3 +15,13 @@ j ajoute telecommande pour une version connecter
 
 ici j ai mis toutes les trucs commune a l application 
 111ici il ya tout ce qu il faut pour le home les truc qui entoure la bienvenu aux users 
+
+
+
+
+
+
+
+regarde ce code est fontionnelle deja le uton home fait apple a une classs externe et cca marcher pour les deux autre je te laire de me dosser les classe a mettre derier les fonction concernee  parcontre  change juste les nom des nom des buton qui sont home  et autre  home doit etre change home doit etre  start  et les deux autre l un doit etre open et stat pources deux dernienre propose la classe en plus je vais dte demander de faire de sorte que  au demarrage de  lapp seule la premere classe sexecute et les deux  autre doiivent attendre que lon clic   sur le buton pour que ca charge afin de faire ue l app reste legere 
+
+

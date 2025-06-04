@@ -35,21 +35,22 @@ class RibbonButton(QPushButton):
             }
         """)
 
-import os
-import platform
-import subprocess
-import webbrowser
-import requests
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox, QProgressBar, QTextEdit
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from Installsweb.invoice_ninja import InstallerThread
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle(self.tr("Professional Application"))
+class MainWindowsales(QMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("Marketing Management System"))
         self.setGeometry(100, 100, 1200, 800)
+        
+        # Dictionnaire pour stocker les instances de pages
+        self.page_instances = {
+            'documents': None,
+            'links': None,
+            'contacts': None,
+            'prompts': None,
+            'sav': None,
+            'projects': None
+        }
+        
         self.setup_ui()
         
         # Setup translator
@@ -83,42 +84,36 @@ class MainWindow(QMainWindow):
         self.ribbon.setIconSize(QSize(20, 20))
         self.addToolBar(self.ribbon)
 
-        # Home tab
-        self.home_btn = RibbonButton(self.tr("Home"))
-        self.home_btn.setChecked(True)
-        self.home_btn.clicked.connect(lambda: self.show_page("home"))
-        self.ribbon.addWidget(self.home_btn)
+        # Documents tab
+        self.documents_btn = RibbonButton(self.tr("Documents"))
+        self.documents_btn.setChecked(True)
+        self.documents_btn.clicked.connect(lambda: self.show_page("documents"))
+        self.ribbon.addWidget(self.documents_btn)
 
-        # Insert tab
-        self.insert_btn = RibbonButton(self.tr("Insert"))
-        self.insert_btn.clicked.connect(lambda: self.show_page("insert"))
-        self.ribbon.addWidget(self.insert_btn)
+        # Links tab
+        self.links_btn = RibbonButton(self.tr("Gestion Liens"))
+        self.links_btn.clicked.connect(lambda: self.show_page("links"))
+        self.ribbon.addWidget(self.links_btn)
 
-        # Layout tab
-        self.layout_btn = RibbonButton(self.tr("Layout"))
-        self.layout_btn.clicked.connect(lambda: self.show_page("layout"))
-        self.ribbon.addWidget(self.layout_btn)
+        # Contacts tab
+        self.contacts_btn = RibbonButton(self.tr("Contacts"))
+        self.contacts_btn.clicked.connect(lambda: self.show_page("contacts"))
+        self.ribbon.addWidget(self.contacts_btn)
 
-        # Separator
-        self.ribbon.addSeparator()
+        # Prompts tab
+        self.prompts_btn = RibbonButton(self.tr("Prompts"))
+        self.prompts_btn.clicked.connect(lambda: self.show_page("prompts"))
+        self.ribbon.addWidget(self.prompts_btn)
 
-        # Clipboard group
-        clipboard_group = QFrame()
-        clipboard_layout = QHBoxLayout(clipboard_group)
-        clipboard_layout.setContentsMargins(0, 0, 0, 0)
-        clipboard_layout.setSpacing(2)
+        # SAV tab
+        self.sav_btn = RibbonButton(self.tr("SAV"))
+        self.sav_btn.clicked.connect(lambda: self.show_page("sav"))
+        self.ribbon.addWidget(self.sav_btn)
 
-        cut_btn = RibbonButton(icon="icons/cut.png")
-        cut_btn.setToolTip(self.tr("Cut"))
-        copy_btn = RibbonButton(icon="icons/copy.png")
-        copy_btn.setToolTip(self.tr("Copy"))
-        paste_btn = RibbonButton(icon="icons/paste.png")
-        paste_btn.setToolTip(self.tr("Paste"))
-
-        clipboard_layout.addWidget(cut_btn)
-        clipboard_layout.addWidget(copy_btn)
-        clipboard_layout.addWidget(paste_btn)
-        self.ribbon.addWidget(clipboard_group)
+        # Projects tab
+        self.projects_btn = RibbonButton(self.tr("Projets"))
+        self.projects_btn.clicked.connect(lambda: self.show_page("projects"))
+        self.ribbon.addWidget(self.projects_btn)
 
     def create_status_bar(self):
         status_bar = QStatusBar()
@@ -144,170 +139,106 @@ class MainWindow(QMainWindow):
         self.stacked_widget = QStackedWidget()
         layout.addWidget(self.stacked_widget)
 
-        # Create pages
-        self.pages = {
-            "home": self.create_home_page(),
-            "insert": self.create_insert_page(),
-            "layout": self.create_layout_page()
-        }
+        # Create only the documents page initially
+        self.load_documents_page()
 
-        for page in self.pages.values():
-            self.stacked_widget.addWidget(page)
+    def load_documents_page(self):
+        """Charge la page Documents seulement si elle n'existe pas déjà"""
+        if self.page_instances['documents'] is None:
+            from Home.homemarketing import MainWindow as DocumentsPage
+            self.page_instances['documents'] = DocumentsPage()
+            self.stacked_widget.addWidget(self.page_instances['documents'])
+        return self.page_instances['documents']
 
-        self.show_page("home")
+    def load_links_page(self):
+        """Charge la page Gestion Liens seulement si elle n'existe pas déjà"""
+        if self.page_instances['links'] is None:
+            from liens.gestionliens import MainWindowLink as LinksPage
+            self.page_instances['links'] = LinksPage()
+            self.stacked_widget.addWidget(self.page_instances['links'])
+        return self.page_instances['links']
 
-    def create_home_page(self):
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        layout.setAlignment(Qt.AlignCenter)
+    def load_contacts_page(self):
+        """Charge la page Contacts seulement si elle n'existe pas déjà"""
+        if self.page_instances['contacts'] is None:
+            from ModulesUI.whasapping.group_manager import ContactTable as ContactsPage
+            self.page_instances['contacts'] = ContactsPage()
+            self.stacked_widget.addWidget(self.page_instances['contacts'])
+        return self.page_instances['contacts']
 
-        title = QLabel(self.tr("Welcome to the Application"))
-        title.setFont(QFont("Arial", 24, QFont.Bold))
-        layout.addWidget(title, 0, Qt.AlignCenter)
+    def load_prompts_page(self):
+        """Charge la page Prompts seulement si elle n'existe pas déjà"""
+        if self.page_instances['prompts'] is None:
+            from promptes.promptes import PromptManager as PromptsPage
+            self.page_instances['prompts'] = PromptsPage()
+            self.stacked_widget.addWidget(self.page_instances['prompts'])
+        return self.page_instances['prompts']
 
-        subtitle = QLabel(self.tr("Select a tab to begin working"))
-        subtitle.setFont(QFont("Arial", 12))
-        layout.addWidget(subtitle, 0, Qt.AlignCenter)
+    def load_sav_page(self):
+        """Charge la page SAV seulement si elle n'existe pas déjà"""
+        if self.page_instances['sav'] is None:
+            # Page SAV par défaut
+            class SavPage(QWidget):
+                def __init__(self):
+                    super().__init__()
+                    layout = QVBoxLayout()
+                    self.label = QLabel("Service Après-Vente")
+                    self.label.setAlignment(Qt.AlignCenter)
+                    self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
+                    layout.addWidget(self.label)
+                    
+                    # Ajouter un widget de gestion des tickets SAV
+                    self.info_label = QLabel("Gestion des réclamations et support client")
+                    self.info_label.setAlignment(Qt.AlignCenter)
+                    layout.addWidget(self.info_label)
+                    
+                    self.setLayout(layout)
+            
+            self.page_instances['sav'] = SavPage()
+            self.stacked_widget.addWidget(self.page_instances['sav'])
+        return self.page_instances['sav']
 
-        return page
-
-    def create_insert_page(self):
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        layout.setAlignment(Qt.AlignCenter)
-
-        title = QLabel(self.tr("Insert Page"))
-        title.setFont(QFont("Arial", 24, QFont.Bold))
-        layout.addWidget(title, 0, Qt.AlignCenter)
-
-        subtitle = QLabel(self.tr("This is where you would insert elements"))
-        subtitle.setFont(QFont("Arial", 12))
-        layout.addWidget(subtitle, 0, Qt.AlignCenter)
-
-        return page
-
-    def create_layout_page(self):
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        layout.setAlignment(Qt.AlignCenter)
-
-        title = QLabel(self.tr("Layout Page"))
-        title.setFont(QFont("Arial", 24, QFont.Bold))
-        layout.addWidget(title, 0, Qt.AlignCenter)
-
-        subtitle = QLabel(self.tr("This is where you would adjust layout settings"))
-        subtitle.setFont(QFont("Arial", 12))
-        layout.addWidget(subtitle, 0, Qt.AlignCenter)
-
-        return page
+    def load_projects_page(self):
+        """Charge la page Projets seulement si elle n'existe pas déjà"""
+        if self.page_instances['projects'] is None:
+            from Home.homemarketing import MainWindow as ProjectsPage
+            self.page_instances['projects'] = ProjectsPage()
+            self.stacked_widget.addWidget(self.page_instances['projects'])
+        return self.page_instances['projects']
 
     def show_page(self, page_name):
-        if page_name in self.pages:
-            self.stacked_widget.setCurrentWidget(self.pages[page_name])
+        if page_name in self.page_instances:
+            # Charge la page seulement quand elle est demandée
+            if page_name == 'documents':
+                page = self.load_documents_page()
+            elif page_name == 'links':
+                page = self.load_links_page()
+            elif page_name == 'contacts':
+                page = self.load_contacts_page()
+            elif page_name == 'prompts':
+                page = self.load_prompts_page()
+            elif page_name == 'sav':
+                page = self.load_sav_page()
+            elif page_name == 'projects':
+                page = self.load_projects_page()
+            else:
+                return
+
+            self.stacked_widget.setCurrentWidget(page)
             self.update_button_states(page_name)
             self.status_label.setText(self.tr(f"Showing {page_name} page"))
 
     def update_button_states(self, active_page):
-        self.home_btn.setChecked(active_page == "home")
-        self.insert_btn.setChecked(active_page == "insert")
-        self.layout_btn.setChecked(active_page == "layout")
+        self.documents_btn.setChecked(active_page == "documents")
+        self.links_btn.setChecked(active_page == "links")
+        self.contacts_btn.setChecked(active_page == "contacts")
+        self.prompts_btn.setChecked(active_page == "prompts")
+        self.sav_btn.setChecked(active_page == "sav")
+        self.projects_btn.setChecked(active_page == "projects")
 
     def tr(self, text):
         """Translation method - would connect to actual translation system"""
         return text
-
-
-
-    def create_home_page(self):
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        layout.setContentsMargins(10, 10, 10, 10)
-        
-        # Titre
-        title = QLabel("Invoice Ninja Installer")
-        title.setFont(QFont("Arial", 18, QFont.Bold))
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
-        
-        # Boutons
-        self.install_btn = QPushButton("Lancer l'installation")
-        self.install_btn.clicked.connect(self.start_installation)
-        layout.addWidget(self.install_btn)
-        
-        self.open_btn = QPushButton("Ouvrir Invoice Ninja")
-        self.open_btn.clicked.connect(lambda: webbrowser.open("http://localhost:8000"))
-        self.open_btn.setEnabled(False)
-        layout.addWidget(self.open_btn)
-        
-        # Barre de progression
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 100)
-        layout.addWidget(self.progress_bar)
-        
-        # Logs
-        self.log_output = QTextEdit()
-        self.log_output.setReadOnly(True)
-        layout.addWidget(self.log_output, 1)
-        
-        # Appliquer le style
-        page.setStyleSheet("""
-            QLabel { color: #333333; }
-            QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #4CAF50, stop:1 #45a049);
-                color: white;
-                border: none;
-                padding: 8px;
-                font-size: 14px;
-                border-radius: 5px;
-                margin: 5px;
-            }
-            QPushButton:hover { background-color: #45a049; }
-            QPushButton:disabled { background-color: #555555; }
-            QTextEdit {
-                background-color: white;
-                color: #333333;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                font-family: Consolas;
-            }
-            QProgressBar {
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                text-align: center;
-                color: #333333;
-                height: 20px;
-            }
-            QProgressBar::chunk {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #4CAF50, stop:1 #2E7D32);
-                border-radius: 5px;
-            }
-        """)
-        
-        return page
-
-    def start_installation(self):
-        self.install_btn.setEnabled(False)
-        self.progress_bar.setValue(0)
-        self.log_output.clear()
-        
-        self.thread = InstallerThread()
-        self.thread.log_signal.connect(self.update_log)
-        self.thread.progress_signal.connect(self.progress_bar.setValue)
-        self.thread.finished_signal.connect(self.installation_finished)
-        self.thread.start()
-
-    def update_log(self, message):
-        self.log_output.append(message)
-
-    def installation_finished(self, success):
-        self.progress_bar.setValue(100)
-        self.open_btn.setEnabled(success)
-        if success:
-            QMessageBox.information(self, "Succès", "Invoice Ninja est prêt ! Cliquez sur 'Ouvrir'.")
-        else:
-            QMessageBox.critical(self, "Erreur", "Installation échouée. Consultez les logs.")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -334,4 +265,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-    
