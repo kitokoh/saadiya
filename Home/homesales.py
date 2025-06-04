@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt, QSize, QTranslator
 class RibbonButton(QPushButton):
     def __init__(self, text="", icon=None, parent=None):
         super().__init__(parent)
-        self.setText(self.tr(text))
+        self.setText(text)  # Removed self.tr() since we're using English
         if icon:
             self.setIcon(QIcon(icon))
         self.setCursor(Qt.PointingHandCursor)
@@ -38,22 +38,23 @@ class RibbonButton(QPushButton):
 class MainWindowsales(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(self.tr("Marketing Management System"))
+        self.setWindowTitle("Marketing Automation Suite")
         self.setGeometry(100, 100, 1200, 800)
         
-        # Dictionnaire pour stocker les instances de pages
+        # Dictionary to store page instances
         self.page_instances = {
             'documents': None,
-            'links': None,
+            'link_manager': None,
             'contacts': None,
             'prompts': None,
-            'sav': None,
+            'ai_agent': None,
+            'customer_support': None,
             'projects': None
         }
         
         self.setup_ui()
         
-        # Setup translator
+        # Setup translator (kept for potential future use)
         self.translator = QTranslator()
         
         # Modern style
@@ -85,33 +86,38 @@ class MainWindowsales(QMainWindow):
         self.addToolBar(self.ribbon)
 
         # Documents tab
-        self.documents_btn = RibbonButton(self.tr("Documents"))
+        self.documents_btn = RibbonButton("Documents")
         self.documents_btn.setChecked(True)
         self.documents_btn.clicked.connect(lambda: self.show_page("documents"))
         self.ribbon.addWidget(self.documents_btn)
 
-        # Links tab
-        self.links_btn = RibbonButton(self.tr("Gestion Liens"))
-        self.links_btn.clicked.connect(lambda: self.show_page("links"))
-        self.ribbon.addWidget(self.links_btn)
+        # Link Manager tab
+        self.link_manager_btn = RibbonButton("Link Manager")
+        self.link_manager_btn.clicked.connect(lambda: self.show_page("link_manager"))
+        self.ribbon.addWidget(self.link_manager_btn)
 
         # Contacts tab
-        self.contacts_btn = RibbonButton(self.tr("Contacts"))
+        self.contacts_btn = RibbonButton("Contacts")
         self.contacts_btn.clicked.connect(lambda: self.show_page("contacts"))
         self.ribbon.addWidget(self.contacts_btn)
 
         # Prompts tab
-        self.prompts_btn = RibbonButton(self.tr("Prompts"))
+        self.prompts_btn = RibbonButton("Prompts")
         self.prompts_btn.clicked.connect(lambda: self.show_page("prompts"))
         self.ribbon.addWidget(self.prompts_btn)
 
-        # SAV tab
-        self.sav_btn = RibbonButton(self.tr("SAV"))
-        self.sav_btn.clicked.connect(lambda: self.show_page("sav"))
-        self.ribbon.addWidget(self.sav_btn)
+        # AI Agent tab
+        self.ai_agent_btn = RibbonButton("AI Agent")
+        self.ai_agent_btn.clicked.connect(lambda: self.show_page("ai_agent"))
+        self.ribbon.addWidget(self.ai_agent_btn)
+
+        # Customer Support tab (formerly SAV)
+        self.customer_support_btn = RibbonButton("Customer Support")
+        self.customer_support_btn.clicked.connect(lambda: self.show_page("customer_support"))
+        self.ribbon.addWidget(self.customer_support_btn)
 
         # Projects tab
-        self.projects_btn = RibbonButton(self.tr("Projets"))
+        self.projects_btn = RibbonButton("Projects")
         self.projects_btn.clicked.connect(lambda: self.show_page("projects"))
         self.ribbon.addWidget(self.projects_btn)
 
@@ -120,7 +126,7 @@ class MainWindowsales(QMainWindow):
         self.setStatusBar(status_bar)
 
         # Message area
-        self.status_label = QLabel(self.tr("Ready"))
+        self.status_label = QLabel("Ready")
         status_bar.addWidget(self.status_label, 1)
 
         # Status widgets
@@ -143,23 +149,23 @@ class MainWindowsales(QMainWindow):
         self.load_documents_page()
 
     def load_documents_page(self):
-        """Charge la page Documents seulement si elle n'existe pas déjà"""
+        """Load Documents page only if not already loaded"""
         if self.page_instances['documents'] is None:
             from Home.homemarketing import MainWindow as DocumentsPage
             self.page_instances['documents'] = DocumentsPage()
             self.stacked_widget.addWidget(self.page_instances['documents'])
         return self.page_instances['documents']
 
-    def load_links_page(self):
-        """Charge la page Gestion Liens seulement si elle n'existe pas déjà"""
-        if self.page_instances['links'] is None:
-            from liens.gestionliens import MainWindowLink as LinksPage
-            self.page_instances['links'] = LinksPage()
-            self.stacked_widget.addWidget(self.page_instances['links'])
-        return self.page_instances['links']
+    def load_link_manager_page(self):
+        """Load Link Manager page only if not already loaded"""
+        if self.page_instances['link_manager'] is None:
+            from liens.gestionliens import MainWindowLink as LinkManagerPage
+            self.page_instances['link_manager'] = LinkManagerPage()
+            self.stacked_widget.addWidget(self.page_instances['link_manager'])
+        return self.page_instances['link_manager']
 
     def load_contacts_page(self):
-        """Charge la page Contacts seulement si elle n'existe pas déjà"""
+        """Load Contacts page only if not already loaded"""
         if self.page_instances['contacts'] is None:
             from ModulesUI.whasapping.group_manager import ContactTable as ContactsPage
             self.page_instances['contacts'] = ContactsPage()
@@ -167,39 +173,94 @@ class MainWindowsales(QMainWindow):
         return self.page_instances['contacts']
 
     def load_prompts_page(self):
-        """Charge la page Prompts seulement si elle n'existe pas déjà"""
+        """Load Prompts page only if not already loaded"""
         if self.page_instances['prompts'] is None:
             from promptes.promptes import PromptManager as PromptsPage
             self.page_instances['prompts'] = PromptsPage()
             self.stacked_widget.addWidget(self.page_instances['prompts'])
         return self.page_instances['prompts']
 
-    def load_sav_page(self):
-        """Charge la page SAV seulement si elle n'existe pas déjà"""
-        if self.page_instances['sav'] is None:
-            # Page SAV par défaut
-            class SavPage(QWidget):
+    def load_ai_agent_page(self):
+        """Load AI Agent page only if not already loaded"""
+        if self.page_instances['ai_agent'] is None:
+            # Default AI Agent page with modern interface
+            class AIAgentPage(QWidget):
                 def __init__(self):
                     super().__init__()
                     layout = QVBoxLayout()
-                    self.label = QLabel("Service Après-Vente")
-                    self.label.setAlignment(Qt.AlignCenter)
-                    self.label.setStyleSheet("font-size: 18px; font-weight: bold;")
-                    layout.addWidget(self.label)
                     
-                    # Ajouter un widget de gestion des tickets SAV
-                    self.info_label = QLabel("Gestion des réclamations et support client")
-                    self.info_label.setAlignment(Qt.AlignCenter)
-                    layout.addWidget(self.info_label)
+                    # Header
+                    header = QLabel("AI Agent Dashboard")
+                    header.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+                    header.setAlignment(Qt.AlignCenter)
+                    layout.addWidget(header)
+                    
+                    # AI Agent controls
+                    control_frame = QFrame()
+                    control_frame.setFrameShape(QFrame.StyledPanel)
+                    control_layout = QHBoxLayout()
+                    
+                    self.start_btn = QPushButton("Start Agent")
+                    self.start_btn.setStyleSheet("padding: 8px; background: #27ae60; color: white;")
+                    control_layout.addWidget(self.start_btn)
+                    
+                    self.stop_btn = QPushButton("Stop Agent")
+                    self.stop_btn.setStyleSheet("padding: 8px; background: #e74c3c; color: white;")
+                    control_layout.addWidget(self.stop_btn)
+                    
+                    control_frame.setLayout(control_layout)
+                    layout.addWidget(control_frame)
+                    
+                    # Status area
+                    self.status_area = QLabel("Agent is currently inactive")
+                    self.status_area.setStyleSheet("font-size: 14px; color: #7f8c8d;")
+                    self.status_area.setAlignment(Qt.AlignCenter)
+                    layout.addWidget(self.status_area)
                     
                     self.setLayout(layout)
             
-            self.page_instances['sav'] = SavPage()
-            self.stacked_widget.addWidget(self.page_instances['sav'])
-        return self.page_instances['sav']
+            self.page_instances['ai_agent'] = AIAgentPage()
+            self.stacked_widget.addWidget(self.page_instances['ai_agent'])
+        return self.page_instances['ai_agent']
+
+    def load_customer_support_page(self):
+        """Load Customer Support page only if not already loaded"""
+        if self.page_instances['customer_support'] is None:
+            class CustomerSupportPage(QWidget):
+                def __init__(self):
+                    super().__init__()
+                    layout = QVBoxLayout()
+                    
+                    header = QLabel("Customer Support Center")
+                    header.setStyleSheet("font-size: 18px; font-weight: bold; color: #2c3e50;")
+                    header.setAlignment(Qt.AlignCenter)
+                    layout.addWidget(header)
+                    
+                    # Ticket management section
+                    ticket_frame = QFrame()
+                    ticket_frame.setFrameShape(QFrame.StyledPanel)
+                    ticket_layout = QVBoxLayout()
+                    
+                    ticket_label = QLabel("Open Support Tickets")
+                    ticket_label.setStyleSheet("font-size: 14px; font-weight: bold;")
+                    ticket_layout.addWidget(ticket_label)
+                    
+                    # Placeholder for ticket list
+                    self.ticket_list = QLabel("No active tickets")
+                    self.ticket_list.setStyleSheet("font-size: 12px; color: #7f8c8d;")
+                    ticket_layout.addWidget(self.ticket_list)
+                    
+                    ticket_frame.setLayout(ticket_layout)
+                    layout.addWidget(ticket_frame)
+                    
+                    self.setLayout(layout)
+            
+            self.page_instances['customer_support'] = CustomerSupportPage()
+            self.stacked_widget.addWidget(self.page_instances['customer_support'])
+        return self.page_instances['customer_support']
 
     def load_projects_page(self):
-        """Charge la page Projets seulement si elle n'existe pas déjà"""
+        """Load Projects page only if not already loaded"""
         if self.page_instances['projects'] is None:
             from Home.homemarketing import MainWindow as ProjectsPage
             self.page_instances['projects'] = ProjectsPage()
@@ -208,17 +269,19 @@ class MainWindowsales(QMainWindow):
 
     def show_page(self, page_name):
         if page_name in self.page_instances:
-            # Charge la page seulement quand elle est demandée
+            # Load page only when requested
             if page_name == 'documents':
                 page = self.load_documents_page()
-            elif page_name == 'links':
-                page = self.load_links_page()
+            elif page_name == 'link_manager':
+                page = self.load_link_manager_page()
             elif page_name == 'contacts':
                 page = self.load_contacts_page()
             elif page_name == 'prompts':
                 page = self.load_prompts_page()
-            elif page_name == 'sav':
-                page = self.load_sav_page()
+            elif page_name == 'ai_agent':
+                page = self.load_ai_agent_page()
+            elif page_name == 'customer_support':
+                page = self.load_customer_support_page()
             elif page_name == 'projects':
                 page = self.load_projects_page()
             else:
@@ -226,19 +289,16 @@ class MainWindowsales(QMainWindow):
 
             self.stacked_widget.setCurrentWidget(page)
             self.update_button_states(page_name)
-            self.status_label.setText(self.tr(f"Showing {page_name} page"))
+            self.status_label.setText(f"Showing {page_name.replace('_', ' ')} page")
 
     def update_button_states(self, active_page):
         self.documents_btn.setChecked(active_page == "documents")
-        self.links_btn.setChecked(active_page == "links")
+        self.link_manager_btn.setChecked(active_page == "link_manager")
         self.contacts_btn.setChecked(active_page == "contacts")
         self.prompts_btn.setChecked(active_page == "prompts")
-        self.sav_btn.setChecked(active_page == "sav")
+        self.ai_agent_btn.setChecked(active_page == "ai_agent")
+        self.customer_support_btn.setChecked(active_page == "customer_support")
         self.projects_btn.setChecked(active_page == "projects")
-
-    def tr(self, text):
-        """Translation method - would connect to actual translation system"""
-        return text
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
