@@ -14,7 +14,28 @@ dans le shemea techa des condition et explication  tout ca doit etre dynamique d
     liee a ce porduit
  et propose a lutilisateur de les partager soit via whatssap soit via mail 
 
-template 
+template et management projet 
+
+dans la meme logique que exceleditor ajoute mmoi doc editor et html editor car les templater peuvent dorenavant etre aussi bien excel html ou doc et ce ci de manier siplifier 
+
+
+
+ok maintenant je vais te demande de faire des orte que lorsque un untilisateur cree un nouveau client  aprtire de main alors la partie gestion de projet deoit aussi etre couurrante de ajoute le besoin du client comment un nouveau projet et par defaut dans la partie gestion de projet ajoute un proje portant le nom du nouveau client et directement a chaque nouveua projet tu dois ajouter des tache et doch pour cela dans la partie gestion des porjets on doit avoir des taches stantard quee je te laise definir sachant que nous somme dans un cade de marketing et vent plus precisemrrrn la vent dans le cadre du commerce internantionnal et tu fait de sorte que dans la patie gestion de projet on puissse mieuux difinir modifire et tout ce qui va avec en pluls la partie gestin de projet doit etre capable de savoir si le projet est en cour pou archive ou urgent car cest cette partie qui doit envoyer es notification reguliere a lutilisateur dans son ordinanteru et docn je pens que tu doit penser a unifier les base de donne ou de faire des sorte quil puisse commununique faociflement en plus fait que la conception soit plus solide et optimal et en fin ajoute tout ce que tu pens necessiare et utile pour que ca soit du top de top  si tu as compir ma logique alors rend ca plus pontu et complete merci 
+
+et aussi apporte toute amelioration que tu juje necessaire  aussi tout en emeliorant ma ligique de page de garde fait de sorte que celle ci puisse faire partie directement de ma logique globale en plus fait de sorte que l ouverture des fichier soit normal en donne ca Impossible d'ouvrir le fichier:
+'NoneType' object has no attribute 'add_row et en fin enplus de template excelle fait de sorte que nous puission aussi ajouter des templates en doc egalement et aussi fait de sorte que tu majoute un reademe pour certaint inof que tu veux partager avec moi et enfin toutes auttreameliooration ou modernisation veant de ta part est bienvenue pourvue que tu as compris mon objectif et donc que tu m aide a aller plus loin possile pour que l application fait un vrais carton 
+
+
+
+ce code est fonctionnelle maintenant ce que je veux cest que tu fasse de sorte que lon puisse etre capable 
+
+donne moi une appplication pyqt tres bien disigner qui pemet de genrer un page de  garde dune maniere dynamique pour mes doucment 
+a toi de voir si tu peu directment me donner une bonne solution ou sil faut plutot envisatger une solutiton qui recupere dabord un template de page de gardge ne version doc 
+
+regarde en realite j ai cette appplication et jimerais que le deuxieme document que je tai donnee la soit le template des specification techniquue et que une fois que je l ajoute il puissse ne pas etre defforme car pour le moment il deforme completement les styles et disigne du templete excel moderne or moi je veux quil ne derorme surtout pas les template xecl quon lui donne que ca soi dans le modal qui permet de les modifier que ca soit ple pdf qui sera extrait aussi je doit te dire quen ajoutant un nouveua client tout comme on peu lui ajouter un ou plusieur contact alors on peut aussi lui ajouteur un ou plusier produit ca peut soit etre dans un tab soit un button plus a caute de besoin client 
+
+
+
 deja en ajoutant un client donnee on doit aussi avoir la possibilite de pouvoir ajouter une notre concerant le client et aussi le prix final donnee au client 
 tu peu utiliser cet infio pour des quetion de disign de mettre par exemple une petite statistique en haut permettant de savoit les cout donnee total ou les coup deonnee des proje en cour ou autre a toi de voir lopportunute de cette info 
 aussi un client donnee sil a deja passe par exemple un nombre donne de temp dans la base de donnee alors le progrmamme pourra envoyer un modal ou une notification 

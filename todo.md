@@ -2,6 +2,7 @@ ajouter les qutres modules
 exerience utilisateur 
 
 
+afficher aussi ma notre en pazarlama au fur et a mesur de mon evolution avec un button pour rappelle ce quil faut faire 
 
 la vision global reste simple 
 leopardo reste un ouil permettant a un utilisateur de pourvoir daire de sorte qu il peu automatiser le partage de ses contenu dans les groupes 
