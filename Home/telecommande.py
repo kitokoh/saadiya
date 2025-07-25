@@ -6,8 +6,8 @@ import requests
 import subprocess
 import sys
 import webbrowser
-import win32con
-import win32gui
+# import win32con
+# import win32gui
 from PyQt5.QtCore import QPropertyAnimation
 from PyQt5.QtCore import QPropertyAnimation, pyqtProperty
 from PyQt5.QtCore import QSettings
