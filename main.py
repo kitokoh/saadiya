@@ -19,10 +19,10 @@ from Home.giris import SplitScreenView
 from Home.login import Nova360ProApp
 from Home.parametre import Nova360Ultimate
 # from licenceYonetimi.upgrade import SpecialOfferWindow
+from ui.threads import LoaderThread, LoaderThreadTelecommande
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QProgressDialog
+from ui.loading_screen import LoadingScreen
 import os
-from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import QProgressDialog, QLabel, QApplication
 import sys
 import time
@@ -98,10 +98,10 @@ class LoadingScreen(QDialog):
         self.setLayout(layout)
         self.resize(300, 100)
 
-from PyQt5.QtWidgets import QLayout
-from PyQt5.QtWidgets import QWidgetItem
-from PyQt5.QtWidgets import QWidgetAction
+from ui.overlay_layout import QOverlayLayout
+from PyQt5.QtWidgets import QWidgetAction, QLayout, QWidgetItem
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
+from ui.widgets import AccueilWidget, SearchWidget, SettingsWidget, HelpWidget, AboutDialog, CertificateDialog
 
 class QOverlayLayout(QLayout):
     """Un layout personnalisé pour superposer des widgets (comme un badge sur une icône)"""
@@ -4535,14 +4535,17 @@ class Browser(QMainWindow):
 
     def init_language(self):
         """Initialize the application language based on user preferences or system locale."""
-        if os.path.exists(os.path.join(user_data_dir, 'resources', 'settings.json')):
-            with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'r') as f:
-                preferences = json.load(f)
-                selected_language = preferences.get('language', 'en')
-        else:
-            system_locale = QLocale.system().name()[:2]
-            language_map = {'en': 'en', 'fr': 'fr', 'tr': 'tr', 'ar': 'ar'}
-            selected_language = language_map.get(system_locale, 'en')
+        try:
+            if os.path.exists(os.path.join(user_data_dir, 'resources', 'settings.json')):
+                with open(os.path.join(user_data_dir, 'resources', 'settings.json'), 'r') as f:
+                    preferences = json.load(f)
+                    selected_language = preferences.get('language', 'en')
+            else:
+                system_locale = QLocale.system().name()[:2]
+                language_map = {'en': 'en', 'fr': 'fr', 'tr': 'tr', 'ar': 'ar'}
+                selected_language = language_map.get(system_locale, 'en')
+        except (FileNotFoundError, json.JSONDecodeError):
+            selected_language = 'en'
         self.switch_language(selected_language)
 
     def toggle_side_menu(self):
@@ -4573,9 +4576,6 @@ class Browser(QMainWindow):
         certificate_dialog = CertificateDialog(self)
         certificate_dialog.exec_()
 
-    def open_contact_window1(self):
-        """Open the contact window."""
-        pass
 
     def open_update_window(self):
         """Open the update window."""
@@ -6370,11 +6370,6 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 
 
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     window = Browser()
-#     window.show()
-#     sys.exit(app.exec_())
 
 
 
@@ -6385,21 +6380,6 @@ from PyQt5.QtWidgets import QMessageBox
 
 VERSION_LOCAL = "1.9.0"
 
-def check_update():
-    try:
-        response = requests.get("https://leopardo-ai.web.app/version.json")
-        data = response.json()
-        version_en_ligne = data['version']
-        if version.parse(version_en_ligne) > version.parse(VERSION_LOCAL):
-            msg = QMessageBox()
-            msg.setWindowTitle("Nouvelle version disponible")
-            msg.setText(f"Une nouvelle version {version_en_ligne} est disponible.\n\nNotes : {data.get('notes', '')}\n\nTélécharger maintenant ?")
-            msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            if msg.exec_() == QMessageBox.Yes:
-                import webbrowser
-                webbrowser.open(data["url"])
-    except Exception as e:
-        print("Erreur lors de la vérification des mises à jour :", e)
 
 
 
@@ -6446,14 +6426,5 @@ import tkinter as tk
 from tkinter import messagebox
 from threading import Thread
 
-def check_for_update():
-    info = get_latest_version_info()
-    if info["version"] != VERSION_ACTUELLE:
-        should_update = messagebox.askyesno(
-            "Mise à jour disponible",
-            f"La version {info['version']} est disponible. Voulez-vous l'installer ?"
-        )
-        if should_update:
-            download_and_execute(info["url"])
 
 Thread(target=check_for_update).start()
