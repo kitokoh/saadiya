@@ -17,7 +17,7 @@ class RefactoredApp(QMainWindow):
         self.main_layout.addWidget(self.tab_widget)
 
         # Add the refactored Home widget
-        from features.home.home_widget import HomeWidget
+        from .features.home.home_widget import HomeWidget
         self.home_widget = HomeWidget()
         self.add_feature_tab(self.home_widget, "Accueil")
 
