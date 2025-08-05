@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 import hashlib
 
-from .helpers import (DatabaseManager, MplCanvas, StrategyCard, DashboardHeader,
-                      MiningAlgorithm, MiningHardware, MiningStrategy,
-                      TradingIndicator, TradingRule, TradingStrategy, COLORS)
+from ...components.widgets.finance_helpers import (DatabaseManager, MplCanvas, StrategyCard, DashboardHeader,
+                                                  MiningAlgorithm, MiningHardware, MiningStrategy,
+                                                  TradingIndicator, TradingRule, TradingStrategy, COLORS)
 
 class FinanceWidget(QWidget):
     def __init__(self, parent=None):
@@ -145,7 +145,6 @@ class FinanceWidget(QWidget):
         mining_chart_layout.addWidget(QLabel("Mining Profitability"))
         self.mining_canvas = MplCanvas()
         mining_chart_layout.addWidget(self.mining_canvas)
-        self.update_mining_chart()
 
         # Trading performance chart
         trading_chart_widget = QWidget()
@@ -153,7 +152,6 @@ class FinanceWidget(QWidget):
         trading_chart_layout.addWidget(QLabel("Trading Performance"))
         self.trading_canvas = MplCanvas()
         trading_chart_layout.addWidget(self.trading_canvas)
-        self.update_trading_chart()
 
         charts_splitter.addWidget(mining_chart_widget)
         charts_splitter.addWidget(trading_chart_widget)
@@ -170,7 +168,6 @@ class FinanceWidget(QWidget):
         toolbar = QHBoxLayout()
         add_btn = QPushButton("Add Strategy")
         # add_btn.setIcon(QIcon("icons/add.png"))
-        add_btn.clicked.connect(self.show_add_mining_strategy_dialog)
         toolbar.addWidget(add_btn)
         layout.addLayout(toolbar)
 
@@ -179,7 +176,6 @@ class FinanceWidget(QWidget):
         self.mining_table.setColumnCount(6)
         self.mining_table.setHorizontalHeaderLabels(["Name", "Algorithm", "Hardware", "Profit", "Status", "Actions"])
         self.mining_table.horizontalHeader().setStretchLastSection(True)
-        self.update_mining_table()
         layout.addWidget(self.mining_table)
 
         # Details panel
@@ -198,7 +194,6 @@ class FinanceWidget(QWidget):
         toolbar = QHBoxLayout()
         add_btn = QPushButton("Add Strategy")
         # add_btn.setIcon(QIcon("icons/add.png"))
-        add_btn.clicked.connect(self.show_add_trading_strategy_dialog)
         toolbar.addWidget(add_btn)
         layout.addLayout(toolbar)
 
@@ -207,7 +202,6 @@ class FinanceWidget(QWidget):
         self.trading_table.setColumnCount(6)
         self.trading_table.setHorizontalHeaderLabels(["Name", "Pair", "Indicators", "Risk", "Status", "Actions"])
         self.trading_table.horizontalHeader().setStretchLastSection(True)
-        self.update_trading_table()
         layout.addWidget(self.trading_table)
 
         # Chart area
@@ -238,7 +232,6 @@ class FinanceWidget(QWidget):
 
         # Combined chart
         self.analytics_canvas = MplCanvas(width=10, height=6)
-        self.update_analytics_chart()
         layout.addWidget(self.analytics_canvas)
 
         return page
@@ -309,7 +302,7 @@ class FinanceWidget(QWidget):
         self.update_trading_chart()
         self.update_analytics_chart()
 
-    def update_mining_chart(self):
+    def update_mining_chart(self, data=None):
         """Update the mining profitability chart"""
         self.mining_canvas.axes.clear()
 
@@ -334,7 +327,7 @@ class FinanceWidget(QWidget):
 
         self.mining_canvas.draw()
 
-    def update_trading_chart(self):
+    def update_trading_chart(self, data=None):
         """Update the trading performance chart"""
         self.trading_canvas.axes.clear()
 
@@ -355,7 +348,7 @@ class FinanceWidget(QWidget):
 
         self.trading_canvas.draw()
 
-    def update_analytics_chart(self):
+    def update_analytics_chart(self, data=None):
         """Update the analytics chart with combined metrics"""
         self.analytics_canvas.axes.clear()
 
@@ -380,7 +373,7 @@ class FinanceWidget(QWidget):
 
         self.analytics_canvas.draw()
 
-    def update_mining_table(self):
+    def update_mining_table(self, data=None):
         """Update the mining strategies table"""
         # Sample data - in a real app, this would come from the database
         strategies = [
@@ -416,7 +409,7 @@ class FinanceWidget(QWidget):
 
             self.mining_table.setCellWidget(row, 5, btn_widget)
 
-    def update_trading_table(self):
+    def update_trading_table(self, data=None):
         """Update the trading strategies table"""
         # Sample data
         strategies = [
@@ -452,223 +445,14 @@ class FinanceWidget(QWidget):
 
             self.trading_table.setCellWidget(row, 5, btn_widget)
 
-    def show_add_mining_strategy_dialog(self):
-        """Show dialog to add new mining strategy"""
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Add Mining Strategy")
-        dialog.setModal(True)
-        dialog.resize(500, 400)
-
-        layout = QFormLayout(dialog)
-
-        # Form fields
-        name_edit = QLineEdit()
-        algo_combo = QComboBox()
-        algo_combo.addItems([algo.name for algo in MiningAlgorithm])
-
-        hardware_group = QGroupBox("Hardware Configuration")
-        hardware_layout = QVBoxLayout()
-
-        # Hardware form would be more complex in a real app
-        hw_model = QLineEdit()
-        hw_hashrate = QDoubleSpinBox()
-        hw_hashrate.setSuffix(" MH/s")
-        hw_power = QDoubleSpinBox()
-        hw_power.setSuffix(" W")
-        hw_cost = QDoubleSpinBox()
-        hw_cost.setPrefix("$")
-
-        hardware_layout.addWidget(QLabel("GPU Model:"))
-        hardware_layout.addWidget(hw_model)
-        hardware_layout.addWidget(QLabel("Hashrate:"))
-        hardware_layout.addWidget(hw_hashrate)
-        hardware_layout.addWidget(QLabel("Power Consumption:"))
-        hardware_layout.addWidget(hw_power)
-        hardware_layout.addWidget(QLabel("Cost:"))
-        hardware_layout.addWidget(hw_cost)
-
-        hardware_group.setLayout(hardware_layout)
-
-        profit_threshold = QDoubleSpinBox()
-        profit_threshold.setPrefix("$")
-        profit_threshold.setValue(0.1)
-
-        energy_cost = QDoubleSpinBox()
-        energy_cost.setPrefix("$")
-        energy_cost.setValue(0.12)
-        energy_cost.setSuffix("/kWh")
-
-        # Buttons
-        btn_box = QHBoxLayout()
-        save_btn = QPushButton("Save")
-        cancel_btn = QPushButton("Cancel")
-        btn_box.addWidget(save_btn)
-        btn_box.addWidget(cancel_btn)
-
-        # Add to layout
-        layout.addRow("Strategy Name:", name_edit)
-        layout.addRow("Algorithm:", algo_combo)
-        layout.addRow(hardware_group)
-        layout.addRow("Profit Threshold:", profit_threshold)
-        layout.addRow("Energy Cost:", energy_cost)
-        layout.addRow(btn_box)
-
-        cancel_btn.clicked.connect(dialog.reject)
-        save_btn.clicked.connect(lambda: self.save_mining_strategy(
-            name_edit.text(),
-            MiningAlgorithm[algo_combo.currentText()],
-            MiningHardware(
-                hw_model.text(),
-                hw_hashrate.value(),
-                hw_power.value(),
-                hw_cost.value()
-            ),
-            energy_cost.value(),
-            profit_threshold.value(),
-            dialog
-        ))
-
-        dialog.exec_()
-
-    def show_add_trading_strategy_dialog(self):
-        """Show dialog to add new trading strategy"""
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Add Trading Strategy")
-        dialog.setModal(True)
-        dialog.resize(600, 500)
-
-        layout = QVBoxLayout(dialog)
-
-        # Basic info
-        form_layout = QFormLayout()
-        name_edit = QLineEdit()
-        base_currency = QComboBox()
-        base_currency.addItems(["BTC", "ETH", "SOL", "ADA", "DOT"])
-        quote_currency = QComboBox()
-        quote_currency.addItems(["USDT", "USD", "BTC", "ETH"])
-
-        form_layout.addRow("Strategy Name:", name_edit)
-        form_layout.addRow("Base Currency:", base_currency)
-        form_layout.addRow("Quote Currency:", quote_currency)
-
-        # Rules tabs
-        tabs = QTabWidget()
-        entry_tab = QWidget()
-        exit_tab = QWidget()
-
-        tabs.addTab(entry_tab, "Entry Rules")
-        tabs.addTab(exit_tab, "Exit Rules")
-
-        # Build rule forms (simplified)
-        entry_layout = QVBoxLayout(entry_tab)
-        exit_layout = QVBoxLayout(exit_tab)
-
-        for layout in [entry_layout, exit_layout]:
-            rule_combo = QComboBox()
-            rule_combo.addItems([ind.name for ind in TradingIndicator])
-            condition_combo = QComboBox()
-            condition_combo.addItems(["cross_above", "cross_below", ">", "<", "=="])
-            value_edit = QDoubleSpinBox()
-            lookback_edit = QSpinBox()
-            lookback_edit.setValue(14)
-
-            rule_form = QFormLayout()
-            rule_form.addRow("Indicator:", rule_combo)
-            rule_form.addRow("Condition:", condition_combo)
-            rule_form.addRow("Value:", value_edit)
-            rule_form.addRow("Lookback Period:", lookback_edit)
-
-            layout.addLayout(rule_form)
-
-        # Risk management
-        risk_group = QGroupBox("Risk Management")
-        risk_layout = QFormLayout()
-        risk_per_trade = QDoubleSpinBox()
-        risk_per_trade.setValue(1.0)
-        risk_per_trade.setSuffix("%")
-        stop_loss = QDoubleSpinBox()
-        stop_loss.setValue(5.0)
-        stop_loss.setSuffix("%")
-        take_profit = QDoubleSpinBox()
-        take_profit.setValue(10.0)
-        take_profit.setSuffix("%")
-
-        risk_layout.addRow("Risk per Trade:", risk_per_trade)
-        risk_layout.addRow("Stop Loss:", stop_loss)
-        risk_layout.addRow("Take Profit:", take_profit)
-        risk_group.setLayout(risk_layout)
-
-        # Buttons
-        btn_box = QHBoxLayout()
-        save_btn = QPushButton("Save")
-        cancel_btn = QPushButton("Cancel")
-        btn_box.addWidget(save_btn)
-        btn_box.addWidget(cancel_btn)
-
-        # Assemble dialog
-        layout.addLayout(form_layout)
-        layout.addWidget(tabs)
-        layout.addWidget(risk_group)
-        layout.addLayout(btn_box)
-
-        cancel_btn.clicked.connect(dialog.reject)
-        save_btn.clicked.connect(lambda: self.save_trading_strategy(
-            name_edit.text(),
-            base_currency.currentText(),
-            quote_currency.currentText(),
-            risk_per_trade.value()/100,
-            stop_loss.value()/100,
-            take_profit.value()/100,
-            dialog
-        ))
-
-        dialog.exec_()
-
-    def save_mining_strategy(self, name, algorithm, hardware, energy_cost, profit_threshold, dialog):
-        """Save a new mining strategy"""
-        strategy = MiningStrategy(
-            id=hashlib.md5(name.encode()).hexdigest(),
-            name=name,
-            algorithm=algorithm,
-            hardware=[hardware],
-            electricity_cost=energy_cost,
-            profit_threshold=profit_threshold
-        )
-
-        self.db.save_mining_strategy(strategy)
-        self.update_mining_table()
-        dialog.accept()
-
-    def save_trading_strategy(self, name, base, quote, risk, stop_loss, take_profit, dialog):
-        """Save a new trading strategy"""
-        # In a real app, we would process the rules from the form
-        entry_rules = [
-            TradingRule(indicator=TradingIndicator.RSI, condition="<", value=30),
-            TradingRule(indicator=TradingIndicator.SMA, condition="cross_above", value=50, lookback_period=20)
-        ]
-
-        exit_rules = [
-            TradingRule(indicator=TradingIndicator.RSI, condition=">", value=70)
-        ]
-
-        strategy = TradingStrategy(
-            id=hashlib.md5(name.encode()).hexdigest(),
-            name=name,
-            entry_rules=entry_rules,
-            exit_rules=exit_rules,
-            risk_per_trade=risk,
-            base_currency=base,
-            quote_currency=quote,
-            stop_loss=stop_loss,
-            take_profit=take_profit
-        )
-
-        # Save to database
-        self.update_trading_table()
-        dialog.accept()
-
     def load_sample_data(self):
         """Load sample data for demonstration"""
+        self.update_mining_chart()
+        self.update_trading_chart()
+        self.update_analytics_chart()
+        self.update_mining_table()
+        self.update_trading_table()
+
         # Update header stats
         self.header.mining_stat.setText("Mining: 2 active")
         self.header.trading_stat.setText("Trading: 3 active")

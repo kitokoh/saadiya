@@ -1,71 +1,34 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QStackedWidget, QToolBar
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt, QSize
-
-class RibbonButton(QPushButton):
-    def __init__(self, text="", icon_path=None, parent=None):
-        super().__init__(text, parent)
-        if icon_path:
-            self.setIcon(QIcon(icon_path))
-        self.setCheckable(True)
-        self.setStyleSheet("""
-            QPushButton {
-                border: none;
-                padding: 8px;
-                font-size: 14px;
-            }
-            QPushButton:checked {
-                background-color: #e0e0e0;
-            }
-        """)
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, QFrame, QStackedWidget, QPushButton)
+from PyQt5.QtCore import Qt
+from ..components.ribbon_menu import RibbonMenu
 
 class RunWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.init_ui()
+        self.main_layout = QVBoxLayout(self)
+        self.setLayout(self.main_layout)
 
-    def init_ui(self):
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        # Ribbon Menu
+        ribbon_buttons = [
+            {"text": "MANUAL", "icon": "path/to/icon.png"},
+            {"text": "AUTOMATIC", "icon": "path/to/icon.png"},
+            {"text": "SCHEDULER", "icon": "path/to/icon.png"},
+        ]
+        self.ribbon_menu = RibbonMenu(buttons=ribbon_buttons)
+        self.main_layout.addWidget(self.ribbon_menu)
 
-        self.ribbon = QToolBar("Ribbon")
-        self.ribbon.setIconSize(QSize(20, 20))
-        main_layout.addWidget(self.ribbon)
+        # Page Content
+        self.page_content = QStackedWidget()
+        self.main_layout.addWidget(self.page_content)
 
-        self.stacked_widget = QStackedWidget()
-        main_layout.addWidget(self.stacked_widget)
+        # Add pages
+        self.page_content.addWidget(QLabel("MANUAL PAGE (Under Construction)"))
+        self.page_content.addWidget(QLabel("AUTOMATIC PAGE (Under Construction)"))
+        self.page_content.addWidget(QLabel("SCHEDULER PAGE (Under Construction)"))
 
-        self.add_ribbon_button("Start", "", self.show_start_page)
-        self.add_ribbon_button("Open", "", self.show_open_page)
-        self.add_ribbon_button("Stat", "", self.show_stat_page)
-
-        # Set the first page as default
-        self.show_start_page()
-
-    def add_ribbon_button(self, text, icon_path, function):
-        button = RibbonButton(text, icon_path)
-        button.clicked.connect(function)
-        self.ribbon.addWidget(button)
-        return button
-
-    def show_start_page(self):
-        # Placeholder for now
-        self.stacked_widget.setCurrentWidget(QLabel("Start Page Placeholder"))
-
-    def show_open_page(self):
-        # Placeholder for now
-        self.stacked_widget.setCurrentWidget(QLabel("Open Page Placeholder"))
-
-    def show_stat_page(self):
-        # Placeholder for now
-        self.stacked_widget.setCurrentWidget(QLabel("Stat Page Placeholder"))
-
-if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication, QMainWindow
-    app = QApplication(sys.argv)
-    window = QMainWindow()
-    widget = RunWidget()
-    window.setCentralWidget(widget)
-    window.show()
-    sys.exit(app.exec_())
+        # Connect ribbon buttons to pages
+        for i, button_info in enumerate(ribbon_buttons):
+            button = self.ribbon_menu.findChild(QPushButton, f"ribbon_button_{button_info['text']}")
+            if button:
+                button.clicked.connect(lambda _, index=i: self.page_content.setCurrentIndex(index))

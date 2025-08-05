@@ -1,66 +1,38 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QStackedWidget, QToolBar
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt, QSize
-
-class RibbonButton(QPushButton):
-    def __init__(self, text="", icon_path=None, parent=None):
-        super().__init__(text, parent)
-        if icon_path:
-            self.setIcon(QIcon(icon_path))
-        self.setCheckable(True)
-        self.setStyleSheet("""
-            QPushButton {
-                border: none;
-                padding: 8px;
-                font-size: 14px;
-            }
-            QPushButton:checked {
-                background-color: #e0e0e0;
-            }
-        """)
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, QFrame, QStackedWidget)
+from PyQt5.QtCore import Qt
+from ..components.ribbon_menu import RibbonMenu
 
 class SalesWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.init_ui()
+        self.main_layout = QVBoxLayout(self)
+        self.setLayout(self.main_layout)
 
-    def init_ui(self):
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        # Ribbon Menu
+        ribbon_buttons = [
+            {"text": "DASHBOARD", "icon": "path/to/icon.png"},
+            {"text": "PRODUCTS", "icon": "path/to/icon.png"},
+            {"text": "ORDERS", "icon": "path/to/icon.png"},
+            {"text": "CUSTOMERS", "icon": "path/to/icon.png"},
+            {"text": "REPORTS", "icon": "path/to/icon.png"},
+        ]
+        self.ribbon_menu = RibbonMenu(buttons=ribbon_buttons)
+        self.main_layout.addWidget(self.ribbon_menu)
 
-        self.ribbon = QToolBar("Ribbon")
-        self.ribbon.setIconSize(QSize(20, 20))
-        main_layout.addWidget(self.ribbon)
+        # Page Content
+        self.page_content = QStackedWidget()
+        self.main_layout.addWidget(self.page_content)
 
-        self.stacked_widget = QStackedWidget()
-        main_layout.addWidget(self.stacked_widget)
+        # Add pages
+        self.page_content.addWidget(QLabel("DASHBOARD PAGE (Under Construction)"))
+        self.page_content.addWidget(QLabel("PRODUCTS PAGE (Under Construction)"))
+        self.page_content.addWidget(QLabel("ORDERS PAGE (Under Construction)"))
+        self.page_content.addWidget(QLabel("CUSTOMERS PAGE (Under Construction)"))
+        self.page_content.addWidget(QLabel("REPORTS PAGE (Under Construction)"))
 
-        self.add_ribbon_button("Documents", "", self.show_documents_page)
-        self.add_ribbon_button("Link Manager", "", self.show_link_manager_page)
-
-        # Set the first page as default
-        self.show_documents_page()
-
-    def add_ribbon_button(self, text, icon_path, function):
-        button = RibbonButton(text, icon_path)
-        button.clicked.connect(function)
-        self.ribbon.addWidget(button)
-        return button
-
-    def show_documents_page(self):
-        # Placeholder for now
-        self.stacked_widget.setCurrentWidget(QLabel("Documents Page Placeholder"))
-
-    def show_link_manager_page(self):
-        # Placeholder for now
-        self.stacked_widget.setCurrentWidget(QLabel("Link Manager Page Placeholder"))
-
-if __name__ == '__main__':
-    from PyQt5.QtWidgets import QApplication, QMainWindow
-    app = QApplication(sys.argv)
-    window = QMainWindow()
-    widget = SalesWidget()
-    window.setCentralWidget(widget)
-    window.show()
-    sys.exit(app.exec_())
+        # Connect ribbon buttons to pages
+        for i, button_info in enumerate(ribbon_buttons):
+            button = self.ribbon_menu.findChild(QPushButton, f"ribbon_button_{button_info['text']}")
+            if button:
+                button.clicked.connect(lambda _, index=i: self.page_content.setCurrentIndex(index))

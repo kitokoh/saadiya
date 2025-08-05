@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHB
 from .ui.top_menu import TopMenu
 from .ui.side_menu import SideMenu
 from .ui.status_bar import StatusBar
-from .features.home.home_widget import HomeWidget
-from .features.marketing.marketing_widget import MarketingWidget
-from .features.sales.sales_widget import SalesWidget
-from .features.run.run_widget import RunWidget
-from .features.finance.finance_widget import FinanceWidget
-from .features.settings.settings_widget import SettingsWidget
-from .features.tools.tools_widget import ToolsWidget
+from .features.home import create_home_feature
+from .features.marketing import create_marketing_feature
+from .features.sales import create_sales_feature
+from .features.run import create_run_feature
+from .features.finance import create_finance_feature
+from .features.settings import create_settings_feature
+from .features.tools import create_tools_feature
 from .utils.language import LanguageManager
 from .services.auth import AuthService
 from .ui.login_dialog import LoginDialog
@@ -58,13 +58,13 @@ class RefactoredApp(QMainWindow):
         self.main_content.addWidget(self.content_stack)
 
         # Feature Widgets
-        self.home_widget = HomeWidget()
-        self.marketing_widget = MarketingWidget()
-        self.sales_widget = SalesWidget()
-        self.run_widget = RunWidget()
-        self.finance_widget = FinanceWidget()
-        self.settings_widget = SettingsWidget()
-        self.tools_widget = ToolsWidget()
+        self.home_widget, self.home_controller = create_home_feature()
+        self.marketing_widget, self.marketing_controller = create_marketing_feature()
+        self.sales_widget, self.sales_controller = create_sales_feature()
+        self.run_widget, self.run_controller = create_run_feature()
+        self.finance_widget, self.finance_controller = create_finance_feature()
+        self.settings_widget, self.settings_controller = create_settings_feature()
+        self.tools_widget, self.tools_controller = create_tools_feature()
 
         self.content_stack.addWidget(self.home_widget)
         self.content_stack.addWidget(self.marketing_widget)
