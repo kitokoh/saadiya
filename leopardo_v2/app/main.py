@@ -1,5 +1,8 @@
 import sys
+
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QStackedWidget, QMessageBox
+
+# Local application imports
 from .ui.top_menu import TopMenu
 from .ui.side_menu import SideMenu
 from .ui.status_bar import StatusBar
@@ -53,6 +56,8 @@ from .services.auth import AuthService
 from .ui.login_dialog import LoginDialog
 from .services.notifications import NotificationService
 from .services.updater import UpdaterService
+from .services.config_service import ConfigService
+from .services.service_container import container
 from .ui.dialogs.menu_config_dialog import MenuConfigDialog
 
 class RefactoredApp(QMainWindow):
@@ -61,20 +66,29 @@ class RefactoredApp(QMainWindow):
         self.setWindowTitle("Leopardo V2")
         self.setGeometry(100, 100, 1200, 800)
 
-        # Auth Service
-        self.auth_service = AuthService()
+        self._init_core_services()
+        self._init_ui_components()
+        self._init_features()
+        self._connect_signals()
 
-        # Language Manager
-        self.language_manager = LanguageManager(QApplication.instance())
+        self.check_login()
+        self.updater_service.check_for_updates()
+        self.update_menu_visibility()
 
-        # Notification Service
-        self.notification_service = NotificationService(self)
+    def _init_core_services(self):
+        container.register('config_service', ConfigService())
+        container.register('auth_service', AuthService())
+        container.register('language_manager', LanguageManager(QApplication.instance()))
+        container.register('notification_service', NotificationService(self))
+        container.register('updater_service', UpdaterService(self))
 
-        # Updater Service
-        self.updater_service = UpdaterService(self)
+        self.config_service = container.get('config_service')
+        self.auth_service = container.get('auth_service')
+        self.language_manager = container.get('language_manager')
+        self.notification_service = container.get('notification_service')
+        self.updater_service = container.get('updater_service')
 
-        # Menu Config
-        self.menu_config = {
+        self.menu_config = self.config_service.get('menu_config', {
             'Tools': True,
             'Beta Feature': True,
             'Data': True,
@@ -82,32 +96,31 @@ class RefactoredApp(QMainWindow):
             'Upgrade': True,
             'Settings': True,
             'Language': True
-        }
+        })
 
-        # Main container
+    def _init_ui_components(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.main_layout = QVBoxLayout(central_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        # Top Menu
         self.top_menu = TopMenu()
         self.main_layout.addWidget(self.top_menu)
 
-        # Main content area
         self.main_content = QHBoxLayout()
         self.main_layout.addLayout(self.main_content)
 
-        # Side Menu
         self.side_menu = SideMenu()
         self.main_content.addWidget(self.side_menu)
 
-        # Content Stack
         self.content_stack = QStackedWidget()
         self.main_content.addWidget(self.content_stack)
 
-        # Feature Widgets
+        self.status_bar = StatusBar()
+        self.setStatusBar(self.status_bar)
+
+    def _init_features(self):
         self.home_widget, self.home_controller = create_home_feature()
         self.marketing_widget, self.marketing_controller = create_marketing_feature()
         self.sales_widget, self.sales_controller = create_sales_feature()
@@ -198,11 +211,8 @@ class RefactoredApp(QMainWindow):
         self.content_stack.addWidget(self.external_disk_widget)
         self.content_stack.addWidget(self.schedule_backup_widget)
 
-        # Status Bar
-        self.status_bar = StatusBar()
-        self.setStatusBar(self.status_bar)
-
-        # Connect side menu buttons to show/hide widgets
+    def _connect_signals(self):
+        # Main menu
         self.side_menu.home_button.clicked.connect(lambda: self.content_stack.setCurrentWidget(self.home_widget))
         self.side_menu.tools_button.clicked.connect(lambda: self.content_stack.setCurrentWidget(self.tools_widget))
         self.side_menu.beta_button.clicked.connect(lambda: self.content_stack.setCurrentWidget(self.marketing_widget))
@@ -211,23 +221,23 @@ class RefactoredApp(QMainWindow):
         self.side_menu.upgrade_button.clicked.connect(self.show_upgrade_window)
         self.side_menu.settings_button.clicked.connect(lambda: self.content_stack.setCurrentWidget(self.settings_widget))
 
-        # Connect language switching
+        # Language switching
         self.side_menu.language_menu.actions()[0].triggered.connect(lambda: self.language_manager.switch_language('en'))
         self.side_menu.language_menu.actions()[1].triggered.connect(lambda: self.language_manager.switch_language('fr'))
         self.side_menu.language_menu.actions()[2].triggered.connect(lambda: self.language_manager.switch_language('tr'))
         self.side_menu.language_menu.actions()[3].triggered.connect(lambda: self.language_manager.switch_language('ar'))
         self.side_menu.language_menu.actions()[4].triggered.connect(lambda: self.language_manager.switch_language('pt'))
 
-        # Connect User Profile
+        # User Profile
         self.side_menu.user_profile.login_button.clicked.connect(self.show_login_dialog)
         self.side_menu.user_profile.logout_button.clicked.connect(self.logout)
         self.side_menu.user_profile.enterprise_button.clicked.connect(self.switch_to_enterprise)
         self.side_menu.user_profile.personal_button.clicked.connect(self.switch_to_personal)
 
-        # Connect Menu Config
+        # Menu Config
         self.side_menu.menu_config_button.clicked.connect(self.show_menu_config_dialog)
 
-        # Connect Tools Menu
+        # Tools Menu
         self.side_menu.tools_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.interconnexion_widget))
         self.side_menu.tools_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.add_on_widget))
         self.side_menu.tools_menu.actions()[2].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.remote_control_widget))
@@ -241,15 +251,15 @@ class RefactoredApp(QMainWindow):
         self.side_menu.tools_menu.actions()[10].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.groups_widget))
         self.side_menu.tools_menu.actions()[11].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.media_widget))
 
-        # Connect Settings Menu
+        # Settings Menu
         self.side_menu.settings_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.vision_widget))
         self.side_menu.settings_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.com_interne_widget))
         self.side_menu.settings_menu.actions()[2].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.com_externe_widget))
-        self.side_menu.settings_menu.actions()[3].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.settings_widget)) # Instances
-        self.side_menu.settings_menu.actions()[4].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.home_widget)) # Installer
-        self.side_menu.settings_menu.actions()[5].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.add_on_widget)) # Add-On
+        self.side_menu.settings_menu.actions()[3].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.settings_widget))
+        self.side_menu.settings_menu.actions()[4].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.home_widget))
+        self.side_menu.settings_menu.actions()[5].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.add_on_widget))
 
-        # Connect Online Connect Menu
+        # Online Connect Menu
         self.side_menu.connection_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.ssh_connect_widget))
         self.side_menu.connection_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.ftp_server_widget))
         self.side_menu.connection_menu.actions()[2].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.api_link_widget))
@@ -257,7 +267,7 @@ class RefactoredApp(QMainWindow):
         self.side_menu.connection_menu.actions()[4].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.vpn_connect_widget))
         self.side_menu.connection_menu.actions()[5].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.ai_service_widget))
 
-        # Connect Archive Menu
+        # Archive Menu
         self.side_menu.archive_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.local_zip_widget))
         self.side_menu.archive_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.gdrive_widget))
         self.side_menu.archive_menu.actions()[2].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.dropbox_widget))
@@ -266,31 +276,25 @@ class RefactoredApp(QMainWindow):
         self.side_menu.archive_menu.actions()[5].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.external_disk_widget))
         self.side_menu.archive_menu.actions()[6].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.schedule_backup_widget))
 
-        # Connect Beta Feature Menu
+        # Beta Feature Menu
         self.side_menu.beta_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.ia_beta_widget))
         self.side_menu.beta_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.licences_widget))
 
-        # Connect Data Menu
-        self.side_menu.data_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.tools_widget)) # Prompts
+        # Data Menu
+        self.side_menu.data_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.tools_widget))
         self.side_menu.data_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.stats_widget))
         self.side_menu.data_menu.actions()[2].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.strategies_widget))
         self.side_menu.data_menu.actions()[3].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.import_data_widget))
         self.side_menu.data_menu.actions()[4].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.adn_backup_widget))
 
-        # Connect Support Menu
+        # Support Menu
         self.side_menu.support_menu.actions()[0].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.about_widget))
         self.side_menu.support_menu.actions()[1].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.documents_widget))
         self.side_menu.support_menu.actions()[2].triggered.connect(lambda: self.content_stack.setCurrentWidget(self.contact_widget))
 
-        # Connect Notifications
+        # Top menu actions
         self.top_menu.file_menu.addAction("Show Notification").triggered.connect(lambda: self.notification_service.show_notification("Test", "This is a test notification."))
-
-        # Connect Updater
         self.top_menu.file_menu.addAction("Check for Updates").triggered.connect(self.updater_service.check_for_updates)
-
-        self.check_login()
-        self.updater_service.check_for_updates()
-        self.update_menu_visibility()
 
     def check_login(self):
         if not self.auth_service.is_logged_in:
@@ -344,6 +348,7 @@ class RefactoredApp(QMainWindow):
         dialog = MenuConfigDialog(self.menu_config, self)
         if dialog.exec_() == QDialog.Accepted:
             self.menu_config = dialog.get_menu_config()
+            self.config_service.set('menu_config', self.menu_config)
             self.update_menu_visibility()
 
     def update_menu_visibility(self):
