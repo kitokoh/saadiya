@@ -13,9 +13,9 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWebChannel import QWebChannel
 
 # Corrected import paths for the new structure
-from app.core.database import init_db, get_db_path
-from app.core.constants import Constants
-from app.core.action_handler import ActionHandler
+from ...core.database import init_db, get_db_path
+from ...core.constants import Constants
+from ...core.action_handler import ActionHandler
 
 class AnalysisThread(QThread):
     """Thread for asynchronous prompt analysis"""

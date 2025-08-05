@@ -26,6 +26,8 @@ class RefactoredApp(QMainWindow):
         self.tab_widget.addTab(widget, title)
 
 if __name__ == "__main__":
+    from PyQt5.QtCore import Qt, QCoreApplication
+    QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     app = QApplication(sys.argv)
     window = RefactoredApp()
     window.show()
