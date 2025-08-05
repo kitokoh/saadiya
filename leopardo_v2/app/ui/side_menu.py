@@ -135,6 +135,7 @@ class SideMenu(QFrame):
 
         self.settings_button.setMenu(self.settings_menu)
 
+
         # Language Menu
         self.language_menu_button = QPushButton("🌍 Language")
         self.language_menu_button.setFixedHeight(40)
