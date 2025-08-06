@@ -1,0 +1,11 @@
+{
+    "menu_config": {
+        "Tools": true,
+        "Beta Feature": true,
+        "Data": true,
+        "Support": true,
+        "Upgrade": true,
+        "Settings": true,
+        "Language": true
+    }
+}
