@@ -59,6 +59,7 @@ def init_features(main_window):
     main_window.youtube_widget, main_window.youtube_controller = create_youtube_feature()
     main_window.youtube_widget.set_controller(main_window.youtube_controller)
     main_window.pinterest_widget, main_window.pinterest_controller = create_pinterest_feature()
+    main_window.pinterest_widget.set_controller(main_window.pinterest_controller)
     main_window.reddit_widget, main_window.reddit_controller = create_reddit_feature()
     main_window.snapchat_widget, main_window.snapchat_controller = create_snapchat_feature()
     main_window.tiktok_widget, main_window.tiktok_controller = create_tiktok_feature()
