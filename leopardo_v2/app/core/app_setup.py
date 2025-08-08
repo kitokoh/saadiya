@@ -14,6 +14,19 @@ from ..features.instances import create_instances_feature
 from ..features.premierepage import create_premierepage_feature
 from ..features.statistics import create_statistics_feature
 from ..features.facebook import create_facebook_feature
+from ..features.instagram import create_instagram_feature
+from ..features.linkedin import create_linkedin_feature
+from ..features.twitter import create_twitter_feature
+from ..features.youtube import create_youtube_feature
+from ..features.pinterest import create_pinterest_feature
+from ..features.reddit import create_reddit_feature
+from ..features.snapchat import create_snapchat_feature
+from ..features.tiktok import create_tiktok_feature
+from ..features.whasapping import create_whasapping_feature
+from ..features.autoblog import create_autoblog_feature
+from ..features.adspro import create_adspro_feature
+from ..features.branding import create_branding_feature
+from ..features.chatbot import create_chatbot_feature
 from ..features.placeholders import PlaceholderWidget
 from .decorators import pro_feature
 
@@ -36,6 +49,19 @@ def init_features(main_window):
     main_window.premierepage_widget, main_window.premierepage_controller = create_premierepage_feature()
     main_window.statistics_widget, main_window.statistics_controller = create_statistics_feature()
     main_window.facebook_widget, main_window.facebook_controller = create_facebook_feature()
+    main_window.instagram_widget, main_window.instagram_controller = create_instagram_feature()
+    main_window.linkedin_widget, main_window.linkedin_controller = create_linkedin_feature()
+    main_window.twitter_widget, main_window.twitter_controller = create_twitter_feature()
+    main_window.youtube_widget, main_window.youtube_controller = create_youtube_feature()
+    main_window.pinterest_widget, main_window.pinterest_controller = create_pinterest_feature()
+    main_window.reddit_widget, main_window.reddit_controller = create_reddit_feature()
+    main_window.snapchat_widget, main_window.snapchat_controller = create_snapchat_feature()
+    main_window.tiktok_widget, main_window.tiktok_controller = create_tiktok_feature()
+    main_window.whasapping_widget, main_window.whasapping_controller = create_whasapping_feature()
+    main_window.autoblog_widget, main_window.autoblog_controller = create_autoblog_feature()
+    main_window.adspro_widget, main_window.adspro_controller = create_adspro_feature()
+    main_window.branding_widget, main_window.branding_controller = create_branding_feature()
+    main_window.chatbot_widget, main_window.chatbot_controller = create_chatbot_feature()
 
     # Placeholders for new features
     main_window.my_media_widget = PlaceholderWidget("My Media")
@@ -74,6 +100,19 @@ def init_features(main_window):
     main_window.content_stack.addWidget(main_window.instances_widget)
     main_window.content_stack.addWidget(main_window.statistics_widget)
     main_window.content_stack.addWidget(main_window.facebook_widget)
+    main_window.content_stack.addWidget(main_window.instagram_widget)
+    main_window.content_stack.addWidget(main_window.linkedin_widget)
+    main_window.content_stack.addWidget(main_window.twitter_widget)
+    main_window.content_stack.addWidget(main_window.youtube_widget)
+    main_window.content_stack.addWidget(main_window.pinterest_widget)
+    main_window.content_stack.addWidget(main_window.reddit_widget)
+    main_window.content_stack.addWidget(main_window.snapchat_widget)
+    main_window.content_stack.addWidget(main_window.tiktok_widget)
+    main_window.content_stack.addWidget(main_window.whasapping_widget)
+    main_window.content_stack.addWidget(main_window.autoblog_widget)
+    main_window.content_stack.addWidget(main_window.adspro_widget)
+    main_window.content_stack.addWidget(main_window.branding_widget)
+    main_window.content_stack.addWidget(main_window.chatbot_widget)
     main_window.content_stack.addWidget(main_window.my_media_widget)
     main_window.content_stack.addWidget(main_window.my_groups_widget)
     main_window.content_stack.addWidget(main_window.marketing_robots_widget)
@@ -116,6 +155,19 @@ def connect_signals(main_window):
     main_window.side_menu.instances_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.instances_widget))
     main_window.side_menu.statistics_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.statistics_widget))
     main_window.side_menu.facebook_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.facebook_widget))
+    main_window.side_menu.instagram_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.instagram_widget))
+    main_window.side_menu.linkedin_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.linkedin_widget))
+    main_window.side_menu.twitter_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.twitter_widget))
+    main_window.side_menu.youtube_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.youtube_widget))
+    main_window.side_menu.pinterest_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.pinterest_widget))
+    main_window.side_menu.reddit_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.reddit_widget))
+    main_window.side_menu.snapchat_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.snapchat_widget))
+    main_window.side_menu.tiktok_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.tiktok_widget))
+    main_window.side_menu.whasapping_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.whasapping_widget))
+    main_window.side_menu.autoblog_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.autoblog_widget))
+    main_window.side_menu.adspro_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.adspro_widget))
+    main_window.side_menu.branding_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.branding_widget))
+    main_window.side_menu.chatbot_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.chatbot_widget))
 
     # Pro features
     connect_pro_features(main_window)

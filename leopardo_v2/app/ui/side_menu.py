@@ -112,6 +112,90 @@ class SideMenu(QFrame):
         self.facebook_button.setStyleSheet(self.home_button.styleSheet())
         self.main_layout.addWidget(self.facebook_button)
 
+        # Instagram Button
+        self.instagram_button = QPushButton("📷 Instagram")
+        self.instagram_button.setFixedHeight(40)
+        self.instagram_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.instagram_button)
+
+        # LinkedIn Button
+        self.linkedin_button = QPushButton("💼 LinkedIn")
+        self.linkedin_button.setFixedHeight(40)
+        self.linkedin_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.linkedin_button)
+
+        # Twitter Button
+        self.twitter_button = QPushButton("🐦 Twitter")
+        self.twitter_button.setFixedHeight(40)
+        self.twitter_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.twitter_button)
+
+        # YouTube Button
+        self.youtube_button = QPushButton("▶️ YouTube")
+        self.youtube_button.setFixedHeight(40)
+        self.youtube_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.youtube_button)
+
+        # Pinterest Button
+        self.pinterest_button = QPushButton("📌 Pinterest")
+        self.pinterest_button.setFixedHeight(40)
+        self.pinterest_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.pinterest_button)
+
+        # Reddit Button
+        self.reddit_button = QPushButton("🤖 Reddit")
+        self.reddit_button.setFixedHeight(40)
+        self.reddit_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.reddit_button)
+
+        # Snapchat Button
+        self.snapchat_button = QPushButton("👻 Snapchat")
+        self.snapchat_button.setFixedHeight(40)
+        self.snapchat_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.snapchat_button)
+
+        # TikTok Button
+        self.tiktok_button = QPushButton("🎵 TikTok")
+        self.tiktok_button.setFixedHeight(40)
+        self.tiktok_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.tiktok_button)
+
+        # Whasapping Button
+        self.whasapping_button = QPushButton("📱 Whasapping")
+        self.whasapping_button.setFixedHeight(40)
+        self.whasapping_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.whasapping_button)
+
+        # AutoBlog Button
+        self.autoblog_button = QPushButton("✍️ AutoBlog")
+        self.autoblog_button.setFixedHeight(40)
+        self.autoblog_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.autoblog_button)
+
+        # Ads Pro Button
+        self.adspro_button = QPushButton("📢 Ads Pro")
+        self.adspro_button.setFixedHeight(40)
+        self.adspro_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.adspro_button)
+
+        # Branding Button
+        self.branding_button = QPushButton("🎨 Branding")
+        self.branding_button.setFixedHeight(40)
+        self.branding_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.branding_button)
+
+        # ChatBot Button
+        self.chatbot_button = QPushButton("💬 ChatBot")
+        self.chatbot_button.setFixedHeight(40)
+        self.chatbot_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.chatbot_button)
+
+        # Emailing Button
+        self.emailing_button = QPushButton("📧 Emailing")
+        self.emailing_button.setFixedHeight(40)
+        self.emailing_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.emailing_button)
+
         # AI Agent Menu
         self.ai_agent_button = QPushButton("🤖 AI Agent")
         self.ai_agent_button.setFixedHeight(40)
