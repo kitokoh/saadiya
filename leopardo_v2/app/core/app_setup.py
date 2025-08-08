@@ -53,6 +53,7 @@ def init_features(main_window):
     main_window.instagram_widget, main_window.instagram_controller = create_instagram_feature()
     main_window.instagram_widget.set_controller(main_window.instagram_controller)
     main_window.linkedin_widget, main_window.linkedin_controller = create_linkedin_feature()
+    main_window.linkedin_widget.set_controller(main_window.linkedin_controller)
     main_window.twitter_widget, main_window.twitter_controller = create_twitter_feature()
     main_window.youtube_widget, main_window.youtube_controller = create_youtube_feature()
     main_window.pinterest_widget, main_window.pinterest_controller = create_pinterest_feature()
