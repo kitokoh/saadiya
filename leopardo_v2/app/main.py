@@ -66,7 +66,6 @@ class RefactoredApp(QMainWindow):
         super().__init__()
         self.setWindowTitle("Leopardo V2")
         self.setGeometry(100, 100, 1200, 800)
-
         self._init_core_services()
         self._init_ui_components()
         self._init_features()
@@ -105,7 +104,6 @@ class RefactoredApp(QMainWindow):
         self.main_layout = QVBoxLayout(central_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
-
         self.top_menu = TopMenu()
         self.main_layout.addWidget(self.top_menu)
 
@@ -228,7 +226,6 @@ class RefactoredApp(QMainWindow):
         self.side_menu.language_menu.actions()[2].triggered.connect(lambda: self.language_manager.switch_language('tr'))
         self.side_menu.language_menu.actions()[3].triggered.connect(lambda: self.language_manager.switch_language('ar'))
         self.side_menu.language_menu.actions()[4].triggered.connect(lambda: self.language_manager.switch_language('pt'))
-
         # User Profile
         self.side_menu.user_profile.login_button.clicked.connect(self.show_login_dialog)
         self.side_menu.user_profile.logout_button.clicked.connect(self.logout)
