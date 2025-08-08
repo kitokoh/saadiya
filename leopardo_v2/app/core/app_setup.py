@@ -65,6 +65,7 @@ def init_features(main_window):
     main_window.snapchat_widget, main_window.snapchat_controller = create_snapchat_feature()
     main_window.snapchat_widget.set_controller(main_window.snapchat_controller)
     main_window.tiktok_widget, main_window.tiktok_controller = create_tiktok_feature()
+    main_window.tiktok_widget.set_controller(main_window.tiktok_controller)
     main_window.whasapping_widget, main_window.whasapping_controller = create_whasapping_feature()
     main_window.autoblog_widget, main_window.autoblog_controller = create_autoblog_feature()
     main_window.adspro_widget, main_window.adspro_controller = create_adspro_feature()
