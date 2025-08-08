@@ -1,0 +1,162 @@
+"""
+This module contains the setup functions for the Leopardo V2 application.
+"""
+
+from ..features.home import create_home_feature
+from ..features.marketing import create_marketing_feature
+from ..features.sales import create_sales_feature
+from ..features.run import create_run_feature
+from ..features.finance import create_finance_feature
+from ..features.settings import create_settings_feature
+from ..features.tools import create_tools_feature
+from ..features.placeholders import PlaceholderWidget
+from .decorators import pro_feature
+
+def init_features(main_window):
+    """
+    Initializes the features of the application.
+
+    Args:
+        main_window: The main window of the application.
+    """
+    main_window.home_widget, main_window.home_controller = create_home_feature()
+    main_window.marketing_widget, main_window.marketing_controller = create_marketing_feature()
+    main_window.sales_widget, main_window.sales_controller = create_sales_feature()
+    main_window.run_widget, main_window.run_controller = create_run_feature()
+    main_window.finance_widget, main_window.finance_controller = create_finance_feature()
+    main_window.settings_widget, main_window.settings_controller = create_settings_feature()
+    main_window.tools_widget, main_window.tools_controller = create_tools_feature()
+
+    # Placeholders for new features
+    main_window.my_media_widget = PlaceholderWidget("My Media")
+    main_window.my_groups_widget = PlaceholderWidget("My Groups")
+    main_window.marketing_robots_widget = PlaceholderWidget("Marketing Robots")
+    main_window.ads_manager_widget = PlaceholderWidget("Ads Manager")
+    main_window.campaign_scheduler_widget = PlaceholderWidget("Campaign Scheduler")
+    main_window.email_sms_widget = PlaceholderWidget("Email & SMS")
+    main_window.content_generator_widget = PlaceholderWidget("Content Generator")
+    main_window.project_management_widget = PlaceholderWidget("Project Management")
+    main_window.sav_widget = PlaceholderWidget("SAV")
+    main_window.short_links_trackers_widget = PlaceholderWidget("Short Links & Trackers")
+    main_window.prospection_relances_widget = PlaceholderWidget("Prospection & Relances")
+    main_window.dms_quotes_widget = PlaceholderWidget("DMS & Quotes")
+    main_window.crm_widget = PlaceholderWidget("CRM")
+    main_window.sales_prompts_templates_widget = PlaceholderWidget("Sales Prompts / Templates")
+    main_window.auto_responder_widget = PlaceholderWidget("Auto-Responder")
+    main_window.sales_assistant_widget = PlaceholderWidget("Sales Assistant")
+    main_window.prompts_tools_widget = PlaceholderWidget("Prompts & Tools")
+    main_window.competitor_analysis_widget = PlaceholderWidget("Competitor Analysis")
+    main_window.assistant_ventes_widget = PlaceholderWidget("Assistant ventes")
+    main_window.ai_workflows_widget = PlaceholderWidget("AI Workflows")
+    main_window.invoices_billing_widget = PlaceholderWidget("Invoices & Billing")
+    main_window.trader_widget = PlaceholderWidget("Trader")
+
+    # Add widgets to the content stack
+    main_window.content_stack.addWidget(main_window.home_widget)
+    main_window.content_stack.addWidget(main_window.marketing_widget)
+    main_window.content_stack.addWidget(main_window.sales_widget)
+    main_window.content_stack.addWidget(main_window.run_widget)
+    main_window.content_stack.addWidget(main_window.finance_widget)
+    main_window.content_stack.addWidget(main_window.settings_widget)
+    main_window.content_stack.addWidget(main_window.tools_widget)
+    main_window.content_stack.addWidget(main_window.my_media_widget)
+    main_window.content_stack.addWidget(main_window.my_groups_widget)
+    main_window.content_stack.addWidget(main_window.marketing_robots_widget)
+    main_window.content_stack.addWidget(main_window.ads_manager_widget)
+    main_window.content_stack.addWidget(main_window.campaign_scheduler_widget)
+    main_window.content_stack.addWidget(main_window.email_sms_widget)
+    main_window.content_stack.addWidget(main_window.content_generator_widget)
+    main_window.content_stack.addWidget(main_window.project_management_widget)
+    main_window.content_stack.addWidget(main_window.sav_widget)
+    main_window.content_stack.addWidget(main_window.short_links_trackers_widget)
+    main_window.content_stack.addWidget(main_window.prospection_relances_widget)
+    main_window.content_stack.addWidget(main_window.dms_quotes_widget)
+    main_window.content_stack.addWidget(main_window.crm_widget)
+    main_window.content_stack.addWidget(main_window.sales_prompts_templates_widget)
+    main_window.content_stack.addWidget(main_window.auto_responder_widget)
+    main_window.content_stack.addWidget(main_window.sales_assistant_widget)
+    main_window.content_stack.addWidget(main_window.prompts_tools_widget)
+    main_window.content_stack.addWidget(main_window.competitor_analysis_widget)
+    main_window.content_stack.addWidget(main_window.assistant_ventes_widget)
+    main_window.content_stack.addWidget(main_window.ai_workflows_widget)
+    main_window.content_stack.addWidget(main_window.invoices_billing_widget)
+    main_window.content_stack.addWidget(main_window.trader_widget)
+
+def connect_signals(main_window):
+    """
+    Connects the signals of the application.
+
+    Args:
+        main_window: The main window of the application.
+    """
+    # Main menu
+    main_window.side_menu.home_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.home_widget))
+    main_window.side_menu.marketing_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.marketing_widget))
+    main_window.side_menu.sales_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.sales_widget))
+    main_window.side_menu.run_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.run_widget))
+    main_window.side_menu.anciens_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.tools_widget))
+
+    # Pro features
+    connect_pro_features(main_window)
+
+    # Marketing Menu
+    main_window.side_menu.marketing_menu.actions()[0].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.my_media_widget))
+    main_window.side_menu.marketing_menu.actions()[1].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.my_groups_widget))
+    main_window.side_menu.marketing_menu.actions()[2].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.marketing_robots_widget))
+    main_window.side_menu.marketing_menu.actions()[3].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.ads_manager_widget))
+    main_window.side_menu.marketing_menu.actions()[4].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.campaign_scheduler_widget))
+    main_window.side_menu.marketing_menu.actions()[5].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.email_sms_widget))
+    main_window.side_menu.marketing_menu.actions()[6].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.content_generator_widget))
+
+    # Sales Menu
+    main_window.side_menu.sales_menu.actions()[0].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.project_management_widget))
+    main_window.side_menu.sales_menu.actions()[1].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.sav_widget))
+    main_window.side_menu.sales_menu.actions()[2].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.short_links_trackers_widget))
+    main_window.side_menu.sales_menu.actions()[3].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.prospection_relances_widget))
+    main_window.side_menu.sales_menu.actions()[4].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.dms_quotes_widget))
+    main_window.side_menu.sales_menu.actions()[5].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.crm_widget))
+    main_window.side_menu.sales_menu.actions()[6].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.sales_prompts_templates_widget))
+
+    # Language switching
+    main_window.side_menu.language_menu.actions()[0].triggered.connect(lambda: main_window.language_manager.switch_language('en'))
+    main_window.side_menu.language_menu.actions()[1].triggered.connect(lambda: main_window.language_manager.switch_language('fr'))
+    main_window.side_menu.language_menu.actions()[2].triggered.connect(lambda: main_window.language_manager.switch_language('tr'))
+    main_window.side_menu.language_menu.actions()[3].triggered.connect(lambda: main_window.language_manager.switch_language('ar'))
+    main_window.side_menu.language_menu.actions()[4].triggered.connect(lambda: main_window.language_manager.switch_language('pt'))
+
+    # User Profile
+    main_window.side_menu.user_profile.login_button.clicked.connect(main_window.show_login_dialog)
+    main_window.side_menu.user_profile.logout_button.clicked.connect(main_window.logout)
+    main_window.side_menu.user_profile.enterprise_button.clicked.connect(main_window.switch_to_enterprise)
+    main_window.side_menu.user_profile.personal_button.clicked.connect(main_window.switch_to_personal)
+
+    # Menu Config
+    main_window.side_menu.menu_config_button.clicked.connect(main_window.show_menu_config_dialog)
+
+    # Top menu actions
+    main_window.top_menu.file_menu.addAction("Show Notification").triggered.connect(lambda: main_window.notification_service.show_notification("Test", "This is a test notification."))
+    main_window.top_menu.file_menu.addAction("Check for Updates").triggered.connect(main_window.updater_service.check_for_updates)
+
+@pro_feature("pro")
+def connect_pro_features(main_window):
+    """
+    Connects the signals of the pro features.
+
+    Args:
+        main_window: The main window of the application.
+    """
+    main_window.side_menu.ai_agent_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.prompts_tools_widget))
+    main_window.side_menu.finance_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.finance_widget))
+    main_window.side_menu.upgrade_button.clicked.connect(main_window.show_upgrade_window)
+
+    # AI Agent Menu
+    main_window.side_menu.ai_agent_menu.actions()[0].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.auto_responder_widget))
+    main_window.side_menu.ai_agent_menu.actions()[1].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.sales_assistant_widget))
+    main_window.side_menu.ai_agent_menu.actions()[2].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.prompts_tools_widget))
+    main_window.side_menu.ai_agent_menu.actions()[3].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.competitor_analysis_widget))
+    main_window.side_menu.ai_agent_menu.actions()[4].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.assistant_ventes_widget))
+    main_window.side_menu.ai_agent_menu.actions()[5].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.ai_workflows_widget))
+
+    # Finance Menu
+    main_window.side_menu.finance_menu.actions()[0].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.invoices_billing_widget))
+    main_window.side_menu.finance_menu.actions()[1].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.trader_widget))

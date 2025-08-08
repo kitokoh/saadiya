@@ -1,10 +1,20 @@
+"""
+Side menu of the Leopardo V2 application.
+"""
+
 import sys
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFrame, QMenu)
 from PyQt5.QtCore import Qt
 from .user_profile import UserProfile
 
 class SideMenu(QFrame):
+    """
+    The side menu of the application.
+    """
     def __init__(self, parent=None):
+        """
+        Initializes the side menu.
+        """
         super().__init__(parent)
         self.main_layout = QVBoxLayout(self)
         self.setLayout(self.main_layout)
@@ -42,12 +52,79 @@ class SideMenu(QFrame):
         """)
         self.main_layout.addWidget(self.home_button)
 
-        # Tools Menu
-        self.tools_button = QPushButton("🧰 Tools")
-        self.tools_button.setFixedHeight(40)
-        self.tools_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.tools_button)
-        self.tools_menu = QMenu()
+        # Marketing Menu
+        self.marketing_button = QPushButton("📈 Marketing")
+        self.marketing_button.setFixedHeight(40)
+        self.marketing_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.marketing_button)
+        self.marketing_menu = QMenu()
+        self.marketing_menu.addAction("My Media")
+        self.marketing_menu.addAction("My Groups")
+        self.marketing_menu.addAction("Marketing Robots")
+        self.marketing_menu.addAction("Ads Manager")
+        self.marketing_menu.addAction("Campaign Scheduler")
+        self.marketing_menu.addAction("Email & SMS")
+        self.marketing_menu.addAction("Content Generator")
+        self.marketing_button.setMenu(self.marketing_menu)
+
+        # Sales Menu
+        self.sales_button = QPushButton("💰 Sales")
+        self.sales_button.setFixedHeight(40)
+        self.sales_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.sales_button)
+        self.sales_menu = QMenu()
+        self.sales_menu.addAction("Project Management")
+        self.sales_menu.addAction("SAV")
+        self.sales_menu.addAction("Short Links & Trackers")
+        self.sales_menu.addAction("Prospection & Relances")
+        self.sales_menu.addAction("DMS & Quotes")
+        self.sales_menu.addAction("CRM")
+        self.sales_menu.addAction("Sales Prompts / Templates")
+        self.sales_button.setMenu(self.sales_menu)
+
+        # Run Button
+        self.run_button = QPushButton("▶️ Run")
+        self.run_button.setFixedHeight(40)
+        self.run_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.run_button)
+
+        # AI Agent Menu
+        self.ai_agent_button = QPushButton("🤖 AI Agent")
+        self.ai_agent_button.setFixedHeight(40)
+        self.ai_agent_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.ai_agent_button)
+        self.ai_agent_menu = QMenu()
+        self.ai_agent_menu.addAction("Auto-Responder")
+        self.ai_agent_menu.addAction("Sales Assistant")
+        self.ai_agent_menu.addAction("Prompts & Tools")
+        self.ai_agent_menu.addAction("Competitor Analysis")
+        self.ai_agent_menu.addAction("Assistant ventes")
+        self.ai_agent_menu.addAction("AI Workflows")
+        self.ai_agent_button.setMenu(self.ai_agent_menu)
+
+        # Finance Menu
+        self.finance_button = QPushButton("💵 Finance")
+        self.finance_button.setFixedHeight(40)
+        self.finance_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.finance_button)
+        self.finance_menu = QMenu()
+        self.finance_menu.addAction("Invoices & Billing")
+        self.finance_menu.addAction("Trader")
+        self.finance_button.setMenu(self.finance_menu)
+
+        # Upgrade Button
+        self.upgrade_button = QPushButton("💎 Upgrade")
+        self.upgrade_button.setFixedHeight(40)
+        self.upgrade_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.upgrade_button)
+
+        # Anciens Menu
+        self.anciens_button = QPushButton("📜 Anciens")
+        self.anciens_button.setFixedHeight(40)
+        self.anciens_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.anciens_button)
+        self.anciens_menu = QMenu()
+        self.tools_menu = self.anciens_menu.addMenu("🧰 Tools")
         self.tools_menu.addAction("Interconnexion")
         self.tools_menu.addAction("Add-On")
         self.tools_menu.addAction("Remote Control")
@@ -60,70 +137,34 @@ class SideMenu(QFrame):
         self.tools_menu.addAction("Contacts")
         self.tools_menu.addAction("Groups")
         self.tools_menu.addAction("Media")
-        self.tools_button.setMenu(self.tools_menu)
-
-        # Beta Feature Menu
-        self.beta_button = QPushButton("✨ Beta Feature")
-        self.beta_button.setFixedHeight(40)
-        self.beta_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.beta_button)
-        self.beta_menu = QMenu()
+        self.beta_menu = self.anciens_menu.addMenu("✨ Beta Feature")
         self.beta_menu.addAction("IA BETA")
         self.beta_menu.addAction("Licences")
-        self.beta_button.setMenu(self.beta_menu)
-
-        # Data Menu
-        self.data_button = QPushButton("💡 Data")
-        self.data_button.setFixedHeight(40)
-        self.data_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.data_button)
-        self.data_menu = QMenu()
+        self.data_menu = self.anciens_menu.addMenu("💡 Data")
         self.data_menu.addAction("Prompts")
         self.data_menu.addAction("Stats")
         self.data_menu.addAction("Strategies")
         self.data_menu.addAction("Import Data")
         self.data_menu.addAction("ADN Backup")
-        self.data_button.setMenu(self.data_menu)
-
-        # Support Menu
-        self.support_button = QPushButton("🆘 Support")
-        self.support_button.setFixedHeight(40)
-        self.support_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.support_button)
-        self.support_menu = QMenu()
+        self.support_menu = self.anciens_menu.addMenu("🆘 Support")
         self.support_menu.addAction("About")
         self.support_menu.addAction("Documents")
         self.support_menu.addAction("Contact")
-        self.support_button.setMenu(self.support_menu)
-
-        # Upgrade Button
-        self.upgrade_button = QPushButton("💎 Upgrade")
-        self.upgrade_button.setFixedHeight(40)
-        self.upgrade_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.upgrade_button)
-
-        # Settings Menu
-        self.settings_button = QPushButton("⚙️ Settings")
-        self.settings_button.setFixedHeight(40)
-        self.settings_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.settings_button)
-        self.settings_menu = QMenu()
+        self.settings_menu = self.anciens_menu.addMenu("⚙️ Settings")
         self.settings_menu.addAction("Vision")
         self.settings_menu.addAction("Com Interne")
         self.settings_menu.addAction("Com Externe")
         self.settings_menu.addAction("Instances")
         self.settings_menu.addAction("Installer")
         self.settings_menu.addAction("Add-On")
-        self.connection_menu = QMenu()
+        self.connection_menu = self.settings_menu.addMenu("Connection")
         self.connection_menu.addAction("SSH Connect")
         self.connection_menu.addAction("FTP Server")
         self.connection_menu.addAction("API Link")
         self.connection_menu.addAction("Remote Desktop")
         self.connection_menu.addAction("VPN Connect")
         self.connection_menu.addAction("AI Service")
-        self.settings_menu.addMenu(self.connection_menu)
-
-        self.archive_menu = QMenu("Archive")
+        self.archive_menu = self.settings_menu.addMenu("Archive")
         self.archive_menu.addAction("Local ZIP Archive")
         self.archive_menu.addAction("Google Drive")
         self.archive_menu.addAction("Dropbox")
@@ -131,9 +172,8 @@ class SideMenu(QFrame):
         self.archive_menu.addAction("SFTP Secure")
         self.archive_menu.addAction("External Disk")
         self.archive_menu.addAction("Schedule Backup")
-        self.settings_menu.addMenu(self.archive_menu)
+        self.anciens_button.setMenu(self.anciens_menu)
 
-        self.settings_button.setMenu(self.settings_menu)
         # Language Menu
         self.language_menu_button = QPushButton("🌍 Language")
         self.language_menu_button.setFixedHeight(40)
