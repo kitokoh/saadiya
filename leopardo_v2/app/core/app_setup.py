@@ -49,6 +49,7 @@ def init_features(main_window):
     main_window.premierepage_widget, main_window.premierepage_controller = create_premierepage_feature()
     main_window.statistics_widget, main_window.statistics_controller = create_statistics_feature()
     main_window.facebook_widget, main_window.facebook_controller = create_facebook_feature()
+    main_window.facebook_widget.set_controller(main_window.facebook_controller)
     main_window.instagram_widget, main_window.instagram_controller = create_instagram_feature()
     main_window.linkedin_widget, main_window.linkedin_controller = create_linkedin_feature()
     main_window.twitter_widget, main_window.twitter_controller = create_twitter_feature()
