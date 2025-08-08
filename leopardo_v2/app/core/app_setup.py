@@ -57,6 +57,7 @@ def init_features(main_window):
     main_window.twitter_widget, main_window.twitter_controller = create_twitter_feature()
     main_window.twitter_widget.set_controller(main_window.twitter_controller)
     main_window.youtube_widget, main_window.youtube_controller = create_youtube_feature()
+    main_window.youtube_widget.set_controller(main_window.youtube_controller)
     main_window.pinterest_widget, main_window.pinterest_controller = create_pinterest_feature()
     main_window.reddit_widget, main_window.reddit_controller = create_reddit_feature()
     main_window.snapchat_widget, main_window.snapchat_controller = create_snapchat_feature()
