@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import hashlib
 
-from ...components.widgets.finance_helpers import (DatabaseManager, MplCanvas, StrategyCard, DashboardHeader,
+from app.components.widgets.finance_helpers import (DatabaseManager, MplCanvas, StrategyCard, DashboardHeader,
                                                   MiningAlgorithm, MiningHardware, MiningStrategy,
                                                   TradingIndicator, TradingRule, TradingStrategy, COLORS)
 

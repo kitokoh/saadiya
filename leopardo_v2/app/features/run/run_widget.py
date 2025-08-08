@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, QFrame, QStackedWidget, QPushButton)
 from PyQt5.QtCore import Qt
-from ..components.ribbon_menu import RibbonMenu
+from app.components.widgets.ribbon_menu import RibbonMenu
 
 class RunWidget(QWidget):
     def __init__(self, parent=None):
