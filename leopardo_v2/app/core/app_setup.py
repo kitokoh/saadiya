@@ -9,6 +9,11 @@ from ..features.run import create_run_feature
 from ..features.finance import create_finance_feature
 from ..features.settings import create_settings_feature
 from ..features.tools import create_tools_feature
+from ..features.telecommande import create_telecommande_feature
+from ..features.instances import create_instances_feature
+from ..features.premierepage import create_premierepage_feature
+from ..features.statistics import create_statistics_feature
+from ..features.facebook import create_facebook_feature
 from ..features.placeholders import PlaceholderWidget
 from .decorators import pro_feature
 
@@ -26,6 +31,11 @@ def init_features(main_window):
     main_window.finance_widget, main_window.finance_controller = create_finance_feature()
     main_window.settings_widget, main_window.settings_controller = create_settings_feature()
     main_window.tools_widget, main_window.tools_controller = create_tools_feature()
+    main_window.telecommande_widget, main_window.telecommande_controller = create_telecommande_feature()
+    main_window.instances_widget, main_window.instances_controller = create_instances_feature()
+    main_window.premierepage_widget, main_window.premierepage_controller = create_premierepage_feature()
+    main_window.statistics_widget, main_window.statistics_controller = create_statistics_feature()
+    main_window.facebook_widget, main_window.facebook_controller = create_facebook_feature()
 
     # Placeholders for new features
     main_window.my_media_widget = PlaceholderWidget("My Media")
@@ -52,6 +62,7 @@ def init_features(main_window):
     main_window.trader_widget = PlaceholderWidget("Trader")
 
     # Add widgets to the content stack
+    main_window.content_stack.addWidget(main_window.premierepage_widget)
     main_window.content_stack.addWidget(main_window.home_widget)
     main_window.content_stack.addWidget(main_window.marketing_widget)
     main_window.content_stack.addWidget(main_window.sales_widget)
@@ -59,6 +70,10 @@ def init_features(main_window):
     main_window.content_stack.addWidget(main_window.finance_widget)
     main_window.content_stack.addWidget(main_window.settings_widget)
     main_window.content_stack.addWidget(main_window.tools_widget)
+    main_window.content_stack.addWidget(main_window.telecommande_widget)
+    main_window.content_stack.addWidget(main_window.instances_widget)
+    main_window.content_stack.addWidget(main_window.statistics_widget)
+    main_window.content_stack.addWidget(main_window.facebook_widget)
     main_window.content_stack.addWidget(main_window.my_media_widget)
     main_window.content_stack.addWidget(main_window.my_groups_widget)
     main_window.content_stack.addWidget(main_window.marketing_robots_widget)
@@ -82,6 +97,8 @@ def init_features(main_window):
     main_window.content_stack.addWidget(main_window.invoices_billing_widget)
     main_window.content_stack.addWidget(main_window.trader_widget)
 
+    main_window.content_stack.setCurrentWidget(main_window.premierepage_widget)
+
 def connect_signals(main_window):
     """
     Connects the signals of the application.
@@ -95,6 +112,10 @@ def connect_signals(main_window):
     main_window.side_menu.sales_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.sales_widget))
     main_window.side_menu.run_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.run_widget))
     main_window.side_menu.anciens_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.tools_widget))
+    main_window.side_menu.telecommande_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.telecommande_widget))
+    main_window.side_menu.instances_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.instances_widget))
+    main_window.side_menu.statistics_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.statistics_widget))
+    main_window.side_menu.facebook_button.clicked.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.facebook_widget))
 
     # Pro features
     connect_pro_features(main_window)

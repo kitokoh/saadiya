@@ -88,6 +88,30 @@ class SideMenu(QFrame):
         self.run_button.setStyleSheet(self.home_button.styleSheet())
         self.main_layout.addWidget(self.run_button)
 
+        # Telecommande Button
+        self.telecommande_button = QPushButton("📡 Telecommande")
+        self.telecommande_button.setFixedHeight(40)
+        self.telecommande_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.telecommande_button)
+
+        # Instances Button
+        self.instances_button = QPushButton("🖥️ Instances")
+        self.instances_button.setFixedHeight(40)
+        self.instances_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.instances_button)
+
+        # Statistics Button
+        self.statistics_button = QPushButton("📊 Statistics")
+        self.statistics_button.setFixedHeight(40)
+        self.statistics_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.statistics_button)
+
+        # Facebook Button
+        self.facebook_button = QPushButton("👍 Facebook")
+        self.facebook_button.setFixedHeight(40)
+        self.facebook_button.setStyleSheet(self.home_button.styleSheet())
+        self.main_layout.addWidget(self.facebook_button)
+
         # AI Agent Menu
         self.ai_agent_button = QPushButton("🤖 AI Agent")
         self.ai_agent_button.setFixedHeight(40)
