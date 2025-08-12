@@ -1,29 +1,64 @@
+import sqlite3
 import pandas as pd
+from ...core.database import get_db_path
 
 class ContactsModel:
     def __init__(self):
-        self.contacts = pd.DataFrame(columns=['Name', 'Email', 'Phone'])
-        self._load_initial_data()
+        self.db_path = get_db_path()
+        self._create_table_if_not_exists()
 
-    def _load_initial_data(self):
-        # Initial data for demonstration
-        data = [
-            {'Name': 'John Doe', 'Email': 'john.doe@example.com', 'Phone': '123-456-7890'},
-            {'Name': 'Jane Smith', 'Email': 'jane.smith@example.com', 'Phone': '098-765-4321'}
-        ]
-        self.contacts = pd.DataFrame(data)
+    def _create_table_if_not_exists(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS contacts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT,
+                phone TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
 
     def get_contacts(self):
-        return self.contacts
+        conn = sqlite3.connect(self.db_path)
+        query = "SELECT name, email, phone FROM contacts"
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+        return df
 
     def add_contact(self, name, email, phone):
-        new_contact = pd.DataFrame([{'Name': name, 'Email': email, 'Phone': phone}])
-        self.contacts = pd.concat([self.contacts, new_contact], ignore_index=True)
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO contacts (name, email, phone) VALUES (?, ?, ?)", (name, email, phone))
+        conn.commit()
+        conn.close()
 
     def update_contact(self, index, name, email, phone):
-        if 0 <= index < len(self.contacts):
-            self.contacts.loc[index] = [name, email, phone]
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        # To update by index, we need a reliable way to identify the row.
+        # Assuming 'index' corresponds to the rowid or a specific query result order.
+        # A more robust way would be to use a unique ID.
+        # For this example, we'll fetch the id based on the index.
+        cursor.execute("SELECT id FROM contacts LIMIT 1 OFFSET ?", (index,))
+        row = cursor.fetchone()
+        if row:
+            contact_id = row[0]
+            cursor.execute("UPDATE contacts SET name=?, email=?, phone=? WHERE id=?", (name, email, phone, contact_id))
+            conn.commit()
+        conn.close()
 
     def delete_contact(self, index):
-        if 0 <= index < len(self.contacts):
-            self.contacts = self.contacts.drop(index).reset_index(drop=True)
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        # Similar to update, we need a reliable way to identify the row to delete.
+        cursor.execute("SELECT id FROM contacts LIMIT 1 OFFSET ?", (index,))
+        row = cursor.fetchone()
+        if row:
+            contact_id = row[0]
+            cursor.execute("DELETE FROM contacts WHERE id=?", (contact_id,))
+            conn.commit()
+        conn.close()
+

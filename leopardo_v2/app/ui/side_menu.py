@@ -3,7 +3,7 @@ Side menu of the Leopardo V2 application.
 """
 
 import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFrame, QMenu)
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFrame, QMenu, QScrollArea)
 from PyQt5.QtCore import Qt
 from .user_profile import UserProfile
 
@@ -32,6 +32,17 @@ class SideMenu(QFrame):
         title.setStyleSheet("font-size: 18px; font-weight: bold; color: #7AA2F7; padding: 10px;")
         self.main_layout.addWidget(title)
 
+        # Scroll Area
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setStyleSheet("QScrollArea { border: none; }")
+        self.main_layout.addWidget(self.scroll_area)
+
+        self.scroll_content = QWidget()
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_area.setWidget(self.scroll_content)
+
+
         # Home Button
         self.home_button = QPushButton("🏠 Home")
         self.home_button.setFixedHeight(40)
@@ -50,13 +61,13 @@ class SideMenu(QFrame):
                 color: #FFFFFF;
             }
         """)
-        self.main_layout.addWidget(self.home_button)
+        self.scroll_layout.addWidget(self.home_button)
 
         # Marketing Menu
         self.marketing_button = QPushButton("📈 Marketing")
         self.marketing_button.setFixedHeight(40)
         self.marketing_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.marketing_button)
+        self.scroll_layout.addWidget(self.marketing_button)
         self.marketing_menu = QMenu()
         self.marketing_menu.addAction("My Media")
         self.marketing_menu.addAction("My Groups")
@@ -71,7 +82,7 @@ class SideMenu(QFrame):
         self.sales_button = QPushButton("💰 Sales")
         self.sales_button.setFixedHeight(40)
         self.sales_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.sales_button)
+        self.scroll_layout.addWidget(self.sales_button)
         self.sales_menu = QMenu()
         self.sales_menu.addAction("Project Management")
         self.sales_menu.addAction("SAV")
@@ -86,127 +97,126 @@ class SideMenu(QFrame):
         self.run_button = QPushButton("▶️ Run")
         self.run_button.setFixedHeight(40)
         self.run_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.run_button)
+        self.scroll_layout.addWidget(self.run_button)
 
         # Telecommande Button
         self.telecommande_button = QPushButton("📡 Telecommande")
         self.telecommande_button.setFixedHeight(40)
         self.telecommande_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.telecommande_button)
+        self.scroll_layout.addWidget(self.telecommande_button)
 
         # Instances Button
         self.instances_button = QPushButton("🖥️ Instances")
         self.instances_button.setFixedHeight(40)
         self.instances_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.instances_button)
+        self.scroll_layout.addWidget(self.instances_button)
 
         # Statistics Button
         self.statistics_button = QPushButton("📊 Statistics")
         self.statistics_button.setFixedHeight(40)
         self.statistics_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.statistics_button)
+        self.scroll_layout.addWidget(self.statistics_button)
 
         # Facebook Button
         self.facebook_button = QPushButton("👍 Facebook")
         self.facebook_button.setFixedHeight(40)
         self.facebook_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.facebook_button)
+        self.scroll_layout.addWidget(self.facebook_button)
 
         # Instagram Button
         self.instagram_button = QPushButton("📷 Instagram")
         self.instagram_button.setFixedHeight(40)
         self.instagram_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.instagram_button)
+        self.scroll_layout.addWidget(self.instagram_button)
 
         # LinkedIn Button
         self.linkedin_button = QPushButton("💼 LinkedIn")
         self.linkedin_button.setFixedHeight(40)
         self.linkedin_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.linkedin_button)
+        self.scroll_layout.addWidget(self.linkedin_button)
 
         # Twitter Button
         self.twitter_button = QPushButton("🐦 Twitter")
         self.twitter_button.setFixedHeight(40)
         self.twitter_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.twitter_button)
+        self.scroll_layout.addWidget(self.twitter_button)
 
         # YouTube Button
         self.youtube_button = QPushButton("▶️ YouTube")
         self.youtube_button.setFixedHeight(40)
         self.youtube_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.youtube_button)
+        self.scroll_layout.addWidget(self.youtube_button)
 
         # Pinterest Button
         self.pinterest_button = QPushButton("📌 Pinterest")
         self.pinterest_button.setFixedHeight(40)
         self.pinterest_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.pinterest_button)
+        self.scroll_layout.addWidget(self.pinterest_button)
 
         # Reddit Button
         self.reddit_button = QPushButton("🤖 Reddit")
         self.reddit_button.setFixedHeight(40)
         self.reddit_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.reddit_button)
+        self.scroll_layout.addWidget(self.reddit_button)
 
         # Snapchat Button
         self.snapchat_button = QPushButton("👻 Snapchat")
         self.snapchat_button.setFixedHeight(40)
         self.snapchat_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.snapchat_button)
+        self.scroll_layout.addWidget(self.snapchat_button)
 
         # TikTok Button
         self.tiktok_button = QPushButton("🎵 TikTok")
         self.tiktok_button.setFixedHeight(40)
         self.tiktok_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.tiktok_button)
+        self.scroll_layout.addWidget(self.tiktok_button)
 
         # Whasapping Button
         self.whasapping_button = QPushButton("📱 Whasapping")
         self.whasapping_button.setFixedHeight(40)
         self.whasapping_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.whasapping_button)
+        self.scroll_layout.addWidget(self.whasapping_button)
 
         # AutoBlog Button
         self.autoblog_button = QPushButton("✍️ AutoBlog")
         self.autoblog_button.setFixedHeight(40)
         self.autoblog_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.autoblog_button)
+        self.scroll_layout.addWidget(self.autoblog_button)
 
         # Ads Pro Button
         self.adspro_button = QPushButton("📢 Ads Pro")
         self.adspro_button.setFixedHeight(40)
         self.adspro_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.adspro_button)
+        self.scroll_layout.addWidget(self.adspro_button)
 
         # Branding Button
         self.branding_button = QPushButton("🎨 Branding")
         self.branding_button.setFixedHeight(40)
         self.branding_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.branding_button)
+        self.scroll_layout.addWidget(self.branding_button)
 
         # ChatBot Button
         self.chatbot_button = QPushButton("💬 ChatBot")
         self.chatbot_button.setFixedHeight(40)
         self.chatbot_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.chatbot_button)
+        self.scroll_layout.addWidget(self.chatbot_button)
 
         # Emailing Button
         self.emailing_button = QPushButton("📧 Emailing")
         self.emailing_button.setFixedHeight(40)
         self.emailing_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.emailing_button)
+        self.scroll_layout.addWidget(self.emailing_button)
 
         # AI Agent Menu
         self.ai_agent_button = QPushButton("🤖 AI Agent")
         self.ai_agent_button.setFixedHeight(40)
         self.ai_agent_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.ai_agent_button)
+        self.scroll_layout.addWidget(self.ai_agent_button)
         self.ai_agent_menu = QMenu()
         self.ai_agent_menu.addAction("Auto-Responder")
         self.ai_agent_menu.addAction("Sales Assistant")
         self.ai_agent_menu.addAction("Prompts & Tools")
         self.ai_agent_menu.addAction("Competitor Analysis")
-        self.ai_agent_menu.addAction("Assistant ventes")
         self.ai_agent_menu.addAction("AI Workflows")
         self.ai_agent_button.setMenu(self.ai_agent_menu)
 
@@ -214,7 +224,7 @@ class SideMenu(QFrame):
         self.finance_button = QPushButton("💵 Finance")
         self.finance_button.setFixedHeight(40)
         self.finance_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.finance_button)
+        self.scroll_layout.addWidget(self.finance_button)
         self.finance_menu = QMenu()
         self.finance_menu.addAction("Invoices & Billing")
         self.finance_menu.addAction("Trader")
@@ -224,13 +234,13 @@ class SideMenu(QFrame):
         self.upgrade_button = QPushButton("💎 Upgrade")
         self.upgrade_button.setFixedHeight(40)
         self.upgrade_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.upgrade_button)
+        self.scroll_layout.addWidget(self.upgrade_button)
 
         # Anciens Menu
         self.anciens_button = QPushButton("📜 Anciens")
         self.anciens_button.setFixedHeight(40)
         self.anciens_button.setStyleSheet(self.home_button.styleSheet())
-        self.main_layout.addWidget(self.anciens_button)
+        self.scroll_layout.addWidget(self.anciens_button)
         self.anciens_menu = QMenu()
         self.tools_menu = self.anciens_menu.addMenu("🧰 Tools")
         self.tools_menu.addAction("Interconnexion")
@@ -294,9 +304,9 @@ class SideMenu(QFrame):
         self.language_menu.addAction("العربية")
         self.language_menu.addAction("Português")
         self.language_menu_button.setMenu(self.language_menu)
-        self.main_layout.addWidget(self.language_menu_button)
+        self.scroll_layout.addWidget(self.language_menu_button)
 
-        self.main_layout.addStretch()
+        self.scroll_layout.addStretch()
 
         # Menu Config Button
         self.menu_config_button = QPushButton("⚙️ MENU")
