@@ -61,3 +61,4 @@ class ContactsModel:
             cursor.execute("DELETE FROM contacts WHERE id=?", (contact_id,))
             conn.commit()
         conn.close()
+

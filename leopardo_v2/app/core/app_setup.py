@@ -52,6 +52,7 @@ from ..features.short_links import create_short_links_feature
 from ..features.prospection import create_prospection_feature
 from ..features.sales_templates import create_sales_templates_feature
 from ..features.prompts_tools import create_prompts_tools_feature
+
 from ..features.placeholders import PlaceholderWidget
 from .decorators import pro_feature
 
@@ -276,6 +277,7 @@ def connect_pro_features(main_window):
     main_window.side_menu.ai_agent_menu.actions()[2].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.prompts_tools_widget))
     main_window.side_menu.ai_agent_menu.actions()[3].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.competitor_analysis_widget))
     main_window.side_menu.ai_agent_menu.actions()[4].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.ai_workflows_widget))
+
 
     # Finance Menu
     main_window.side_menu.finance_menu.actions()[0].triggered.connect(lambda: main_window.finance_widget.content_stack.setCurrentWidget(main_window.invoices_billing_widget))
