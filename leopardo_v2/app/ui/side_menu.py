@@ -217,7 +217,6 @@ class SideMenu(QFrame):
         self.ai_agent_menu.addAction("Sales Assistant")
         self.ai_agent_menu.addAction("Prompts & Tools")
         self.ai_agent_menu.addAction("Competitor Analysis")
-        self.ai_agent_menu.addAction("Assistant ventes")
         self.ai_agent_menu.addAction("AI Workflows")
         self.ai_agent_button.setMenu(self.ai_agent_menu)
 

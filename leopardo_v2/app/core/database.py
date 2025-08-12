@@ -59,6 +59,54 @@ def init_data_db():
         )
     ''')
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sav (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT NOT NULL,
+            issue_description TEXT NOT NULL,
+            status TEXT DEFAULT 'Open',
+            creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS short_links (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            original_url TEXT NOT NULL,
+            short_code TEXT NOT NULL UNIQUE,
+            click_count INTEGER DEFAULT 0,
+            creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS prospection (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            prospect_name TEXT NOT NULL,
+            contact_info TEXT,
+            status TEXT DEFAULT 'New',
+            last_follow_up DATE,
+            notes TEXT
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sales_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS prompts_tools (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            prompt TEXT NOT NULL,
+            category TEXT
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
