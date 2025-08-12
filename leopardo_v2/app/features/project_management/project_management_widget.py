@@ -30,9 +30,9 @@ class ProjectManagementWidget(QWidget):
     def populate_table(self, projects):
         self.table.setRowCount(len(projects))
         for i, row in projects.iterrows():
-            self.table.setItem(i, 0, QTableWidgetItem(row['Name']))
-            self.table.setItem(i, 1, QTableWidgetItem(row['Description']))
-            self.table.setItem(i, 2, QTableWidgetItem(row['Status']))
+            self.table.setItem(i, 0, QTableWidgetItem(row['name']))
+            self.table.setItem(i, 1, QTableWidgetItem(row['description']))
+            self.table.setItem(i, 2, QTableWidgetItem(row['status']))
 
     def get_selected_project_index(self):
         selected_items = self.table.selectedItems()
@@ -46,14 +46,14 @@ class ProjectManagementWidget(QWidget):
 
         form_layout = QFormLayout(dialog)
 
-        name_input = QLineEdit(project_data['Name'] if project_data is not None else "")
-        description_input = QLineEdit(project_data['Description'] if project_data is not None else "")
+        name_input = QLineEdit(project_data['name'] if project_data is not None else "")
+        description_input = QLineEdit(project_data['description'] if project_data is not None else "")
 
         status_input = QComboBox()
         statuses = ["Not Started", "In Progress", "Completed", "On Hold"]
         status_input.addItems(statuses)
         if project_data is not None:
-            status_input.setCurrentText(project_data['Status'])
+            status_input.setCurrentText(project_data['status'])
 
         form_layout.addRow("Name:", name_input)
         form_layout.addRow("Description:", description_input)

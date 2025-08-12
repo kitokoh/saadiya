@@ -31,9 +31,9 @@ class DmsWidget(QWidget):
     def populate_table(self, documents):
         self.table.setRowCount(len(documents))
         for i, row in documents.iterrows():
-            self.table.setItem(i, 0, QTableWidgetItem(row['Title']))
-            self.table.setItem(i, 1, QTableWidgetItem(row['Type']))
-            self.table.setItem(i, 2, QTableWidgetItem(row['Path']))
+            self.table.setItem(i, 0, QTableWidgetItem(row['title']))
+            self.table.setItem(i, 1, QTableWidgetItem(row['type']))
+            self.table.setItem(i, 2, QTableWidgetItem(row['path']))
 
     def get_selected_document_index(self):
         selected_items = self.table.selectedItems()
@@ -47,15 +47,15 @@ class DmsWidget(QWidget):
 
         form_layout = QFormLayout(dialog)
 
-        title_input = QLineEdit(document_data['Title'] if document_data is not None else "")
+        title_input = QLineEdit(document_data['title'] if document_data is not None else "")
 
         type_input = QComboBox()
         types = ["Quote", "Contract", "Invoice", "Other"]
         type_input.addItems(types)
         if document_data is not None:
-            type_input.setCurrentText(document_data['Type'])
+            type_input.setCurrentText(document_data['type'])
 
-        path_input = QLineEdit(document_data['Path'] if document_data is not None else "")
+        path_input = QLineEdit(document_data['path'] if document_data is not None else "")
         path_button = QPushButton("Browse...")
         path_button.clicked.connect(lambda: self.browse_file(path_input))
 

@@ -30,10 +30,10 @@ class CrmWidget(QWidget):
     def populate_table(self, customers):
         self.table.setRowCount(len(customers))
         for i, row in customers.iterrows():
-            self.table.setItem(i, 0, QTableWidgetItem(row['Name']))
-            self.table.setItem(i, 1, QTableWidgetItem(row['Email']))
-            self.table.setItem(i, 2, QTableWidgetItem(row['Phone']))
-            self.table.setItem(i, 3, QTableWidgetItem(row['Status']))
+            self.table.setItem(i, 0, QTableWidgetItem(row['name']))
+            self.table.setItem(i, 1, QTableWidgetItem(row['email']))
+            self.table.setItem(i, 2, QTableWidgetItem(row['phone']))
+            self.table.setItem(i, 3, QTableWidgetItem(row['status']))
 
     def get_selected_customer_index(self):
         selected_items = self.table.selectedItems()
@@ -47,15 +47,15 @@ class CrmWidget(QWidget):
 
         form_layout = QFormLayout(dialog)
 
-        name_input = QLineEdit(customer_data['Name'] if customer_data is not None else "")
-        email_input = QLineEdit(customer_data['Email'] if customer_data is not None else "")
-        phone_input = QLineEdit(customer_data['Phone'] if customer_data is not None else "")
+        name_input = QLineEdit(customer_data['name'] if customer_data is not None else "")
+        email_input = QLineEdit(customer_data['email'] if customer_data is not None else "")
+        phone_input = QLineEdit(customer_data['phone'] if customer_data is not None else "")
 
         status_input = QComboBox()
         statuses = ["Lead", "Contacted", "Proposal", "Negotiation", "Won", "Lost"]
         status_input.addItems(statuses)
         if customer_data is not None:
-            status_input.setCurrentText(customer_data['Status'])
+            status_input.setCurrentText(customer_data['status'])
 
 
         form_layout.addRow("Name:", name_input)
