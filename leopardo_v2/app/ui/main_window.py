@@ -3,8 +3,9 @@ Main window of the Leopardo V2 application.
 """
 
 import sys
-from PyQt5.QtCore import Qt, QCoreApplication, QTimer
+from PyQt5.QtCore import Qt, QCoreApplication, QTimer, QUrl
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QMessageBox
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 # Local application imports
 from .splash_screen import SplashScreen
@@ -21,6 +22,10 @@ from ..services.service_container import container
 from .dialogs.menu_config_dialog import MenuConfigDialog
 from ..core.app_setup import init_features, connect_signals
 from ..features.upgrade.upgrade_window import SpecialOfferWindow
+from ..features.marketing_dashboard.marketing_dashboard_widget import MarketingDashboardWidget
+from ..features.sales_dashboard.sales_dashboard_widget import SalesDashboardWidget
+from ..features.finance_dashboard.finance_dashboard_widget import FinanceDashboardWidget
+from ..features.management_dashboard.management_dashboard_widget import ManagementDashboardWidget
 
 
 class MainWindow(QMainWindow):
@@ -40,12 +45,12 @@ class MainWindow(QMainWindow):
         self._init_core_services()
         self._init_ui_components()
         init_features(self)
-        connect_signals(self)
+        self._connect_signals()
 
         # Perform initial checks
         self.check_login()
         self.updater_service.check_for_updates()
-        self.update_menu_visibility()
+        self.test_notification()
 
     def _init_core_services(self):
         """
@@ -65,13 +70,11 @@ class MainWindow(QMainWindow):
 
         # Load menu configuration
         self.menu_config = self.config_service.get('menu_config', {
-            'Tools': True,
-            'Beta Feature': True,
-            'Data': True,
-            'Support': True,
-            'Upgrade': True,
-            'Settings': True,
-            'Language': True
+            'Marketing Dashboard': True,
+            'Sales Dashboard': True,
+            'Finance Dashboard': True,
+            'Management Dashboard': True,
+            'Presence Plan': True,
         })
 
     def _init_ui_components(self):
@@ -95,14 +98,80 @@ class MainWindow(QMainWindow):
         # Side menu
         self.side_menu = SideMenu()
         self.main_content.addWidget(self.side_menu)
+        self.notification_service.add_badge("marketing_dashboard", self.side_menu.marketing_dashboard_button)
+
 
         # Content stack to hold the different feature widgets
         self.content_stack = QStackedWidget()
         self.main_content.addWidget(self.content_stack)
 
+        # Add MarketingDashboardWidget to the stack
+        self.marketing_dashboard_widget = MarketingDashboardWidget()
+        self.content_stack.addWidget(self.marketing_dashboard_widget)
+
+        # Add SalesDashboardWidget to the stack
+        self.sales_dashboard_widget = SalesDashboardWidget()
+        self.content_stack.addWidget(self.sales_dashboard_widget)
+
+        # Add FinanceDashboardWidget to the stack
+        self.finance_dashboard_widget = FinanceDashboardWidget()
+        self.content_stack.addWidget(self.finance_dashboard_widget)
+
+        # Add ManagementDashboardWidget to the stack
+        self.management_dashboard_widget = ManagementDashboardWidget()
+        self.content_stack.addWidget(self.management_dashboard_widget)
+
+        # Add QWebEngineView for the presence plan
+        self.presence_plan_view = QWebEngineView()
+        self.presence_plan_view.setUrl(QUrl("https://leopardo-ai.web.app/"))
+        self.content_stack.addWidget(self.presence_plan_view)
+
         # Status bar
         self.status_bar = StatusBar()
         self.setStatusBar(self.status_bar)
+
+    def _connect_signals(self):
+        """
+        Connects the signals from the UI components to the main window slots.
+        """
+        connect_signals(self)
+        self.side_menu.marketing_dashboard_requested.connect(self.show_marketing_dashboard)
+        self.side_menu.sales_dashboard_requested.connect(self.show_sales_dashboard)
+        self.side_menu.finance_dashboard_requested.connect(self.show_finance_dashboard)
+        self.side_menu.management_dashboard_requested.connect(self.show_management_dashboard)
+        self.side_menu.presence_plan_requested.connect(self.show_presence_plan)
+
+    def show_marketing_dashboard(self):
+        """
+        Shows the marketing dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.marketing_dashboard_widget)
+        self.notification_service.set_badge_count("marketing_dashboard", 0)
+
+
+    def show_sales_dashboard(self):
+        """
+        Shows the sales dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.sales_dashboard_widget)
+
+    def show_finance_dashboard(self):
+        """
+        Shows the finance dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.finance_dashboard_widget)
+
+    def show_management_dashboard(self):
+        """
+        Shows the management dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.management_dashboard_widget)
+
+    def show_presence_plan(self):
+        """
+        Shows the presence plan web page.
+        """
+        self.content_stack.setCurrentWidget(self.presence_plan_view)
 
     def check_login(self):
         """
@@ -110,6 +179,8 @@ class MainWindow(QMainWindow):
         """
         if not self.auth_service.is_logged_in:
             self.show_login_dialog()
+        self.update_menu_visibility()
+
 
     def show_login_dialog(self):
         """
@@ -124,7 +195,6 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "Login Failed", "Invalid username or password.")
                 self.show_login_dialog()
         else:
-            # Close the application if the user cancels the login dialog
             if not self.auth_service.is_logged_in:
                 self.close()
 
@@ -147,14 +217,14 @@ class MainWindow(QMainWindow):
         """
         Switches the user to enterprise mode.
         """
-        self.auth_service.is_enterprise_mode = True
+        self.auth_service.is_enterprise = True
         self.update_user_profile()
 
     def switch_to_personal(self):
         """
         Switches the user to personal mode.
         """
-        self.auth_service.is_enterprise_mode = False
+        self.auth_service.is_enterprise = False
         self.update_user_profile()
 
     def update_user_profile(self):
@@ -165,14 +235,15 @@ class MainWindow(QMainWindow):
             self.side_menu.user_profile.user_button.setText(f"👤 {self.auth_service.current_user}")
             self.side_menu.user_profile.login_button.setVisible(False)
             self.side_menu.user_profile.logout_button.setVisible(True)
-            self.side_menu.user_profile.enterprise_button.setVisible(not self.auth_service.is_enterprise_mode)
-            self.side_menu.user_profile.personal_button.setVisible(self.auth_service.is_enterprise_mode)
+            self.side_menu.user_profile.enterprise_button.setVisible(not self.auth_service.is_enterprise)
+            self.side_menu.user_profile.personal_button.setVisible(self.auth_service.is_enterprise)
         else:
             self.side_menu.user_profile.user_button.setText("👤 Guest")
             self.side_menu.user_profile.login_button.setVisible(True)
             self.side_menu.user_profile.logout_button.setVisible(False)
             self.side_menu.user_profile.enterprise_button.setVisible(False)
             self.side_menu.user_profile.personal_button.setVisible(False)
+        self.update_menu_visibility()
 
     def show_menu_config_dialog(self):
         """
@@ -186,13 +257,27 @@ class MainWindow(QMainWindow):
 
     def update_menu_visibility(self):
         """
-        Updates the visibility of the menu items based on the menu configuration.
+        Updates the visibility of the menu items based on the menu configuration and user access level.
         """
-        self.side_menu.marketing_button.setVisible(self.menu_config.get('Marketing', True))
-        self.side_menu.sales_button.setVisible(self.menu_config.get('Sales', True))
-        self.side_menu.run_button.setVisible(self.menu_config.get('Run', True))
-        self.side_menu.ai_agent_button.setVisible(self.menu_config.get('AI Agent', True))
-        self.side_menu.finance_button.setVisible(self.menu_config.get('Finance', True))
-        self.side_menu.upgrade_button.setVisible(self.menu_config.get('Upgrade', True))
-        self.side_menu.anciens_button.setVisible(self.menu_config.get('Anciens', True))
-        self.side_menu.language_menu_button.setVisible(self.menu_config.get('Language', True))
+        self.side_menu.marketing_dashboard_button.setVisible(
+            self.menu_config.get('Marketing Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.sales_dashboard_button.setVisible(
+            self.menu_config.get('Sales Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.finance_dashboard_button.setVisible(
+            self.menu_config.get('Finance Dashboard', True) and self.auth_service.has_access('enterprise')
+        )
+        self.side_menu.management_dashboard_button.setVisible(
+            self.menu_config.get('Management Dashboard', True) and self.auth_service.has_access('enterprise')
+        )
+        self.side_menu.presence_plan_button.setVisible(
+            self.menu_config.get('Presence Plan', True)
+        )
+
+    def test_notification(self):
+        """
+        Tests the notification service.
+        """
+        self.notification_service.set_badge_count("marketing_dashboard", 5)
+        self.notification_service.show_notification("Test Notification", "This is a test notification.")

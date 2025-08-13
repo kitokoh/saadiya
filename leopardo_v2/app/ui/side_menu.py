@@ -4,13 +4,20 @@ Side menu of the Leopardo V2 application.
 
 import sys
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QFrame, QMenu, QScrollArea)
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from .user_profile import UserProfile
+from .notification_badge import NotificationBadge
 
 class SideMenu(QFrame):
     """
     The side menu of the application.
     """
+    marketing_dashboard_requested = pyqtSignal()
+    presence_plan_requested = pyqtSignal()
+    sales_dashboard_requested = pyqtSignal()
+    finance_dashboard_requested = pyqtSignal()
+    management_dashboard_requested = pyqtSignal()
+
     def __init__(self, parent=None):
         """
         Initializes the side menu.
@@ -62,6 +69,42 @@ class SideMenu(QFrame):
             }
         """)
         self.scroll_layout.addWidget(self.home_button)
+
+        # Marketing Dashboard Button
+        self.marketing_dashboard_button = QPushButton("🚀 Marketing Dashboard")
+        self.marketing_dashboard_button.setFixedHeight(40)
+        self.marketing_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.marketing_dashboard_badge = NotificationBadge(self.marketing_dashboard_button)
+        self.scroll_layout.addWidget(self.marketing_dashboard_button)
+        self.marketing_dashboard_button.clicked.connect(self.marketing_dashboard_requested.emit)
+
+        # Sales Dashboard Button
+        self.sales_dashboard_button = QPushButton("💰 Sales Dashboard")
+        self.sales_dashboard_button.setFixedHeight(40)
+        self.sales_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.sales_dashboard_button)
+        self.sales_dashboard_button.clicked.connect(self.sales_dashboard_requested.emit)
+
+        # Finance Dashboard Button
+        self.finance_dashboard_button = QPushButton("💵 Finance Dashboard")
+        self.finance_dashboard_button.setFixedHeight(40)
+        self.finance_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.finance_dashboard_button)
+        self.finance_dashboard_button.clicked.connect(self.finance_dashboard_requested.emit)
+
+        # Management Dashboard Button
+        self.management_dashboard_button = QPushButton("🧠 Management Dashboard")
+        self.management_dashboard_button.setFixedHeight(40)
+        self.management_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.management_dashboard_button)
+        self.management_dashboard_button.clicked.connect(self.management_dashboard_requested.emit)
+
+        # Presence Plan Button
+        self.presence_plan_button = QPushButton("🌐 Presence Plan")
+        self.presence_plan_button.setFixedHeight(40)
+        self.presence_plan_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.presence_plan_button)
+        self.presence_plan_button.clicked.connect(self.presence_plan_requested.emit)
 
         # Marketing Menu
         self.marketing_button = QPushButton("📈 Marketing")
