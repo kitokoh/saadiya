@@ -1,6 +1,7 @@
-from .content_generator_model import ContentGeneratorModel
-from .content_generator_widget import ContentGeneratorWidget
-from .content_generator_controller import ContentGeneratorController
+from .model import ContentGeneratorModel
+from .view import ContentGeneratorWidget
+from .controller import ContentGeneratorController
+from ...core.database import DatabaseManager
 
 def create_content_generator_feature():
     """
@@ -9,7 +10,8 @@ def create_content_generator_feature():
     Returns:
         A tuple containing the content generator widget and controller.
     """
-    model = ContentGeneratorModel()
-    view = ContentGeneratorWidget()
+    db_manager = DatabaseManager()
+    model = ContentGeneratorModel(db_manager)
+    view = ContentGeneratorWidget(db_manager)
     controller = ContentGeneratorController(model, view)
     return view, controller
