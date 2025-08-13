@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
     QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView, QDialog, QMenu
 )
 
-from app.components.dialogs.edit_instance_dialog import EditInstanceDialog
+from ...components.dialogs.edit_instance_dialog import EditInstanceDialog
 
 class SettingsWidget(QWidget):
     def __init__(self, parent=None):

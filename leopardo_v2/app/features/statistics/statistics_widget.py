@@ -452,7 +452,7 @@ class StatisticsWidget(QtWidgets.QWidget):
                 pressed_start="#1a5276", pressed_end="#154360"
             )
         )
-        self.search_button.clicked.connect(self.search_activities)
+        self.search_button.clicked.connect(self.load_activities)
 
         self.add_button = self.create_button(
             "➕ Add Activity",
@@ -566,6 +566,37 @@ class StatisticsWidget(QtWidgets.QWidget):
         self.setLayout(main_layout)
 
         QtCore.QTimer.singleShot(100, self.load_activities)
+
+    def add_activity(self):
+        dialog = AddActivityDialog(self.get_exe_files())
+        if dialog.exec_() == QDialog.Accepted:
+            name, program, daily, days, time, specific_dates = dialog.get_activity_data()
+            program_path = os.path.join(self.get_tools_folder(), f"{program}.exe")
+
+            try:
+                if specific_dates:
+                    for date in specific_dates:
+                        cmd = (
+                            f'schtasks /create /tn "{name}_{date}" /tr "{program_path}" '
+                            f'/SC ONCE /SD {date} /ST {time} /f'
+                        )
+                        subprocess.run(cmd, shell=True)
+                else:
+                    schedule_type = "/SC DAILY" if daily else "/SC WEEKLY"
+                    date_flag = "" if daily else f" /D {','.join(days)}"
+
+                    cmd = (
+                        f'schtasks /create /tn "{name}" /tr "{program_path}" '
+                        f'{schedule_type} {date_flag} /st {time} /f'
+                    )
+                    subprocess.run(cmd, shell=True)
+
+                self.show_success_message(self.tr("Success"),
+                                       self.tr("Activity added successfully!"))
+                self.load_activities()
+            except Exception as e:
+                self.show_error_message(self.tr("Error"),
+                                     self.tr(f"Error adding activity: {e}"))
 
     def create_button(self, text, style_sheet):
         button = QtWidgets.QPushButton(text)
@@ -768,6 +799,9 @@ class StatisticsWidget(QtWidgets.QWidget):
                 background-color: #3498db;
                 color: white;
                 border-radius: 3px;
+            }
+            QMenu::icon {
+                padding-left: 10px;
             }
         """)
 

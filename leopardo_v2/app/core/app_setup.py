@@ -138,10 +138,10 @@ def init_features(main_window):
     main_window.content_stack.addWidget(main_window.sales_widget)
     main_window.content_stack.addWidget(main_window.run_widget)
     main_window.content_stack.addWidget(main_window.finance_widget)
-    main_window.finance_widget.content_stack.addWidget(main_window.invoices_billing_widget)
-    main_window.finance_widget.content_stack.addWidget(main_window.trader_widget)
+    # main_window.finance_widget.content_stack.addWidget(main_window.invoices_billing_widget)
+    # main_window.finance_widget.content_stack.addWidget(main_window.trader_widget)
     main_window.content_stack.addWidget(main_window.settings_widget)
-    main_window.settings_widget.content_stack.addWidget(main_window.user_management_widget)
+    # main_window.settings_widget.content_stack.addWidget(main_window.user_management_widget)
     main_window.content_stack.addWidget(main_window.tools_widget)
     main_window.content_stack.addWidget(main_window.telecommande_widget)
     main_window.content_stack.addWidget(main_window.instances_widget)
@@ -166,11 +166,11 @@ def init_features(main_window):
     main_window.content_stack.addWidget(main_window.dms_widget)
     main_window.content_stack.addWidget(main_window.project_management_widget)
     main_window.content_stack.addWidget(main_window.ai_agent_widget)
-    main_window.ai_agent_widget.content_stack.addWidget(main_window.auto_responder_widget)
-    main_window.ai_agent_widget.content_stack.addWidget(main_window.sales_assistant_widget)
-    main_window.ai_agent_widget.content_stack.addWidget(main_window.competitor_analysis_widget)
-    main_window.ai_agent_widget.content_stack.addWidget(main_window.ai_workflows_widget)
-    main_window.ai_agent_widget.content_stack.addWidget(main_window.prompts_tools_widget)
+    # main_window.ai_agent_widget.content_stack.addWidget(main_window.auto_responder_widget)
+    # main_window.ai_agent_widget.content_stack.addWidget(main_window.sales_assistant_widget)
+    # main_window.ai_agent_widget.content_stack.addWidget(main_window.competitor_analysis_widget)
+    # main_window.ai_agent_widget.content_stack.addWidget(main_window.ai_workflows_widget)
+    # main_window.ai_agent_widget.content_stack.addWidget(main_window.prompts_tools_widget)
     main_window.content_stack.addWidget(main_window.sav_widget)
     main_window.content_stack.addWidget(main_window.short_links_trackers_widget)
     main_window.content_stack.addWidget(main_window.prospection_relances_widget)
@@ -236,7 +236,7 @@ def connect_signals(main_window):
     main_window.side_menu.tools_menu.actions()[10].triggered.connect(lambda: main_window.content_stack.setCurrentWidget(main_window.groups_widget))
 
     # Settings Menu
-    main_window.side_menu.settings_menu.actions()[5].triggered.connect(lambda: main_window.settings_widget.content_stack.setCurrentWidget(main_window.user_management_widget))
+    # main_window.side_menu.settings_menu.actions()[5].triggered.connect(lambda: main_window.settings_widget.content_stack.setCurrentWidget(main_window.user_management_widget))
 
 
     # Language switching
@@ -272,13 +272,13 @@ def connect_pro_features(main_window):
     main_window.side_menu.upgrade_button.clicked.connect(main_window.show_upgrade_window)
 
     # AI Agent Menu
-    main_window.side_menu.ai_agent_menu.actions()[0].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.auto_responder_widget))
-    main_window.side_menu.ai_agent_menu.actions()[1].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.sales_assistant_widget))
-    main_window.side_menu.ai_agent_menu.actions()[2].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.prompts_tools_widget))
-    main_window.side_menu.ai_agent_menu.actions()[3].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.competitor_analysis_widget))
-    main_window.side_menu.ai_agent_menu.actions()[4].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.ai_workflows_widget))
+    # main_window.side_menu.ai_agent_menu.actions()[0].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.auto_responder_widget))
+    # main_window.side_menu.ai_agent_menu.actions()[1].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.sales_assistant_widget))
+    # main_window.side_menu.ai_agent_menu.actions()[2].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.prompts_tools_widget))
+    # main_window.side_menu.ai_agent_menu.actions()[3].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(.competitor_analysis_widget))
+    # main_window.side_menu.ai_agent_menu.actions()[4].triggered.connect(lambda: main_window.ai_agent_widget.content_stack.setCurrentWidget(main_window.ai_workflows_widget))
 
 
     # Finance Menu
-    main_window.side_menu.finance_menu.actions()[0].triggered.connect(lambda: main_window.finance_widget.content_stack.setCurrentWidget(main_window.invoices_billing_widget))
-    main_window.side_menu.finance_menu.actions()[1].triggered.connect(lambda: main_window.finance_widget.content_stack.setCurrentWidget(main_window.trader_widget))
+    # main_window.side_menu.finance_menu.actions()[0].triggered.connect(lambda: main_window.finance_widget.content_stack.setCurrentWidget(main_window.invoices_billing_widget))
+    # main_window.side_menu.finance_menu.actions()[1].triggered.connect(lambda: main_window.finance_widget.content_stack.setCurrentWidget(main_window.trader_widget))

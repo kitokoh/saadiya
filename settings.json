@@ -1,13 +1,1 @@
-{
-    "bots": {
-        "Instagram": [
-            "Auto Post"
-        ]
-    },
-    "modules": {},
-    "info": {
-        "name": "",
-        "email": "",
-        "role": ""
-    }
-}
+{"language": "en"}

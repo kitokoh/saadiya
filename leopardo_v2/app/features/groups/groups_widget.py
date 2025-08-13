@@ -36,8 +36,8 @@ class GroupsWidget(QWidget):
     def populate_table(self, groups):
         self.table.setRowCount(len(groups))
         for i, row in groups.iterrows():
-            self.table.setItem(i, 0, QTableWidgetItem(row['Name']))
-            self.table.setItem(i, 1, QTableWidgetItem(row['Description']))
+            self.table.setItem(i, 0, QTableWidgetItem(row['name']))
+            self.table.setItem(i, 1, QTableWidgetItem(row['description']))
 
     def get_selected_group_index(self):
         selected_items = self.table.selectedItems()
@@ -51,8 +51,8 @@ class GroupsWidget(QWidget):
 
         form_layout = QFormLayout(dialog)
 
-        name_input = QLineEdit(group_data['Name'] if group_data is not None else "")
-        description_input = QLineEdit(group_data['Description'] if group_data is not None else "")
+        name_input = QLineEdit(group_data['name'] if group_data is not None else "")
+        description_input = QLineEdit(group_data['description'] if group_data is not None else "")
 
         form_layout.addRow("Name:", name_input)
         form_layout.addRow("Description:", description_input)

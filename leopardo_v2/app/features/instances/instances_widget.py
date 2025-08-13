@@ -83,7 +83,7 @@ class InstancesWidget(QWidget):
 
     def load_instances(self):
         instances = []
-        db_path = 'nova360.db'
+        db_path = './nova360.db'
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         try:
