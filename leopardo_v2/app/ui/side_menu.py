@@ -17,6 +17,12 @@ class SideMenu(QFrame):
     sales_dashboard_requested = pyqtSignal()
     finance_dashboard_requested = pyqtSignal()
     management_dashboard_requested = pyqtSignal()
+    instagram_dashboard_requested = pyqtSignal()
+    linkedin_dashboard_requested = pyqtSignal()
+    twitter_dashboard_requested = pyqtSignal()
+    youtube_dashboard_requested = pyqtSignal()
+    pinterest_dashboard_requested = pyqtSignal()
+    reddit_dashboard_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         """
@@ -105,6 +111,48 @@ class SideMenu(QFrame):
         self.presence_plan_button.setStyleSheet(self.home_button.styleSheet())
         self.scroll_layout.addWidget(self.presence_plan_button)
         self.presence_plan_button.clicked.connect(self.presence_plan_requested.emit)
+
+        # Instagram Dashboard Button
+        self.instagram_dashboard_button = QPushButton("📷 Instagram Dashboard")
+        self.instagram_dashboard_button.setFixedHeight(40)
+        self.instagram_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.instagram_dashboard_button)
+        self.instagram_dashboard_button.clicked.connect(self.instagram_dashboard_requested.emit)
+
+        # LinkedIn Dashboard Button
+        self.linkedin_dashboard_button = QPushButton("💼 LinkedIn Dashboard")
+        self.linkedin_dashboard_button.setFixedHeight(40)
+        self.linkedin_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.linkedin_dashboard_button)
+        self.linkedin_dashboard_button.clicked.connect(self.linkedin_dashboard_requested.emit)
+
+        # Twitter Dashboard Button
+        self.twitter_dashboard_button = QPushButton("🐦 Twitter Dashboard")
+        self.twitter_dashboard_button.setFixedHeight(40)
+        self.twitter_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.twitter_dashboard_button)
+        self.twitter_dashboard_button.clicked.connect(self.twitter_dashboard_requested.emit)
+
+        # YouTube Dashboard Button
+        self.youtube_dashboard_button = QPushButton("▶️ YouTube Dashboard")
+        self.youtube_dashboard_button.setFixedHeight(40)
+        self.youtube_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.youtube_dashboard_button)
+        self.youtube_dashboard_button.clicked.connect(self.youtube_dashboard_requested.emit)
+
+        # Pinterest Dashboard Button
+        self.pinterest_dashboard_button = QPushButton("📌 Pinterest Dashboard")
+        self.pinterest_dashboard_button.setFixedHeight(40)
+        self.pinterest_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.pinterest_dashboard_button)
+        self.pinterest_dashboard_button.clicked.connect(self.pinterest_dashboard_requested.emit)
+
+        # Reddit Dashboard Button
+        self.reddit_dashboard_button = QPushButton("🤖 Reddit Dashboard")
+        self.reddit_dashboard_button.setFixedHeight(40)
+        self.reddit_dashboard_button.setStyleSheet(self.home_button.styleSheet())
+        self.scroll_layout.addWidget(self.reddit_dashboard_button)
+        self.reddit_dashboard_button.clicked.connect(self.reddit_dashboard_requested.emit)
 
         # Marketing Menu
         self.marketing_button = QPushButton("📈 Marketing")

@@ -26,6 +26,13 @@ from ..features.marketing_dashboard.marketing_dashboard_widget import MarketingD
 from ..features.sales_dashboard.sales_dashboard_widget import SalesDashboardWidget
 from ..features.finance_dashboard.finance_dashboard_widget import FinanceDashboardWidget
 from ..features.management_dashboard.management_dashboard_widget import ManagementDashboardWidget
+from ..features.social_media.instagram_dashboard import InstagramDashboardWidget
+from ..features.social_media.linkedin_dashboard import LinkedInDashboardWidget
+from ..features.social_media.twitter_dashboard import TwitterDashboardWidget
+from ..features.social_media.youtube_dashboard import YouTubeDashboardWidget
+from ..features.social_media.pinterest_dashboard import PinterestDashboardWidget
+from ..features.social_media.reddit_dashboard import RedditDashboardWidget
+from ..features.social_media.snapchat_dashboard import SnapchatDashboardWidget
 
 
 class MainWindow(QMainWindow):
@@ -75,6 +82,12 @@ class MainWindow(QMainWindow):
             'Finance Dashboard': True,
             'Management Dashboard': True,
             'Presence Plan': True,
+            'Instagram Dashboard': True,
+            'LinkedIn Dashboard': True,
+            'Twitter Dashboard': True,
+            'YouTube Dashboard': True,
+            'Pinterest Dashboard': True,
+            'Reddit Dashboard': True,
         })
 
     def _init_ui_components(self):
@@ -126,6 +139,30 @@ class MainWindow(QMainWindow):
         self.presence_plan_view.setUrl(QUrl("https://leopardo-ai.web.app/"))
         self.content_stack.addWidget(self.presence_plan_view)
 
+        # Add InstagramDashboardWidget to the stack
+        self.instagram_dashboard_widget = InstagramDashboardWidget()
+        self.content_stack.addWidget(self.instagram_dashboard_widget)
+
+        # Add LinkedInDashboardWidget to the stack
+        self.linkedin_dashboard_widget = LinkedInDashboardWidget()
+        self.content_stack.addWidget(self.linkedin_dashboard_widget)
+
+        # Add TwitterDashboardWidget to the stack
+        self.twitter_dashboard_widget = TwitterDashboardWidget()
+        self.content_stack.addWidget(self.twitter_dashboard_widget)
+
+        # Add YouTubeDashboardWidget to the stack
+        self.youtube_dashboard_widget = YouTubeDashboardWidget()
+        self.content_stack.addWidget(self.youtube_dashboard_widget)
+
+        # Add PinterestDashboardWidget to the stack
+        self.pinterest_dashboard_widget = PinterestDashboardWidget()
+        self.content_stack.addWidget(self.pinterest_dashboard_widget)
+
+        # Add RedditDashboardWidget to the stack
+        self.reddit_dashboard_widget = RedditDashboardWidget()
+        self.content_stack.addWidget(self.reddit_dashboard_widget)
+
         # Status bar
         self.status_bar = StatusBar()
         self.setStatusBar(self.status_bar)
@@ -140,6 +177,12 @@ class MainWindow(QMainWindow):
         self.side_menu.finance_dashboard_requested.connect(self.show_finance_dashboard)
         self.side_menu.management_dashboard_requested.connect(self.show_management_dashboard)
         self.side_menu.presence_plan_requested.connect(self.show_presence_plan)
+        self.side_menu.instagram_dashboard_requested.connect(self.show_instagram_dashboard)
+        self.side_menu.linkedin_dashboard_requested.connect(self.show_linkedin_dashboard)
+        self.side_menu.twitter_dashboard_requested.connect(self.show_twitter_dashboard)
+        self.side_menu.youtube_dashboard_requested.connect(self.show_youtube_dashboard)
+        self.side_menu.pinterest_dashboard_requested.connect(self.show_pinterest_dashboard)
+        self.side_menu.reddit_dashboard_requested.connect(self.show_reddit_dashboard)
 
     def show_marketing_dashboard(self):
         """
@@ -172,6 +215,42 @@ class MainWindow(QMainWindow):
         Shows the presence plan web page.
         """
         self.content_stack.setCurrentWidget(self.presence_plan_view)
+
+    def show_instagram_dashboard(self):
+        """
+        Shows the instagram dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.instagram_dashboard_widget)
+
+    def show_linkedin_dashboard(self):
+        """
+        Shows the linkedin dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.linkedin_dashboard_widget)
+
+    def show_twitter_dashboard(self):
+        """
+        Shows the twitter dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.twitter_dashboard_widget)
+
+    def show_youtube_dashboard(self):
+        """
+        Shows the youtube dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.youtube_dashboard_widget)
+
+    def show_pinterest_dashboard(self):
+        """
+        Shows the pinterest dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.pinterest_dashboard_widget)
+
+    def show_reddit_dashboard(self):
+        """
+        Shows the reddit dashboard widget.
+        """
+        self.content_stack.setCurrentWidget(self.reddit_dashboard_widget)
 
     def check_login(self):
         """
@@ -273,6 +352,24 @@ class MainWindow(QMainWindow):
         )
         self.side_menu.presence_plan_button.setVisible(
             self.menu_config.get('Presence Plan', True)
+        )
+        self.side_menu.instagram_dashboard_button.setVisible(
+            self.menu_config.get('Instagram Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.linkedin_dashboard_button.setVisible(
+            self.menu_config.get('LinkedIn Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.twitter_dashboard_button.setVisible(
+            self.menu_config.get('Twitter Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.youtube_dashboard_button.setVisible(
+            self.menu_config.get('YouTube Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.pinterest_dashboard_button.setVisible(
+            self.menu_config.get('Pinterest Dashboard', True) and self.auth_service.has_access('pro')
+        )
+        self.side_menu.reddit_dashboard_button.setVisible(
+            self.menu_config.get('Reddit Dashboard', True) and self.auth_service.has_access('pro')
         )
 
     def test_notification(self):
