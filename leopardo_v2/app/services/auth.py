@@ -4,6 +4,8 @@ Authentication service for the Leopardo V2 application.
 
 import os
 import json
+import sqlite3
+import hashlib
 
 class AuthService:
     """
@@ -13,6 +15,7 @@ class AuthService:
         """
         Initializes the authentication service.
         """
+        self.db_path = "nova360.db"
         self.session_file = 'session.json'
         self.is_logged_in = False
         self.current_user = None
@@ -31,22 +34,38 @@ class AuthService:
         Returns:
             True if the login is successful, False otherwise.
         """
-        # In a real application, you would verify the credentials against a database
-        if username == "admin" and password == "password":
-            self.is_logged_in = True
-            self.current_user = username
-            self.is_pro = True
-            self.is_enterprise = True
-            self.save_session()
-            return True
-        elif username == "user" and password == "password":
-            self.is_logged_in = True
-            self.current_user = username
-            self.is_pro = False
-            self.is_enterprise = False
-            self.save_session()
-            return True
-        return False
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            hashed_password = hashlib.sha256(password.encode()).hexdigest()
+
+            cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, hashed_password))
+            user = cursor.fetchone()
+
+            conn.close()
+
+            if user:
+                self.is_logged_in = True
+                self.current_user = user[1] # username
+                # Assuming role is in the 4th column
+                role = user[4]
+                if role == 'admin' or role == 'enterprise':
+                    self.is_pro = True
+                    self.is_enterprise = True
+                elif role == 'pro':
+                    self.is_pro = True
+                    self.is_enterprise = False
+                else:
+                    self.is_pro = False
+                    self.is_enterprise = False
+
+                self.save_session()
+                return True
+            return False
+        except Exception as e:
+            print(f"Error during login: {e}")
+            return False
 
     def logout(self):
         """
@@ -99,7 +118,9 @@ class AuthService:
         Returns:
             True if the user has access, False otherwise.
         """
-        if feature_level == "pro" and not self.is_pro:
+        if not self.is_logged_in:
+            return False
+        if feature_level == "pro" and not (self.is_pro or self.is_enterprise):
             return False
         if feature_level == "enterprise" and not self.is_enterprise:
             return False
