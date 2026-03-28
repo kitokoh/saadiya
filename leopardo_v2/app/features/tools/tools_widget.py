@@ -29,3 +29,7 @@ class ToolsWidget(QWidget):
         # Scheduler
         self.scheduler_button = QPushButton("Scheduler")
         self.main_layout.addWidget(self.scheduler_button)
+
+        # Sign Media
+        self.sign_media_button = QPushButton("Sign Media")
+        self.main_layout.addWidget(self.sign_media_button)

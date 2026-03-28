@@ -1,4 +1,4 @@
-﻿altgraph==0.17.4
+altgraph==0.17.4
 annotated-types==0.7.0
 anyio==4.8.0
 attrs==24.3.0
@@ -58,7 +58,6 @@ plyer==2.1.0
 proto-plus==1.25.0
 protobuf==5.29.3
 psutil==6.1.1
-psycopg2==2.9.10
 psycopg2-binary==2.9.10
 pyasn1==0.6.1
 pyasn1_modules==0.4.1

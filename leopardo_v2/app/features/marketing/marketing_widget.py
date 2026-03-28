@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, QPushButton)
+from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QStackedWidget)
 from PyQt5.QtCore import Qt
 
 class MarketingWidget(QWidget):
@@ -14,18 +14,6 @@ class MarketingWidget(QWidget):
         self.title.setStyleSheet("font-size: 24px; font-weight: bold; margin-bottom: 20px;")
         self.main_layout.addWidget(self.title)
 
-        # Placeholder buttons
-        self.prospect_button = QPushButton("Prospect Bot")
-        self.main_layout.addWidget(self.prospect_button)
-
-        self.group_button = QPushButton("Group Bot")
-        self.main_layout.addWidget(self.group_button)
-
-        self.page_button = QPushButton("Page Bot")
-        self.main_layout.addWidget(self.page_button)
-
-        self.account_button = QPushButton("Account Bot")
-        self.main_layout.addWidget(self.account_button)
-
-        self.comment_button = QPushButton("Comment Bot")
-        self.main_layout.addWidget(self.comment_button)
+        # Content Stack
+        self.content_stack = QStackedWidget()
+        self.main_layout.addWidget(self.content_stack)
